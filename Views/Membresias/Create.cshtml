@@ -1,0 +1,261 @@
+﻿@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Nueva Membresía";
+    ViewData["Subtitle"] = "Asignar membresía a un cliente";
+}
+
+<div class="max-w-3xl mx-auto">
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <form id="form-membresia" class="space-y-6">
+            <!-- Seleccionar Cliente -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Cliente <span class="text-red-500">*</span>
+                </label>
+                <select id="clienteId" required
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-transparent">
+                    <option value="">Selecciona un cliente...</option>
+                </select>
+            </div>
+
+            <!-- Seleccionar Plan -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Plan <span class="text-red-500">*</span>
+                </label>
+                <div id="planes-container" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="text-center py-4 text-gray-500">
+                        <i data-lucide="loader" class="w-6 h-6 animate-spin mx-auto"></i>
+                        <p class="text-sm mt-2">Cargando planes...</p>
+                    </div>
+                </div>
+                <input type="hidden" id="planId" required>
+            </div>
+
+            <!-- Fecha de Inicio -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Fecha de Inicio <span class="text-red-500">*</span>
+                </label>
+                <input type="date" id="fechaInicio" required
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-transparent">
+            </div>
+
+            <!-- Información del Plan Seleccionado -->
+            <div id="plan-info" class="hidden p-4 bg-vida-primary/10 border-2 border-vida-primary rounded-lg">
+                <h4 class="font-semibold text-gray-800 mb-2">Resumen de la Membresía</h4>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Plan:</span>
+                        <span class="font-semibold" id="info-plan"></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Duración:</span>
+                        <span class="font-semibold" id="info-duracion"></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Precio:</span>
+                        <span class="font-semibold" id="info-precio"></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Fecha Inicio:</span>
+                        <span class="font-semibold" id="info-inicio"></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Fecha Vencimiento:</span>
+                        <span class="font-semibold text-vida-primary" id="info-vencimiento"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Método de Pago -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Método de Pago <span class="text-red-500">*</span>
+                </label>
+                <select id="metodoPago" required
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-transparent">
+                    <option value="efectivo">Efectivo</option>
+                    <option value="tarjeta">Tarjeta</option>
+                    <option value="transferencia">Transferencia</option>
+                    <option value="cheque">Cheque</option>
+                </select>
+            </div>
+
+            <!-- Monto Pagado -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Monto Pagado <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                    <span class="absolute left-3 top-2.5 text-gray-500">$</span>
+                    <input type="number" id="montoPagado" step="0.01" required
+                           class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-transparent">
+                </div>
+            </div>
+
+            <!-- Notas -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Notas (Opcional)
+                </label>
+                <textarea id="notas" rows="3" placeholder="Información adicional..."
+                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-transparent"></textarea>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex justify-end gap-3 pt-4 border-t">
+                <a href="/membresias"
+                   class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors inline-flex items-center gap-2">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                    Cancelar
+                </a>
+                <button type="submit" id="btn-guardar"
+                        class="px-6 py-2 bg-vida-primary hover:bg-vida-accent text-vida-dark font-semibold rounded-lg transition-all shadow-lg hover:shadow-xl inline-flex items-center gap-2">
+                    <i data-lucide="save" class="w-4 h-4"></i>
+                    Crear Membresía
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const API_URL = '/api';
+        let planesData = [];
+        let planSeleccionado = null;
+
+        async function loadClientes() {
+            try {
+                const response = await fetch(`${API_URL}/Clientes`);
+                const clientes = await response.json();
+
+                const select = document.getElementById('clienteId');
+                clientes.filter(c => c.activo).forEach(c => {
+                    const option = document.createElement('option');
+                    option.value = c.id;
+                    option.textContent = `${c.nombre} ${c.apellido} - ${c.cedula}`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error cargando clientes:', error);
+            }
+        }
+
+        async function loadPlanes() {
+            try {
+                const response = await fetch(`${API_URL}/Planes`);
+                planesData = await response.json();
+
+                const container = document.getElementById('planes-container');
+                container.innerHTML = planesData.filter(p => p.activo).map(p => `
+                    <div onclick="seleccionarPlan('${p.id}')"
+                         data-plan-id="${p.id}"
+                         class="plan-card cursor-pointer p-4 border-2 border-gray-300 rounded-lg hover:border-vida-primary transition-all hover:shadow-lg">
+                        <h4 class="font-bold text-gray-800 mb-1">${p.nombre}</h4>
+                        <p class="text-sm text-gray-600 mb-2">${p.descripcion || ''}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">${p.duracionDias} días</span>
+                            <span class="text-lg font-bold text-vida-primary">$${p.precio.toFixed(2)}</span>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                console.error('Error cargando planes:', error);
+            }
+        }
+
+        function seleccionarPlan(planId) {
+            // Desmarcar todos
+            document.querySelectorAll('.plan-card').forEach(card => {
+                card.classList.remove('border-vida-primary', 'bg-vida-primary/5');
+                card.classList.add('border-gray-300');
+            });
+
+            // Marcar seleccionado
+            const card = document.querySelector(`[data-plan-id="${planId}"]`);
+            card.classList.remove('border-gray-300');
+            card.classList.add('border-vida-primary', 'bg-vida-primary/5');
+
+            planSeleccionado = planesData.find(p => p.id === planId);
+            document.getElementById('planId').value = planId;
+            document.getElementById('montoPagado').value = planSeleccionado.precio;
+
+            actualizarResumen();
+        }
+
+        function actualizarResumen() {
+            if (!planSeleccionado) return;
+
+            const fechaInicio = document.getElementById('fechaInicio').value;
+            if (!fechaInicio) return;
+
+            const inicio = new Date(fechaInicio);
+            const vencimiento = new Date(inicio);
+            vencimiento.setDate(vencimiento.getDate() + planSeleccionado.duracionDias);
+
+            document.getElementById('info-plan').textContent = planSeleccionado.nombre;
+            document.getElementById('info-duracion').textContent = `${planSeleccionado.duracionDias} días`;
+            document.getElementById('info-precio').textContent = `$${planSeleccionado.precio.toFixed(2)}`;
+            document.getElementById('info-inicio').textContent = inicio.toLocaleDateString('es-ES');
+            document.getElementById('info-vencimiento').textContent = vencimiento.toLocaleDateString('es-ES');
+
+            document.getElementById('plan-info').classList.remove('hidden');
+        }
+
+        document.getElementById('fechaInicio').addEventListener('change', actualizarResumen);
+
+        document.getElementById('form-membresia').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const btnGuardar = document.getElementById('btn-guardar');
+            btnGuardar.disabled = true;
+            btnGuardar.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Guardando...';
+
+            const fechaInicio = new Date(document.getElementById('fechaInicio').value);
+            const fechaVencimiento = new Date(fechaInicio);
+            fechaVencimiento.setDate(fechaVencimiento.getDate() + planSeleccionado.duracionDias);
+
+            const membresia = {
+                clienteId: document.getElementById('clienteId').value,
+                planId: document.getElementById('planId').value,
+                fechaInicio: fechaInicio.toISOString(),
+                fechaVencimiento: fechaVencimiento.toISOString(),
+                estado: 'activa',
+                montoPagado: parseFloat(document.getElementById('montoPagado').value),
+                metodoPago: document.getElementById('metodoPago').value,
+                notas: document.getElementById('notas').value || null
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/Membresias`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(membresia)
+                });
+
+                if (response.ok) {
+                    alert('✓ Membresía creada exitosamente');
+                    window.location.href = '/membresias';
+                } else {
+                    alert('Error al crear membresía');
+                }
+            } catch (error) {
+                alert('Error de conexión: ' + error.message);
+            } finally {
+                btnGuardar.disabled = false;
+                btnGuardar.innerHTML = '<i data-lucide="save" class="w-4 h-4"></i> Crear Membresía';
+                lucide.createIcons();
+            }
+        });
+
+        window.addEventListener('load', function() {
+            loadClientes();
+            loadPlanes();
+            document.getElementById('fechaInicio').valueAsDate = new Date();
+            lucide.createIcons();
+        });
+    </script>
+}

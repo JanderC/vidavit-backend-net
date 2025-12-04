@@ -1,0 +1,123 @@
+﻿@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Productos";
+    ViewData["Subtitle"] = "Gestión de inventario";
+}
+
+<div class="mb-6 flex items-center justify-between">
+    <div class="flex-1 max-w-md">
+        <input type="text" id="search-input" placeholder="Buscar productos..."
+               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-transparent">
+    </div>
+
+    <a href="/productos/create"
+       class="inline-flex items-center gap-2 px-6 py-2 bg-vida-primary hover:bg-vida-accent text-vida-dark font-semibold rounded-lg transition-all shadow-lg hover:shadow-xl">
+        <i data-lucide="plus" class="w-5 h-5"></i>
+        Nuevo Producto
+    </a>
+</div>
+
+<div id="productos-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="col-span-full flex items-center justify-center h-64">
+        <div class="text-center">
+            <div class="animate-spin w-12 h-12 border-4 border-vida-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+            <p class="text-gray-600">Cargando productos...</p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const API_URL = '/api';
+        let productosData = [];
+
+        async function loadProductos() {
+            try {
+                const response = await fetch(`${API_URL}/Productos`);
+                productosData = await response.json();
+                renderProductos(productosData);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function renderProductos(productos) {
+            const container = document.getElementById('productos-container');
+
+            if (productos.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <i data-lucide="inbox" class="w-16 h-16 mx-auto mb-4 text-gray-400"></i>
+                        <p class="text-gray-500">No hay productos registrados</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = productos.map(p => {
+                const stockBajo = p.stock < 10;
+                return `
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow">
+                        ${p.imagenBase64 ? `
+                            <img src="data:image/jpeg;base64,${p.imagenBase64}" class="w-full h-48 object-cover" alt="${p.nombre}">
+                        ` : `
+                            <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
+                                <i data-lucide="package" class="w-16 h-16 text-gray-400"></i>
+                            </div>
+                        `}
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg text-gray-800 mb-2">${p.nombre}</h3>
+                            <p class="text-sm text-gray-600 mb-3">${p.descripcion || ''}</p>
+
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-2xl font-bold text-vida-primary">$${p.precio.toFixed(2)}</span>
+                                <span class="px-2 py-1 ${stockBajo ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'} text-xs font-semibold rounded">
+                                    Stock: ${p.stock}
+                                </span>
+                            </div>
+
+                            ${p.categoria ? `<span class="text-xs text-gray-500">${p.categoria}</span>` : ''}
+
+                            <div class="flex gap-2 mt-3 pt-3 border-t">
+                                <a href="/productos/edit/${p.id}" class="flex-1 px-3 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-sm rounded-lg text-center transition-colors">
+                                    Editar
+                                </a>
+                                <button onclick="deleteProducto('${p.id}')" class="px-3 py-2 bg-red-500 hover:bg-red-600 text-white text-sm rounded-lg transition-colors">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        document.getElementById('search-input').addEventListener('input', function(e) {
+            const search = e.target.value.toLowerCase();
+            const filtrados = productosData.filter(p =>
+                p.nombre.toLowerCase().includes(search) ||
+                (p.descripcion && p.descripcion.toLowerCase().includes(search))
+            );
+            renderProductos(filtrados);
+        });
+
+        async function deleteProducto(id) {
+            if (!confirm('¿Eliminar este producto?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/Productos/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    alert('✓ Producto eliminado');
+                    loadProductos();
+                }
+            } catch (error) {
+                alert('Error al eliminar');
+            }
+        }
+
+        window.addEventListener('load', loadProductos);
+    </script>
+}

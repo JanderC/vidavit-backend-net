@@ -1,0 +1,80 @@
+﻿@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Reportes";
+    ViewData["Subtitle"] = "Análisis y estadísticas del gimnasio";
+}
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- Reporte de Asistencia -->
+    <a href="/reportes/asistencia" class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow">
+        <div class="flex items-center gap-4">
+            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                <i data-lucide="activity" class="w-8 h-8 text-blue-600"></i>
+            </div>
+            <div class="flex-1">
+                <h3 class="text-lg font-bold text-gray-800">Asistencia</h3>
+                <p class="text-sm text-gray-600">Análisis de check-ins y visitas</p>
+            </div>
+            <i data-lucide="chevron-right" class="w-5 h-5 text-gray-400"></i>
+        </div>
+    </a>
+
+    <!-- Reporte de Ingresos -->
+    <a href="/reportes/ingresos" class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow">
+        <div class="flex items-center gap-4">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                <i data-lucide="dollar-sign" class="w-8 h-8 text-green-600"></i>
+            </div>
+            <div class="flex-1">
+                <h3 class="text-lg font-bold text-gray-800">Ingresos</h3>
+                <p class="text-sm text-gray-600">Reporte financiero y pagos</p>
+            </div>
+            <i data-lucide="chevron-right" class="w-5 h-5 text-gray-400"></i>
+        </div>
+    </a>
+
+    <!-- Reporte de Clientes (Próximamente) -->
+    <div class="bg-white rounded-xl shadow-md p-6 opacity-50 cursor-not-allowed">
+        <div class="flex items-center gap-4">
+            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center">
+                <i data-lucide="users" class="w-8 h-8 text-purple-600"></i>
+            </div>
+            <div class="flex-1">
+                <h3 class="text-lg font-bold text-gray-800">Clientes</h3>
+                <p class="text-sm text-gray-600">Próximamente...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reporte de Productos (Próximamente) -->
+    <div class="bg-white rounded-xl shadow-md p-6 opacity-50 cursor-not-allowed">
+        <div class="flex items-center gap-4">
+            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center">
+                <i data-lucide="package" class="w-8 h-8 text-yellow-600"></i>
+            </div>
+            <div class="flex-1">
+                <h3 class="text-lg font-bold text-gray-800">Productos</h3>
+                <p class="text-sm text-gray-600">Próximamente...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reporte de Membresías (Próximamente) -->
+    <div class="bg-white rounded-xl shadow-md p-6 opacity-50 cursor-not-allowed">
+        <div class="flex items-center gap-4">
+            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+                <i data-lucide="credit-card" class="w-8 h-8 text-red-600"></i>
+            </div>
+            <div class="flex-1">
+                <h3 class="text-lg font-bold text-gray-800">Membresías</h3>
+                <p class="text-sm text-gray-600">Próximamente...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        lucide.createIcons();
+    </script>
+}

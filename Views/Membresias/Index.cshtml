@@ -1,0 +1,229 @@
+﻿@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Membresías";
+    ViewData["Subtitle"] = "Gestión de membresías del gimnasio";
+}
+
+<div class="mb-6 flex items-center justify-between">
+    <div class="flex gap-3">
+        <button onclick="filterByEstado('todas')"
+                class="filter-btn px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors" data-estado="todas">
+            Todas
+        </button>
+        <button onclick="filterByEstado('activa')"
+                class="filter-btn px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors" data-estado="activa">
+            Activas
+        </button>
+        <button onclick="filterByEstado('vencida')"
+                class="filter-btn px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors" data-estado="vencida">
+            Vencidas
+        </button>
+        <button onclick="filterByEstado('suspendida')"
+                class="filter-btn px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors" data-estado="suspendida">
+            Suspendidas
+        </button>
+    </div>
+
+    <a href="/membresias/create"
+       class="inline-flex items-center gap-2 px-6 py-2 bg-vida-primary hover:bg-vida-accent text-vida-dark font-semibold rounded-lg transition-all shadow-lg hover:shadow-xl">
+        <i data-lucide="plus" class="w-5 h-5"></i>
+        Nueva Membresía
+    </a>
+</div>
+
+<!-- Estadísticas Rápidas -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-lg shadow p-4 border-l-4 border-green-500">
+        <p class="text-sm text-gray-600">Activas</p>
+        <p class="text-2xl font-bold text-gray-800" id="count-activas">0</p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-4 border-l-4 border-yellow-500">
+        <p class="text-sm text-gray-600">Por Vencer (7 días)</p>
+        <p class="text-2xl font-bold text-gray-800" id="count-por-vencer">0</p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-4 border-l-4 border-red-500">
+        <p class="text-sm text-gray-600">Vencidas</p>
+        <p class="text-2xl font-bold text-gray-800" id="count-vencidas">0</p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
+        <p class="text-sm text-gray-600">Total</p>
+        <p class="text-2xl font-bold text-gray-800" id="count-total">0</p>
+    </div>
+</div>
+
+<!-- Lista de Membresías -->
+<div class="bg-white rounded-xl shadow-md overflow-hidden">
+    <div id="membresias-container" class="p-6">
+        <div class="flex items-center justify-center h-64">
+            <div class="text-center">
+                <div class="animate-spin w-12 h-12 border-4 border-vida-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p class="text-gray-600">Cargando membresías...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const API_URL = '/api';
+        let membresiasData = [];
+        let filtroActual = 'todas';
+
+        async function loadMembresias() {
+            try {
+                const response = await fetch(`${API_URL}/Membresias`);
+                membresiasData = await response.json();
+
+                calcularEstadisticas();
+                renderMembresias();
+            } catch (error) {
+                console.error('Error cargando membresías:', error);
+                document.getElementById('membresias-container').innerHTML = `
+                    <div class="text-center py-12 text-red-500">
+                        <i data-lucide="alert-circle" class="w-12 h-12 mx-auto mb-2"></i>
+                        <p>Error al cargar las membresías</p>
+                    </div>
+                `;
+                lucide.createIcons();
+            }
+        }
+
+        function calcularEstadisticas() {
+            const hoy = new Date();
+            const activas = membresiasData.filter(m => m.estado === 'activa').length;
+            const vencidas = membresiasData.filter(m => m.estado === 'vencida').length;
+
+            const porVencer = membresiasData.filter(m => {
+                if (m.estado !== 'activa') return false;
+                const diasRestantes = Math.ceil((new Date(m.fechaVencimiento) - hoy) / (1000 * 60 * 60 * 24));
+                return diasRestantes <= 7 && diasRestantes >= 0;
+            }).length;
+
+            document.getElementById('count-activas').textContent = activas;
+            document.getElementById('count-por-vencer').textContent = porVencer;
+            document.getElementById('count-vencidas').textContent = vencidas;
+            document.getElementById('count-total').textContent = membresiasData.length;
+        }
+
+        function renderMembresias() {
+            const container = document.getElementById('membresias-container');
+
+            let filtradas = membresiasData;
+            if (filtroActual !== 'todas') {
+                filtradas = membresiasData.filter(m => m.estado === filtroActual);
+            }
+
+            if (filtradas.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-gray-500">
+                        <i data-lucide="inbox" class="w-16 h-16 mx-auto mb-4 text-gray-400"></i>
+                        <p class="text-lg">No hay membresías ${filtroActual !== 'todas' ? filtroActual + 's' : ''}</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="space-y-3">
+                    ${filtradas.map(m => renderMembresia(m)).join('')}
+                </div>
+            `;
+
+            lucide.createIcons();
+        }
+
+        function renderMembresia(m) {
+            const fechaInicio = new Date(m.fechaInicio).toLocaleDateString('es-ES');
+            const fechaVenc = new Date(m.fechaVencimiento);
+            const fechaVencStr = fechaVenc.toLocaleDateString('es-ES');
+            const hoy = new Date();
+            const diasRestantes = Math.ceil((fechaVenc - hoy) / (1000 * 60 * 60 * 24));
+
+            let estadoBadge = '';
+            if (m.estado === 'activa') {
+                if (diasRestantes <= 3) {
+                    estadoBadge = '<span class="px-3 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full">Vence pronto</span>';
+                } else if (diasRestantes <= 7) {
+                    estadoBadge = '<span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">Por vencer</span>';
+                } else {
+                    estadoBadge = '<span class="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">Activa</span>';
+                }
+            } else if (m.estado === 'vencida') {
+                estadoBadge = '<span class="px-3 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full">Vencida</span>';
+            } else if (m.estado === 'suspendida') {
+                estadoBadge = '<span class="px-3 py-1 bg-gray-100 text-gray-800 text-xs font-semibold rounded-full">Suspendida</span>';
+            }
+
+            const clienteNombre = m.cliente ? `${m.cliente.nombre} ${m.cliente.apellido}` : 'Cliente';
+            const planNombre = m.plan?.nombre || 'Plan';
+
+            return `
+                <div class="p-4 border border-gray-200 rounded-lg hover:border-vida-primary transition-colors">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-2">
+                                <h3 class="font-bold text-gray-800 text-lg">${clienteNombre}</h3>
+                                ${estadoBadge}
+                            </div>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                <div>
+                                    <p class="text-gray-500">Plan</p>
+                                    <p class="font-semibold">${planNombre}</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Inicio</p>
+                                    <p class="font-semibold">${fechaInicio}</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Vencimiento</p>
+                                    <p class="font-semibold">${fechaVencStr}</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Días restantes</p>
+                                    <p class="font-semibold ${diasRestantes <= 3 ? 'text-red-600' : diasRestantes <= 7 ? 'text-yellow-600' : 'text-green-600'}">
+                                        ${m.estado === 'activa' ? diasRestantes + ' días' : '-'}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 ml-4">
+                            <button onclick="renovarMembresia('${m.id}')"
+                                    class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Renovar">
+                                <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function filterByEstado(estado) {
+            filtroActual = estado;
+
+            // Actualizar botones
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.dataset.estado === estado) {
+                    btn.classList.remove('bg-gray-100', 'text-gray-700');
+                    btn.classList.add('bg-vida-primary', 'text-vida-dark', 'font-semibold');
+                } else {
+                    btn.classList.add('bg-gray-100', 'text-gray-700');
+                    btn.classList.remove('bg-vida-primary', 'text-vida-dark', 'font-semibold');
+                }
+            });
+
+            renderMembresias();
+        }
+
+        function renovarMembresia(id) {
+            if (confirm('¿Deseas renovar esta membresía?')) {
+                window.location.href = `/membresias/create?renovar=${id}`;
+            }
+        }
+
+        window.addEventListener('load', function() {
+            loadMembresias();
+            filterByEstado('todas');
+        });
+    </script>
+}
