@@ -1,6 +1,6 @@
 ﻿@{
     Layout = "_Layout";
-    ViewData["Title"] = "Check-In";
+    ViewData["Title"] = "Check-In VIDA FIT";
 }
 
 <div id="kiosko-app" class="min-h-screen"></div>
@@ -8,18 +8,18 @@
 @section Scripts {
     <script>
         const API_URL = '/api';
-        const READER_CONNECTED = @Html.Raw((ViewBag.ReaderConnected ?? false) ? "true" : "false");
 
         class KioskoApp {
             constructor() {
                 this.state = {
-                    mode: 'idle', // idle, scanning, success, error, cedula
+                    mode: 'idle',
                     cliente: null,
                     message: '',
                     cedula: '',
-                    isScanning: false
+                    diasRestantes: null,
+                    captureProgress: 0,
+                    similarity: 0
                 };
-
                 this.render();
                 this.startClock();
             }
@@ -27,7 +27,6 @@
             setState(newState) {
                 this.state = { ...this.state, ...newState };
                 this.render();
-
                 if (this.state.mode === 'success' || this.state.mode === 'error') {
                     setTimeout(() => this.reset(), 5000);
                 }
@@ -39,7 +38,9 @@
                     cliente: null,
                     message: '',
                     cedula: '',
-                    isScanning: false
+                    diasRestantes: null,
+                    captureProgress: 0,
+                    similarity: 0
                 });
             }
 
@@ -50,54 +51,69 @@
                     if (timeEl && dateEl) {
                         const now = new Date();
                         timeEl.textContent = now.toLocaleTimeString('es-ES', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            second: '2-digit'
+                            hour: '2-digit', minute: '2-digit', second: '2-digit'
                         });
                         dateEl.textContent = now.toLocaleDateString('es-ES', {
-                            weekday: 'long',
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
+                            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
                         });
                     }
                 }, 1000);
             }
 
             async handleFingerprintScan() {
-                this.setState({ mode: 'scanning', message: 'Coloca tu dedo en el lector...' });
+                this.setState({ mode: 'scanning', message: 'Preparando sensor...', captureProgress: 0 });
+
+                // Simular progreso de las 3 capturas
+                const progressInterval = setInterval(() => {
+                    if (this.state.captureProgress < 3) {
+                        const newProgress = this.state.captureProgress + 1;
+                        this.setState({
+                            captureProgress: newProgress,
+                            message: `Captura ${newProgress}/3 - Mantén el dedo en el sensor`
+                        });
+                    }
+                }, 2500); // Cada 2.5 segundos
 
                 try {
-                    const response = await fetch(`${API_URL}/CheckIn/fingerprint`, {
+                    const response = await fetch(`${API_URL}/Fingerprint/checkin-multi`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' }
                     });
 
+                    clearInterval(progressInterval);
                     const data = await response.json();
 
                     if (data.success) {
+                        // Datos simplificados del API
                         this.setState({
                             mode: 'success',
-                            cliente: data.cliente,
-                            message: data.message
+                            cliente: {
+                                nombre: data.cliente.nombre, // Ya viene como nombre completo
+                                fotoBase64: data.cliente.fotoBase64
+                            },
+                            diasRestantes: data.membresia ? data.membresia.diasRestantes : null,
+                            message: data.message,
+                            similarity: data.similarity
                         });
                     } else {
+                        clearInterval(progressInterval);
                         this.setState({
                             mode: 'error',
-                            message: data.message
+                            message: data.message || 'No se pudo verificar la huella',
+                            similarity: data.similarity
                         });
                     }
                 } catch (error) {
+                    clearInterval(progressInterval);
                     this.setState({
                         mode: 'error',
-                        message: 'Error al conectar con el lector. Usa tu cédula.'
+                        message: 'Error de conexión. Intenta con cédula.'
                     });
                 }
             }
 
             async handleCedulaSubmit() {
                 if (!this.state.cedula.trim()) return;
-
                 this.setState({ mode: 'scanning', message: 'Verificando...' });
 
                 try {
@@ -112,7 +128,11 @@
                     if (data.success) {
                         this.setState({
                             mode: 'success',
-                            cliente: data.cliente,
+                            cliente: {
+                                nombre: data.cliente.nombre,
+                                fotoBase64: data.cliente.fotoBase64
+                            },
+                            diasRestantes: data.cliente.diasRestantes,
                             message: data.message
                         });
                     } else {
@@ -124,7 +144,7 @@
                 } catch (error) {
                     this.setState({
                         mode: 'error',
-                        message: 'Error de conexión. Intenta nuevamente.'
+                        message: 'Error de conexión'
                     });
                 }
             }
@@ -132,51 +152,46 @@
             renderIdle() {
                 return `
                     <div class="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex flex-col items-center justify-center p-8 relative overflow-hidden">
-                        <!-- Efectos de fondo -->
                         <div class="absolute inset-0 opacity-20">
                             <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-green-500 rounded-full blur-3xl animate-pulse"></div>
                             <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-green-400 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
                         </div>
 
-                        <!-- Header con reloj -->
                         <div class="absolute top-8 right-8 text-right z-10">
-                            <div class="text-6xl font-bold text-green-400 drop-shadow-lg font-mono" id="clock-time">00:00:00</div>
+                            <div class="text-6xl font-bold text-green-400 font-mono" id="clock-time">00:00:00</div>
                             <div class="text-xl text-gray-400 mt-2 capitalize" id="clock-date">Cargando...</div>
                         </div>
 
-                        <!-- Logo -->
                         <div class="absolute top-8 left-8 z-10">
-                            <div class="text-5xl font-black text-white tracking-wider">
-                                VIDA <span class="text-green-400">FIT</span>
-                            </div>
-                            <div class="text-sm text-gray-400 tracking-widest mt-1">
-                                SISTEMA DE ACCESO
-                            </div>
+                            <div class="text-5xl font-black text-white">VIDA <span class="text-green-400">FIT</span></div>
+                            <div class="text-sm text-gray-400 tracking-widest mt-1">SISTEMA CHECK-IN</div>
                         </div>
 
-                        <!-- Contenido Principal -->
                         <div class="relative z-10 text-center">
-                            <!-- Ícono de huella pulsante -->
                             <div class="mb-12 flex justify-center">
                                 <button onclick="app.handleFingerprintScan()" class="relative group">
                                     <div class="absolute inset-0 bg-green-500 rounded-full blur-2xl opacity-50 group-hover:opacity-75 animate-pulse"></div>
-                                    <div class="relative bg-gradient-to-br from-green-500 to-green-600 p-24 rounded-full shadow-2xl hover:scale-105 transition-transform duration-300">
-                                        <i data-lucide="fingerprint" class="w-48 h-48 text-white" stroke-width="1"></i>
+                                    <div class="relative bg-gradient-to-br from-green-500 to-green-600 p-20 rounded-full shadow-2xl group-hover:scale-105 transition-transform">
+                                        <i data-lucide="fingerprint" class="w-40 h-40 text-white" stroke-width="1.5"></i>
                                     </div>
                                 </button>
                             </div>
 
-                            <h1 class="text-7xl font-black text-white mb-6 tracking-tight">
-                                BIENVENIDO A <span class="text-green-400">VIDA FIT</span>
+                            <h1 class="text-6xl font-black text-white mb-6">
+                                Coloca tu <span class="text-green-400">huella</span>
                             </h1>
-                            <p class="text-3xl text-gray-300 mb-12 font-light">Coloca tu huella para ingresar</p>
+                            <p class="text-3xl text-gray-400 mb-16">Sistema de reconocimiento biométrico</p>
 
-                            <!-- Opción alternativa -->
-                            <button
-                                onclick="app.setState({ mode: 'cedula' })"
-                                class="px-12 py-5 bg-gray-800 hover:bg-gray-700 text-white text-xl rounded-2xl border-2 border-gray-600 hover:border-green-500 transition-all duration-300 font-semibold">
-                                <i data-lucide="credit-card" class="inline w-6 h-6 mr-3"></i>
-                                Usar Cédula
+                            <div class="flex items-center gap-6 my-12 max-w-2xl mx-auto">
+                                <div class="flex-1 h-px bg-gradient-to-r from-transparent to-gray-700"></div>
+                                <span class="text-gray-500 text-2xl">o</span>
+                                <div class="flex-1 h-px bg-gradient-to-l from-transparent to-gray-700"></div>
+                            </div>
+
+                            <button onclick="app.setState({ mode: 'cedula' })"
+                                class="px-10 py-5 bg-gray-800 hover:bg-gray-700 border-2 border-gray-700 hover:border-green-500 text-white rounded-2xl text-2xl font-bold transition-all flex items-center gap-4 mx-auto">
+                                <i data-lucide="credit-card" class="w-8 h-8"></i>
+                                Ingresar con Cédula
                             </button>
                         </div>
                     </div>
@@ -185,7 +200,7 @@
 
             renderCedula() {
                 return `
-                    <div class="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex flex-col items-center justify-center p-8">
+                    <div class="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex items-center justify-center p-8">
                         <div class="bg-gray-800 rounded-2xl p-12 border-2 border-gray-700 shadow-2xl max-w-2xl w-full">
                             <div class="text-center mb-8">
                                 <i data-lucide="credit-card" class="w-20 h-20 text-green-400 mx-auto mb-4"></i>
@@ -193,28 +208,22 @@
                                 <p class="text-gray-400 text-lg">Sin guiones ni espacios</p>
                             </div>
 
-                            <input
-                                type="text"
-                                id="cedula-input"
-                                value="${this.state.cedula}"
-                                oninput="app.setState({ cedula: this.value.replace(/\\D/g, '') })"
-                                onkeypress="if(event.key==='Enter') app.handleCedulaSubmit()"
-                                placeholder="001-1234567-8"
-                                class="w-full px-6 py-4 text-3xl text-center bg-gray-900 text-white rounded-xl border-2 border-gray-600 focus:border-green-500 focus:outline-none mb-6 font-mono"
-                                maxlength="11"
-                                autofocus
-                            />
+                                           <input type="text" id="cedula-input" value="${this.state.cedula}"
+                                                oninput="app.setState({ cedula: this.value.replace(/\D/g, '') })"
+                                                onkeypress="if(event.key==='Enter') app.handleCedulaSubmit()"
+                                                placeholder="0000000"
+                                                class="w-full px-6 py-4 text-3xl text-right bg-gray-900 text-white rounded-xl border-2 border-gray-600 focus:border-green-500 focus:outline-none mb-6 font-mono dir-ltr"
+                                                maxlength="11" autofocus
+                                                style="direction: ltr;" />
 
                             <div class="flex gap-4">
-                                <button
-                                    onclick="app.handleCedulaSubmit()"
+                                <button onclick="app.handleCedulaSubmit()"
                                     ${this.state.cedula.length < 8 ? 'disabled' : ''}
-                                    class="flex-1 px-8 py-4 bg-green-500 hover:bg-green-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-xl text-xl font-bold transition-all duration-300">
+                                    class="flex-1 px-8 py-4 bg-green-500 hover:bg-green-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-xl text-xl font-bold transition-all">
                                     Verificar
                                 </button>
-                                <button
-                                    onclick="app.reset()"
-                                    class="px-8 py-4 bg-gray-700 hover:bg-gray-600 text-white rounded-xl text-xl font-bold transition-all duration-300">
+                                <button onclick="app.reset()"
+                                    class="px-8 py-4 bg-gray-700 hover:bg-gray-600 text-white rounded-xl text-xl font-bold transition-all">
                                     Cancelar
                                 </button>
                             </div>
@@ -224,8 +233,10 @@
             }
 
             renderScanning() {
+                const progress = Math.min((this.state.captureProgress / 3) * 100, 100);
+
                 return `
-                    <div class="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex flex-col items-center justify-center p-8">
+                    <div class="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex items-center justify-center p-8">
                         <div class="text-center">
                             <div class="mb-8 flex justify-center">
                                 <div class="relative">
@@ -235,8 +246,22 @@
                                     </div>
                                 </div>
                             </div>
+
                             <h2 class="text-5xl font-bold text-white mb-4">${this.state.message}</h2>
-                            <div class="flex justify-center gap-2 mt-8">
+
+                            ${this.state.captureProgress > 0 ? `
+                                <div class="max-w-md mx-auto bg-gray-800 rounded-xl p-6 border-2 border-blue-500 mb-6">
+                                    <p class="text-3xl text-blue-300 font-bold mb-4">Captura ${this.state.captureProgress}/3</p>
+                                    <div class="w-full bg-gray-700 rounded-full h-4 mb-3">
+                                        <div class="bg-blue-500 h-4 rounded-full transition-all duration-500" style="width: ${progress}%"></div>
+                                    </div>
+                                    <p class="text-gray-400">
+                                        ${this.state.captureProgress < 3 ? 'Levanta el dedo y vuelve a colocarlo' : 'Procesando...'}
+                                    </p>
+                                </div>
+                            ` : '<p class="text-2xl text-gray-400 mb-6">Por favor espera...</p>'}
+
+                            <div class="flex justify-center gap-2 mt-4">
                                 <div class="w-3 h-3 bg-blue-500 rounded-full animate-bounce"></div>
                                 <div class="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.1s;"></div>
                                 <div class="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
@@ -247,37 +272,46 @@
             }
 
             renderSuccess() {
-                const { cliente } = this.state;
+                const { cliente, diasRestantes, similarity } = this.state;
                 return `
-                    <div class="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-black flex flex-col items-center justify-center p-8 relative overflow-hidden">
-                        <div class="relative z-10 text-center">
+                    <div class="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-black flex items-center justify-center p-8">
+                        <div class="text-center">
                             <div class="mb-8 flex justify-center">
                                 <div class="bg-green-500 p-12 rounded-full shadow-2xl">
                                     <i data-lucide="check-circle" class="w-32 h-32 text-white" stroke-width="2"></i>
                                 </div>
                             </div>
 
-                            ${cliente && cliente.fotoBase64 ? `
+                            ${cliente?.fotoBase64 ? `
                                 <div class="mb-6 flex justify-center">
-                                    <img src="data:image/jpeg;base64,${cliente.fotoBase64}" alt="Cliente"
+                                    <img src="data:image/jpeg;base64,${cliente.fotoBase64}"
                                          class="w-40 h-40 rounded-full border-4 border-green-400 shadow-xl object-cover"/>
                                 </div>
                             ` : ''}
 
                             <h2 class="text-6xl font-black text-white mb-4">¡BIENVENIDO!</h2>
-                            <p class="text-4xl text-green-300 mb-8 font-bold">${cliente ? cliente.nombre : ''}</p>
+                            <p class="text-4xl text-green-300 mb-8 font-bold">${cliente?.nombre || ''}</p>
 
-                            ${cliente && cliente.diasRestantes !== null ? `
-                                <div class="bg-black/50 rounded-xl px-8 py-6 inline-block border-2 border-green-500">
-                                    <p class="text-2xl text-gray-300 mb-2">Tu membresía vence en</p>
-                                    <p class="text-5xl font-bold text-green-400">
-                                        ${cliente.diasRestantes} ${cliente.diasRestantes === 1 ? 'día' : 'días'}
+                            ${diasRestantes !== null && diasRestantes !== undefined ? `
+                                <div class="bg-black/50 rounded-xl px-8 py-6 inline-block border-2 ${diasRestantes <= 3 ? 'border-red-500' : 'border-green-500'} mb-4">
+                                    <p class="text-2xl text-gray-300 mb-2">
+                                        ${diasRestantes <= 3 ? '⚠️ Tu membresía vence en' : 'Membresía vence en'}
+                                    </p>
+                                    <p class="text-5xl font-bold ${diasRestantes <= 3 ? 'text-red-400' : 'text-green-400'}">
+                                        ${diasRestantes} ${diasRestantes === 1 ? 'día' : 'días'}
                                     </p>
                                 </div>
                             ` : ''}
 
-                            <div class="mt-12 text-gray-400 text-xl">
-                                <p>${this.state.message}</p>
+                            ${similarity ? `
+                                <div class="mt-4 text-sm text-gray-400">
+                                    <p>✓ Verificación biométrica: ${similarity.toFixed(1)}% de coincidencia</p>
+                                </div>
+                            ` : ''}
+
+                            <div class="mt-8 text-gray-400">
+                                <p class="text-xl">${this.state.message}</p>
+                                <p class="text-sm mt-2 text-green-400">✓ Acceso autorizado</p>
                             </div>
                         </div>
                     </div>
@@ -286,7 +320,7 @@
 
             renderError() {
                 return `
-                    <div class="min-h-screen bg-gradient-to-br from-red-900 via-red-800 to-black flex flex-col items-center justify-center p-8">
+                    <div class="min-h-screen bg-gradient-to-br from-red-900 via-red-800 to-black flex items-center justify-center p-8">
                         <div class="text-center">
                             <div class="mb-8 flex justify-center">
                                 <div class="bg-red-500 p-12 rounded-full shadow-2xl">
@@ -299,12 +333,15 @@
                             <div class="bg-black/50 rounded-xl px-12 py-8 max-w-2xl mx-auto border-2 border-red-500 mb-8">
                                 <i data-lucide="alert-circle" class="w-16 h-16 text-red-400 mx-auto mb-4"></i>
                                 <p class="text-3xl text-red-300 mb-4 font-semibold">${this.state.message}</p>
-                                <p class="text-xl text-gray-400">Por favor, dirígete a recepción para obtener ayuda</p>
+                                ${this.state.similarity ? `
+                                    <p class="text-sm text-gray-400 mb-2">Similitud detectada: ${this.state.similarity.toFixed(1)}%</p>
+                                    <p class="text-sm text-gray-500">Se requiere al menos 35% para verificación</p>
+                                ` : ''}
+                                <p class="text-xl text-gray-400 mt-4">Dirígete a recepción</p>
                             </div>
 
-                            <button
-                                onclick="app.reset()"
-                                class="px-12 py-4 bg-gray-700 hover:bg-gray-600 text-white rounded-xl text-2xl font-bold transition-all duration-300">
+                            <button onclick="app.reset()"
+                                class="px-12 py-4 bg-gray-700 hover:bg-gray-600 text-white rounded-xl text-2xl font-bold transition-all">
                                 Intentar Nuevamente
                             </button>
                         </div>
@@ -314,8 +351,15 @@
 
             render() {
                 const container = document.getElementById('kiosko-app');
-
                 let html = '';
+
+                // 1. Guardar la posición del cursor antes de renderizar
+                let cursorPosition = null;
+                const activeInput = document.getElementById('cedula-input');
+                if (activeInput && this.state.mode === 'cedula') {
+                    cursorPosition = activeInput.selectionStart;
+                }
+
                 switch(this.state.mode) {
                     case 'idle': html = this.renderIdle(); break;
                     case 'cedula': html = this.renderCedula(); break;
@@ -327,17 +371,24 @@
                 container.innerHTML = html;
                 lucide.createIcons();
 
-                // Auto-focus en input de cédula
+                // 2. Restaurar el foco y la posición del cursor después de renderizar
                 if (this.state.mode === 'cedula') {
                     setTimeout(() => {
                         const input = document.getElementById('cedula-input');
-                        if (input) input.focus();
+                        if (input) {
+                            input.focus();
+                            if (cursorPosition !== null) {
+                                // Asegura que el cursor quede al final (o donde estaba)
+                                const newPosition = Math.min(cursorPosition, input.value.length);
+                                input.setSelectionRange(newPosition, newPosition);
+                            }
+                        }
                     }, 100);
                 }
             }
+
         }
 
-        // Inicializar aplicación
         const app = new KioskoApp();
     </script>
 }

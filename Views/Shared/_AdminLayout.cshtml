@@ -1,4 +1,199 @@
-﻿@page
-@model VidaFit.Views.Shared._AdminLayoutModel
-@{
-}
+﻿@using Microsoft.AspNetCore.Http
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - VidaFit Admin</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Configuración de Tailwind personalizada -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'vida-primary': '#7ED957',
+                        'vida-dark': '#0A0A0A',
+                        'vida-gray': '#1a1a1a',
+                        'vida-accent': '#90EE90'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* Scrollbar personalizado */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #7ED957;
+            border-radius: 4px;
+        }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: #90EE90;
+            }
+    </style>
+
+    @RenderSection("Styles", required: false)
+</head>
+<body class="bg-gray-50">
+    <!-- Sidebar -->
+    <aside class="fixed left-0 top-0 h-screen w-64 bg-vida-dark text-white shadow-2xl z-50">
+        <div class="p-6 border-b border-gray-700">
+            <h1 class="text-2xl font-bold text-vida-primary">VIDA FIT</h1>
+            <p class="text-sm text-gray-400 mt-1">Panel de Administración</p>
+        </div>
+
+        <nav class="p-4 space-y-2">
+            <a href="/admin/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-vida-gray transition-colors group">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 text-vida-primary"></i>
+                <span class="font-medium">Dashboard</span>
+            </a>
+
+            <a href="/clientes" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-vida-gray transition-colors group">
+                <i data-lucide="users" class="w-5 h-5 text-vida-primary"></i>
+                <span class="font-medium">Clientes</span>
+            </a>
+
+            <a href="/membresias" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-vida-gray transition-colors group">
+                <i data-lucide="credit-card" class="w-5 h-5 text-vida-primary"></i>
+                <span class="font-medium">Membresías</span>
+            </a>
+
+            <a href="/productos" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-vida-gray transition-colors group">
+                <i data-lucide="package" class="w-5 h-5 text-vida-primary"></i>
+                <span class="font-medium">Productos</span>
+            </a>
+
+            <div class="pt-4 border-t border-gray-700 mt-4">
+                <p class="text-xs text-gray-500 uppercase font-semibold mb-2 px-4">Reportes</p>
+
+                <a href="/reportes/asistencia" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-vida-gray transition-colors text-sm">
+                    <i data-lucide="calendar-check" class="w-4 h-4 text-vida-primary"></i>
+                    <span>Asistencia</span>
+                </a>
+
+                <a href="/reportes/ingresos-membresias" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-vida-gray transition-colors text-sm">
+                    <i data-lucide="dollar-sign" class="w-4 h-4 text-vida-primary"></i>
+                    <span>Ingresos</span>
+                </a>
+
+                <a href="/reportes/productos-mas-vendidos" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-vida-gray transition-colors text-sm">
+                    <i data-lucide="trending-up" class="w-4 h-4 text-vida-primary"></i>
+                    <span>Productos Vendidos</span>
+                </a>
+
+                <a href="/reportes/cuentas-pendientes" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-vida-gray transition-colors text-sm">
+                    <i data-lucide="alert-circle" class="w-4 h-4 text-vida-primary"></i>
+                    <span>Cuentas Pendientes</span>
+                </a>
+
+                <a href="/reportes/clientes-inactivos" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-vida-gray transition-colors text-sm">
+                    <i data-lucide="user-x" class="w-4 h-4 text-vida-primary"></i>
+                    <span>Clientes Inactivos</span>
+                </a>
+            </div>
+        </nav>
+
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-700">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-full bg-vida-primary flex items-center justify-center text-vida-dark font-bold">
+                    A
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-semibold">Administrador</p>
+                    <p class="text-xs text-gray-400">Panel Admin</p>
+                </div>
+            </div>
+            <form action="/admin/logout" method="post" class="w-full">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors text-sm font-medium">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                    Cerrar Sesión
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="ml-64 min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+            <div class="px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">@ViewData["Title"]</h2>
+                        @if (ViewData["Subtitle"] != null)
+                        {
+                            <p class="text-sm text-gray-600 mt-1">@ViewData["Subtitle"]</p>
+                        }
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="text-right">
+                            <p class="text-sm text-gray-600">Última actualización</p>
+                            <p class="text-xs text-gray-500" id="current-time"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <div class="p-6">
+            @RenderBody()
+        </div>
+    </main>
+
+    <script>
+        // Inicializar iconos Lucide
+        lucide.createIcons();
+
+        // Actualizar hora actual
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleString('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            const timeElement = document.getElementById('current-time');
+            if (timeElement) {
+                timeElement.textContent = timeStr;
+            }
+        }
+        updateTime();
+        setInterval(updateTime, 60000);
+    </script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

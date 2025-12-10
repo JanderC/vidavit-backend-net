@@ -27,7 +27,7 @@ namespace VidaFitBackend.Models
         public int Stock { get; set; } = 0;
 
         [Column("imagen_base64")]
-        public string ImagenBase64 { get; set; }
+        public string? ImagenBase64 { get; set; }
 
         [Column("categoria")]
         [MaxLength(50)]

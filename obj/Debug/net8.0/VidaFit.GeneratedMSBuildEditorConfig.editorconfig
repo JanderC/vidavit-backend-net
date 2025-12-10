@@ -32,8 +32,8 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2xpZW50ZXNcQ2FwdHVyZUZpbmdlcnByaW50LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/usuario/source/repos/VidaFit/VidaFit/Views/Clientes/Create.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2xpZW50ZXNcQ3JlYXRlLmNzaHRtbA==
+[C:/Users/usuario/source/repos/VidaFit/VidaFit/Views/Clientes/Crear.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2xpZW50ZXNcQ3JlYXIuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/usuario/source/repos/VidaFit/VidaFit/Views/Clientes/Details.cshtml]
@@ -60,8 +60,8 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcS2lvc2tvXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/usuario/source/repos/VidaFit/VidaFit/Views/Membresias/Create.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVtYnJlc2lhc1xDcmVhdGUuY3NodG1s
+[C:/Users/usuario/source/repos/VidaFit/VidaFit/Views/Membresias/Crear.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVtYnJlc2lhc1xDcmVhci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/usuario/source/repos/VidaFit/VidaFit/Views/Membresias/Index.cshtml]
@@ -72,6 +72,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZHVjdG9zXENyZWF0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/usuario/source/repos/VidaFit/VidaFit/Views/Productos/CuentasPendientes.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZHVjdG9zXEN1ZW50YXNQZW5kaWVudGVzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/usuario/source/repos/VidaFit/VidaFit/Views/Productos/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZHVjdG9zXEVkaXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
@@ -80,8 +84,20 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZHVjdG9zXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/usuario/source/repos/VidaFit/VidaFit/Views/Productos/Vender.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZHVjdG9zXFZlbmRlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/usuario/source/repos/VidaFit/VidaFit/Views/Reportes/Asistencia.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0ZXNcQXNpc3RlbmNpYS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/usuario/source/repos/VidaFit/VidaFit/Views/Reportes/ClientesInactivos.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0ZXNcQ2xpZW50ZXNJbmFjdGl2b3MuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/usuario/source/repos/VidaFit/VidaFit/Views/Reportes/CuentasPendientes.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0ZXNcQ3VlbnRhc1BlbmRpZW50ZXMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/usuario/source/repos/VidaFit/VidaFit/Views/Reportes/Index.cshtml]
@@ -90,6 +106,14 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/usuario/source/repos/VidaFit/VidaFit/Views/Reportes/Ingresos.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0ZXNcSW5ncmVzb3MuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/usuario/source/repos/VidaFit/VidaFit/Views/Reportes/IngresosMembresias.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0ZXNcSW5ncmVzb3NNZW1icmVzaWFzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/usuario/source/repos/VidaFit/VidaFit/Views/Reportes/ProductosMasVendidos.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0ZXNcUHJvZHVjdG9zTWFzVmVuZGlkb3MuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/usuario/source/repos/VidaFit/VidaFit/Views/Shared/Error.cshtml]

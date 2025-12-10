@@ -61,11 +61,13 @@ namespace VidaFit.Controllers.API
         public async Task<ActionResult<Cliente>> CreateCliente([FromBody] Cliente cliente)
         {
             cliente.Id = Guid.NewGuid();
-            cliente.CreatedAt = DateTime.UtcNow;
-            cliente.UpdatedAt = DateTime.UtcNow;
+            cliente.CreatedAt = DateTime.Now;
+            cliente.UpdatedAt = DateTime.Now;
             cliente.Activo = true;
+
             _context.Clientes.Add(cliente);
             await _context.SaveChangesAsync();
+
             return CreatedAtAction(nameof(GetCliente), new { id = cliente.Id }, cliente);
         }
 
@@ -87,11 +89,9 @@ namespace VidaFit.Controllers.API
             dbCliente.Email = cliente.Email;
             dbCliente.FechaNacimiento = cliente.FechaNacimiento;
             dbCliente.Direccion = cliente.Direccion;
-            dbCliente.HuellaDigital = cliente.HuellaDigital;
-            dbCliente.HuellaTemplate = cliente.HuellaTemplate;
             dbCliente.FotoBase64 = cliente.FotoBase64;
             dbCliente.Activo = cliente.Activo;
-            dbCliente.UpdatedAt = DateTime.UtcNow;
+            dbCliente.UpdatedAt = DateTime.Now;
 
             await _context.SaveChangesAsync();
             return NoContent();
@@ -110,28 +110,40 @@ namespace VidaFit.Controllers.API
             return NoContent();
         }
 
-        // GET: api/Clientes/{id}/checkins
-        [HttpGet("{id}/checkins")]
-        public async Task<ActionResult<IEnumerable<CheckIn>>> GetCheckIns(Guid id)
-        {
-            var checkins = await _context.CheckIns
-                .Where(ci => ci.ClienteId == id)
-                .OrderByDescending(ci => ci.FechaHora)
-                .ToListAsync();
-
-            return checkins;
-        }
-
         // GET: api/Clientes/{id}/membresias
         [HttpGet("{id}/membresias")]
-        public async Task<ActionResult<IEnumerable<Membresia>>> GetMembresias(Guid id)
+        public async Task<ActionResult> GetMembresias(Guid id)
         {
             var membresias = await _context.Membresias
+                .Include(m => m.Plan)
                 .Where(m => m.ClienteId == id)
                 .OrderByDescending(m => m.CreatedAt)
+                .Select(m => new
+                {
+                    m.Id,
+                    m.FechaInicio,
+                    m.FechaVencimiento,
+                    m.Estado,
+                    m.MontoPagado,
+                    m.MetodoPago,
+                    Plan = new
+                    {
+                        m.Plan.Nombre,
+                        m.Plan.DuracionDias
+                    }
+                })
                 .ToListAsync();
 
-            return membresias;
+            return Ok(membresias);
+        }
+
+        // POST: api/Clientes/{id}/fingerprint
+        [HttpPost("{id}/fingerprint")]
+        public async Task<IActionResult> CaptureFingerprint(Guid id)
+        {
+            // Este endpoint será manejado por FingerprintController
+            // Redirigir la llamada
+            return RedirectToAction("CaptureFingerprint", "Fingerprint", new { clienteId = id });
         }
     }
 }

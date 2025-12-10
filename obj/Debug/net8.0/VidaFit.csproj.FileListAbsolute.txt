@@ -409,6 +409,7 @@ C:\Users\usuario\source\repos\VidaFit\VidaFit\obj\Debug\net8.0\VidaFit.MvcApplic
 C:\Users\usuario\source\repos\VidaFit\VidaFit\obj\Debug\net8.0\VidaFit.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\usuario\source\repos\VidaFit\VidaFit\obj\Debug\net8.0\VidaFit.RazorAssemblyInfo.cache
 C:\Users\usuario\source\repos\VidaFit\VidaFit\obj\Debug\net8.0\VidaFit.RazorAssemblyInfo.cs
+C:\Users\usuario\source\repos\VidaFit\VidaFit\obj\Debug\net8.0\VidaFit.sourcelink.json
 C:\Users\usuario\source\repos\VidaFit\VidaFit\obj\Debug\net8.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
 C:\Users\usuario\source\repos\VidaFit\VidaFit\obj\Debug\net8.0\scopedcss\bundle\VidaFit.styles.css
 C:\Users\usuario\source\repos\VidaFit\VidaFit\obj\Debug\net8.0\scopedcss\projectbundle\VidaFit.bundle.scp.css

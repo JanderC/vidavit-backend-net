@@ -1,588 +1,186 @@
-﻿@model IEnumerable<VidaFitBackend.Models.Cliente>
-@{
+﻿@{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Clientes";
-    ViewData["Subtitle"] = "Gestión de clientes del gimnasio";
+    ViewData["Subtitle"] = "Gestión de clientes y membresías";
 }
 
-<div class="mb-6 flex items-center justify-between">
-    <!-- Buscador -->
+<div class="mb-6 flex items-center justify-between gap-4">
     <div class="flex-1 max-w-md">
-        <div class="relative">@{
-    Layout = "_Layout";
-    ViewData["Title"] = "Check-In";
-}
-
-<div id="kiosko-app" class="min-h-screen"></div>
-
-@section Scripts {
-<script>
-    const API_URL = '/api';
-    const READER_CONNECTED = @(ViewBag.ReaderConnected ? "true" : "false");
-    
-    class KioskoApp {
-        constructor() {
-            this.state = {
-                mode: 'idle', // idle, scanning, success, error, cedula
-                cliente: null,
-                message: '',
-                cedula: '',
-                isScanning: false
-            };
-            
-            this.render();
-            this.startClock();
-        }
-        
-        setState(newState) {
-            this.state = { ...this.state, ...newState };
-            this.render();
-            
-            if (this.state.mode === 'success' || this.state.mode === 'error') {
-                setTimeout(() => this.reset(), 5000);
-            }
-        }
-        
-        reset() {
-            this.setState({
-                mode: 'idle',
-                cliente: null,
-                message: '',
-                cedula: '',
-                isScanning: false
-            });
-        }
-        
-        startClock() {
-            setInterval(() => {
-                const timeEl = document.getElementById('clock-time');
-                const dateEl = document.getElementById('clock-date');
-                if (timeEl && dateEl) {
-                    const now = new Date();
-                    timeEl.textContent = now.toLocaleTimeString('es-ES', { 
-                        hour: '2-digit', 
-                        minute: '2-digit',
-                        second: '2-digit'
-                    });
-                    dateEl.textContent = now.toLocaleDateString('es-ES', { 
-                        weekday: 'long', 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
-                    });
-                }
-            }, 1000);
-        }
-        
-        async handleFingerprintScan() {
-            this.setState({ mode: 'scanning', message: 'Coloca tu dedo en el lector...' });
-            
-            try {
-                const response = await fetch(`${API_URL}/CheckIn/fingerprint`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    this.setState({ 
-                        mode: 'success', 
-                        cliente: data.cliente,
-                        message: data.message 
-                    });
-                } else {
-                    this.setState({ 
-                        mode: 'error', 
-                        message: data.message 
-                    });
-                }
-            } catch (error) {
-                this.setState({ 
-                    mode: 'error', 
-                    message: 'Error al conectar con el lector. Usa tu cédula.' 
-                });
-            }
-        }
-        
-        async handleCedulaSubmit() {
-            if (!this.state.cedula.trim()) return;
-            
-            this.setState({ mode: 'scanning', message: 'Verificando...' });
-            
-            try {
-                const response = await fetch(`${API_URL}/CheckIn/cedula`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ cedula: this.state.cedula.trim() })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    this.setState({ 
-                        mode: 'success', 
-                        cliente: data.cliente,
-                        message: data.message 
-                    });
-                } else {
-                    this.setState({ 
-                        mode: 'error', 
-                        message: data.message 
-                    });
-                }
-            } catch (error) {
-                this.setState({ 
-                    mode: 'error', 
-                    message: 'Error de conexión. Intenta nuevamente.' 
-                });
-            }
-        }
-        
-        renderIdle() {
-            return `
-                <div class="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex flex-col items-center justify-center p-8 relative overflow-hidden">
-                    <!-- Efectos de fondo -->
-                    <div class="absolute inset-0 opacity-20">
-                        <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-green-500 rounded-full blur-3xl animate-pulse"></div>
-                        <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-green-400 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
-                    </div>
-
-                    <!-- Header con reloj -->
-                    <div class="absolute top-8 right-8 text-right z-10">
-                        <div class="text-6xl font-bold text-green-400 drop-shadow-lg font-mono" id="clock-time">00:00:00</div>
-                        <div class="text-xl text-gray-400 mt-2 capitalize" id="clock-date">Cargando...</div>
-                    </div>
-
-                    <!-- Logo -->
-                    <div class="absolute top-8 left-8 z-10">
-                        <div class="text-5xl font-black text-white tracking-wider">
-                            VIDA <span class="text-green-400">FIT</span>
-                        </div>
-                        <div class="text-sm text-gray-400 tracking-widest mt-1">
-                            SISTEMA DE ACCESO
-                        </div>
-                    </div>
-
-                    <!-- Contenido Principal -->
-                    <div class="relative z-10 text-center">
-                        <!-- Ícono de huella pulsante -->
-                        <div class="mb-12 flex justify-center">
-                            <button onclick="app.handleFingerprintScan()" class="relative group">
-                                <div class="absolute inset-0 bg-green-500 rounded-full blur-2xl opacity-50 group-hover:opacity-75 animate-pulse"></div>
-                                <div class="relative bg-gradient-to-br from-green-500 to-green-600 p-16 rounded-full border-4 border-green-400 shadow-2xl transform transition-all duration-300 hover:scale-110 hover:shadow-green-500/50">
-                                    <i data-lucide="fingerprint" class="w-32 h-32 text-white" stroke-width="1.5"></i>
-                                </div>
-                            </button>
-                        </div>
-
-                        <h1 class="text-5xl font-bold text-white mb-4 tracking-wide">
-                            COLOCA TU DEDO
-                        </h1>
-                        <p class="text-2xl text-gray-400 mb-12">
-                            En el lector de huellas para registrar tu entrada
-                        </p>
-
-                        <!-- Botón alternativo de cédula -->
-                        <button onclick="app.setState({ mode: 'cedula' })" class="inline-flex items-center gap-3 px-8 py-4 bg-gray-800 hover:bg-gray-700 text-white rounded-xl border-2 border-gray-600 hover:border-green-500 transition-all duration-300 text-xl font-semibold group">
-                            <i data-lucide="credit-card" class="w-6 h-6 group-hover:text-green-400 transition-colors"></i>
-                            Usar Cédula
-                        </button>
-                    </div>
-
-                    <!-- Footer -->
-                    <div class="absolute bottom-8 text-center text-gray-600 text-sm">
-                        <p>Si tienes problemas, acércate a recepción</p>
-                    </div>
-                </div>
-            `;
-        }
-        
-        renderCedula() {
-            return `
-                <div class="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex flex-col items-center justify-center p-8">
-                    <div class="bg-gray-800 rounded-2xl p-12 border-2 border-gray-700 shadow-2xl max-w-2xl w-full">
-                        <div class="text-center mb-8">
-                            <i data-lucide="credit-card" class="w-20 h-20 text-green-400 mx-auto mb-4"></i>
-                            <h2 class="text-4xl font-bold text-white mb-2">Ingresa tu Cédula</h2>
-                            <p class="text-gray-400 text-lg">Sin guiones ni espacios</p>
-                        </div>
-
-                        <input 
-                            type="text" 
-                            id="cedula-input"
-                            value="${this.state.cedula}"
-                            oninput="app.setState({ cedula: this.value.replace(/\\D/g, '') })"
-                            onkeypress="if(event.key==='Enter') app.handleCedulaSubmit()"
-                            placeholder="001-1234567-8"
-                            class="w-full px-6 py-4 text-3xl text-center bg-gray-900 text-white rounded-xl border-2 border-gray-600 focus:border-green-500 focus:outline-none mb-6 font-mono"
-                            maxlength="11"
-                            autofocus
-                        />
-
-                        <div class="flex gap-4">
-                            <button 
-                                onclick="app.handleCedulaSubmit()"
-                                ${this.state.cedula.length < 8 ? 'disabled' : ''}
-                                class="flex-1 px-8 py-4 bg-green-500 hover:bg-green-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-xl text-xl font-bold transition-all duration-300">
-                                Verificar
-                            </button>
-                            <button 
-                                onclick="app.reset()"
-                                class="px-8 py-4 bg-gray-700 hover:bg-gray-600 text-white rounded-xl text-xl font-bold transition-all duration-300">
-                                Cancelar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-        
-        renderScanning() {
-            return `
-                <div class="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex flex-col items-center justify-center p-8">
-                    <div class="text-center">
-                        <div class="mb-8 flex justify-center">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-blue-500 rounded-full blur-2xl opacity-50 animate-pulse"></div>
-                                <div class="relative bg-gradient-to-br from-blue-500 to-blue-600 p-16 rounded-full">
-                                    <i data-lucide="fingerprint" class="w-32 h-32 text-white animate-pulse" stroke-width="1.5"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <h2 class="text-5xl font-bold text-white mb-4">${this.state.message}</h2>
-                        <div class="flex justify-center gap-2 mt-8">
-                            <div class="w-3 h-3 bg-blue-500 rounded-full animate-bounce"></div>
-                            <div class="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.1s;"></div>
-                            <div class="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-        
-        renderSuccess() {
-            const { cliente } = this.state;
-            return `
-                <div class="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-black flex flex-col items-center justify-center p-8 relative overflow-hidden">
-                    <div class="relative z-10 text-center">
-                        <div class="mb-8 flex justify-center">
-                            <div class="bg-green-500 p-12 rounded-full shadow-2xl">
-                                <i data-lucide="check-circle" class="w-32 h-32 text-white" stroke-width="2"></i>
-                            </div>
-                        </div>
-
-                        ${cliente && cliente.fotoBase64 ? `
-                            <div class="mb-6 flex justify-center">
-                                <img src="data:image/jpeg;base64,${cliente.fotoBase64}" alt="Cliente" 
-                                     class="w-40 h-40 rounded-full border-4 border-green-400 shadow-xl object-cover"/>
-                            </div>
-                        ` : ''}
-
-                        <h2 class="text-6xl font-black text-white mb-4">¡BIENVENIDO!</h2>
-                        <p class="text-4xl text-green-300 mb-8 font-bold">${cliente ? cliente.nombre : ''}</p>
-
-                        ${cliente && cliente.diasRestantes !== null ? `
-                            <div class="bg-black/50 rounded-xl px-8 py-6 inline-block border-2 border-green-500">
-                                <p class="text-2xl text-gray-300 mb-2">Tu membresía vence en</p>
-                                <p class="text-5xl font-bold text-green-400">
-                                    ${cliente.diasRestantes} ${cliente.diasRestantes === 1 ? 'día' : 'días'}
-                                </p>
-                            </div>
-                        ` : ''}
-
-                        <div class="mt-12 text-gray-400 text-xl">
-                            <p>${this.state.message}</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-        
-        renderError() {
-            return `
-                <div class="min-h-screen bg-gradient-to-br from-red-900 via-red-800 to-black flex flex-col items-center justify-center p-8">
-                    <div class="text-center">
-                        <div class="mb-8 flex justify-center">
-                            <div class="bg-red-500 p-12 rounded-full shadow-2xl">
-                                <i data-lucide="x-circle" class="w-32 h-32 text-white" stroke-width="2"></i>
-                            </div>
-                        </div>
-
-                        <h2 class="text-6xl font-black text-white mb-4">ACCESO DENEGADO</h2>
-                        
-                        <div class="bg-black/50 rounded-xl px-12 py-8 max-w-2xl mx-auto border-2 border-red-500 mb-8">
-                            <i data-lucide="alert-circle" class="w-16 h-16 text-red-400 mx-auto mb-4"></i>
-                            <p class="text-3xl text-red-300 mb-4 font-semibold">${this.state.message}</p>
-                            <p class="text-xl text-gray-400">Por favor, dirígete a recepción para obtener ayuda</p>
-                        </div>
-
-                        <button 
-                            onclick="app.reset()"
-                            class="px-12 py-4 bg-gray-700 hover:bg-gray-600 text-white rounded-xl text-2xl font-bold transition-all duration-300">
-                            Intentar Nuevamente
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-        
-        render() {
-            const container = document.getElementById('kiosko-app');
-            
-            let html = '';
-            switch(this.state.mode) {
-                case 'idle': html = this.renderIdle(); break;
-                case 'cedula': html = this.renderCedula(); break;
-                case 'scanning': html = this.renderScanning(); break;
-                case 'success': html = this.renderSuccess(); break;
-                case 'error': html = this.renderError(); break;
-            }
-            
-            container.innerHTML = html;
-            lucide.createIcons();
-            
-            // Auto-focus en input de cédula
-            if (this.state.mode === 'cedula') {
-                setTimeout(() => {
-                    const input = document.getElementById('cedula-input');
-                    if (input) input.focus();
-                }, 100);
-            }
-        }
-    }
-    
-    // Inicializar aplicación
-    const app = new KioskoApp();
-</script>
-}
-            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
-            <input type="text"
-                   id="search-input"
-                   placeholder="Buscar por nombre o cédula..."
-                   class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vida-primary" />
-        </div>
+        <input type="text" id="search-input" placeholder="Buscar por nombre, apellido o cédula..."
+               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-transparent">
     </div>
 
-    <!-- Botón Nuevo Cliente -->
-    <a href="/clientes/create" class="inline-flex items-center gap-2 px-6 py-2 bg-vida-primary hover:bg-vida-accent text-vida-dark font-semibold rounded-lg transition-all shadow-lg hover:shadow-xl">
+    <a href="/clientes/crear"
+       class="inline-flex items-center gap-2 px-6 py-2 bg-vida-primary hover:bg-vida-accent text-vida-dark font-semibold rounded-lg transition-all shadow-lg hover:shadow-xl">
         <i data-lucide="user-plus" class="w-5 h-5"></i>
         Nuevo Cliente
     </a>
 </div>
 
-<!-- Estadísticas Rápidas -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-    <div class="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm text-gray-600">Total Clientes</p>
-                <p class="text-2xl font-bold text-gray-800">@Model.Count()</p>
-            </div>
-            <i data-lucide="users" class="w-8 h-8 text-blue-500"></i>
-        </div>
-    </div>
-
-    <div class="bg-white rounded-lg shadow p-4 border-l-4 border-green-500">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm text-gray-600">Con Membresía Activa</p>
-                <p class="text-2xl font-bold text-gray-800" id="clientes-activos">0</p>
-            </div>
-            <i data-lucide="check-circle" class="w-8 h-8 text-green-500"></i>
-        </div>
-    </div>
-
-    <div class="bg-white rounded-lg shadow p-4 border-l-4 border-purple-500">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm text-gray-600">Con Huella Registrada</p>
-                <p class="text-2xl font-bold text-gray-800" id="clientes-huella">0</p>
-            </div>
-            <i data-lucide="fingerprint" class="w-8 h-8 text-purple-500"></i>
-        </div>
+<div id="clientes-container" class="bg-white rounded-xl shadow-md overflow-hidden">
+    <div class="p-8 text-center">
+        <div class="animate-spin w-12 h-12 border-4 border-vida-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+        <p class="text-gray-600">Cargando clientes...</p>
     </div>
 </div>
-
-<!-- Tabla de Clientes -->
-<div class="bg-white rounded-xl shadow-md overflow-hidden">
-    <div class="overflow-x-auto">
-        <table class="w-full" id="clientes-table">
-            <thead class="bg-gray-50 border-b border-gray-200">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Cliente
-                    </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Cédula
-                    </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Contacto
-                    </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Membresía
-                    </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Huella
-                    </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Acciones
-                    </th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                @foreach (var cliente in Model)
-                {
-                    var tieneHuella = !string.IsNullOrEmpty(cliente.HuellaTemplate);
-                    var membresiaActiva = cliente.Membresias?.FirstOrDefault(m => m.Estado == "activa");
-
-                    <tr class="hover:bg-gray-50 transition-colors cliente-row"
-                        data-nombre="@cliente.Nombre @cliente.Apellido"
-                        data-cedula="@cliente.Cedula">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                @if (!string.IsNullOrEmpty(cliente.FotoBase64))
-                                {
-                                    <img class="h-10 w-10 rounded-full object-cover"
-                                         src="data:image/jpeg;base64,@cliente.FotoBase64"
-                                         alt="@cliente.Nombre">
-                                }
-                                else
-                                {
-                                    <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                                        <i data-lucide="user" class="w-5 h-5 text-gray-600"></i>
-                                    </div>
-                                }
-                                <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900">
-                                        @cliente.Nombre @cliente.Apellido
-                                    </div>
-                                    @if (cliente.FechaNacimiento.HasValue)
-                                    {
-                                        var edad = DateTime.Now.Year - cliente.FechaNacimiento.Value.Year;
-                                        <div class="text-xs text-gray-500">@edad años</div>
-                                    }
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900 font-mono">@cliente.Cedula</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">@cliente.Telefono</div>
-                            @if (!string.IsNullOrEmpty(cliente.Email))
-                            {
-                                <div class="text-xs text-gray-500">@cliente.Email</div>
-                            }
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            @if (membresiaActiva != null)
-                            {
-                                var diasRestantes = (membresiaActiva.FechaVencimiento - DateTime.Now).Days;
-                                var colorClass = diasRestantes <= 3 ? "bg-red-100 text-red-800" :
-                                diasRestantes <= 7 ? "bg-orange-100 text-orange-800" :
-                                "bg-green-100 text-green-800";
-
-                                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full @colorClass">
-                                    @diasRestantes días
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                    Sin membresía
-                                </span>
-                            }
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            @if (tieneHuella)
-                            {
-                                <span class="inline-flex items-center gap-1 text-green-600">
-                                    <i data-lucide="check-circle" class="w-4 h-4"></i>
-                                    <span class="text-xs font-medium">Registrada</span>
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="inline-flex items-center gap-1 text-gray-400">
-                                    <i data-lucide="x-circle" class="w-4 h-4"></i>
-                                    <span class="text-xs font-medium">Sin registrar</span>
-                                </span>
-                            }
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div class="flex items-center gap-2">
-                                <a href="/clientes/details/@cliente.Id"
-                                   class="text-blue-600 hover:text-blue-900" title="Ver detalles">
-                                    <i data-lucide="eye" class="w-4 h-4"></i>
-                                </a>
-                                <a href="/clientes/edit/@cliente.Id"
-                                   class="text-yellow-600 hover:text-yellow-900" title="Editar">
-                                    <i data-lucide="edit" class="w-4 h-4"></i>
-                                </a>
-                                @if (!tieneHuella)
-                                {
-                                    <a href="/clientes/capturefingerprint/@cliente.Id"
-                                       class="text-purple-600 hover:text-purple-900" title="Capturar huella">
-                                        <i data-lucide="fingerprint" class="w-4 h-4"></i>
-                                    </a>
-                                }
-                            </div>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
-
-@if (!Model.Any())
-{
-    <div class="bg-white rounded-xl shadow-md p-12 text-center">
-        <i data-lucide="users" class="w-16 h-16 text-gray-400 mx-auto mb-4"></i>
-        <h3 class="text-xl font-semibold text-gray-800 mb-2">No hay clientes registrados</h3>
-        <p class="text-gray-600 mb-6">Comienza agregando tu primer cliente</p>
-        <a href="/clientes/create" class="inline-flex items-center gap-2 px-6 py-3 bg-vida-primary hover:bg-vida-accent text-vida-dark font-semibold rounded-lg transition-all">
-            <i data-lucide="user-plus" class="w-5 h-5"></i>
-            Agregar Primer Cliente
-        </a>
-    </div>
-}
 
 @section Scripts {
     <script>
-        lucide.createIcons();
+        const API_URL = '/api';
+        let clientesData = [];
 
-        // Búsqueda en tiempo real
-        const searchInput = document.getElementById('search-input');
-        const rows = document.querySelectorAll('.cliente-row');
+        async function loadClientes() {
+            try {
+                const response = await fetch(`${API_URL}/Clientes`);
+                clientesData = await response.json();
+                renderClientes(clientesData);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('clientes-container').innerHTML = `
+                    <div class="p-8 text-center">
+                        <i data-lucide="alert-circle" class="w-12 h-12 text-red-500 mx-auto mb-4"></i>
+                        <p class="text-red-600">Error al cargar los clientes</p>
+                    </div>
+                `;
+                lucide.createIcons();
+            }
+        }
 
-        searchInput.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
+        function renderClientes(clientes) {
+            const container = document.getElementById('clientes-container');
 
-            rows.forEach(row => {
-                const nombre = row.dataset.nombre.toLowerCase();
-                const cedula = row.dataset.cedula.toLowerCase();
+            if (clientes.length === 0) {
+                container.innerHTML = `
+                    <div class="p-12 text-center">
+                        <i data-lucide="users" class="w-16 h-16 mx-auto mb-4 text-gray-400"></i>
+                        <p class="text-gray-500 text-lg">No hay clientes registrados</p>
+                        <a href="/clientes/crear" class="mt-4 inline-block text-vida-primary hover:underline">
+                            Registrar primer cliente
+                        </a>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
 
-                if (nombre.includes(searchTerm) || cedula.includes(searchTerm)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
+            container.innerHTML = `
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cédula</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contacto</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        ${clientes.map(c => `
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center gap-3">
+                                        ${c.FotoBase64 ?
+                                            `<img src="data:image/jpeg;base64,${c.FotoBase64}"
+                                                  class="w-10 h-10 rounded-full object-cover border-2 border-gray-300">` :
+                                            `<div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                                <i data-lucide="user" class="w-5 h-5 text-gray-500"></i>
+                                            </div>`
+                                        }
+                                        <div>
+                                            <div class="font-semibold text-gray-800">${c.Nombre} ${c.Apellido}</div>
+                                            <div class="text-sm text-gray-500">Registrado: ${new Date(c.CreatedAt).toLocaleDateString('es-ES')}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="font-mono text-sm text-gray-700">${c.Cedula}</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm">
+                                        <div class="text-gray-700">${c.Telefono}</div>
+                                        ${c.Email ? `<div class="text-gray-500">${c.Email}</div>` : ''}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex flex-col gap-1">
+                                        ${c.Activo ?
+                                            '<span class="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full"><i data-lucide="check-circle" class="w-3 h-3"></i> Activo</span>' :
+                                            '<span class="inline-flex items-center gap-1 px-2 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full"><i data-lucide="x-circle" class="w-3 h-3"></i> Inactivo</span>'
+                                        }
+                                        ${c.HuellaTemplate ?
+                                            '<span class="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-800 text-xs font-semibold rounded-full"><i data-lucide="fingerprint" class="w-3 h-3"></i> Con huella</span>' :
+                                            '<span class="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full"><i data-lucide="fingerprint" class="w-3 h-3"></i> Sin huella</span>'
+                                        }
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <a href="/clientes/detalle/${c.Id}"
+                                           class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                           title="Ver detalles">
+                                            <i data-lucide="eye" class="w-4 h-4"></i>
+                                        </a>
+                                        <a href="/clientes/editar/${c.Id}"
+                                           class="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors"
+                                           title="Editar">
+                                            <i data-lucide="edit" class="w-4 h-4"></i>
+                                        </a>
+                                        ${!c.HuellaTemplate ?
+                                            `<a href="/clientes/capturar-huella/${c.Id}"
+                                                class="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                                                title="Capturar huella">
+                                                <i data-lucide="fingerprint" class="w-4 h-4"></i>
+                                            </a>` : ''
+                                        }
+                                        <a href="/membresias/crear?clienteId=${c.Id}"
+                                           class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                           title="Nueva membresía">
+                                            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                                        </a>
+                                        <button onclick="deleteCliente('${c.Id}')"
+                                                class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                title="Eliminar">
+                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            lucide.createIcons();
+        }
+
+        // Buscar clientes
+        document.getElementById('search-input').addEventListener('input', function(e) {
+            const search = e.target.value.toLowerCase();
+            const filtrados = clientesData.filter(c =>
+                c.Nombre.toLowerCase().includes(search) ||
+                c.Apellido.toLowerCase().includes(search) ||
+                c.Cedula.toLowerCase().includes(search)
+            );
+            renderClientes(filtrados);
         });
 
-        // Calcular estadísticas
-        const clientes = @Html.Raw(Json.Serialize(Model.Select(c => new
-            {
-                tieneMembresia = c.Membresias.Any(m => m.Estado == "activa"),
-                tieneHuella = !string.IsNullOrEmpty(c.HuellaTemplate)
-            })));
+        // Eliminar cliente
+        async function deleteCliente(id) {
+            if (!confirm('¿Estás seguro de eliminar este cliente? Esta acción no se puede deshacer.')) return;
 
-        const conMembresia = clientes.filter(c => c.tieneMembresia).length;
-        const conHuella = clientes.filter(c => c.tieneHuella).length;
+            try {
+                const response = await fetch(`${API_URL}/Clientes/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    alert('✓ Cliente eliminado exitosamente');
+                    loadClientes();
+                } else {
+                    alert('Error al eliminar el cliente');
+                }
+            } catch (error) {
+                alert('Error de conexión: ' + error.message);
+            }
+        }
 
-        document.getElementById('clientes-activos').textContent = conMembresia;
-        document.getElementById('clientes-huella').textContent = conHuella;
+        window.addEventListener('load', loadClientes);
     </script>
 }

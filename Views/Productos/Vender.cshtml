@@ -1,0 +1,377 @@
+﻿@{
+    ViewData["Title"] = "Vender Productos";
+}
+
+<div class="max-w-6xl mx-auto p-6">
+    <div class="bg-white rounded-xl shadow-lg p-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Venta de Productos</h2>
+
+        <!-- Seleccionar Cliente -->
+        <div class="mb-6 p-4 bg-blue-50 rounded-lg">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Cliente *</label>
+            <div class="flex gap-3">
+                <select id="clienteSelect" required
+                        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary">
+                    <option value="">Seleccione un cliente...</option>
+                </select>
+                <button type="button" id="btnBuscarCliente"
+                        class="px-6 py-2 bg-vida-primary text-vida-dark font-bold rounded-lg hover:bg-yellow-400">
+                    Buscar
+                </button>
+            </div>
+            <div id="clienteInfo" class="mt-3 hidden">
+                <div class="flex items-center gap-3 p-3 bg-white rounded-lg">
+                    <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
+                        <i data-lucide="user" class="w-6 h-6 text-gray-600"></i>
+                    </div>
+                    <div>
+                        <p class="font-bold text-gray-800" id="clienteNombre"></p>
+                        <p class="text-sm text-gray-600" id="clienteCedula"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de Productos Disponibles -->
+        <div class="mb-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-3">Productos Disponibles</h3>
+            <div class="mb-3">
+                <input type="text" id="buscarProducto" placeholder="Buscar producto..."
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary">
+            </div>
+            <div id="productosGrid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-96 overflow-y-auto">
+                <!-- Productos se cargan aquí -->
+            </div>
+        </div>
+
+        <!-- Carrito de Compra -->
+        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+            <h3 class="text-lg font-bold text-gray-800 mb-3">Carrito de Compra</h3>
+            <div id="carritoItems" class="space-y-2 mb-4">
+                <p class="text-gray-500 text-center py-4">No hay productos en el carrito</p>
+            </div>
+
+            <!-- Total -->
+            <div class="border-t pt-4">
+                <div class="flex justify-between items-center text-xl font-bold">
+                    <span>Total:</span>
+                    <span id="totalCarrito" class="text-vida-dark">$0.00</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Opciones de Pago -->
+        <div class="mb-6 p-4 bg-yellow-50 rounded-lg">
+            <h3 class="text-lg font-bold text-gray-800 mb-3">Método de Pago</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="flex items-center p-3 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-vida-primary">
+                        <input type="radio" name="estadoPago" value="pagado" checked
+                               class="mr-3 w-5 h-5 text-vida-primary">
+                        <div>
+                            <p class="font-bold text-gray-800">Contado (Pagado)</p>
+                            <p class="text-sm text-gray-600">Pago inmediato</p>
+                        </div>
+                    </label>
+                </div>
+                <div>
+                    <label class="flex items-center p-3 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-orange-500">
+                        <input type="radio" name="estadoPago" value="pendiente"
+                               class="mr-3 w-5 h-5 text-orange-500">
+                        <div>
+                            <p class="font-bold text-gray-800">Fiado (Crédito)</p>
+                            <p class="text-sm text-gray-600">Pago pendiente</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Notas -->
+            <div class="mt-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Notas</label>
+                <textarea id="notasVenta" rows="2" placeholder="Observaciones adicionales..."
+                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary"></textarea>
+            </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="flex gap-4">
+            <button type="button" id="btnRegistrarVenta"
+                    class="flex-1 bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 transition">
+                <i data-lucide="check-circle" class="w-5 h-5 inline mr-2"></i>
+                Registrar Venta
+            </button>
+            <button type="button" id="btnLimpiar"
+                    class="px-6 py-3 bg-gray-300 text-gray-700 font-bold rounded-lg hover:bg-gray-400 transition">
+                <i data-lucide="x-circle" class="w-5 h-5 inline mr-2"></i>
+                Limpiar
+            </button>
+            <a href="/productos"
+               class="px-6 py-3 bg-gray-300 text-gray-700 font-bold rounded-lg hover:bg-gray-400 transition text-center">
+                Cancelar
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let productos = [];
+        let clientes = [];
+        let carrito = [];
+        let clienteSeleccionado = null;
+
+        // Cargar datos iniciales
+        async function cargarDatos() {
+            try {
+                // Cargar clientes
+                const clientesRes = await fetch('/api/Clientes');
+                clientes = await clientesRes.json();
+                const clienteSelect = document.getElementById('clienteSelect');
+                clientes.forEach(c => {
+                    const option = document.createElement('option');
+                    option.value = c.id;
+                    option.textContent = `${c.Nombre} ${c.Apellido} - ${c.Cedula}`;
+                    clienteSelect.appendChild(option);
+                });
+
+                // Cargar productos
+                const productosRes = await fetch('/api/Productos');
+                productos = await productosRes.json();
+                renderProductos(productos);
+            } catch (error) {
+                console.error('Error cargando datos:', error);
+                alert('Error al cargar datos');
+            }
+        }
+
+        // Renderizar productos en grid
+        function renderProductos(lista) {
+            const grid = document.getElementById('productosGrid');
+            grid.innerHTML = '';
+
+            lista.forEach(p => {
+                if (!p.activo || p.stock <= 0) return;
+
+                const div = document.createElement('div');
+                div.className = 'border rounded-lg p-3 hover:shadow-lg cursor-pointer transition';
+                div.innerHTML = `
+                    <div class="aspect-square bg-gray-200 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
+                        ${p.imagenBase64
+                            ? `<img src="${p.ImagenBase64}" class="w-full h-full object-cover" alt="${p.Nombre}">`
+                            : `<i data-lucide="package" class="w-12 h-12 text-gray-400"></i>`
+                        }
+                    </div>
+                    <p class="font-bold text-sm text-gray-800 truncate">${p.Nombre}</p>
+                    <p class="text-xs text-gray-600">${p.categoria}</p>
+                    <p class="text-lg font-bold text-vida-dark mt-1">$${p.precio.toFixed(2)}</p>
+                    <p class="text-xs text-gray-500">Stock: ${p.stock}</p>
+                `;
+                div.onclick = () => agregarAlCarrito(p);
+                grid.appendChild(div);
+            });
+
+            lucide.createIcons();
+        }
+
+        // Buscar productos
+        document.getElementById('buscarProducto').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            const filtrados = productos.filter(p =>
+                p.Nombre.toLowerCase().includes(query) ||
+                p.categoria.toLowerCase().includes(query)
+            );
+            renderProductos(filtrados);
+        });
+
+        // Seleccionar cliente
+        document.getElementById('btnBuscarCliente').addEventListener('click', function() {
+            const clienteId = document.getElementById('clienteSelect').value;
+            if (!clienteId) {
+                alert('Seleccione un cliente');
+                return;
+            }
+
+            clienteSeleccionado = clientes.find(c => c.id === clienteId);
+            document.getElementById('clienteNombre').textContent =
+                `${clienteSeleccionado.Nombre} ${clienteSeleccionado.Apellido}`;
+            document.getElementById('clienteCedula').textContent = clienteSeleccionado.cedula;
+            document.getElementById('clienteInfo').classList.remove('hidden');
+            lucide.createIcons();
+        });
+
+        // Agregar producto al carrito
+        function agregarAlCarrito(producto) {
+            const itemExistente = carrito.find(i => i.producto.id === producto.id);
+
+            if (itemExistente) {
+                if (itemExistente.cantidad < producto.stock) {
+                    itemExistente.cantidad++;
+                    itemExistente.total = itemExistente.cantidad * itemExistente.Unitario;
+                } else {
+                    alert('No hay suficiente stock');
+                    return;
+                }
+            } else {
+                carrito.push({
+                    producto: producto,
+                    cantidad: 1,
+                    precioUnitario: producto.Precio,
+                    total: producto.Precio
+                });
+            }
+
+            renderCarrito();
+        }
+
+        // Eliminar del carrito
+        function eliminarDelCarrito(productoId) {
+            carrito = carrito.filter(i => i.producto.id !== productoId);
+            renderCarrito();
+        }
+
+        // Cambiar cantidad
+        function cambiarCantidad(productoId, nuevaCantidad) {
+            const item = carrito.find(i => i.producto.id === productoId);
+            if (item && nuevaCantidad > 0 && nuevaCantidad <= item.producto.stock) {
+                item.cantidad = nuevaCantidad;
+                item.total = item.cantidad * item.precioUnitario;
+                renderCarrito();
+            }
+        }
+
+        // Renderizar carrito
+        function renderCarrito() {
+            const container = document.getElementById('carritoItems');
+
+            if (carrito.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">No hay productos en el carrito</p>';
+                document.getElementById('totalCarrito').textContent = '$0.00';
+                return;
+            }
+
+            container.innerHTML = '';
+            let total = 0;
+
+            carrito.forEach(item => {
+                total += item.total;
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between p-3 bg-white rounded-lg';
+                div.innerHTML = `
+                    <div class="flex items-center gap-3 flex-1">
+                        <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center overflow-hidden">
+                            ${item.producto.ImagenBase64
+                                ? `<img src="${item.producto.ImagenBase64}" class="w-full h-full object-cover">`
+                                : `<i data-lucide="package" class="w-6 h-6 text-gray-400"></i>`
+                            }
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-bold text-sm">${item.producto.Nombre}</p>
+                            <p class="text-xs text-gray-600">$${item.precioUnitario.toFixed(2)} c/u</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="cambiarCantidad('${item.producto.Id}', ${item.cantidad - 1})"
+                                class="w-8 h-8 bg-gray-200 rounded hover:bg-gray-300">-</button>
+                        <span class="w-12 text-center font-bold">${item.cantidad}</span>
+                        <button onclick="cambiarCantidad('${item.producto.Id}', ${item.cantidad + 1})"
+                                class="w-8 h-8 bg-gray-200 rounded hover:bg-gray-300">+</button>
+                    </div>
+                    <div class="w-24 text-right">
+                        <p class="font-bold">$${item.total.toFixed(2)}</p>
+                    </div>
+                    <button onclick="eliminarDelCarrito('${item.producto.Id}')"
+                            class="ml-2 text-red-600 hover:text-red-800">
+                        <i data-lucide="trash-2" class="w-5 h-5"></i>
+                    </button>
+                `;
+                container.appendChild(div);
+            });
+
+            document.getElementById('totalCarrito').textContent = `$${total.toFixed(2)}`;
+            lucide.createIcons();
+        }
+
+        // Registrar venta
+        document.getElementById('btnRegistrarVenta').addEventListener('click', async function() {
+            if (!clienteSeleccionado) {
+                alert('Seleccione un cliente');
+                return;
+            }
+
+            if (carrito.length === 0) {
+                alert('Agregue productos al carrito');
+                return;
+            }
+
+            const estadoPago = document.querySelector('input[name="estadoPago"]:checked').value;
+            const notas = document.getElementById('notasVenta').value;
+
+            try {
+                // Registrar cada producto como una venta
+                for (const item of carrito) {
+                    const venta = {
+                        clienteId: clienteSeleccionado.id,
+                        productoId: item.producto.id,
+                        cantidad: item.cantidad,
+                        precioUnitario: item.precioUnitario,
+                        total: item.total,
+                        estadoPago: estadoPago,
+                        notas: notas
+                    };
+
+                    const response = await fetch('/api/VentasProductos', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(venta)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Error al registrar venta');
+                    }
+
+                    // Actualizar stock del producto
+                    const productoActualizado = {
+                        ...item.producto,
+                        stock: item.producto.stock - item.cantidad
+                    };
+
+                    await fetch(`/api/Productos/${item.producto.id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(productoActualizado)
+                    });
+                }
+
+                alert(`Venta registrada exitosamente como ${estadoPago === 'pagado' ? 'PAGADA' : 'FIADA'}`);
+                limpiar();
+                await cargarDatos();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al registrar venta');
+            }
+        });
+
+        // Limpiar formulario
+        document.getElementById('btnLimpiar').addEventListener('click', limpiar);
+
+        function limpiar() {
+            carrito = [];
+            clienteSeleccionado = null;
+            document.getElementById('clienteSelect').value = '';
+            document.getElementById('clienteInfo').classList.add('hidden');
+            document.getElementById('notasVenta').value = '';
+            document.getElementById('buscarProducto').value = '';
+            renderCarrito();
+            renderProductos(productos);
+        }
+
+        // Exponer funciones globalmente
+        window.cambiarCantidad = cambiarCantidad;
+        window.eliminarDelCarrito = eliminarDelCarrito;
+
+        // Inicializar
+        cargarDatos();
+        lucide.createIcons();
+    </script>
+}

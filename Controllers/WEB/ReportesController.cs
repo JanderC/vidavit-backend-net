@@ -47,16 +47,24 @@ namespace VidaFit.Controllers.WEB
             var fechaInicio = desde ?? DateTime.UtcNow.AddMonths(-1).Date;
             var fechaFin = hasta ?? DateTime.UtcNow.Date;
 
-            var ingresos = await _context.Pagos
+            // PASO 1: Cargar TODOS los datos con Include
+            var pagos = await _context.Pagos
+                .Include(p => p.Membresia)
+                    .ThenInclude(m => m.Plan)
                 .Where(p => p.FechaPago.Date >= fechaInicio && p.FechaPago.Date <= fechaFin)
-                .GroupBy(p => p.FechaPago.Date)
+                .ToListAsync(); // ← IMPORTANTE: ToListAsync() primero
+
+            // PASO 2: Agrupar EN MEMORIA (después del ToListAsync)
+            var ingresos = pagos
+                .GroupBy(p => new { PlanId = p.Membresia.PlanId, PlanNombre = p.Membresia.Plan.Nombre })
                 .Select(g => new
                 {
-                    Fecha = g.Key,
+                    PlanNombre = g.Key.PlanNombre,
+                    CantidadPagos = g.Count(),
                     Total = g.Sum(p => p.Monto)
                 })
-                .OrderBy(g => g.Fecha)
-                .ToListAsync();
+                .OrderByDescending(i => i.Total)
+                .ToList(); // ← ToList() otra vez para materializar el resultado
 
             ViewBag.FechaInicio = fechaInicio;
             ViewBag.FechaFin = fechaFin;
@@ -70,19 +78,27 @@ namespace VidaFit.Controllers.WEB
             var fechaInicio = desde ?? DateTime.UtcNow.AddMonths(-1).Date;
             var fechaFin = hasta ?? DateTime.UtcNow.Date;
 
-            var productos = await _context.VentasProductos
-                .Where(v => v.FechaVenta.Date >= fechaInicio && v.FechaVenta.Date <= fechaFin && v.EstadoPago == "pagado")
-                .GroupBy(v => v.ProductoId)
+            // PASO 1: Cargar TODO con Include
+            var ventas = await _context.VentasProductos
+                .Include(v => v.Producto)
+                .Where(v => v.FechaVenta.Date >= fechaInicio
+                         && v.FechaVenta.Date <= fechaFin
+                         && v.EstadoPago == "pagado")
+                .ToListAsync(); // ← IMPORTANTE: ToListAsync() primero
+
+            // PASO 2: Agrupar EN MEMORIA
+            var productos = ventas
+                .GroupBy(v => new { ProductoId = v.ProductoId, Nombre = v.Producto.Nombre })
                 .Select(g => new
                 {
-                    ProductoId = g.Key,
-                    Nombre = g.First().Producto.Nombre,
+                    ProductoId = g.Key.ProductoId,
+                    Nombre = g.Key.Nombre,
                     Cantidad = g.Sum(v => v.Cantidad),
                     Total = g.Sum(v => v.Total)
                 })
                 .OrderByDescending(g => g.Cantidad)
                 .Take(10)
-                .ToListAsync();
+                .ToList(); // ← ToList() para materializar
 
             ViewBag.FechaInicio = fechaInicio;
             ViewBag.FechaFin = fechaFin;
@@ -93,17 +109,24 @@ namespace VidaFit.Controllers.WEB
         [HttpGet("cuentas-pendientes")]
         public async Task<IActionResult> CuentasPendientes()
         {
-            var pendientes = await _context.VentasProductos
+            // PASO 1: Cargar TODO con Include
+            var ventasPendientes = await _context.VentasProductos
+                .Include(v => v.Cliente)
+                .Include(v => v.Producto)
                 .Where(v => v.EstadoPago == "pendiente")
+                .ToListAsync(); // ← IMPORTANTE: ToListAsync() primero
+
+            // PASO 2: Agrupar EN MEMORIA
+            var pendientes = ventasPendientes
                 .GroupBy(v => v.ClienteId)
                 .Select(g => new
                 {
                     Cliente = g.First().Cliente,
                     TotalPendiente = g.Sum(v => v.Total),
-                    Productos = g.Select(v => v.Producto.Nombre).ToList()
+                    Productos = g.Select(v => v.Producto.Nombre).Distinct().ToList()
                 })
                 .OrderByDescending(g => g.TotalPendiente)
-                .ToListAsync();
+                .ToList(); // ← ToList() para materializar
 
             return View(pendientes);
         }

@@ -94,5 +94,7 @@ namespace VidaFit.Controllers.API
             await _context.SaveChangesAsync();
             return NoContent();
         }
+
+     
     }
 }

@@ -1,109 +1,113 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using VidaFit.Data;
-using VidaFitBackend.Models;
+using VidaFit.Services;
 
-namespace VidaFit.Controllers.API
+namespace VidaFit.Controllers.WEB
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class AdminController : ControllerBase
+    [Route("admin")]
+    public class AdminController : Controller  // ← CAMBIO AQUÍ: Controller, no ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IAuthService _authService;
 
-        public AdminController(AppDbContext context)
+        public AdminController(AppDbContext context, IAuthService authService)
         {
             _context = context;
+            _authService = authService;
         }
 
-        // GET: api/Admin/usuarios
-        [HttpGet("usuarios")]
-        public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()
+        // GET: /admin/login
+        [HttpGet("login")]
+        public IActionResult Login()
         {
-            return await _context.Usuarios
-                .OrderByDescending(u => u.CreatedAt)
-                .ToListAsync();
+            // Si ya está autenticado, redirigir al dashboard
+            if (HttpContext.Session.GetString("UserId") != null)
+            {
+                return RedirectToAction("Dashboard");
+            }
+
+            return View();
         }
 
-        // GET: api/Admin/usuarios/{id}
-        [HttpGet("usuarios/{id}")]
-        public async Task<ActionResult<Usuario>> GetUsuario(Guid id)
+        // POST: /admin/login
+        [HttpPost("login")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(string email, string password)
         {
-            var usuario = await _context.Usuarios.FindAsync(id);
-            if (usuario == null)
-                return NotFound();
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+            {
+                ViewBag.Error = "Email y contraseña son requeridos";
+                return View();
+            }
 
-            return usuario;
+            try
+            {
+                // Usar el servicio de autenticación existente
+                var result = await _authService.Login(email, password);
+
+                if (!result.Success)
+                {
+                    ViewBag.Error = result.Message;
+                    return View();
+                }
+
+                // Guardar datos en sesión
+                HttpContext.Session.SetString("UserId", result.Usuario.Id.ToString());
+                HttpContext.Session.SetString("UserName", result.Usuario.Nombre);
+                HttpContext.Session.SetString("UserEmail", result.Usuario.Email);
+                HttpContext.Session.SetString("UserRole", result.Usuario.Rol);
+
+                // Redirigir al dashboard
+                return RedirectToAction("Dashboard");
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Error al iniciar sesión. Intenta nuevamente.";
+                Console.WriteLine($"Error en login: {ex.Message}");
+                return View();
+            }
         }
 
-        // POST: api/Admin/usuarios
-        [HttpPost("usuarios")]
-        public async Task<ActionResult<Usuario>> CreateUsuario([FromBody] Usuario usuario)
+        // GET: /admin/dashboard
+        [HttpGet("dashboard")]
+        public IActionResult Dashboard()
         {
-            usuario.Id = Guid.NewGuid();
-            usuario.CreatedAt = DateTime.UtcNow;
-            usuario.UpdatedAt = DateTime.UtcNow;
-            usuario.Activo = true;
-            // Aquí deberías hashear la contraseña antes de guardarla
-            _context.Usuarios.Add(usuario);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetUsuario), new { id = usuario.Id }, usuario);
+            // Verificar autenticación
+            var userId = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login");
+            }
+
+            // Pasar datos del usuario a la vista
+            ViewBag.UserName = HttpContext.Session.GetString("UserName");
+            ViewBag.UserRole = HttpContext.Session.GetString("UserRole");
+
+            return View("Index"); // Renderiza Views/Admin/Index.cshtml
         }
 
-        // PUT: api/Admin/usuarios/{id}
-        [HttpPut("usuarios/{id}")]
-        public async Task<IActionResult> UpdateUsuario(Guid id, [FromBody] Usuario usuario)
+        // GET: /admin (redirige al dashboard)
+        [HttpGet("")]
+        public IActionResult Index()
         {
-            if (id != usuario.Id)
-                return BadRequest();
-
-            var dbUsuario = await _context.Usuarios.FindAsync(id);
-            if (dbUsuario == null)
-                return NotFound();
-
-            dbUsuario.Nombre = usuario.Nombre;
-            dbUsuario.Email = usuario.Email;
-            dbUsuario.Rol = usuario.Rol;
-            dbUsuario.Telefono = usuario.Telefono;
-            dbUsuario.Activo = usuario.Activo;
-            dbUsuario.UpdatedAt = DateTime.UtcNow;
-
-            await _context.SaveChangesAsync();
-            return NoContent();
+            return RedirectToAction("Dashboard");
         }
 
-        // DELETE: api/Admin/usuarios/{id}
-        [HttpDelete("usuarios/{id}")]
-        public async Task<IActionResult> DeleteUsuario(Guid id)
+        // POST: /admin/logout
+        [HttpPost("logout")]
+        [ValidateAntiForgeryToken]
+        public IActionResult Logout()
         {
-            var usuario = await _context.Usuarios.FindAsync(id);
-            if (usuario == null)
-                return NotFound();
-
-            _context.Usuarios.Remove(usuario);
-            await _context.SaveChangesAsync();
-            return NoContent();
+            HttpContext.Session.Clear();
+            return RedirectToAction("Login");
         }
 
-        // PUT: api/Admin/usuarios/{id}/cambiar-password
-        [HttpPut("usuarios/{id}/cambiar-password")]
-        public async Task<IActionResult> CambiarPassword(Guid id, [FromBody] CambiarPasswordRequest request)
+        // GET: /admin/logout (también permitir GET)
+        [HttpGet("logout")]
+        public IActionResult LogoutGet()
         {
-            var usuario = await _context.Usuarios.FindAsync(id);
-            if (usuario == null)
-                return NotFound();
-
-            // Aquí deberías hashear la nueva contraseña antes de guardarla
-            usuario.PasswordHash = request.NuevaPassword; // Reemplaza por hash real
-            usuario.UpdatedAt = DateTime.UtcNow;
-            await _context.SaveChangesAsync();
-
-            return Ok(new { success = true, message = "Contraseña actualizada correctamente" });
+            HttpContext.Session.Clear();
+            return RedirectToAction("Login");
         }
-    }
-
-    public class CambiarPasswordRequest
-    {
-        public string NuevaPassword { get; set; }
     }
 }

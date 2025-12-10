@@ -5,7 +5,6 @@ using VidaFit.Services;
 using VidaFitBackend.Services;
 using VidaFitBackend.Models;
 
-
 namespace VidaFit.Controllers.API
 {
     [ApiController]
@@ -27,167 +26,8 @@ namespace VidaFit.Controllers.API
         }
 
         /// <summary>
-        /// Realizar check-in usando huella digital
-        /// </summary>
-        /// <returns>Resultado del check-in con información del cliente</returns>
-        [HttpPost("fingerprint")]
-        public async Task<IActionResult> CheckInByFingerprint()
-        {
-            try
-            {
-                // Verificar que el lector esté conectado
-                if (!_fingerprintService.IsReaderConnected())
-                {
-                    return Ok(new
-                    {
-                        success = false,
-                        message = "Lector de huellas no conectado",
-                        code = "READER_NOT_CONNECTED"
-                    });
-                }
-
-                // Capturar huella del lector
-                byte[] fingerprintData;
-                try
-                {
-                    fingerprintData = _fingerprintService.CaptureFingerprint();
-                }
-                catch (Exception ex)
-                {
-                    return Ok(new
-                    {
-                        success = false,
-                        message = "Error al capturar huella. Intenta nuevamente.",
-                        code = "CAPTURE_ERROR",
-                        error = ex.Message
-                    });
-                }
-
-                // Buscar cliente con huella coincidente
-                var clientes = await _context.Clientes
-                    .Include(c => c.Membresias)
-                    .Where(c => c.Activo && c.HuellaTemplate != null)
-                    .ToListAsync();
-
-                Cliente clienteEncontrado = null;
-
-                foreach (var cliente in clientes)
-                {
-                    if (_fingerprintService.VerifyFingerprint(fingerprintData, cliente.HuellaTemplate))
-                    {
-                        clienteEncontrado = cliente;
-                        break;
-                    }
-                }
-
-                if (clienteEncontrado == null)
-                {
-                    // Registrar intento fallido
-                    var checkInFallido = new CheckIn
-                    {
-                        ClienteId = Guid.Empty,
-                        FechaHora = DateTime.Now,
-                        Metodo = "huella",
-                        Exitoso = false,
-                        Nota = "Huella no reconocida"
-                    };
-
-                    return Ok(new
-                    {
-                        success = false,
-                        message = "Huella no reconocida. Acércate a recepción.",
-                        code = "FINGERPRINT_NOT_FOUND"
-                    });
-                }
-
-                // Verificar membresía activa
-                var membresiaActiva = clienteEncontrado.Membresias
-                    .Where(m => m.Estado == "activa")
-                    .OrderByDescending(m => m.FechaVencimiento)
-                    .FirstOrDefault();
-
-                bool tieneAcceso = true;
-                string mensaje = $"¡Bienvenido {clienteEncontrado.Nombre} {clienteEncontrado.Apellido}!";
-                string alertType = "success";
-                int? diasRestantes = null;
-
-                if (membresiaActiva == null)
-                {
-                    tieneAcceso = false;
-                    mensaje = "No tienes membresía activa. Acércate a recepción.";
-                    alertType = "error";
-                }
-                else if (membresiaActiva.FechaVencimiento < DateTime.Now.Date)
-                {
-                    tieneAcceso = false;
-                    mensaje = "Tu membresía ha vencido. Acércate a recepción para renovar.";
-                    alertType = "error";
-
-                    // Actualizar estado de membresía
-                    membresiaActiva.Estado = "vencida";
-                    membresiaActiva.UpdatedAt = DateTime.Now;
-                    await _context.SaveChangesAsync();
-                }
-                else
-                {
-                    diasRestantes = (membresiaActiva.FechaVencimiento - DateTime.Now.Date).Days;
-
-                    if (diasRestantes <= 3)
-                    {
-                        mensaje = $"¡Bienvenido! Tu membresía vence en {diasRestantes} días.";
-                        alertType = "warning";
-                    }
-                    else if (diasRestantes <= 7)
-                    {
-                        mensaje = $"¡Bienvenido! Tu membresía vence en {diasRestantes} días.";
-                        alertType = "info";
-                    }
-                }
-
-                // Registrar check-in
-                var checkIn = new CheckIn
-                {
-                    ClienteId = clienteEncontrado.Id,
-                    FechaHora = DateTime.Now,
-                    Metodo = "huella",
-                    Exitoso = tieneAcceso,
-                    Nota = mensaje
-                };
-
-                _context.CheckIns.Add(checkIn);
-                await _context.SaveChangesAsync();
-
-                return Ok(new
-                {
-                    success = tieneAcceso,
-                    message = mensaje,
-                    alertType,
-                    cliente = new
-                    {
-                        id = clienteEncontrado.Id,
-                        nombre = $"{clienteEncontrado.Nombre} {clienteEncontrado.Apellido}",
-                        fotoBase64 = clienteEncontrado.FotoBase64,
-                        diasRestantes,
-                        fechaVencimiento = membresiaActiva?.FechaVencimiento
-                    }
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Error al procesar check-in",
-                    error = ex.Message
-                });
-            }
-        }
-
-        /// <summary>
         /// Realizar check-in usando número de cédula
         /// </summary>
-        /// <param name="request">Objeto con el número de cédula</param>
-        /// <returns>Resultado del check-in con información del cliente</returns>
         [HttpPost("cedula")]
         public async Task<IActionResult> CheckInByCedula([FromBody] CedulaRequest request)
         {
@@ -211,53 +51,42 @@ namespace VidaFit.Controllers.API
                     return Ok(new
                     {
                         success = false,
-                        message = "Cédula no encontrada. Acércate a recepción.",
-                        code = "CEDULA_NOT_FOUND"
+                        message = "Cédula no encontrada. Acércate a recepción."
                     });
                 }
 
-                // Verificar membresía (mismo código que fingerprint)
+                // Verificar membresía
                 var membresiaActiva = cliente.Membresias
                     .Where(m => m.Estado == "activa")
                     .OrderByDescending(m => m.FechaVencimiento)
                     .FirstOrDefault();
 
                 bool tieneAcceso = true;
-                string mensaje = $"¡Bienvenido {cliente.Nombre} {cliente.Apellido}!";
-                string alertType = "success";
+                string mensaje;
                 int? diasRestantes = null;
 
                 if (membresiaActiva == null)
                 {
                     tieneAcceso = false;
                     mensaje = "No tienes membresía activa. Acércate a recepción.";
-                    alertType = "error";
                 }
                 else if (membresiaActiva.FechaVencimiento < DateTime.Now.Date)
                 {
                     tieneAcceso = false;
                     mensaje = "Tu membresía ha vencido. Acércate a recepción para renovar.";
-                    alertType = "error";
                     membresiaActiva.Estado = "vencida";
-                    membresiaActiva.UpdatedAt = DateTime.Now;
                     await _context.SaveChangesAsync();
                 }
                 else
                 {
                     diasRestantes = (membresiaActiva.FechaVencimiento - DateTime.Now.Date).Days;
-
-                    if (diasRestantes <= 3)
-                    {
-                        mensaje = $"¡Bienvenido! Tu membresía vence en {diasRestantes} días.";
-                        alertType = "warning";
-                    }
-                    else if (diasRestantes <= 7)
-                    {
-                        mensaje = $"¡Bienvenido! Tu membresía vence en {diasRestantes} días.";
-                        alertType = "info";
-                    }
+                    mensaje = diasRestantes <= 3
+                        ? $"¡Bienvenido! Tu membresía vence en {diasRestantes} días"
+                        : "¡Bienvenido!";
                 }
 
+                // Registrar check-in
+                // Registrar check-in
                 var checkIn = new CheckIn
                 {
                     ClienteId = cliente.Id,
@@ -270,18 +99,16 @@ namespace VidaFit.Controllers.API
                 _context.CheckIns.Add(checkIn);
                 await _context.SaveChangesAsync();
 
+                // RETORNO SIMPLIFICADO igual que fingerprint
                 return Ok(new
                 {
                     success = tieneAcceso,
                     message = mensaje,
-                    alertType,
                     cliente = new
                     {
-                        id = cliente.Id,
                         nombre = $"{cliente.Nombre} {cliente.Apellido}",
                         fotoBase64 = cliente.FotoBase64,
-                        diasRestantes,
-                        fechaVencimiento = membresiaActiva?.FechaVencimiento
+                        diasRestantes
                     }
                 });
             }
@@ -299,7 +126,6 @@ namespace VidaFit.Controllers.API
         /// <summary>
         /// Obtener check-ins del día actual
         /// </summary>
-        /// <returns>Lista de check-ins de hoy</returns>
         [HttpGet("today")]
         public async Task<IActionResult> GetTodayCheckIns()
         {
@@ -343,9 +169,6 @@ namespace VidaFit.Controllers.API
         /// <summary>
         /// Obtener historial de check-ins de un cliente
         /// </summary>
-        /// <param name="clienteId">ID del cliente</param>
-        /// <param name="limit">Cantidad de registros (default: 50)</param>
-        /// <returns>Historial de check-ins</returns>
         [HttpGet("cliente/{clienteId}")]
         public async Task<IActionResult> GetClienteCheckIns(Guid clienteId, [FromQuery] int limit = 50)
         {
@@ -384,72 +207,8 @@ namespace VidaFit.Controllers.API
         }
 
         /// <summary>
-        /// Obtener estadísticas de check-ins por período
-        /// </summary>
-        /// <param name="dias">Días hacia atrás (default: 30)</param>
-        /// <returns>Estadísticas de check-ins</returns>
-        [HttpGet("estadisticas")]
-        public async Task<IActionResult> GetEstadisticas([FromQuery] int dias = 30)
-        {
-            try
-            {
-                var fechaInicio = DateTime.Now.AddDays(-dias).Date;
-
-                var checkIns = await _context.CheckIns
-                    .Where(c => c.FechaHora >= fechaInicio)
-                    .ToListAsync();
-
-                var estadisticas = checkIns
-                    .GroupBy(c => c.FechaHora.Date)
-                    .Select(g => new
-                    {
-                        fecha = g.Key,
-                        total = g.Count(),
-                        exitosos = g.Count(c => c.Exitoso),
-                        fallidos = g.Count(c => !c.Exitoso),
-                        porHuella = g.Count(c => c.Metodo == "huella"),
-                        porCedula = g.Count(c => c.Metodo == "cedula")
-                    })
-                    .OrderBy(e => e.fecha)
-                    .ToList();
-
-                var totalCheckIns = checkIns.Count;
-                var promediosDiario = totalCheckIns > 0 ? totalCheckIns / dias : 0;
-                var clientesUnicos = checkIns.Select(c => c.ClienteId).Distinct().Count();
-
-                return Ok(new
-                {
-                    success = true,
-                    periodo = new
-                    {
-                        fechaInicio,
-                        fechaFin = DateTime.Now.Date,
-                        dias
-                    },
-                    resumen = new
-                    {
-                        totalCheckIns,
-                        promediosDiario,
-                        clientesUnicos
-                    },
-                    estadisticas
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Error al obtener estadísticas",
-                    error = ex.Message
-                });
-            }
-        }
-
-        /// <summary>
         /// Verificar estado del lector de huellas
         /// </summary>
-        /// <returns>Estado de conexión del lector</returns>
         [HttpGet("status")]
         public IActionResult GetReaderStatus()
         {
@@ -468,8 +227,6 @@ namespace VidaFit.Controllers.API
         /// <summary>
         /// Realizar check-in manual por un administrador
         /// </summary>
-        /// <param name="request">Datos del check-in manual</param>
-        /// <returns>Confirmación del check-in</returns>
         [HttpPost("manual")]
         public async Task<IActionResult> ManualCheckIn([FromBody] ManualCheckInRequest request)
         {
@@ -488,6 +245,7 @@ namespace VidaFit.Controllers.API
                     });
                 }
 
+                // Registrar check-in
                 var checkIn = new CheckIn
                 {
                     ClienteId = cliente.Id,

@@ -42,7 +42,7 @@ namespace VidaFitBackend.Models
         public DateTime? FechaPago { get; set; }
 
         [Column("notas")]
-        public string Notas { get; set; }
+        public string? Notas { get; set; }
 
         [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.Now;

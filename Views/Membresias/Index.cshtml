@@ -134,8 +134,8 @@
         }
 
         function renderMembresia(m) {
-            const fechaInicio = new Date(m.fechaInicio).toLocaleDateString('es-ES');
-            const fechaVenc = new Date(m.fechaVencimiento);
+            const fechaInicio = new Date(m.FechaInicio).toLocaleDateString('es-ES');
+            const fechaVenc = new Date(m.FechaVencimiento);
             const fechaVencStr = fechaVenc.toLocaleDateString('es-ES');
             const hoy = new Date();
             const diasRestantes = Math.ceil((fechaVenc - hoy) / (1000 * 60 * 60 * 24));
@@ -155,8 +155,8 @@
                 estadoBadge = '<span class="px-3 py-1 bg-gray-100 text-gray-800 text-xs font-semibold rounded-full">Suspendida</span>';
             }
 
-            const clienteNombre = m.cliente ? `${m.cliente.nombre} ${m.cliente.apellido}` : 'Cliente';
-            const planNombre = m.plan?.nombre || 'Plan';
+            const clienteNombre = m.Cliente ? `${m.Cliente.Nombre} ${m.Cliente.Apellido}` : 'Cliente';
+            const planNombre = m.PLan?.Nombre || 'Plan';
 
             return `
                 <div class="p-4 border border-gray-200 rounded-lg hover:border-vida-primary transition-colors">

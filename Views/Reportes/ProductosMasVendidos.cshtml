@@ -1,0 +1,305 @@
+@using System.Text.Json
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Productos Más Vendidos";
+    ViewData["Subtitle"] = "Top 10 productos con mayor demanda";
+
+    // Serializar y deserializar para convertir tipos anónimos en diccionarios
+    var json = JsonSerializer.Serialize(Model);
+    var productosLista = JsonSerializer.Deserialize<List<Dictionary<string, object>>>(json);
+
+    decimal totalIngresos = 0;
+    int totalUnidades = 0;
+
+    if (productosLista != null && productosLista.Any())
+    {
+        foreach (var item in productosLista)
+        {
+            if (item.ContainsKey("Total"))
+                totalIngresos += Convert.ToDecimal(item["Total"].ToString());
+            if (item.ContainsKey("Cantidad"))
+                totalUnidades += Convert.ToInt32(item["Cantidad"].ToString());
+        }
+    }
+}
+
+<div class="space-y-6">
+    <!-- Filtros de Fecha -->
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <div class="flex flex-wrap items-end gap-4">
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Desde</label>
+                <input type="date" id="fecha-desde" value="@ViewBag.FechaInicio.ToString("yyyy-MM-dd")"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-transparent">
+            </div>
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Hasta</label>
+                <input type="date" id="fecha-hasta" value="@ViewBag.FechaFin.ToString("yyyy-MM-dd")"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-transparent">
+            </div>
+            <button onclick="filtrarPorFecha()"
+                    class="px-6 py-2 bg-vida-primary hover:bg-vida-accent text-vida-dark font-semibold rounded-lg transition-all">
+                <i data-lucide="filter" class="w-4 h-4 inline-block mr-2"></i>
+                Filtrar
+            </button>
+        </div>
+    </div>
+
+    @if (productosLista != null && productosLista.Any())
+    {
+        <!-- Resumen General -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white rounded-lg shadow p-6 border-l-4 border-yellow-500">
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Productos Vendidos</p>
+                        <p class="text-3xl font-bold text-gray-800">@productosLista.Count()</p>
+                    </div>
+                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <i data-lucide="package" class="w-6 h-6 text-yellow-600"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Ingresos Totales</p>
+                        <p class="text-3xl font-bold text-gray-800">$@totalIngresos.ToString("N2")</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <i data-lucide="dollar-sign" class="w-6 h-6 text-green-600"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Unidades Totales</p>
+                        <p class="text-3xl font-bold text-gray-800">@totalUnidades</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i data-lucide="shopping-cart" class="w-6 h-6 text-blue-600"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top 3 Destacados -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            @for (int i = 0; i < Math.Min(3, productosLista.Count()); i++)
+            {
+                var producto = productosLista[i];
+                var nombre = producto["Nombre"].ToString();
+                var cantidad = Convert.ToInt32(producto["Cantidad"].ToString());
+                var total = Convert.ToDecimal(producto["Total"].ToString());
+
+                var podiumColors = new[] { "bg-yellow-50 border-yellow-400", "bg-gray-50 border-gray-400", "bg-orange-50 border-orange-400" };
+                var podiumIcons = new[] { "trophy", "medal", "award" };
+                var podiumTextColors = new[] { "text-yellow-600", "text-gray-600", "text-orange-600" };
+
+                <div class="bg-white rounded-xl shadow-md p-6 border-2 @podiumColors[i] transform hover:scale-105 transition-transform">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-full @podiumColors[i] flex items-center justify-center">
+                            <i data-lucide="@podiumIcons[i]" class="w-6 h-6 @podiumTextColors[i]"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-xs text-gray-500 uppercase font-semibold">Puesto #@(i + 1)</p>
+                            <p class="font-bold text-gray-800 text-lg">@nombre</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Unidades vendidas:</span>
+                            <span class="font-bold @podiumTextColors[i]">@cantidad</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Ingresos:</span>
+                            <span class="font-bold text-green-600">$@total.ToString("N2")</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Gráfica de Productos -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">Comparativa de Ventas</h3>
+            <div class="relative" style="height: 400px;">
+                <canvas id="chart-productos"></canvas>
+            </div>
+        </div>
+
+        <!-- Tabla Completa -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-bold text-gray-800">Ranking Completo</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Posición</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Unidades</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ingresos</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Participación</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @{
+                            var posicion = 1;
+                        }
+                        @foreach (var producto in productosLista)
+                        {
+                            var nombre = producto["Nombre"].ToString();
+                            var cantidad = Convert.ToInt32(producto["Cantidad"].ToString());
+                            var total = Convert.ToDecimal(producto["Total"].ToString());
+                            var porcentaje = totalIngresos > 0 ? (total / totalIngresos * 100) : 0;
+                            var badgeColor = posicion <= 3 ? "bg-vida-primary text-vida-dark" : "bg-gray-200 text-gray-700";
+
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <span class="inline-flex items-center justify-center w-8 h-8 @badgeColor font-bold rounded-full">
+                                        @posicion
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                                            <i data-lucide="package" class="w-5 h-5 text-gray-600"></i>
+                                        </div>
+                                        <span class="font-semibold text-gray-800">@nombre</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <span class="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 text-sm font-semibold rounded-full">
+                                        @cantidad unidades
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right">
+                                    <span class="text-lg font-bold text-green-600">$@total.ToString("N2")</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <div class="w-24 bg-gray-200 rounded-full h-2">
+                                            <div class="bg-vida-primary h-2 rounded-full" style="width: @porcentaje.ToString("F1")%"></div>
+                                        </div>
+                                        <span class="text-xs font-semibold text-gray-600">@porcentaje.ToString("F1")%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            posicion++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Sin Datos -->
+        <div class="bg-white rounded-xl shadow-md p-12 text-center">
+            <i data-lucide="inbox" class="w-20 h-20 mx-auto mb-4 text-gray-400"></i>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">No hay ventas en este período</h3>
+            <p class="text-gray-600">Intenta seleccionar un rango de fechas diferente</p>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const productosData = @Html.Raw(JsonSerializer.Serialize(Model));
+
+        function filtrarPorFecha() {
+            const desde = document.getElementById('fecha-desde').value;
+            const hasta = document.getElementById('fecha-hasta').value;
+            window.location.href = `/reportes/productos-mas-vendidos?desde=${desde}&hasta=${hasta}`;
+        }
+
+        function renderChart() {
+            if (productosData.length === 0) return;
+
+            const ctx = document.getElementById('chart-productos');
+
+            const labels = productosData.map(p => p.Nombre);
+            const cantidades = productosData.map(p => p.Cantidad);
+            const ingresos = productosData.map(p => p.Total);
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Unidades Vendidas',
+                            data: cantidades,
+                            backgroundColor: '#7ED957',
+                            borderRadius: 6,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Ingresos ($)',
+                            data: ingresos,
+                            backgroundColor: '#22c55e',
+                            borderRadius: 6,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Unidades'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Ingresos ($)'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        window.addEventListener('load', function() {
+            renderChart();
+            lucide.createIcons();
+        });
+    </script>
+}

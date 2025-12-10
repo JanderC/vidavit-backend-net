@@ -126,5 +126,18 @@ namespace VidaFit.Controllers.WEB
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+
+        // GET: /productos/vender
+        [HttpGet("vender")]
+        public IActionResult Vender()
+        {
+            return View();
+        }
+
+        [HttpGet("cuentas-pendientes")]
+        public IActionResult CuentasPendientes()
+        {
+            return View();
+        }
     }
 }

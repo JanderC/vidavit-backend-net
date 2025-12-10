@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using DPUruNet;
@@ -16,13 +16,14 @@ namespace VidaFitBackend.Services
         string CaptureAndCreateMultiTemplate();
         void Dispose();
         Dictionary<string, string> GetReaderInfo();
+        double GetSimilarityScore(byte[] capturedData, string storedTemplate);
+        (bool matched, string clientName, double similarity) VerifyWithMultipleCaptures(string[] allStoredTemplates, string[] clientNames);
     }
 
     public class FingerprintService : IFingerprintService, IDisposable
     {
         private Reader _reader;
         private bool _isInitialized = false;
-        private const int PROBABILITY_ONE = 0x7fffffff;
         private readonly object _lockObject = new object();
 
         public FingerprintService()
@@ -65,66 +66,30 @@ namespace VidaFitBackend.Services
                     }
 
                     Console.WriteLine($"[3/7] ✓ Detectados {readers.Count} lector(es)");
-                    Console.WriteLine("");
-                    Console.WriteLine("Información del lector:");
-                    Console.WriteLine("─────────────────────────────────────────");
-
-                    for (int i = 0; i < readers.Count; i++)
-                    {
-                        Console.WriteLine($"Lector #{i + 1}:");
-                        Console.WriteLine($"  Nombre:      {readers[i].Description.Name ?? "N/A"}");
-                        Console.WriteLine($"  Serie:       {readers[i].Description.SerialNumber ?? "N/A"}");
-                        Console.WriteLine($"  Modalidad:   {readers[i].Description.Modality}");
-                        Console.WriteLine($"  Tecnología:  {readers[i].Description.Technology}");
-                    }
-                    Console.WriteLine("─────────────────────────────────────────");
-                    Console.WriteLine("");
-
                     _reader = readers[0];
                     Console.WriteLine($"[4/7] Seleccionado: {_reader.Description.Name}");
-                    Console.WriteLine("[5/7] Intentando abrir el lector...");
 
-                    Console.WriteLine("   Probando modo EXCLUSIVE...");
                     Constants.ResultCode result = _reader.Open(Constants.CapturePriority.DP_PRIORITY_EXCLUSIVE);
-
                     if (result != Constants.ResultCode.DP_SUCCESS)
                     {
-                        Console.WriteLine($"   ⚠️  EXCLUSIVE falló ({result}), probando COOPERATIVE...");
                         result = _reader.Open(Constants.CapturePriority.DP_PRIORITY_COOPERATIVE);
                     }
 
-                    Console.WriteLine($"[6/7] Código de resultado: {result}");
-
                     if (result != Constants.ResultCode.DP_SUCCESS)
                     {
-                        Console.WriteLine($"✗ ERROR: No se pudo abrir el lector - Código: {result}");
+                        Console.WriteLine($"✗ ERROR: No se pudo abrir el lector");
                         _isInitialized = false;
                         return;
                     }
 
                     _isInitialized = true;
                     Console.WriteLine("[7/7] ✓ LECTOR ABIERTO CORRECTAMENTE");
-                    Console.WriteLine("");
-                    Console.WriteLine("═══════════════════════════════════════════");
-                    Console.WriteLine("   ✓ LECTOR DE HUELLAS OPERATIVO");
                     Console.WriteLine("═══════════════════════════════════════════");
                     Console.WriteLine("");
-                }
-                catch (System.IO.FileNotFoundException ex)
-                {
-                    Console.WriteLine("═══════════════════════════════════════════");
-                    Console.WriteLine("   ✗ ERROR: DLL NO ENCONTRADA");
-                    Console.WriteLine($"   Archivo: {ex.FileName}");
-                    Console.WriteLine("═══════════════════════════════════════════");
-                    _isInitialized = false;
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("═══════════════════════════════════════════");
-                    Console.WriteLine("   ✗ ERROR INESPERADO");
-                    Console.WriteLine($"   Tipo: {ex.GetType().Name}");
-                    Console.WriteLine($"   Mensaje: {ex.Message}");
-                    Console.WriteLine("═══════════════════════════════════════════");
+                    Console.WriteLine($"✗ ERROR: {ex.Message}");
                     _isInitialized = false;
                 }
             }
@@ -135,9 +100,6 @@ namespace VidaFitBackend.Services
             return _isInitialized && _reader != null;
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // SIMPLIFICADO: Solo captura bytes crudos del sensor
-        // ══════════════════════════════════════════════════════════════════════
         public byte[] CaptureFingerprint()
         {
             if (!IsReaderConnected())
@@ -145,265 +107,133 @@ namespace VidaFitBackend.Services
                 throw new InvalidOperationException("El lector de huellas no está conectado");
             }
 
-            try
+            const int MAX_RETRIES = 5;
+            int attemptNumber = 0;
+
+            while (attemptNumber < MAX_RETRIES)
             {
-                Console.WriteLine("");
-                Console.WriteLine("══════════════════════════════════════════════════");
-                Console.WriteLine("   📌 CAPTURANDO HUELLA DACTILAR");
-                Console.WriteLine("══════════════════════════════════════════════════");
-                Console.WriteLine("   👆 Coloque su dedo en el sensor...");
-                Console.WriteLine("");
+                attemptNumber++;
 
-                // Verificar estado del lector
-                Constants.ResultCode statusResult = _reader.GetStatus();
-                if (statusResult == Constants.ResultCode.DP_SUCCESS)
+                try
                 {
-                    if (_reader.Status.Status == Constants.ReaderStatuses.DP_STATUS_BUSY)
+                    Console.WriteLine("");
+                    Console.WriteLine("══════════════════════════════════════════════════");
+                    Console.WriteLine($"   📌 CAPTURANDO HUELLA (Intento {attemptNumber}/{MAX_RETRIES})");
+                    Console.WriteLine("══════════════════════════════════════════════════");
+                    Console.WriteLine("   👆 Coloque su dedo en el sensor...");
+                    Console.WriteLine("");
+
+                    Constants.ResultCode statusResult = _reader.GetStatus();
+                    if (statusResult == Constants.ResultCode.DP_SUCCESS)
                     {
-                        Console.WriteLine("⚠️  Lector BUSY - Reseteando...");
-                        _reader.CancelCapture();
-                        Thread.Sleep(500);
-                        _reader.Reset();
-                        Thread.Sleep(1000);
-                    }
-                }
-
-                int resolution = _reader.Capabilities.Resolutions[0];
-                Console.WriteLine($"🔧 Resolución: {resolution} DPI");
-                Console.WriteLine("");
-
-                // Intento 1: Captura estándar con ANSI
-                Console.WriteLine("⏳ [Intento 1] Captura ANSI DEFAULT...");
-                CaptureResult captureResult = _reader.Capture(
-                    Constants.Formats.Fid.ANSI,
-                    Constants.CaptureProcessing.DP_IMG_PROC_DEFAULT,
-                    10000,
-                    resolution
-                );
-
-                if (captureResult.ResultCode == Constants.ResultCode.DP_SUCCESS &&
-                    captureResult.Data != null &&
-                    captureResult.Data.Views != null &&
-                    captureResult.Data.Views.Count > 0 &&
-                    captureResult.Data.Views[0].Bytes != null &&
-                    captureResult.Data.Views[0].Bytes.Length > 0)
-                {
-                    byte[] data = captureResult.Data.Views[0].Bytes;
-
-                    // VERIFICAR que no sean todos ceros
-                    bool allZeros = true;
-                    for (int i = 0; i < Math.Min(1000, data.Length); i++)
-                    {
-                        if (data[i] != 0)
+                        if (_reader.Status.Status == Constants.ReaderStatuses.DP_STATUS_BUSY)
                         {
-                            allZeros = false;
-                            break;
+                            Console.WriteLine("⚠️  Lector BUSY - Reseteando...");
+                            _reader.CancelCapture();
+                            Thread.Sleep(500);
+                            _reader.Reset();
+                            Thread.Sleep(1000);
                         }
                     }
 
-                    if (!allZeros)
+                    int resolution = _reader.Capabilities.Resolutions[0];
+                    Console.WriteLine($"🔧 Resolución: {resolution} DPI");
+                    Console.WriteLine("");
+
+                    Console.WriteLine("⏳ Probando ANSI DEFAULT...");
+                    CaptureResult captureResult = _reader.Capture(
+                        Constants.Formats.Fid.ANSI,
+                        Constants.CaptureProcessing.DP_IMG_PROC_DEFAULT,
+                        8000,
+                        resolution
+                    );
+
+                    if (captureResult.ResultCode == Constants.ResultCode.DP_SUCCESS &&
+                        captureResult.Data != null &&
+                        captureResult.Data.Views != null &&
+                        captureResult.Data.Views.Count > 0 &&
+                        captureResult.Data.Views[0].Bytes != null &&
+                        captureResult.Data.Views[0].Bytes.Length > 0)
                     {
+                        byte[] data = captureResult.Data.Views[0].Bytes;
                         Console.WriteLine("══════════════════════════════════════════════════");
-                        Console.WriteLine("   ✅ CAPTURA EXITOSA");
+                        Console.WriteLine("   ✅ CAPTURA EXITOSA (ANSI)");
                         Console.WriteLine($"   📊 Tamaño: {data.Length:N0} bytes");
-                        Console.WriteLine($"   🔍 Calidad: {captureResult.Quality}");
-                        Console.Write("   📊 Primeros 10 bytes: ");
-                        for (int i = 0; i < Math.Min(10, data.Length); i++)
-                        {
-                            Console.Write($"{data[i]:X2} ");
-                        }
-                        Console.WriteLine("");
                         Console.WriteLine("══════════════════════════════════════════════════");
                         Console.WriteLine("");
                         return data;
                     }
-                    else
+
+                    Console.WriteLine("⏳ Probando ANSI PIV...");
+                    captureResult = _reader.Capture(
+                        Constants.Formats.Fid.ANSI,
+                        Constants.CaptureProcessing.DP_IMG_PROC_PIV,
+                        8000,
+                        resolution
+                    );
+
+                    if (captureResult.ResultCode == Constants.ResultCode.DP_SUCCESS &&
+                        captureResult.Data != null &&
+                        captureResult.Data.Views != null &&
+                        captureResult.Data.Views.Count > 0 &&
+                        captureResult.Data.Views[0].Bytes != null &&
+                        captureResult.Data.Views[0].Bytes.Length > 0)
                     {
-                        Console.WriteLine("⚠️  Captura ANSI DEFAULT dio todos ceros");
-                    }
-                }
-
-                // Intento 2: Captura con PIV
-                Console.WriteLine("");
-                Console.WriteLine("⏳ [Intento 2] Captura ANSI PIV...");
-                captureResult = _reader.Capture(
-                    Constants.Formats.Fid.ANSI,
-                    Constants.CaptureProcessing.DP_IMG_PROC_PIV,
-                    10000,
-                    resolution
-                );
-
-                if (captureResult.ResultCode == Constants.ResultCode.DP_SUCCESS &&
-                    captureResult.Data != null &&
-                    captureResult.Data.Views != null &&
-                    captureResult.Data.Views.Count > 0 &&
-                    captureResult.Data.Views[0].Bytes != null &&
-                    captureResult.Data.Views[0].Bytes.Length > 0)
-                {
-                    byte[] data = captureResult.Data.Views[0].Bytes;
-
-                    bool allZeros = true;
-                    for (int i = 0; i < Math.Min(1000, data.Length); i++)
-                    {
-                        if (data[i] != 0)
-                        {
-                            allZeros = false;
-                            break;
-                        }
-                    }
-
-                    if (!allZeros)
-                    {
+                        byte[] data = captureResult.Data.Views[0].Bytes;
                         Console.WriteLine("══════════════════════════════════════════════════");
-                        Console.WriteLine("   ✅ CAPTURA EXITOSA (PIV)");
+                        Console.WriteLine("   ✅ CAPTURA EXITOSA (ANSI PIV)");
                         Console.WriteLine($"   📊 Tamaño: {data.Length:N0} bytes");
-                        Console.Write("   📊 Primeros 10 bytes: ");
-                        for (int i = 0; i < Math.Min(10, data.Length); i++)
-                        {
-                            Console.Write($"{data[i]:X2} ");
-                        }
-                        Console.WriteLine("");
                         Console.WriteLine("══════════════════════════════════════════════════");
                         Console.WriteLine("");
                         return data;
                     }
-                    else
+
+                    Console.WriteLine("⏳ Probando ISO...");
+                    captureResult = _reader.Capture(
+                        Constants.Formats.Fid.ISO,
+                        Constants.CaptureProcessing.DP_IMG_PROC_DEFAULT,
+                        8000,
+                        resolution
+                    );
+
+                    if (captureResult.ResultCode == Constants.ResultCode.DP_SUCCESS &&
+                        captureResult.Data != null &&
+                        captureResult.Data.Views != null &&
+                        captureResult.Data.Views.Count > 0 &&
+                        captureResult.Data.Views[0].Bytes != null &&
+                        captureResult.Data.Views[0].Bytes.Length > 0)
                     {
-                        Console.WriteLine("⚠️  Captura PIV dio todos ceros");
-                    }
-                }
-
-                // Intento 3: Formato ISO
-                Console.WriteLine("");
-                Console.WriteLine("⏳ [Intento 3] Captura ISO...");
-                captureResult = _reader.Capture(
-                    Constants.Formats.Fid.ISO,
-                    Constants.CaptureProcessing.DP_IMG_PROC_DEFAULT,
-                    10000,
-                    resolution
-                );
-
-                if (captureResult.ResultCode == Constants.ResultCode.DP_SUCCESS &&
-                    captureResult.Data != null &&
-                    captureResult.Data.Views != null &&
-                    captureResult.Data.Views.Count > 0 &&
-                    captureResult.Data.Views[0].Bytes != null &&
-                    captureResult.Data.Views[0].Bytes.Length > 0)
-                {
-                    byte[] data = captureResult.Data.Views[0].Bytes;
-
-                    bool allZeros = true;
-                    for (int i = 0; i < Math.Min(1000, data.Length); i++)
-                    {
-                        if (data[i] != 0)
-                        {
-                            allZeros = false;
-                            break;
-                        }
-                    }
-
-                    if (!allZeros)
-                    {
+                        byte[] data = captureResult.Data.Views[0].Bytes;
                         Console.WriteLine("══════════════════════════════════════════════════");
                         Console.WriteLine("   ✅ CAPTURA EXITOSA (ISO)");
                         Console.WriteLine($"   📊 Tamaño: {data.Length:N0} bytes");
-                        Console.Write("   📊 Primeros 10 bytes: ");
-                        for (int i = 0; i < Math.Min(10, data.Length); i++)
-                        {
-                            Console.Write($"{data[i]:X2} ");
-                        }
-                        Console.WriteLine("");
                         Console.WriteLine("══════════════════════════════════════════════════");
                         Console.WriteLine("");
                         return data;
                     }
-                    else
+
+                    Console.WriteLine($"⚠️  Intento {attemptNumber} falló");
+
+                    if (attemptNumber < MAX_RETRIES)
                     {
-                        Console.WriteLine("⚠️  Captura ISO dio todos ceros");
+                        Console.WriteLine($"🔄 Reintentando en 2 segundos...");
+                        Thread.Sleep(2000);
                     }
                 }
-
-                // Intento 4: Streaming (último recurso)
-                if (_reader.Capabilities.CanStream)
+                catch (Exception ex)
                 {
-                    Console.WriteLine("");
-                    Console.WriteLine("⚠️ [Intento 4] Probando streaming...");
-                    Console.WriteLine("   👆 Levante y vuelva a colocar el dedo...");
-                    Thread.Sleep(1500);
+                    Console.WriteLine($"⚠️  Error en intento {attemptNumber}: {ex.Message}");
 
-                    Constants.ResultCode streamStart = _reader.StartStreaming();
-                    if (streamStart == Constants.ResultCode.DP_SUCCESS)
+                    if (attemptNumber < MAX_RETRIES)
                     {
-                        for (int i = 0; i < 20; i++)
-                        {
-                            Thread.Sleep(500);
-                            Console.Write(".");
-
-                            CaptureResult streamResult = _reader.GetStreamImage(
-                                Constants.Formats.Fid.ANSI,
-                                Constants.CaptureProcessing.DP_IMG_PROC_DEFAULT,
-                                resolution
-                            );
-
-                            if (streamResult.ResultCode == Constants.ResultCode.DP_SUCCESS &&
-                                streamResult.Data != null &&
-                                streamResult.Data.Bytes != null &&
-                                streamResult.Data.Bytes.Length > 0)
-                            {
-                                _reader.StopStreaming();
-                                byte[] fidBytes = streamResult.Data.Bytes;
-
-                                // VERIFICAR que no sean todos ceros
-                                bool allZeros = true;
-
-                                for (int l = 0; l < Math.Min(1000, fidBytes.Length); l++)
-                                {
-                                    if (fidBytes[i] != 0)
-                                    {
-                                        allZeros = false;
-                                        break;
-                                    }
-                                }
-
-                                if (allZeros)
-                                {
-                                    Console.WriteLine("");
-                                    Console.WriteLine("⚠️  Datos streaming son todos ceros, continuando...");
-                                    continue; // Seguir intentando
-                                }
-
-                                Console.WriteLine("");
-                                Console.WriteLine("══════════════════════════════════════════════════");
-                                Console.WriteLine("   ✅ CAPTURA EXITOSA (STREAMING)");
-                                Console.WriteLine($"   📊 Tamaño: {fidBytes.Length:N0} bytes");
-                                Console.Write("   📊 Primeros 10 bytes: ");
-                                for (int j = 0; j < Math.Min(10, fidBytes.Length); j++)
-                                {
-                                    Console.Write($"{fidBytes[j]:X2} ");
-                                }
-                                Console.WriteLine("");
-                                Console.WriteLine("══════════════════════════════════════════════════");
-                                Console.WriteLine("");
-                                return fidBytes;
-                            }
-                        }
-                        Console.WriteLine("");
-                        _reader.StopStreaming();
+                        Thread.Sleep(2000);
                     }
                 }
+            }
 
-                throw new Exception("No se pudo capturar huella");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"❌ Error: {ex.Message}");
-                throw;
-            }
+            throw new Exception($"No se pudo capturar huella después de {MAX_RETRIES} intentos");
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // CORREGIDO: Convierte bytes a Base64 correctamente
-        // ══════════════════════════════════════════════════════════════════════
         public string ConvertToTemplate(byte[] fingerprintData)
         {
             if (fingerprintData == null || fingerprintData.Length == 0)
@@ -411,231 +241,39 @@ namespace VidaFitBackend.Services
                 throw new ArgumentException("Los datos de huella no pueden estar vacíos");
             }
 
-            try
-            {
-                Console.WriteLine("");
-                Console.WriteLine("🔄 Convirtiendo huella a formato almacenable...");
-                Console.WriteLine($"   📦 Tamaño entrada: {fingerprintData.Length:N0} bytes");
-
-                // Verificar que los datos no sean todos iguales (corruptos)
-                bool allSame = true;
-                byte firstByte = fingerprintData[0];
-                for (int i = 1; i < Math.Min(100, fingerprintData.Length); i++)
-                {
-                    if (fingerprintData[i] != firstByte)
-                    {
-                        allSame = false;
-                        break;
-                    }
-                }
-
-                if (allSame)
-                {
-                    Console.WriteLine("   ⚠️  ADVERTENCIA: Los primeros bytes son idénticos");
-                    Console.WriteLine($"   ⚠️  Esto puede indicar datos corruptos");
-                }
-
-                // Mostrar primeros bytes para diagnóstico
-                Console.Write("   📊 Primeros 20 bytes: ");
-                for (int i = 0; i < Math.Min(20, fingerprintData.Length); i++)
-                {
-                    Console.Write($"{fingerprintData[i]:X2} ");
-                }
-                Console.WriteLine("");
-
-                // Convertir a Base64
-                string base64 = Convert.ToBase64String(fingerprintData);
-
-                Console.WriteLine($"   ✅ Conversión exitosa");
-                Console.WriteLine($"   📊 Base64 longitud: {base64.Length:N0} caracteres");
-                Console.Write($"   📊 Primeros 50 chars: {base64.Substring(0, Math.Min(50, base64.Length))}");
-                if (base64.Length > 50) Console.Write("...");
-                Console.WriteLine("");
-
-                // Verificar que el Base64 no sea todo "A"
-                int aCount = base64.Count(c => c == 'A');
-                double aPercentage = (double)aCount / base64.Length * 100.0;
-
-                Console.WriteLine($"   📊 Caracteres 'A': {aPercentage:F1}%");
-
-                if (aPercentage > 90)
-                {
-                    Console.WriteLine("   ⚠️  ADVERTENCIA: Más del 90% son 'A' - Datos posiblemente corruptos");
-                }
-
-                Console.WriteLine("");
-                return base64;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"✗ Error generando template: {ex.Message}");
-                throw;
-            }
+            string base64 = Convert.ToBase64String(fingerprintData);
+            return base64;
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // NUEVO: Comparación avanzada por similitud de patrones
-        // ══════════════════════════════════════════════════════════════════════
         public bool VerifyFingerprint(byte[] capturedData, string storedTemplate)
         {
-            if (capturedData == null || capturedData.Length == 0)
+            if (capturedData == null || capturedData.Length == 0 || string.IsNullOrEmpty(storedTemplate))
             {
-                Console.WriteLine("✗ Datos de huella capturada vacíos");
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(storedTemplate))
-            {
-                Console.WriteLine("✗ Template almacenado vacío");
                 return false;
             }
 
             try
             {
-                Console.WriteLine("");
-                Console.WriteLine("══════════════════════════════════════");
-                Console.WriteLine("   🔍 VERIFICANDO HUELLA");
-                Console.WriteLine("══════════════════════════════════════");
-
-                // Separar templates múltiples
                 string[] templates = storedTemplate.Split(new[] { "|||" }, StringSplitOptions.RemoveEmptyEntries);
-                Console.WriteLine($"   📚 Templates almacenados: {templates.Length}");
-                Console.WriteLine($"   📦 Huella capturada: {capturedData.Length:N0} bytes");
-                Console.WriteLine("");
-
                 double bestSimilarity = 0.0;
-                int bestTemplateIndex = -1;
 
-                // Comparar contra cada template
-                for (int t = 0; t < templates.Length; t++)
+                foreach (var template in templates)
                 {
-                    Console.WriteLine($"   [Template {t + 1}/{templates.Length}]");
-
-                    try
+                    double similarity = GetSimilarityScore(capturedData, template);
+                    if (similarity > bestSimilarity)
                     {
-                        byte[] storedBytes = Convert.FromBase64String(templates[t]);
-                        Console.WriteLine($"       📦 Tamaño: {storedBytes.Length:N0} bytes");
-
-                        // ═════════════════════════════════════════════════════════
-                        // COMPARACIÓN MEJORADA: Múltiples algoritmos
-                        // ═════════════════════════════════════════════════════════
-
-                        // 1. Comparación de tamaño (debe ser similar)
-                        double sizeRatio = (double)Math.Min(capturedData.Length, storedBytes.Length) /
-                                          Math.Max(capturedData.Length, storedBytes.Length);
-
-                        if (sizeRatio < 0.85)
-                        {
-                            Console.WriteLine($"       ⚠️  Tamaño muy diferente ({sizeRatio:P1})");
-                            continue;
-                        }
-
-                        // 2. Comparación byte por byte con tolerancia
-                        int minLength = Math.Min(capturedData.Length, storedBytes.Length);
-                        int exactMatches = 0;
-                        int tolerantMatches = 0;
-                        int tolerance = 15; // Tolerancia de diferencia
-
-                        for (int i = 0; i < minLength; i++)
-                        {
-                            if (capturedData[i] == storedBytes[i])
-                            {
-                                exactMatches++;
-                                tolerantMatches++;
-                            }
-                            else if (Math.Abs(capturedData[i] - storedBytes[i]) <= tolerance)
-                            {
-                                tolerantMatches++;
-                            }
-                        }
-
-                        double exactSimilarity = ((double)exactMatches / minLength) * 100.0;
-                        double tolerantSimilarity = ((double)tolerantMatches / minLength) * 100.0;
-
-                        // 3. Comparación por bloques (para detectar patrones)
-                        int blockSize = 1000;
-                        int totalBlocks = minLength / blockSize;
-                        int matchingBlocks = 0;
-
-                        for (int b = 0; b < totalBlocks; b++)
-                        {
-                            int blockStart = b * blockSize;
-                            int blockMatches = 0;
-
-                            for (int i = 0; i < blockSize && (blockStart + i) < minLength; i++)
-                            {
-                                if (Math.Abs(capturedData[blockStart + i] - storedBytes[blockStart + i]) <= tolerance)
-                                {
-                                    blockMatches++;
-                                }
-                            }
-
-                            double currentBlockSimilarity = (double)blockMatches / blockSize;
-                            if (currentBlockSimilarity > 0.75) // 75% del bloque similar
-                            {
-                                matchingBlocks++;
-                            }
-                        }
-
-                        double blockSimilarity = totalBlocks > 0 ? ((double)matchingBlocks / totalBlocks) * 100.0 : 0;
-
-                        // 4. Calcular similitud combinada
-                        double combinedSimilarity = (tolerantSimilarity * 0.6) + (blockSimilarity * 0.4);
-
-                        Console.WriteLine($"       📊 Exacta: {exactSimilarity:F2}%");
-                        Console.WriteLine($"       📊 Tolerante: {tolerantSimilarity:F2}%");
-                        Console.WriteLine($"       📊 Bloques: {blockSimilarity:F2}%");
-                        Console.WriteLine($"       📈 Combinada: {combinedSimilarity:F2}%");
-
-                        if (combinedSimilarity > bestSimilarity)
-                        {
-                            bestSimilarity = combinedSimilarity;
-                            bestTemplateIndex = t;
-                        }
-                    }
-                    catch (FormatException)
-                    {
-                        Console.WriteLine($"       ⚠️  Base64 inválido");
-                        continue;
+                        bestSimilarity = similarity;
                     }
                 }
 
-                // Evaluar resultado
-                double threshold = 75.0; // Umbral del 75% para match
-                bool isMatch = bestSimilarity >= threshold;
-
-                Console.WriteLine("");
-                Console.WriteLine("──────────────────────────────────────");
-                Console.WriteLine($"   🏆 Mejor coincidencia: Template {bestTemplateIndex + 1}");
-                Console.WriteLine($"   📈 Similitud: {bestSimilarity:F2}%");
-                Console.WriteLine($"   🎯 Umbral: {threshold:F2}%");
-                Console.WriteLine("──────────────────────────────────────");
-
-                if (isMatch)
-                {
-                    Console.WriteLine("   ✅ HUELLA VERIFICADA");
-                }
-                else
-                {
-                    Console.WriteLine("   ❌ NO COINCIDE");
-                    Console.WriteLine($"   💡 Diferencia: {(threshold - bestSimilarity):F2}%");
-                }
-
-                Console.WriteLine("══════════════════════════════════════");
-                Console.WriteLine("");
-
-                return isMatch;
+                return bestSimilarity >= 65.0;
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine($"✗ Error: {ex.Message}");
                 return false;
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // Captura 3 huellas y las guarda como bytes (no FMD)
-        // ══════════════════════════════════════════════════════════════════════
         public string CaptureAndCreateMultiTemplate()
         {
             if (!IsReaderConnected())
@@ -645,17 +283,17 @@ namespace VidaFitBackend.Services
 
             Console.WriteLine("");
             Console.WriteLine("════════════════════════════════════════════════════");
-            Console.WriteLine("   📸 REGISTRO MULTI-CAPTURA (3 intentos)");
+            Console.WriteLine("   📸 REGISTRO MULTI-CAPTURA (5 intentos)");
             Console.WriteLine("════════════════════════════════════════════════════");
             Console.WriteLine("");
 
             List<string> templates = new List<string>();
 
-            for (int i = 1; i <= 3; i++)
+            for (int i = 1; i <= 5; i++)
             {
                 try
                 {
-                    Console.WriteLine($"══════════ CAPTURA {i}/3 ══════════");
+                    Console.WriteLine($"══════════ CAPTURA {i}/5 ══════════");
 
                     if (i > 1)
                     {
@@ -676,22 +314,22 @@ namespace VidaFitBackend.Services
                 {
                     Console.WriteLine($"⚠️  Error en captura {i}: {ex.Message}");
 
-                    if (i == 3 && templates.Count == 0)
+                    if (i == 5 && templates.Count == 0)
                     {
                         throw new Exception("No se pudo capturar ninguna huella válida");
                     }
 
-                    if (templates.Count > 0)
+                    if (templates.Count >= 2)
                     {
-                        Console.WriteLine($"💡 Continuando con {templates.Count} captura(s) exitosa(s)");
+                        Console.WriteLine($"💡 Continuando con {templates.Count} captura(s)");
                         break;
                     }
                 }
             }
 
-            if (templates.Count == 0)
+            if (templates.Count < 2)
             {
-                throw new Exception("No se capturaron huellas válidas");
+                throw new Exception($"Solo se capturaron {templates.Count} huella(s). Se requieren al menos 2.");
             }
 
             Console.WriteLine("════════════════════════════════════════════════════");
@@ -700,6 +338,259 @@ namespace VidaFitBackend.Services
             Console.WriteLine("");
 
             return string.Join("|||", templates);
+        }
+
+        public double GetSimilarityScore(byte[] capturedData, string storedTemplate)
+        {
+            if (capturedData == null || storedTemplate == null)
+                return 0.0;
+
+            try
+            {
+                byte[] storedBytes = Convert.FromBase64String(storedTemplate);
+
+                double sizeRatio = (double)Math.Min(capturedData.Length, storedBytes.Length) /
+                                  Math.Max(capturedData.Length, storedBytes.Length);
+
+                if (sizeRatio < 0.90) // Más permisivo
+                    return 0.0;
+
+                int minLength = Math.Min(capturedData.Length, storedBytes.Length);
+
+                // ═════════════════════════════════════════════════════════════
+                // MEJORA 1: Análisis por múltiples tamaños de sección
+                // ═════════════════════════════════════════════════════════════
+                List<double> sectionScores = new List<double>();
+
+                // Secciones grandes (1000 bytes) - Patrón general
+                int largeSectionSize = 1000;
+                int largeSections = minLength / largeSectionSize;
+                int matchingLargeSections = 0;
+
+                for (int s = 0; s < largeSections; s++)
+                {
+                    int start = s * largeSectionSize;
+                    int matches = 0;
+
+                    for (int i = 0; i < largeSectionSize && (start + i) < minLength; i++)
+                    {
+                        int idx = start + i;
+                        if (Math.Abs(capturedData[idx] - storedBytes[idx]) <= 25) // Tolerancia alta
+                        {
+                            matches++;
+                        }
+                    }
+
+                    double secSim = (double)matches / largeSectionSize;
+                    if (secSim >= 0.60)
+                        matchingLargeSections++;
+                }
+
+                double largeScore = largeSections > 0
+                    ? ((double)matchingLargeSections / largeSections) * 100.0
+                    : 0.0;
+                sectionScores.Add(largeScore);
+
+                // Secciones medianas (500 bytes) - Balance
+                int mediumSectionSize = 500;
+                int mediumSections = minLength / mediumSectionSize;
+                int matchingMediumSections = 0;
+
+                for (int s = 0; s < mediumSections; s++)
+                {
+                    int start = s * mediumSectionSize;
+                    int matches = 0;
+
+                    for (int i = 0; i < mediumSectionSize && (start + i) < minLength; i++)
+                    {
+                        int idx = start + i;
+                        if (Math.Abs(capturedData[idx] - storedBytes[idx]) <= 20)
+                        {
+                            matches++;
+                        }
+                    }
+
+                    double secSim = (double)matches / mediumSectionSize;
+                    if (secSim >= 0.65)
+                        matchingMediumSections++;
+                }
+
+                double mediumScore = mediumSections > 0
+                    ? ((double)matchingMediumSections / mediumSections) * 100.0
+                    : 0.0;
+                sectionScores.Add(mediumScore);
+
+                // Secciones pequeñas (250 bytes) - Detalles
+                int smallSectionSize = 250;
+                int smallSections = minLength / smallSectionSize;
+                int matchingSmallSections = 0;
+
+                for (int s = 0; s < smallSections; s++)
+                {
+                    int start = s * smallSectionSize;
+                    int matches = 0;
+
+                    for (int i = 0; i < smallSectionSize && (start + i) < minLength; i++)
+                    {
+                        int idx = start + i;
+                        if (Math.Abs(capturedData[idx] - storedBytes[idx]) <= 15)
+                        {
+                            matches++;
+                        }
+                    }
+
+                    double secSim = (double)matches / smallSectionSize;
+                    if (secSim >= 0.70)
+                        matchingSmallSections++;
+                }
+
+                double smallScore = smallSections > 0
+                    ? ((double)matchingSmallSections / smallSections) * 100.0
+                    : 0.0;
+                sectionScores.Add(smallScore);
+
+                // ═════════════════════════════════════════════════════════════
+                // MEJORA 2: Comparación byte-a-byte global con tolerancia
+                // ═════════════════════════════════════════════════════════════
+                int totalMatches = 0;
+                for (int i = 0; i < minLength; i++)
+                {
+                    if (Math.Abs(capturedData[i] - storedBytes[i]) <= 20)
+                    {
+                        totalMatches++;
+                    }
+                }
+                double globalScore = ((double)totalMatches / minLength) * 100.0;
+                sectionScores.Add(globalScore);
+
+                // ═════════════════════════════════════════════════════════════
+                // MEJORA 3: Score ponderado (dar más peso a patrones consistentes)
+                // ═════════════════════════════════════════════════════════════
+                double weightedScore = (largeScore * 0.25) +    // Patrón general: 25%
+                                      (mediumScore * 0.25) +     // Balance: 25%
+                                      (smallScore * 0.20) +      // Detalles: 20%
+                                      (globalScore * 0.30);      // Global: 30%
+
+                return weightedScore;
+            }
+            catch
+            {
+                return 0.0;
+            }
+        }
+
+        public (bool matched, string clientName, double similarity) VerifyWithMultipleCaptures(string[] allStoredTemplates, string[] clientNames)
+        {
+            Console.WriteLine("");
+            Console.WriteLine("════════════════════════════════════════════════════");
+            Console.WriteLine("   🔍 VERIFICACIÓN MULTI-CAPTURA (3 intentos)");
+            Console.WriteLine("════════════════════════════════════════════════════");
+            Console.WriteLine("");
+
+            List<byte[]> userCaptures = new List<byte[]>();
+
+            for (int i = 1; i <= 3; i++)
+            {
+                try
+                {
+                    Console.WriteLine($"══════════ CAPTURA {i}/3 ══════════");
+
+                    if (i > 1)
+                    {
+                        Console.WriteLine("👆 Levanta el dedo y vuelve a colocarlo");
+                        Console.WriteLine("⏳ Esperando 2 segundos...");
+                        Thread.Sleep(2000);
+                    }
+
+                    byte[] capture = CaptureFingerprint();
+                    userCaptures.Add(capture);
+
+                    Console.WriteLine($"✅ Captura {i} exitosa");
+                    Console.WriteLine("");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"⚠️  Error en captura {i}: {ex.Message}");
+
+                    if (userCaptures.Count >= 2)
+                    {
+                        Console.WriteLine($"💡 Continuando con {userCaptures.Count} captura(s)");
+                        break;
+                    }
+                }
+            }
+
+            if (userCaptures.Count < 2)
+            {
+                Console.WriteLine("❌ No se capturaron suficientes huellas");
+                return (false, "", 0.0);
+            }
+
+            Console.WriteLine("════════════════════════════════════════════════════");
+            Console.WriteLine($"   ✅ {userCaptures.Count} CAPTURAS COMPLETADAS");
+            Console.WriteLine("════════════════════════════════════════════════════");
+            Console.WriteLine("");
+
+            Console.WriteLine("🔍 Comparando contra base de datos...");
+            Console.WriteLine("");
+
+            double bestSimilarity = 0.0;
+            string bestClientName = "";
+
+            for (int c = 0; c < allStoredTemplates.Length; c++)
+            {
+                Console.WriteLine($"[Cliente {c + 1}/{allStoredTemplates.Length}] {clientNames[c]}");
+
+                string[] clientTemplates = allStoredTemplates[c].Split(new[] { "|||" }, StringSplitOptions.RemoveEmptyEntries);
+
+                List<double> similarities = new List<double>();
+
+                foreach (var userCapture in userCaptures)
+                {
+                    foreach (var clientTemplate in clientTemplates)
+                    {
+                        double similarity = GetSimilarityScore(userCapture, clientTemplate);
+                        if (similarity > 0)
+                        {
+                            similarities.Add(similarity);
+                        }
+                    }
+                }
+
+                if (similarities.Count > 0)
+                {
+                    double avgSimilarity = similarities.OrderByDescending(s => s).Take(3).Average();
+
+                    Console.WriteLine($"    📊 Similitud promedio: {avgSimilarity:F2}%");
+                    Console.WriteLine($"    📊 Top 3: {string.Join(", ", similarities.OrderByDescending(s => s).Take(3).Select(s => $"{s:F1}%"))}");
+
+                    if (avgSimilarity > bestSimilarity)
+                    {
+                        bestSimilarity = avgSimilarity;
+                        bestClientName = clientNames[c];
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("    ❌ Sin coincidencias");
+                }
+
+                Console.WriteLine("");
+            }
+
+            double threshold = 35.0; // UMBRAL BAJADO de 60% a 35%
+            bool isMatch = bestSimilarity >= threshold;
+
+            Console.WriteLine("════════════════════════════════════════════════════");
+            Console.WriteLine($"   🏆 MEJOR COINCIDENCIA:");
+            Console.WriteLine($"   Cliente: {bestClientName}");
+            Console.WriteLine($"   Similitud: {bestSimilarity:F2}%");
+            Console.WriteLine($"   Umbral: {threshold:F2}%");
+            Console.WriteLine($"   Resultado: {(isMatch ? "✅ VERIFICADO" : "❌ NO COINCIDE")}");
+            Console.WriteLine("════════════════════════════════════════════════════");
+            Console.WriteLine("");
+
+            return (isMatch, bestClientName, bestSimilarity);
         }
 
         public void Dispose()
