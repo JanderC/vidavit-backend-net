@@ -1,24 +1,19 @@
+@model List<VidaFit.Controllers.WEB.ProductoVendidoReporte>
 @using System.Text.Json
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Productos Más Vendidos";
     ViewData["Subtitle"] = "Top 10 productos con mayor demanda";
 
-    // Serializar y deserializar para convertir tipos anónimos en diccionarios
-    var json = JsonSerializer.Serialize(Model);
-    var productosLista = JsonSerializer.Deserialize<List<Dictionary<string, object>>>(json);
-
     decimal totalIngresos = 0;
     int totalUnidades = 0;
 
-    if (productosLista != null && productosLista.Any())
+    if (Model != null && Model.Count > 0)
     {
-        foreach (var item in productosLista)
+        foreach (var item in Model)
         {
-            if (item.ContainsKey("Total"))
-                totalIngresos += Convert.ToDecimal(item["Total"].ToString());
-            if (item.ContainsKey("Cantidad"))
-                totalUnidades += Convert.ToInt32(item["Cantidad"].ToString());
+            totalIngresos += item.Total;
+            totalUnidades += item.Cantidad;
         }
     }
 }
@@ -45,7 +40,7 @@
         </div>
     </div>
 
-    @if (productosLista != null && productosLista.Any())
+    @if (Model != null && Model.Count > 0)
     {
         <!-- Resumen General -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -53,7 +48,7 @@
                 <div class="flex items-center justify-between mb-3">
                     <div>
                         <p class="text-sm text-gray-600 mb-1">Productos Vendidos</p>
-                        <p class="text-3xl font-bold text-gray-800">@productosLista.Count()</p>
+                        <p class="text-3xl font-bold text-gray-800">@Model.Count</p>
                     </div>
                     <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
                         <i data-lucide="package" class="w-6 h-6 text-yellow-600"></i>
@@ -88,12 +83,9 @@
 
         <!-- Top 3 Destacados -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            @for (int i = 0; i < Math.Min(3, productosLista.Count()); i++)
+            @for (int i = 0; i < Math.Min(3, Model.Count); i++)
             {
-                var producto = productosLista[i];
-                var nombre = producto["Nombre"].ToString();
-                var cantidad = Convert.ToInt32(producto["Cantidad"].ToString());
-                var total = Convert.ToDecimal(producto["Total"].ToString());
+                var producto = Model[i];
 
                 var podiumColors = new[] { "bg-yellow-50 border-yellow-400", "bg-gray-50 border-gray-400", "bg-orange-50 border-orange-400" };
                 var podiumIcons = new[] { "trophy", "medal", "award" };
@@ -106,17 +98,17 @@
                         </div>
                         <div class="flex-1">
                             <p class="text-xs text-gray-500 uppercase font-semibold">Puesto #@(i + 1)</p>
-                            <p class="font-bold text-gray-800 text-lg">@nombre</p>
+                            <p class="font-bold text-gray-800 text-lg">@producto.Nombre</p>
                         </div>
                     </div>
                     <div class="space-y-2">
                         <div class="flex justify-between items-center">
                             <span class="text-sm text-gray-600">Unidades vendidas:</span>
-                            <span class="font-bold @podiumTextColors[i]">@cantidad</span>
+                            <span class="font-bold @podiumTextColors[i]">@producto.Cantidad</span>
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="text-sm text-gray-600">Ingresos:</span>
-                            <span class="font-bold text-green-600">$@total.ToString("N2")</span>
+                            <span class="font-bold text-green-600">$@producto.Total.ToString("N2")</span>
                         </div>
                     </div>
                 </div>
@@ -151,12 +143,9 @@
                         @{
                             var posicion = 1;
                         }
-                        @foreach (var producto in productosLista)
+                        @foreach (var producto in Model)
                         {
-                            var nombre = producto["Nombre"].ToString();
-                            var cantidad = Convert.ToInt32(producto["Cantidad"].ToString());
-                            var total = Convert.ToDecimal(producto["Total"].ToString());
-                            var porcentaje = totalIngresos > 0 ? (total / totalIngresos * 100) : 0;
+                            var porcentaje = totalIngresos > 0 ? (producto.Total / totalIngresos * 100) : 0;
                             var badgeColor = posicion <= 3 ? "bg-vida-primary text-vida-dark" : "bg-gray-200 text-gray-700";
 
                             <tr class="hover:bg-gray-50 transition-colors">
@@ -170,16 +159,16 @@
                                         <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
                                             <i data-lucide="package" class="w-5 h-5 text-gray-600"></i>
                                         </div>
-                                        <span class="font-semibold text-gray-800">@nombre</span>
+                                        <span class="font-semibold text-gray-800">@producto.Nombre</span>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                     <span class="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 text-sm font-semibold rounded-full">
-                                        @cantidad unidades
+                                        @producto.Cantidad unidades
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right">
-                                    <span class="text-lg font-bold text-green-600">$@total.ToString("N2")</span>
+                                    <span class="text-lg font-bold text-green-600">$@producto.Total.ToString("N2")</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                     <div class="flex items-center justify-center gap-2">

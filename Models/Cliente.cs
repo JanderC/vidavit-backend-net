@@ -29,17 +29,17 @@ namespace VidaFitBackend.Models
 
         [Column("telefono")]
         [MaxLength(20)]
-        public string Telefono { get; set; }
+        public string? Telefono { get; set; }
 
         [Column("email")]
         [MaxLength(150)]
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
         [Column("fecha_nacimiento")]
         public DateTime? FechaNacimiento { get; set; }
 
         [Column("direccion")]
-        public string Direccion { get; set; }
+        public string? Direccion { get; set; }
 
         [Column("huella_digital")]
         public string? HuellaDigital { get; set; }
@@ -48,16 +48,16 @@ namespace VidaFitBackend.Models
         public string? HuellaTemplate { get; set; }
 
         [Column("foto_base64")]
-        public string FotoBase64 { get; set; }
+        public string? FotoBase64 { get; set; }
 
         [Column("activo")]
         public bool Activo { get; set; } = true;
 
         [Column("created_at")]
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         [Column("updated_at")]
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         public ICollection<Membresia> Membresias { get; set; }
         public ICollection<CheckIn> CheckIns { get; set; }

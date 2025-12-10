@@ -44,14 +44,73 @@ namespace VidaFit.Controllers.API
 
         // POST: api/Membresias
         [HttpPost]
-        public async Task<ActionResult<Membresia>> CreateMembresia([FromBody] Membresia membresia)
+        public async Task<ActionResult<Membresia>> CreateMembresia([FromBody] MembresiaDto dto)
         {
-            membresia.Id = Guid.NewGuid();
-            membresia.CreatedAt = DateTime.UtcNow;
-            membresia.UpdatedAt = DateTime.UtcNow;
-            _context.Membresias.Add(membresia);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetMembresia), new { id = membresia.Id }, membresia);
+            try
+            {
+                // Validar cliente
+                var cliente = await _context.Clientes.FindAsync(dto.ClienteId);
+                if (cliente == null || !cliente.Activo)
+                {
+                    return BadRequest(new { success = false, message = "Cliente no válido" });
+                }
+
+                // Validar plan
+                var plan = await _context.Planes.FindAsync(dto.PlanId);
+                if (plan == null || !plan.Activo)
+                {
+                    return BadRequest(new { success = false, message = "Plan no válido" });
+                }
+
+                // Verificar membresía activa duplicada
+                var tieneActiva = await _context.Membresias
+                    .AnyAsync(m => m.ClienteId == dto.ClienteId && m.Estado == "activa");
+
+                if (tieneActiva)
+                {
+                    return BadRequest(new { success = false, message = "El cliente ya tiene una membresía activa" });
+                }
+
+                // Crear membresía
+                var membresia = new Membresia
+                {
+                    Id = Guid.NewGuid(),
+                    ClienteId = dto.ClienteId,
+                    PlanId = dto.PlanId,
+                    FechaInicio = dto.FechaInicio,
+                    FechaVencimiento = dto.FechaVencimiento,
+                    Estado = dto.Estado ?? "activa",
+                    MontoPagado = dto.MontoPagado,
+                    MetodoPago = dto.MetodoPago,
+                    Notas = string.IsNullOrWhiteSpace(dto.Notas) ? "ninguna" : dto.Notas,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                _context.Membresias.Add(membresia);
+
+                // Registrar pago - SIN UpdatedAt porque no existe en el modelo
+                var pago = new Pago
+                {
+                    Id = Guid.NewGuid(),
+                    ClienteId = membresia.ClienteId,
+                    MembresiaId = membresia.Id,
+                    Monto = dto.MontoPagado,
+                    FechaPago = DateTime.UtcNow,
+                    MetodoPago = dto.MetodoPago,
+                    CreatedAt = DateTime.UtcNow
+                    // NO incluir UpdatedAt - no existe en el modelo Pago
+                };
+
+                _context.Pagos.Add(pago);
+                await _context.SaveChangesAsync();
+
+                return CreatedAtAction(nameof(GetMembresia), new { id = membresia.Id }, membresia);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Error al crear membresía", error = ex.Message });
+            }
         }
 
         // PUT: api/Membresias/{id}
@@ -91,5 +150,18 @@ namespace VidaFit.Controllers.API
             await _context.SaveChangesAsync();
             return NoContent();
         }
+    }
+
+    // DTO para crear membresía sin propiedades de navegación
+    public class MembresiaDto
+    {
+        public Guid ClienteId { get; set; }
+        public Guid PlanId { get; set; }
+        public DateTime FechaInicio { get; set; }
+        public DateTime FechaVencimiento { get; set; }
+        public string Estado { get; set; }
+        public decimal MontoPagado { get; set; }
+        public string MetodoPago { get; set; }
+        public string Notas { get; set; }
     }
 }

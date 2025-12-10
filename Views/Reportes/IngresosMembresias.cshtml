@@ -1,24 +1,19 @@
+@model List<VidaFit.Controllers.WEB.IngresoMembresiaReporte>
 @using System.Text.Json
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Ingresos por Membresías";
     ViewData["Subtitle"] = "Análisis de pagos por tipo de plan";
 
-    // Serializar y deserializar para convertir tipos anónimos
-    var json = JsonSerializer.Serialize(Model);
-    var ingresosLista = JsonSerializer.Deserialize<List<Dictionary<string, object>>>(json);
-
     decimal totalIngresos = 0;
     int totalPagos = 0;
 
-    if (ingresosLista != null && ingresosLista.Any())
+    if (Model != null && Model.Count > 0)
     {
-        foreach (var item in ingresosLista)
+        foreach (var item in Model)
         {
-            if (item.ContainsKey("Total"))
-                totalIngresos += Convert.ToDecimal(item["Total"].ToString());
-            if (item.ContainsKey("CantidadPagos"))
-                totalPagos += Convert.ToInt32(item["CantidadPagos"].ToString());
+            totalIngresos += item.Total;
+            totalPagos += item.CantidadPagos;
         }
     }
 }
@@ -45,7 +40,7 @@
         </div>
     </div>
 
-    @if (ingresosLista != null && ingresosLista.Any())
+    @if (Model != null && Model.Count > 0)
     {
         <!-- Resumen General -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -98,12 +93,9 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach (var item in ingresosLista)
+                        @foreach (var item in Model)
                         {
-                            var planNombre = item["PlanNombre"].ToString();
-                            var cantidadPagos = Convert.ToInt32(item["CantidadPagos"].ToString());
-                            var total = Convert.ToDecimal(item["Total"].ToString());
-                            var porcentaje = totalIngresos > 0 ? (total / totalIngresos * 100) : 0;
+                            var porcentaje = totalIngresos > 0 ? (item.Total / totalIngresos * 100) : 0;
 
                             <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -111,16 +103,16 @@
                                         <div class="w-10 h-10 bg-vida-primary rounded-lg flex items-center justify-center">
                                             <i data-lucide="award" class="w-5 h-5 text-vida-dark"></i>
                                         </div>
-                                        <span class="font-semibold text-gray-800">@planNombre</span>
+                                        <span class="font-semibold text-gray-800">@item.PlanNombre</span>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                     <span class="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 text-sm font-semibold rounded-full">
-                                        @cantidadPagos pagos
+                                        @item.CantidadPagos pagos
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right">
-                                    <span class="text-xl font-bold text-green-600">$@total.ToString("N2")</span>
+                                    <span class="text-xl font-bold text-green-600">$@item.Total.ToString("N2")</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                     <div class="flex items-center justify-center gap-2">

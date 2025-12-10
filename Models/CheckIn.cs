@@ -31,9 +31,7 @@ namespace VidaFitBackend.Models
         [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-        [Column("updated_at")]
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
-
+        // Propiedades de Navegación
         [ForeignKey("ClienteId")]
         public Cliente Cliente { get; set; }
     }

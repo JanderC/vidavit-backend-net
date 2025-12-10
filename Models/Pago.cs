@@ -15,7 +15,6 @@ namespace VidaFitBackend.Models
         [Required]
         public Guid MembresiaId { get; set; }
 
-        // CAMBIO 1: Cambiar el nombre de la propiedad Guid a ClienteId para que sea la Clave Foránea
         [Column("cliente_id")]
         [Required]
         public Guid ClienteId { get; set; }
@@ -30,7 +29,7 @@ namespace VidaFitBackend.Models
         public string? MetodoPago { get; set; }
 
         [Column("fecha_pago")]
-        public DateTime FechaPago { get; set; } = DateTime.Now;
+        public DateTime FechaPago { get; set; } = DateTime.UtcNow;
 
         [Column("recibo_numero")]
         [MaxLength(50)]
@@ -40,14 +39,15 @@ namespace VidaFitBackend.Models
         public string? Notas { get; set; }
 
         [Column("created_at")]
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        [Column("updated_at")]
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         // Propiedades de Navegación (Relaciones)
-
         [ForeignKey("MembresiaId")]
         public virtual Membresia Membresia { get; set; }
 
-        // CAMBIO 2: Agregar la propiedad de navegación del objeto Cliente
         [ForeignKey("ClienteId")]
         public virtual Cliente Cliente { get; set; }
     }

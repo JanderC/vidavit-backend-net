@@ -1,12 +1,43 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VidaFit.Data;
+using VidaFitBackend.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace VidaFit.Controllers.WEB
 {
+    // Clases simples para los reportes
+    public class AsistenciaReporte
+    {
+        public DateTime Fecha { get; set; }
+        public int Total { get; set; }
+    }
+
+    public class IngresoMembresiaReporte
+    {
+        public string PlanNombre { get; set; }
+        public int CantidadPagos { get; set; }
+        public decimal Total { get; set; }
+    }
+
+    public class ProductoVendidoReporte
+    {
+        public Guid ProductoId { get; set; }
+        public string Nombre { get; set; }
+        public int Cantidad { get; set; }
+        public decimal Total { get; set; }
+    }
+
+    public class CuentaPendienteReporte
+    {
+        public Cliente Cliente { get; set; }
+        public decimal TotalPendiente { get; set; }
+        public List<string> Productos { get; set; }
+    }
+
     [Route("reportes")]
     public class ReportesController : Controller
     {
@@ -27,7 +58,7 @@ namespace VidaFit.Controllers.WEB
             var asistencia = await _context.CheckIns
                 .Where(c => c.FechaHora.Date >= fechaInicio && c.FechaHora.Date <= fechaFin)
                 .GroupBy(c => c.FechaHora.Date)
-                .Select(g => new
+                .Select(g => new AsistenciaReporte
                 {
                     Fecha = g.Key,
                     Total = g.Count()
@@ -52,19 +83,19 @@ namespace VidaFit.Controllers.WEB
                 .Include(p => p.Membresia)
                     .ThenInclude(m => m.Plan)
                 .Where(p => p.FechaPago.Date >= fechaInicio && p.FechaPago.Date <= fechaFin)
-                .ToListAsync(); // ← IMPORTANTE: ToListAsync() primero
+                .ToListAsync();
 
-            // PASO 2: Agrupar EN MEMORIA (después del ToListAsync)
+            // PASO 2: Agrupar EN MEMORIA y crear objetos fuertemente tipados
             var ingresos = pagos
                 .GroupBy(p => new { PlanId = p.Membresia.PlanId, PlanNombre = p.Membresia.Plan.Nombre })
-                .Select(g => new
+                .Select(g => new IngresoMembresiaReporte
                 {
                     PlanNombre = g.Key.PlanNombre,
                     CantidadPagos = g.Count(),
                     Total = g.Sum(p => p.Monto)
                 })
                 .OrderByDescending(i => i.Total)
-                .ToList(); // ← ToList() otra vez para materializar el resultado
+                .ToList();
 
             ViewBag.FechaInicio = fechaInicio;
             ViewBag.FechaFin = fechaFin;
@@ -84,12 +115,12 @@ namespace VidaFit.Controllers.WEB
                 .Where(v => v.FechaVenta.Date >= fechaInicio
                          && v.FechaVenta.Date <= fechaFin
                          && v.EstadoPago == "pagado")
-                .ToListAsync(); // ← IMPORTANTE: ToListAsync() primero
+                .ToListAsync();
 
-            // PASO 2: Agrupar EN MEMORIA
+            // PASO 2: Agrupar EN MEMORIA y crear objetos fuertemente tipados
             var productos = ventas
                 .GroupBy(v => new { ProductoId = v.ProductoId, Nombre = v.Producto.Nombre })
-                .Select(g => new
+                .Select(g => new ProductoVendidoReporte
                 {
                     ProductoId = g.Key.ProductoId,
                     Nombre = g.Key.Nombre,
@@ -98,7 +129,7 @@ namespace VidaFit.Controllers.WEB
                 })
                 .OrderByDescending(g => g.Cantidad)
                 .Take(10)
-                .ToList(); // ← ToList() para materializar
+                .ToList();
 
             ViewBag.FechaInicio = fechaInicio;
             ViewBag.FechaFin = fechaFin;
@@ -114,19 +145,19 @@ namespace VidaFit.Controllers.WEB
                 .Include(v => v.Cliente)
                 .Include(v => v.Producto)
                 .Where(v => v.EstadoPago == "pendiente")
-                .ToListAsync(); // ← IMPORTANTE: ToListAsync() primero
+                .ToListAsync();
 
-            // PASO 2: Agrupar EN MEMORIA
+            // PASO 2: Agrupar EN MEMORIA y crear objetos fuertemente tipados
             var pendientes = ventasPendientes
                 .GroupBy(v => v.ClienteId)
-                .Select(g => new
+                .Select(g => new CuentaPendienteReporte
                 {
                     Cliente = g.First().Cliente,
                     TotalPendiente = g.Sum(v => v.Total),
                     Productos = g.Select(v => v.Producto.Nombre).Distinct().ToList()
                 })
                 .OrderByDescending(g => g.TotalPendiente)
-                .ToList(); // ← ToList() para materializar
+                .ToList();
 
             return View(pendientes);
         }

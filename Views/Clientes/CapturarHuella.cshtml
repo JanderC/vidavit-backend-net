@@ -1,0 +1,260 @@
+﻿@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Capturar Huella";
+    ViewData["Subtitle"] = $"Registrar huella de {ViewBag.ClienteNombre}";
+}
+
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-xl shadow-md p-8">
+        <!-- Estado del lector -->
+        <div id="reader-status" class="mb-6 p-4 rounded-lg border-2">
+            <div class="flex items-center gap-3">
+                <div id="status-icon" class="w-12 h-12 rounded-full flex items-center justify-center">
+                    <i data-lucide="loader" class="w-6 h-6 animate-spin"></i>
+                </div>
+                <div class="flex-1">
+                    <p id="status-title" class="font-semibold">Verificando lector...</p>
+                    <p id="status-message" class="text-sm text-gray-600">Espera un momento</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instrucciones -->
+        <div id="instrucciones" class="hidden mb-6 bg-blue-50 rounded-lg p-4 border border-blue-200">
+            <h3 class="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                <i data-lucide="info" class="w-5 h-5 text-blue-600"></i>
+                Instrucciones Importantes
+            </h3>
+            <ol class="list-decimal list-inside space-y-2 text-sm text-blue-800">
+                <li>Limpia y seca bien tu dedo antes de comenzar</li>
+                <li>Coloca el dedo firmemente en el centro del sensor</li>
+                <li>Mantén el dedo quieto durante toda la captura</li>
+                <li>No presiones demasiado fuerte</li>
+                <li>El proceso tomará 3 capturas para mayor precisión</li>
+            </ol>
+        </div>
+
+        <!-- Área de captura -->
+        <div id="capture-area" class="hidden text-center py-12">
+            <div class="mb-6 flex justify-center">
+                <div class="relative">
+                    <div class="absolute inset-0 bg-vida-primary rounded-full blur-2xl opacity-30 animate-pulse"></div>
+                    <div class="relative bg-vida-primary p-12 rounded-full shadow-2xl">
+                        <i data-lucide="fingerprint" class="w-32 h-32 text-white" stroke-width="1.5"></i>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Coloca tu dedo en el sensor</h3>
+            <p class="text-gray-600 mb-2">Cliente: <span class="font-semibold text-vida-primary">@ViewBag.ClienteNombre</span></p>
+            <p class="text-sm text-gray-500 mb-8">El lector está listo para capturar tu huella</p>
+
+            <button id="btn-capture" onclick="captureFingerprint()"
+                    class="px-8 py-3 bg-vida-primary hover:bg-vida-accent text-vida-dark font-bold rounded-lg transition-all shadow-lg hover:shadow-xl inline-flex items-center gap-2 text-lg">
+                <i data-lucide="scan" class="w-6 h-6"></i>
+                Iniciar Captura
+            </button>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading-area" class="hidden text-center py-12">
+            <div class="mb-6 flex justify-center">
+                <div class="relative">
+                    <div class="absolute inset-0 bg-blue-500 rounded-full blur-2xl opacity-50 animate-pulse"></div>
+                    <div class="relative bg-blue-500 p-12 rounded-full">
+                        <i data-lucide="fingerprint" class="w-24 h-24 text-white animate-pulse" stroke-width="1.5"></i>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-2xl font-bold text-gray-800 mb-4" id="loading-title">Procesando huella...</h3>
+            <p class="text-gray-600 mb-6" id="loading-message">No muevas el dedo</p>
+
+            <!-- Progress bar -->
+            <div class="max-w-md mx-auto bg-gray-200 rounded-full h-3 mb-3">
+                <div id="progress-bar" class="bg-blue-500 h-3 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <p class="text-sm text-gray-500" id="progress-text">Captura 0 de 3</p>
+        </div>
+
+        <!-- Resultado -->
+        <div id="result-area" class="hidden text-center py-8">
+            <div id="result-icon" class="mb-6 flex justify-center"></div>
+            <h3 id="result-title" class="text-3xl font-bold mb-3"></h3>
+            <p id="result-message" class="text-gray-600 mb-8 text-lg"></p>
+
+            <div class="flex justify-center gap-3">
+                <button onclick="window.location.href='/clientes'"
+                        class="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors inline-flex items-center gap-2 font-semibold">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    Volver a Clientes
+                </button>
+                <button id="btn-retry" onclick="location.reload()"
+                        class="hidden px-6 py-3 bg-vida-primary hover:bg-vida-accent text-vida-dark font-semibold rounded-lg transition-all inline-flex items-center gap-2">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    Intentar Nuevamente
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const API_URL = '/api';
+        const clienteId = '@ViewBag.ClienteId';
+        let readerConnected = false;
+
+        // Verificar estado del lector al cargar
+        window.addEventListener('load', async function() {
+            await checkReaderStatus();
+        });
+
+        async function checkReaderStatus() {
+            try {
+                const response = await fetch(`${API_URL}/Fingerprint/status`);
+                const data = await response.json();
+
+                readerConnected = data.connected;
+
+                const statusDiv = document.getElementById('reader-status');
+                const statusIcon = document.getElementById('status-icon');
+                const statusTitle = document.getElementById('status-title');
+                const statusMessage = document.getElementById('status-message');
+
+                if (data.connected) {
+                    statusDiv.className = 'mb-6 p-4 rounded-lg border-2 border-green-500 bg-green-50';
+                    statusIcon.className = 'w-12 h-12 rounded-full flex items-center justify-center bg-green-500';
+                    statusIcon.innerHTML = '<i data-lucide="check-circle" class="w-6 h-6 text-white"></i>';
+                    statusTitle.textContent = '✓ Lector Conectado';
+                    statusMessage.textContent = 'U.are.U 4500 detectado y listo';
+
+                    document.getElementById('instrucciones').classList.remove('hidden');
+                    document.getElementById('capture-area').classList.remove('hidden');
+                } else {
+                    statusDiv.className = 'mb-6 p-4 rounded-lg border-2 border-red-500 bg-red-50';
+                    statusIcon.className = 'w-12 h-12 rounded-full flex items-center justify-center bg-red-500';
+                    statusIcon.innerHTML = '<i data-lucide="x-circle" class="w-6 h-6 text-white"></i>';
+                    statusTitle.textContent = '✗ Lector No Conectado';
+                    statusMessage.textContent = 'Verifica la conexión USB del lector U.are.U 4500';
+                }
+
+                lucide.createIcons();
+            } catch (error) {
+                console.error('Error verificando lector:', error);
+            }
+        }
+
+        async function captureFingerprint() {
+            if (!readerConnected) {
+                alert('El lector de huellas no está conectado');
+                return;
+            }
+
+            // Ocultar área de captura y mostrar loading
+            document.getElementById('capture-area').classList.add('hidden');
+            document.getElementById('loading-area').classList.remove('hidden');
+
+            // Simular progreso (ya que la API maneja las 3 capturas internamente)
+            simulateProgress();
+
+            try {
+                const response = await fetch(`${API_URL}/Fingerprint/capture/${clienteId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const data = await response.json();
+
+                // Ocultar loading
+                document.getElementById('loading-area').classList.add('hidden');
+                document.getElementById('result-area').classList.remove('hidden');
+
+                const resultIcon = document.getElementById('result-icon');
+                const resultTitle = document.getElementById('result-title');
+                const resultMessage = document.getElementById('result-message');
+
+                if (data.success) {
+                    // Éxito
+                    resultIcon.innerHTML = `
+                        <div class="relative">
+                            <div class="absolute inset-0 bg-green-500 rounded-full blur-2xl opacity-30"></div>
+                            <div class="relative w-32 h-32 bg-green-500 rounded-full flex items-center justify-center shadow-2xl">
+                                <i data-lucide="check" class="w-20 h-20 text-white" stroke-width="2"></i>
+                            </div>
+                        </div>
+                    `;
+                    resultTitle.textContent = '¡Huella Capturada Exitosamente!';
+                    resultTitle.className = 'text-3xl font-bold mb-3 text-green-700';
+                    resultMessage.textContent = 'La huella digital se registró correctamente. El cliente ya puede usar el sistema de check-in biométrico.';
+                } else {
+                    // Error
+                    resultIcon.innerHTML = `
+                        <div class="relative">
+                            <div class="absolute inset-0 bg-red-500 rounded-full blur-2xl opacity-30"></div>
+                            <div class="relative w-32 h-32 bg-red-500 rounded-full flex items-center justify-center shadow-2xl">
+                                <i data-lucide="alert-circle" class="w-20 h-20 text-white" stroke-width="2"></i>
+                            </div>
+                        </div>
+                    `;
+                    resultTitle.textContent = 'Error al Capturar Huella';
+                    resultTitle.className = 'text-3xl font-bold mb-3 text-red-700';
+                    resultMessage.textContent = data.message || 'No se pudo capturar la huella. Por favor intenta nuevamente.';
+                    document.getElementById('btn-retry').classList.remove('hidden');
+                }
+
+                lucide.createIcons();
+            } catch (error) {
+                document.getElementById('loading-area').classList.add('hidden');
+                document.getElementById('result-area').classList.remove('hidden');
+
+                const resultIcon = document.getElementById('result-icon');
+                const resultTitle = document.getElementById('result-title');
+                const resultMessage = document.getElementById('result-message');
+
+                resultIcon.innerHTML = `
+                    <div class="relative">
+                        <div class="absolute inset-0 bg-red-500 rounded-full blur-2xl opacity-30"></div>
+                        <div class="relative w-32 h-32 bg-red-500 rounded-full flex items-center justify-center shadow-2xl">
+                            <i data-lucide="x" class="w-20 h-20 text-white" stroke-width="2"></i>
+                        </div>
+                    </div>
+                `;
+                resultTitle.textContent = 'Error de Conexión';
+                resultTitle.className = 'text-3xl font-bold mb-3 text-red-700';
+                resultMessage.textContent = 'No se pudo conectar con el servidor. Verifica tu conexión e intenta nuevamente.';
+                document.getElementById('btn-retry').classList.remove('hidden');
+
+                lucide.createIcons();
+            }
+        }
+
+        function simulateProgress() {
+            let progress = 0;
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            const loadingTitle = document.getElementById('loading-title');
+            const loadingMessage = document.getElementById('loading-message');
+
+            const interval = setInterval(() => {
+                progress += 10;
+                progressBar.style.width = progress + '%';
+
+                if (progress === 33) {
+                    progressText.textContent = 'Captura 1 de 3';
+                    loadingMessage.textContent = 'Primera captura completada';
+                } else if (progress === 66) {
+                    progressText.textContent = 'Captura 2 de 3';
+                    loadingMessage.textContent = 'Segunda captura completada';
+                } else if (progress === 100) {
+                    progressText.textContent = 'Captura 3 de 3';
+                    loadingTitle.textContent = 'Finalizando registro...';
+                    loadingMessage.textContent = 'Procesando datos biométricos';
+                    clearInterval(interval);
+                }
+            }, 800);
+        }
+
+        lucide.createIcons();
+    </script>
+}

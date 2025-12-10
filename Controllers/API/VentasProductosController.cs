@@ -2,13 +2,14 @@
 using Microsoft.EntityFrameworkCore;
 using VidaFit.Data;
 using VidaFitBackend.Models;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
-
-namespace VidaFit.Controllers.API
+namespace VidaFit.Controllers.WEB
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class VentasProductosController : ControllerBase
+    [Route("ventas-productos")]
+    public class VentasProductosController : Controller
     {
         private readonly AppDbContext _context;
 
@@ -17,20 +18,41 @@ namespace VidaFit.Controllers.API
             _context = context;
         }
 
-        // GET: api/VentasProductos
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<VentaProducto>>> GetVentasProductos()
+        // GET: /ventas-productos
+        [HttpGet("")]
+        public async Task<IActionResult> Index(Guid? clienteId, string estado = "todos")
         {
-            return await _context.VentasProductos
+            var query = _context.VentasProductos
                 .Include(v => v.Cliente)
                 .Include(v => v.Producto)
-                .OrderByDescending(v => v.CreatedAt)
+                .AsQueryable();
+
+            // Filtrar por cliente si se proporciona
+            if (clienteId.HasValue)
+            {
+                query = query.Where(v => v.ClienteId == clienteId.Value);
+                var cliente = await _context.Clientes.FindAsync(clienteId.Value);
+                ViewBag.ClienteNombre = cliente != null ? $"{cliente.Nombre} {cliente.Apellido}" : "";
+                ViewBag.ClienteId = clienteId.Value;
+            }
+
+            // Filtrar por estado
+            if (estado != "todos")
+            {
+                query = query.Where(v => v.EstadoPago == estado);
+            }
+
+            var ventas = await query
+                .OrderByDescending(v => v.FechaVenta)
                 .ToListAsync();
+
+            ViewBag.EstadoFiltro = estado;
+            return View(ventas);
         }
 
-        // GET: api/VentasProductos/{id}
-        [HttpGet("{id}")]
-        public async Task<ActionResult<VentaProducto>> GetVentaProducto(Guid id)
+        // GET: /ventas-productos/detalle/{id}
+        [HttpGet("detalle/{id}")]
+        public async Task<IActionResult> Detalle(Guid id)
         {
             var venta = await _context.VentasProductos
                 .Include(v => v.Cliente)
@@ -40,61 +62,55 @@ namespace VidaFit.Controllers.API
             if (venta == null)
                 return NotFound();
 
-            return venta;
+            return View(venta);
         }
 
-        // POST: api/VentasProductos
-        [HttpPost]
-        public async Task<ActionResult<VentaProducto>> CreateVentaProducto([FromBody] VentaProducto venta)
+        // GET: /ventas-productos/crear
+        [HttpGet("crear")]
+        public async Task<IActionResult> Crear()
         {
-            venta.Id = Guid.NewGuid();
-            venta.CreatedAt = DateTime.UtcNow;
-            venta.UpdatedAt = DateTime.UtcNow;
-            venta.FechaVenta = DateTime.UtcNow;
-            _context.VentasProductos.Add(venta);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetVentaProducto), new { id = venta.Id }, venta);
+            ViewBag.Clientes = await _context.Clientes.Where(c => c.Activo).ToListAsync();
+            ViewBag.Productos = await _context.Productos.Where(p => p.Activo).ToListAsync();
+            return View();
         }
 
-        // PUT: api/VentasProductos/{id}
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateVentaProducto(Guid id, [FromBody] VentaProducto venta)
+        // POST: /ventas-productos/crear
+        [HttpPost("crear")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Crear(VentaProducto venta)
         {
-            if (id != venta.Id)
-                return BadRequest();
+            if (ModelState.IsValid)
+            {
+                venta.Id = Guid.NewGuid();
+                venta.CreatedAt = DateTime.UtcNow;
+                venta.UpdatedAt = DateTime.UtcNow;
+                venta.FechaVenta = DateTime.UtcNow;
 
-            var dbVenta = await _context.VentasProductos.FindAsync(id);
-            if (dbVenta == null)
-                return NotFound();
+                _context.VentasProductos.Add(venta);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
 
-            dbVenta.ClienteId = venta.ClienteId;
-            dbVenta.ProductoId = venta.ProductoId;
-            dbVenta.Cantidad = venta.Cantidad;
-            dbVenta.PrecioUnitario = venta.PrecioUnitario;
-            dbVenta.Total = venta.Total;
-            dbVenta.EstadoPago = venta.EstadoPago;
-            dbVenta.FechaVenta = venta.FechaVenta;
-            dbVenta.FechaPago = venta.FechaPago;
-            dbVenta.Notas = venta.Notas;
-            dbVenta.UpdatedAt = DateTime.UtcNow;
-
-            await _context.SaveChangesAsync();
-            return NoContent();
+            ViewBag.Clientes = await _context.Clientes.Where(c => c.Activo).ToListAsync();
+            ViewBag.Productos = await _context.Productos.Where(p => p.Activo).ToListAsync();
+            return View(venta);
         }
 
-        // DELETE: api/VentasProductos/{id}
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteVentaProducto(Guid id)
+        // POST: /ventas-productos/marcar-pagado/{id}
+        [HttpPost("marcar-pagado/{id}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarcarPagado(Guid id)
         {
             var venta = await _context.VentasProductos.FindAsync(id);
             if (venta == null)
                 return NotFound();
 
-            _context.VentasProductos.Remove(venta);
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
+            venta.EstadoPago = "pagado";
+            venta.FechaPago = DateTime.UtcNow;
+            venta.UpdatedAt = DateTime.UtcNow;
 
-     
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
