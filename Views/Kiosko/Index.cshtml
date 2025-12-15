@@ -1,6 +1,6 @@
-﻿@{
+@{
     Layout = "_Layout";
-    ViewData["Title"] = "Check-In VIDA FIT";
+    ViewData["Title"] = "Check-In TAURO GYM";
 }
 
 <div id="kiosko-app" class="min-h-screen"></div>
@@ -10,31 +10,30 @@
         class KioskoApp {
             constructor() {
                 this.state = {
-                    mode: 'idle', // idle, cedula, scanning, success, error
+                    mode: 'idle',
                     cliente: null,
                     message: '',
                     cedula: '',
-                    membresia: null,
+                    diasRestantes: null,
                     similarity: 0,
                     isProcessing: false
                 };
                 this.fingerprintCheckInterval = null;
                 this.render();
                 this.startClock();
-                this.startFingerprintDetection(); // Iniciar detección de huella
+                this.startFingerprintDetection();
             }
 
             setState(newState) {
                 this.state = { ...this.state, ...newState };
                 this.render();
 
-                // Auto-reset después de mostrar resultado
                 if (this.state.mode === 'success' || this.state.mode === 'error') {
                     this.stopFingerprintDetection();
                     setTimeout(() => {
                         this.reset();
                         this.startFingerprintDetection();
-                    }, 6000); // 6 segundos para que lean la info
+                    }, 6000);
                 }
             }
 
@@ -44,7 +43,7 @@
                     cliente: null,
                     message: '',
                     cedula: '',
-                    membresia: null,
+                    diasRestantes: null,
                     similarity: 0,
                     isProcessing: false
                 });
@@ -66,16 +65,9 @@
                 }, 1000);
             }
 
-            // ✅ Detección de huella - Solo se activa cuando el sensor detecta contacto
             startFingerprintDetection() {
-                console.log('🟢 Detección de huella activada');
-
-                // Verificar cada 800ms si hay dedo en el sensor
-                // (el intervalo NO llama al servidor, solo verifica el estado del sensor)
                 this.fingerprintCheckInterval = setInterval(async () => {
                     if (this.state.mode === 'idle' && !this.state.isProcessing) {
-                        // Aquí idealmente verificarías el estado del sensor físico
-                        // Por ahora, el backend se encargará de detectar cuando haya huella
                         await this.checkFingerprintSensor();
                     }
                 }, 800);
@@ -83,80 +75,58 @@
 
             stopFingerprintDetection() {
                 if (this.fingerprintCheckInterval) {
-                    console.log('🔴 Detección de huella detenida');
                     clearInterval(this.fingerprintCheckInterval);
                     this.fingerprintCheckInterval = null;
                 }
             }
 
-            // ✅ Verificar sensor (solo cuando detecta contacto físico)
             async checkFingerprintSensor() {
                 if (this.state.isProcessing) return;
 
                 try {
                     this.state.isProcessing = true;
-
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 2000); // Timeout corto
+                    const timeoutId = setTimeout(() => controller.abort(), 2000);
 
-                    const response = await fetch('/kiosko/verificar-huella-evento', {
+                    const response = await fetch('/kiosko/checkin-huella', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         signal: controller.signal
                     });
 
                     clearTimeout(timeoutId);
                     const data = await response.json();
 
-                    // Solo procesar si realmente detectó una huella
-                    if (data.cliente || data.showCedulaOption) {
-                        console.log('✅ Huella detectada por el sensor:', data);
+                    if (data.cliente || data.useCedula) {
                         this.state.isProcessing = false;
                         await this.handleFingerprintDetected(data);
                     } else {
-                        // Sin huella detectada, continuar esperando
                         this.state.isProcessing = false;
                     }
                 } catch (error) {
                     this.state.isProcessing = false;
-                    // Silenciar errores de timeout (es normal cuando no hay dedo)
-                    if (error.name !== 'AbortError') {
-                        console.log('⚠️ Error verificando sensor:', error.message);
-                    }
                 }
             }
 
-            // ✅ Procesar huella detectada
             async handleFingerprintDetected(data) {
-                console.log('🔍 Procesando resultado de huella:', data);
-
                 this.stopFingerprintDetection();
 
-                // Si sugiere usar cédula
-                if (data.showCedulaOption && !data.cliente) {
+                if (data.useCedula && !data.cliente) {
                     this.setState({
                         mode: 'cedula',
-                        message: data.message
+                        message: data.message || 'Huella no reconocida. Usa tu cédula.'
                     });
                     return;
                 }
 
-                // Mostrar progreso
-                this.setState({
-                    mode: 'scanning',
-                    message: 'Verificando identidad...'
-                });
-
-                await this.simulateProgress();
+                this.setState({ mode: 'scanning', message: 'Verificando identidad...' });
+                await new Promise(resolve => setTimeout(resolve, 1500));
 
                 if (data.success && data.cliente) {
                     this.setState({
                         mode: 'success',
                         cliente: data.cliente,
-                        membresia: data.membresia,
+                        diasRestantes: data.diasRestantes,
                         message: data.message,
                         similarity: data.similarity
                     });
@@ -164,64 +134,57 @@
                     this.setState({
                         mode: 'error',
                         message: data.message || 'No se pudo verificar la huella',
-                        membresia: data.membresia,
-                        similarity: data.similarity
+                        diasRestantes: data.diasRestantes
                     });
                 }
             }
 
-            // Simular progreso visual
-            async simulateProgress() {
-                await new Promise(resolve => setTimeout(resolve, 1500));
-            }
-
             async handleCedulaConsulta() {
-                if (!this.state.cedula.trim()) return;
+                if (!this.state.cedula.trim()) {
+                    this.setState({ message: 'Por favor ingresa tu cédula' });
+                    return;
+                }
 
                 this.stopFingerprintDetection();
                 this.setState({ mode: 'scanning', message: 'Consultando información...' });
 
                 try {
-                    const response = await fetch('/kiosko/consultar-cedula', {
+                    const response = await fetch('/api/CheckIn/cedula', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
-                        },
-                        body: JSON.stringify({ cedula: this.state.cedula.trim() })
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ Cedula: this.state.cedula.trim() })
                     });
 
                     const data = await response.json();
+                    await new Promise(resolve => setTimeout(resolve, 1500));
 
-                    await this.simulateProgress();
-
-                    if (data.cliente) {
+                    if (data.success) {
                         this.setState({
-                            mode: data.success ? 'success' : 'error',
+                            mode: 'success',
                             cliente: data.cliente,
-                            membresia: data.membresia,
+                            diasRestantes: data.cliente?.diasRestantes,
                             message: data.message
                         });
                     } else {
                         this.setState({
                             mode: 'error',
-                            message: data.message
+                            message: data.message || 'No se encontró información'
                         });
                     }
                 } catch (error) {
                     this.setState({
                         mode: 'error',
-                        message: 'Error de conexión'
+                        message: 'Error de conexión. Intenta nuevamente.'
                     });
                 }
             }
 
             renderIdle() {
                 return `
-                    <div class="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex flex-col items-center justify-center p-8 relative overflow-hidden">
+                    <div class="min-h-screen bg-gradient-to-br from-black via-tauro-gray to-tauro-dark flex flex-col items-center justify-center p-8 relative overflow-hidden">
                         <div class="absolute inset-0 opacity-20">
-                            <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-green-500 rounded-full blur-3xl animate-pulse"></div>
-                            <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-green-400 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+                            <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-tauro-red rounded-full blur-3xl animate-pulse"></div>
+                            <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-tauro-red rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
                         </div>
 
                         <div class="absolute top-8 right-8 text-right z-10">
@@ -231,32 +194,31 @@
 
                         <div class="text-center z-10">
                             <div class="mb-12">
-                                <h1 class="text-8xl font-black text-white mb-4 tracking-tight">
-                                    VIDA <span class="text-green-400">FIT</span>
+                                <div class="mb-6 flex justify-center">
+                                    <div class="w-32 h-32 bg-gradient-to-br from-tauro-red to-tauro-accent rounded-full flex items-center justify-center shadow-2xl" style="animation: glow 3s ease-in-out infinite; box-shadow: 0 0 50px rgba(227, 30, 36, 0.6);">
+                                        <span class="text-7xl">🐂</span>
+                                    </div>
+                                </div>
+                                <h1 class="text-8xl font-black text-white mb-4 tracking-tight" style="font-family: 'Bebas Neue', sans-serif; letter-spacing: 3px;">
+                                    TAURO <span class="text-tauro-red">GYM</span>
                                 </h1>
                                 <p class="text-3xl text-gray-400 font-light">Sistema de Check-In</p>
                             </div>
 
-                            <div class="mb-12 bg-green-500/10 border-2 border-green-500 rounded-2xl px-12 py-8 backdrop-blur-sm">
+                            <div class="mb-12 bg-tauro-red/10 border-2 border-tauro-red rounded-2xl px-12 py-8 backdrop-blur-sm">
                                 <div class="mb-6 flex justify-center">
                                     <div class="relative">
-                                        <div class="absolute inset-0 bg-green-500 rounded-full blur-2xl opacity-50 animate-pulse"></div>
-                                        <div class="relative bg-gradient-to-br from-green-500 to-green-600 p-12 rounded-full">
+                                        <div class="absolute inset-0 bg-tauro-red rounded-full blur-2xl opacity-50 animate-pulse"></div>
+                                        <div class="relative bg-gradient-to-br from-tauro-red to-tauro-accent p-12 rounded-full">
                                             <svg class="w-24 h-24 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path>
                                             </svg>
                                         </div>
                                     </div>
                                 </div>
-                                <h2 class="text-4xl font-bold text-white mb-3">
-                                    Coloca tu dedo en el sensor
-                                </h2>
-                                <p class="text-2xl text-green-300 mb-4">
-                                    ✓ Esperando huella...
-                                </p>
-                                <p class="text-lg text-gray-400">
-                                    El sistema detectará tu huella automáticamente
-                                </p>
+                                <h2 class="text-4xl font-bold text-white mb-3">Coloca tu dedo en el sensor</h2>
+                                <p class="text-2xl text-tauro-red mb-4">✓ Esperando huella...</p>
+                                <p class="text-lg text-gray-400">El sistema detectará tu huella automáticamente</p>
                             </div>
 
                             <div class="mt-8">
@@ -275,7 +237,7 @@
 
             renderCedula() {
                 return `
-                    <div class="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex flex-col items-center justify-center p-8">
+                    <div class="min-h-screen bg-gradient-to-br from-black via-tauro-gray to-tauro-dark flex flex-col items-center justify-center p-8">
                         ${this.state.message ? `
                             <div class="mb-6 bg-yellow-500/20 border-2 border-yellow-500 rounded-xl px-6 py-4 max-w-2xl">
                                 <p class="text-yellow-300 text-xl text-center">⚠️ ${this.state.message}</p>
@@ -285,7 +247,7 @@
                         <div class="text-center max-w-2xl w-full">
                             <div class="mb-8">
                                 <div class="bg-white/10 p-8 rounded-full inline-block mb-6 backdrop-blur-sm">
-                                    <svg class="w-20 h-20 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-20 h-20 text-tauro-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path>
                                     </svg>
                                 </div>
@@ -294,26 +256,20 @@
                             </div>
 
                             <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border-2 border-white/10">
-                                <input
-                                    type="text"
-                                    id="cedula-input"
-                                    value="${this.state.cedula}"
+                                <input type="text" id="cedula-input" value="${this.state.cedula}"
                                     oninput="app.setState({ cedula: this.value })"
                                     onkeypress="if(event.key === 'Enter') app.handleCedulaConsulta()"
                                     placeholder="Ejemplo: 0011234567"
-                                    class="w-full px-6 py-6 text-4xl text-center bg-white/10 border-2 border-green-500 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-green-500/50"
-                                    autofocus
-                                />
+                                    class="w-full px-6 py-6 text-4xl text-center bg-white/10 border-2 border-tauro-red rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-tauro-red/50"
+                                    autofocus />
 
-                                <button
-                                    onclick="app.handleCedulaConsulta()"
-                                    class="w-full mt-6 px-8 py-5 bg-green-500 hover:bg-green-600 text-white rounded-xl text-2xl font-bold transition-all shadow-lg">
+                                <button onclick="app.handleCedulaConsulta()"
+                                    class="w-full mt-6 px-8 py-5 bg-gradient-to-r from-tauro-red to-tauro-accent hover:from-tauro-accent hover:to-tauro-red text-white rounded-xl text-2xl font-bold transition-all shadow-lg">
                                     Consultar
                                 </button>
                             </div>
 
-                            <button
-                                onclick="app.reset(); app.startFingerprintDetection();"
+                            <button onclick="app.reset(); app.startFingerprintDetection();"
                                 class="mt-8 px-8 py-4 bg-white/10 hover:bg-white/20 border-2 border-white/30 text-white rounded-xl text-xl font-semibold transition-all">
                                 <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
@@ -327,12 +283,12 @@
 
             renderScanning() {
                 return `
-                    <div class="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex items-center justify-center p-8">
+                    <div class="min-h-screen bg-gradient-to-br from-black via-tauro-gray to-tauro-dark flex items-center justify-center p-8">
                         <div class="text-center">
                             <div class="mb-8 flex justify-center">
                                 <div class="relative">
-                                    <div class="absolute inset-0 bg-blue-500 rounded-full blur-2xl opacity-50 animate-pulse"></div>
-                                    <div class="relative bg-gradient-to-br from-blue-500 to-blue-600 p-16 rounded-full">
+                                    <div class="absolute inset-0 bg-tauro-red rounded-full blur-2xl opacity-50 animate-pulse"></div>
+                                    <div class="relative bg-gradient-to-br from-tauro-red to-tauro-accent p-16 rounded-full">
                                         <svg class="w-32 h-32 text-white animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                                         </svg>
@@ -344,9 +300,9 @@
                             <p class="text-2xl text-gray-400">Por favor espera...</p>
 
                             <div class="flex justify-center gap-2 mt-8">
-                                <div class="w-3 h-3 bg-blue-500 rounded-full animate-bounce"></div>
-                                <div class="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.1s;"></div>
-                                <div class="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
+                                <div class="w-3 h-3 bg-tauro-red rounded-full animate-bounce"></div>
+                                <div class="w-3 h-3 bg-tauro-red rounded-full animate-bounce" style="animation-delay: 0.1s;"></div>
+                                <div class="w-3 h-3 bg-tauro-red rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
                             </div>
                         </div>
                     </div>
@@ -354,7 +310,7 @@
             }
 
             renderSuccess() {
-                const { cliente, membresia, similarity } = this.state;
+                const { cliente, diasRestantes, similarity } = this.state;
                 return `
                     <div class="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-black flex items-center justify-center p-8">
                         <div class="text-center max-w-3xl">
@@ -376,42 +332,29 @@
                             <h2 class="text-6xl font-black text-white mb-4">¡BIENVENIDO!</h2>
                             <p class="text-4xl text-green-300 mb-8 font-bold">${cliente?.nombre || ''}</p>
 
-                            <!-- Información de Membresía -->
                             <div class="bg-black/50 rounded-2xl px-10 py-8 border-2 ${
-                                membresia?.estado === 'activa' ?
-                                    (membresia.diasRestantes <= 3 ? 'border-yellow-500' : 'border-green-500')
+                                diasRestantes !== null && diasRestantes !== undefined ?
+                                    (diasRestantes <= 3 ? 'border-yellow-500' : 'border-green-500')
                                 : 'border-red-500'
                             } mb-6">
                                 <div class="mb-4">
                                     <p class="text-xl text-gray-300 mb-2">Estado de Membresía</p>
                                     <p class="text-4xl font-bold ${
-                                        membresia?.estado === 'activa' ? 'text-green-400' : 'text-red-400'
+                                        diasRestantes !== null && diasRestantes !== undefined ? 'text-green-400' : 'text-red-400'
                                     }">
-                                        ${membresia?.mensaje || 'Sin información'}
+                                        ${this.state.message}
                                     </p>
                                 </div>
 
-                                ${membresia?.diasRestantes !== null && membresia?.diasRestantes !== undefined ? `
+                                ${diasRestantes !== null && diasRestantes !== undefined ? `
                                     <div class="border-t-2 border-gray-700 pt-4 mt-4">
                                         <p class="text-lg text-gray-400 mb-2">
-                                            ${membresia.diasRestantes <= 7 ? '⚠️ Tiempo restante' : '✓ Tiempo restante'}
+                                            ${diasRestantes <= 7 ? '⚠️ Tiempo restante' : '✓ Tiempo restante'}
                                         </p>
                                         <p class="text-5xl font-bold ${
-                                            membresia.diasRestantes <= 3 ? 'text-yellow-400' : 'text-green-400'
+                                            diasRestantes <= 3 ? 'text-yellow-400' : 'text-green-400'
                                         }">
-                                            ${membresia.diasRestantes} ${membresia.diasRestantes === 1 ? 'día' : 'días'}
-                                        </p>
-                                        <p class="text-sm text-gray-500 mt-2">
-                                            Vence: ${new Date(membresia.fechaVencimiento).toLocaleDateString('es-ES')}
-                                        </p>
-                                    </div>
-                                ` : ''}
-
-                                ${membresia?.diasVencidos ? `
-                                    <div class="border-t-2 border-gray-700 pt-4 mt-4">
-                                        <p class="text-lg text-red-400 mb-2">⛔ Vencida hace</p>
-                                        <p class="text-3xl font-bold text-red-400">
-                                            ${membresia.diasVencidos} ${membresia.diasVencidos === 1 ? 'día' : 'días'}
+                                            ${diasRestantes} ${diasRestantes === 1 ? 'día' : 'días'}
                                         </p>
                                     </div>
                                 ` : ''}
@@ -424,7 +367,7 @@
                             ` : ''}
 
                             <div class="mt-6 text-gray-400">
-                                <p class="text-2xl">${this.state.message}</p>
+                                <p class="text-2xl">¡Disfruta tu entrenamiento! 💪</p>
                             </div>
                         </div>
                     </div>
@@ -432,7 +375,7 @@
             }
 
             renderError() {
-                const { membresia } = this.state;
+                const { diasRestantes } = this.state;
                 return `
                     <div class="min-h-screen bg-gradient-to-br from-red-900 via-red-800 to-black flex items-center justify-center p-8">
                         <div class="text-center max-w-3xl">
@@ -452,12 +395,12 @@
                                 </svg>
                                 <p class="text-3xl text-red-300 mb-4 font-semibold">${this.state.message}</p>
 
-                                ${membresia ? `
+                                ${diasRestantes !== null && diasRestantes !== undefined && diasRestantes < 0 ? `
                                     <div class="border-t-2 border-red-700 pt-4 mt-4">
-                                        <p class="text-xl text-gray-300 mb-2">Estado: <span class="font-bold text-red-400">${membresia.mensaje}</span></p>
-                                        ${membresia.diasVencidos ? `
-                                            <p class="text-lg text-gray-400">Vencida hace ${membresia.diasVencidos} ${membresia.diasVencidos === 1 ? 'día' : 'días'}</p>
-                                        ` : ''}
+                                        <p class="text-lg text-red-400 mb-2">⛔ Vencida hace</p>
+                                        <p class="text-3xl font-bold text-red-400">
+                                            ${Math.abs(diasRestantes)} ${Math.abs(diasRestantes) === 1 ? 'día' : 'días'}
+                                        </p>
                                     </div>
                                 ` : ''}
 
@@ -476,7 +419,6 @@
             render() {
                 const container = document.getElementById('kiosko-app');
                 let html = '';
-
                 let cursorPosition = null;
                 const activeInput = document.getElementById('cedula-input');
                 if (activeInput && this.state.mode === 'cedula') {

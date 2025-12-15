@@ -61,8 +61,8 @@ namespace VidaFit.Controllers.API
         public async Task<ActionResult<Cliente>> CreateCliente([FromBody] Cliente cliente)
         {
             cliente.Id = Guid.NewGuid();
-            cliente.CreatedAt = DateTime.Now;
-            cliente.UpdatedAt = DateTime.Now;
+            cliente.CreatedAt = DateTime.UtcNow;
+            cliente.UpdatedAt = DateTime.UtcNow;
             cliente.Activo = true;
 
             _context.Clientes.Add(cliente);
@@ -91,7 +91,7 @@ namespace VidaFit.Controllers.API
             dbCliente.Direccion = cliente.Direccion;
             dbCliente.FotoBase64 = cliente.FotoBase64;
             dbCliente.Activo = cliente.Activo;
-            dbCliente.UpdatedAt = DateTime.Now;
+            dbCliente.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
             return NoContent();

@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Reporte de Ingresos";
     ViewData["Subtitle"] = "Análisis financiero y pagos del gimnasio";
@@ -72,10 +72,10 @@
 
     <!-- Detalle de Ingresos -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Por Método de Pago -->
+        <!-- Resumen por Tipo -->
         <div class="bg-white rounded-xl shadow-md p-6">
-            <h3 class="text-lg font-bold text-gray-800 mb-4">Métodos de Pago</h3>
-            <div class="space-y-3" id="metodos-pago">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">Resumen por Tipo</h3>
+            <div class="space-y-3" id="resumen-tipo">
                 <div class="text-center py-8 text-gray-500">
                     <i data-lucide="loader" class="w-8 h-8 mx-auto mb-2 animate-spin"></i>
                     <p>Cargando...</p>
@@ -85,8 +85,8 @@
 
         <!-- Últimas Transacciones -->
         <div class="bg-white rounded-xl shadow-md p-6">
-            <h3 class="text-lg font-bold text-gray-800 mb-4">Últimos Pagos</h3>
-            <div class="space-y-2" id="ultimos-pagos">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">Últimas Ventas</h3>
+            <div class="space-y-2" id="ultimas-ventas">
                 <div class="text-center py-8 text-gray-500">
                     <i data-lucide="loader" class="w-8 h-8 mx-auto mb-2 animate-spin"></i>
                     <p>Cargando...</p>
@@ -117,36 +117,126 @@
             try {
                 const meses = document.getElementById('meses-periodo').value;
 
-                const [estadisticas, ingresos, productos] = await Promise.all([
-                    fetch(`${API_URL}/Dashboard/estadisticas`).then(r => r.json()),
-                    fetch(`${API_URL}/Dashboard/ingresos?meses=${meses}`).then(r => r.json()),
-                    fetch(`${API_URL}/Dashboard/productos-mas-vendidos?limit=5`).then(r => r.json())
+                // Cargar datos de forma segura
+                const [estadisticas, ventas] = await Promise.all([
+                    cargarEstadisticas(),
+                    cargarVentas()
                 ]);
 
                 // Actualizar resumen financiero
-                document.getElementById('ingresos-mes').textContent = `$${estadisticas.resumen.ingresosMes.toFixed(2)}`;
-                document.getElementById('pendiente-cobro').textContent = `$${estadisticas.resumen.productosPendientes.toFixed(2)}`;
-
-                // Calcular ingresos por productos (pagados)
-                const ingresosProductos = await fetch(`${API_URL}/VentasProductos`)
-                    .then(r => r.json())
-                    .then(ventas => {
-                        const pagadas = ventas.filter(v => v.estadoPago === 'pagado');
-                        return pagadas.reduce((sum, v) => sum + v.total, 0);
-                    });
-
-                document.getElementById('ingresos-productos').textContent = `$${ingresosProductos.toFixed(2)}`;
+                actualizarResumen(estadisticas, ventas);
 
                 // Renderizar gráfica
-                renderChart(ingresos);
+                renderChart(calcularIngresosMensuales(ventas, parseInt(meses)));
 
                 // Renderizar productos más vendidos
-                renderProductos(productos);
+                renderProductosVendidos(calcularProductosMasVendidos(ventas));
+
+                // Renderizar resumen por tipo
+                renderResumenTipo(ventas);
+
+                // Renderizar últimas ventas
+                renderUltimasVentas(ventas);
 
                 lucide.createIcons();
             } catch (error) {
                 console.error('Error cargando datos:', error);
+                mostrarError();
             }
+        }
+
+        async function cargarEstadisticas() {
+            try {
+                const response = await fetch(`${API_URL}/Dashboard/estadisticas`);
+                if (!response.ok) throw new Error('Error al cargar estadísticas');
+                return await response.json();
+            } catch (error) {
+                console.error('Error cargando estadísticas:', error);
+                return { resumen: { ingresosMes: 0, productosPendientes: 0 } };
+            }
+        }
+
+        async function cargarVentas() {
+            try {
+                const response = await fetch(`${API_URL}/VentasProductos`);
+                if (!response.ok) throw new Error('Error al cargar ventas');
+                return await response.json();
+            } catch (error) {
+                console.error('Error cargando ventas:', error);
+                return [];
+            }
+        }
+
+        function actualizarResumen(estadisticas, ventas) {
+            // Ingresos por membresías del mes actual
+            const ingresosMes = estadisticas.resumen?.ingresosMes || 0;
+            document.getElementById('ingresos-mes').textContent = `$${ingresosMes.toFixed(2)}`;
+
+            // Ingresos por productos pagados
+            const ventasPagadas = ventas.filter(v => v.estadoPago === 'pagado');
+            const ingresosProductos = ventasPagadas.reduce((sum, v) => sum + (v.total || 0), 0);
+            document.getElementById('ingresos-productos').textContent = `$${ingresosProductos.toFixed(2)}`;
+
+            // Pendiente de cobro
+            const ventasPendientes = ventas.filter(v => v.estadoPago === 'pendiente');
+            const pendienteCobro = ventasPendientes.reduce((sum, v) => sum + (v.total || 0), 0);
+            document.getElementById('pendiente-cobro').textContent = `$${pendienteCobro.toFixed(2)}`;
+        }
+
+        function calcularIngresosMensuales(ventas, meses) {
+            const ahora = new Date();
+            const ventasPagadas = ventas.filter(v => v.estadoPago === 'pagado');
+            
+            const ingresosPorMes = {};
+            
+            for (let i = 0; i < meses; i++) {
+                const fecha = new Date(ahora.getFullYear(), ahora.getMonth() - i, 1);
+                const key = `${fecha.getFullYear()}-${fecha.getMonth() + 1}`;
+                ingresosPorMes[key] = {
+                    mes: fecha.getMonth() + 1,
+                    año: fecha.getFullYear(),
+                    total: 0
+                };
+            }
+
+            ventasPagadas.forEach(v => {
+                const fecha = new Date(v.fechaVenta || v.fechaPago);
+                const key = `${fecha.getFullYear()}-${fecha.getMonth() + 1}`;
+                
+                if (ingresosPorMes[key]) {
+                    ingresosPorMes[key].total += v.total || 0;
+                }
+            });
+
+            return Object.values(ingresosPorMes).reverse();
+        }
+
+        function calcularProductosMasVendidos(ventas, limit = 5) {
+            const productoStats = {};
+
+            ventas.forEach(v => {
+                const producto = v.producto || {};
+                const productoId = producto.id;
+                
+                if (!productoId) return;
+
+                if (!productoStats[productoId]) {
+                    productoStats[productoId] = {
+                        productoNombre: producto.nombre || 'Desconocido',
+                        cantidadVendida: 0,
+                        totalIngresos: 0
+                    };
+                }
+
+                productoStats[productoId].cantidadVendida += v.cantidad || 0;
+                if (v.estadoPago === 'pagado') {
+                    productoStats[productoId].totalIngresos += v.total || 0;
+                }
+            });
+
+            return Object.values(productoStats)
+                .sort((a, b) => b.totalIngresos - a.totalIngresos)
+                .slice(0, limit);
         }
 
         function renderChart(data) {
@@ -209,7 +299,7 @@
             });
         }
 
-        function renderProductos(productos) {
+        function renderProductosVendidos(productos) {
             const container = document.getElementById('productos-vendidos');
 
             if (productos.length === 0) {
@@ -245,6 +335,96 @@
             `;
 
             lucide.createIcons();
+        }
+
+        function renderResumenTipo(ventas) {
+            const container = document.getElementById('resumen-tipo');
+            
+            const pagadas = ventas.filter(v => v.estadoPago === 'pagado');
+            const pendientes = ventas.filter(v => v.estadoPago === 'pendiente');
+            
+            const totalPagado = pagadas.reduce((sum, v) => sum + (v.total || 0), 0);
+            const totalPendiente = pendientes.reduce((sum, v) => sum + (v.total || 0), 0);
+
+            container.innerHTML = `
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                                <i data-lucide="check-circle" class="w-5 h-5 text-white"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-800">Ventas Pagadas</p>
+                                <p class="text-xs text-gray-600">${pagadas.length} transacciones</p>
+                            </div>
+                        </div>
+                        <p class="text-xl font-bold text-green-600">$${totalPagado.toFixed(2)}</p>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 bg-orange-50 rounded-lg border border-orange-200">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
+                                <i data-lucide="clock" class="w-5 h-5 text-white"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-800">Ventas Fiadas</p>
+                                <p class="text-xs text-gray-600">${pendientes.length} transacciones</p>
+                            </div>
+                        </div>
+                        <p class="text-xl font-bold text-orange-600">$${totalPendiente.toFixed(2)}</p>
+                    </div>
+                </div>
+            `;
+            
+            lucide.createIcons();
+        }
+
+        function renderUltimasVentas(ventas) {
+            const container = document.getElementById('ultimas-ventas');
+            
+            const ultimasVentas = [...ventas]
+                .sort((a, b) => new Date(b.fechaVenta || b.fechaPago) - new Date(a.fechaVenta || a.fechaPago))
+                .slice(0, 10);
+
+            if (ultimasVentas.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-2 text-gray-400"></i>
+                        <p>No hay ventas registradas</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = ultimasVentas.map(v => {
+                const producto = v.producto || {};
+                const cliente = v.cliente || {};
+                const fecha = new Date(v.fechaVenta || v.fechaPago).toLocaleDateString('es-ES');
+                const isPagado = v.estadoPago === 'pagado';
+                
+                return `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <div class="flex items-center gap-3 flex-1">
+                            <div class="w-8 h-8 ${isPagado ? 'bg-green-100' : 'bg-orange-100'} rounded-full flex items-center justify-center">
+                                <i data-lucide="${isPagado ? 'check' : 'clock'}" class="w-4 h-4 ${isPagado ? 'text-green-600' : 'text-orange-600'}"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-semibold text-gray-800">${producto.nombre || 'Producto'}</p>
+                                <p class="text-xs text-gray-600">${cliente.nombre || 'Cliente'} ${cliente.apellido || ''} • ${fecha}</p>
+                            </div>
+                        </div>
+                        <p class="text-sm font-bold ${isPagado ? 'text-green-600' : 'text-orange-600'}">$${(v.total || 0).toFixed(2)}</p>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        function mostrarError() {
+            document.getElementById('productos-vendidos').innerHTML = 
+                '<div class="text-center py-8 text-red-500"><p>Error al cargar los datos</p></div>';
         }
 
         window.addEventListener('load', function() {

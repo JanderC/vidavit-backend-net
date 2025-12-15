@@ -70,7 +70,7 @@ namespace VidaFit.Controllers.API
                     tieneAcceso = false;
                     mensaje = "No tienes membresía activa. Acércate a recepción.";
                 }
-                else if (membresiaActiva.FechaVencimiento < DateTime.Now.Date)
+                else if (membresiaActiva.FechaVencimiento < DateTime.UtcNow.Date)
                 {
                     tieneAcceso = false;
                     mensaje = "Tu membresía ha vencido. Acércate a recepción para renovar.";
@@ -79,18 +79,17 @@ namespace VidaFit.Controllers.API
                 }
                 else
                 {
-                    diasRestantes = (membresiaActiva.FechaVencimiento - DateTime.Now.Date).Days;
+                    diasRestantes = (membresiaActiva.FechaVencimiento - DateTime.UtcNow.Date).Days;
                     mensaje = diasRestantes <= 3
                         ? $"¡Bienvenido! Tu membresía vence en {diasRestantes} días"
                         : "¡Bienvenido!";
                 }
 
-                // Registrar check-in
-                // Registrar check-in
+                // ⚠️ CAMBIO CRÍTICO: Usar DateTime.UtcNow en lugar de DateTime.Now
                 var checkIn = new CheckIn
                 {
                     ClienteId = cliente.Id,
-                    FechaHora = DateTime.Now,
+                    FechaHora = DateTime.UtcNow,  // ✅ CAMBIO AQUÍ
                     Metodo = "cedula",
                     Exitoso = tieneAcceso,
                     Nota = mensaje
@@ -131,7 +130,7 @@ namespace VidaFit.Controllers.API
         {
             try
             {
-                var today = DateTime.Now.Date;
+                var today = DateTime.UtcNow.Date;  // ✅ CAMBIO AQUÍ
                 var checkIns = await _context.CheckIns
                     .Include(c => c.Cliente)
                     .Where(c => c.FechaHora.Date == today)
@@ -245,11 +244,11 @@ namespace VidaFit.Controllers.API
                     });
                 }
 
-                // Registrar check-in
+                // ⚠️ CAMBIO CRÍTICO: Usar DateTime.UtcNow
                 var checkIn = new CheckIn
                 {
                     ClienteId = cliente.Id,
-                    FechaHora = request.FechaHora ?? DateTime.Now,
+                    FechaHora = request.FechaHora ?? DateTime.UtcNow,  // ✅ CAMBIO AQUÍ
                     Metodo = "manual",
                     Exitoso = true,
                     Nota = request.Nota ?? "Check-in manual por administrador"

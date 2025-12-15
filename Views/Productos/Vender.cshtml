@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Vender Productos";
 }
 
@@ -9,25 +9,32 @@
         <!-- Seleccionar Cliente -->
         <div class="mb-6 p-4 bg-blue-50 rounded-lg">
             <label class="block text-sm font-medium text-gray-700 mb-2">Cliente *</label>
-            <div class="flex gap-3">
-                <select id="clienteSelect" required
-                        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary">
-                    <option value="">Seleccione un cliente...</option>
-                </select>
-                <button type="button" id="btnBuscarCliente"
-                        class="px-6 py-2 bg-vida-primary text-vida-dark font-bold rounded-lg hover:bg-yellow-400">
-                    Buscar
-                </button>
+            
+            <!-- Búsqueda de cliente mejorada -->
+            <div class="mb-3">
+                <input type="text" id="buscarClienteInput" placeholder="Buscar por nombre, apellido o cédula..."
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary">
+                
+                <!-- Resultados de búsqueda -->
+                <div id="resultadosBusqueda" class="hidden mt-2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    <!-- Resultados dinámicos aquí -->
+                </div>
             </div>
-            <div id="clienteInfo" class="mt-3 hidden">
-                <div class="flex items-center gap-3 p-3 bg-white rounded-lg">
+
+            <!-- Cliente seleccionado -->
+            <div id="clienteInfo" class="hidden">
+                <div class="flex items-center gap-3 p-3 bg-white rounded-lg border-2 border-vida-primary">
                     <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
                         <i data-lucide="user" class="w-6 h-6 text-gray-600"></i>
                     </div>
-                    <div>
+                    <div class="flex-1">
                         <p class="font-bold text-gray-800" id="clienteNombre"></p>
                         <p class="text-sm text-gray-600" id="clienteCedula"></p>
                     </div>
+                    <button type="button" id="btnCambiarCliente"
+                            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                        Cambiar
+                    </button>
                 </div>
             </div>
         </div>
@@ -40,7 +47,10 @@
                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary">
             </div>
             <div id="productosGrid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-96 overflow-y-auto">
-                <!-- Productos se cargan aquí -->
+                <div class="col-span-full text-center py-8 text-gray-500">
+                    <i data-lucide="loader" class="w-8 h-8 mx-auto mb-2 animate-spin"></i>
+                    <p>Cargando productos...</p>
+                </div>
             </div>
         </div>
 
@@ -65,7 +75,7 @@
             <h3 class="text-lg font-bold text-gray-800 mb-3">Método de Pago</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label class="flex items-center p-3 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-vida-primary">
+                    <label class="flex items-center p-3 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-vida-primary transition">
                         <input type="radio" name="estadoPago" value="pagado" checked
                                class="mr-3 w-5 h-5 text-vida-primary">
                         <div>
@@ -75,7 +85,7 @@
                     </label>
                 </div>
                 <div>
-                    <label class="flex items-center p-3 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-orange-500">
+                    <label class="flex items-center p-3 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-orange-500 transition">
                         <input type="radio" name="estadoPago" value="pendiente"
                                class="mr-3 w-5 h-5 text-orange-500">
                         <div>
@@ -127,13 +137,6 @@
                 // Cargar clientes
                 const clientesRes = await fetch('/api/Clientes');
                 clientes = await clientesRes.json();
-                const clienteSelect = document.getElementById('clienteSelect');
-                clientes.forEach(c => {
-                    const option = document.createElement('option');
-                    option.value = c.id;
-                    option.textContent = `${c.Nombre} ${c.Apellido} - ${c.Cedula}`;
-                    clienteSelect.appendChild(option);
-                });
 
                 // Cargar productos
                 const productosRes = await fetch('/api/Productos');
@@ -141,35 +144,107 @@
                 renderProductos(productos);
             } catch (error) {
                 console.error('Error cargando datos:', error);
-                alert('Error al cargar datos');
+                mostrarError('Error al cargar datos del sistema');
             }
         }
+
+        // Búsqueda de cliente en tiempo real
+        let timeoutBusqueda = null;
+        document.getElementById('buscarClienteInput').addEventListener('input', function(e) {
+            clearTimeout(timeoutBusqueda);
+            const query = e.target.value.trim().toLowerCase();
+            
+            if (query.length < 2) {
+                document.getElementById('resultadosBusqueda').classList.add('hidden');
+                return;
+            }
+
+            timeoutBusqueda = setTimeout(() => {
+                const resultados = clientes.filter(c => {
+                    const nombre = (c.nombre || '').toLowerCase();
+                    const apellido = (c.apellido || '').toLowerCase();
+                    const cedula = (c.cedula || '').toLowerCase();
+                    
+                    return nombre.includes(query) || 
+                           apellido.includes(query) || 
+                           cedula.includes(query) ||
+                           `${nombre} ${apellido}`.includes(query);
+                });
+
+                mostrarResultadosBusqueda(resultados);
+            }, 300);
+        });
+
+        function mostrarResultadosBusqueda(resultados) {
+            const container = document.getElementById('resultadosBusqueda');
+            
+            if (resultados.length === 0) {
+                container.innerHTML = '<p class="p-4 text-gray-500 text-sm">No se encontraron clientes</p>';
+                container.classList.remove('hidden');
+                return;
+            }
+
+            container.innerHTML = resultados.map(c => `
+                <div class="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0" 
+                     onclick="seleccionarCliente('${c.id}')">
+                    <p class="font-semibold text-gray-800">${c.nombre} ${c.apellido}</p>
+                    <p class="text-xs text-gray-600">Cédula: ${c.cedula}</p>
+                </div>
+            `).join('');
+            
+            container.classList.remove('hidden');
+        }
+
+        function seleccionarCliente(clienteId) {
+            clienteSeleccionado = clientes.find(c => c.id === clienteId);
+            
+            if (clienteSeleccionado) {
+                document.getElementById('clienteNombre').textContent = 
+                    `${clienteSeleccionado.nombre} ${clienteSeleccionado.apellido}`;
+                document.getElementById('clienteCedula').textContent = 
+                    `Cédula: ${clienteSeleccionado.cedula}`;
+                
+                document.getElementById('clienteInfo').classList.remove('hidden');
+                document.getElementById('buscarClienteInput').value = '';
+                document.getElementById('resultadosBusqueda').classList.add('hidden');
+                
+                lucide.createIcons();
+            }
+        }
+
+        // Cambiar cliente
+        document.getElementById('btnCambiarCliente').addEventListener('click', function() {
+            clienteSeleccionado = null;
+            document.getElementById('clienteInfo').classList.add('hidden');
+            document.getElementById('buscarClienteInput').value = '';
+            document.getElementById('buscarClienteInput').focus();
+        });
 
         // Renderizar productos en grid
         function renderProductos(lista) {
             const grid = document.getElementById('productosGrid');
-            grid.innerHTML = '';
+            
+            const productosActivos = lista.filter(p => p.activo && p.stock > 0);
+            
+            if (productosActivos.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center py-8 text-gray-500"><p>No hay productos disponibles</p></div>';
+                return;
+            }
 
-            lista.forEach(p => {
-                if (!p.activo || p.stock <= 0) return;
-
-                const div = document.createElement('div');
-                div.className = 'border rounded-lg p-3 hover:shadow-lg cursor-pointer transition';
-                div.innerHTML = `
+            grid.innerHTML = productosActivos.map(p => `
+                <div class="border rounded-lg p-3 hover:shadow-lg cursor-pointer transition" onclick="agregarAlCarrito('${p.id}')">
                     <div class="aspect-square bg-gray-200 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
                         ${p.imagenBase64
-                            ? `<img src="${p.ImagenBase64}" class="w-full h-full object-cover" alt="${p.Nombre}">`
+                            ? `<img src="${p.imagenBase64}" class="w-full h-full object-cover" alt="${p.nombre}">`
                             : `<i data-lucide="package" class="w-12 h-12 text-gray-400"></i>`
                         }
                     </div>
-                    <p class="font-bold text-sm text-gray-800 truncate">${p.Nombre}</p>
-                    <p class="text-xs text-gray-600">${p.categoria}</p>
+                    <p class="font-bold text-sm text-gray-800 truncate">${p.nombre}</p>
+                    <p class="text-xs text-gray-600">${p.categoria || 'Sin categoría'}</p>
                     <p class="text-lg font-bold text-vida-dark mt-1">$${p.precio.toFixed(2)}</p>
                     <p class="text-xs text-gray-500">Stock: ${p.stock}</p>
-                `;
-                div.onclick = () => agregarAlCarrito(p);
-                grid.appendChild(div);
-            });
+                </div>
+            `).join('');
 
             lucide.createIcons();
         }
@@ -177,47 +252,35 @@
         // Buscar productos
         document.getElementById('buscarProducto').addEventListener('input', function(e) {
             const query = e.target.value.toLowerCase();
-            const filtrados = productos.filter(p =>
-                p.Nombre.toLowerCase().includes(query) ||
-                p.categoria.toLowerCase().includes(query)
-            );
+            const filtrados = productos.filter(p => {
+                const nombre = (p.nombre || '').toLowerCase();
+                const categoria = (p.categoria || '').toLowerCase();
+                return nombre.includes(query) || categoria.includes(query);
+            });
             renderProductos(filtrados);
         });
 
-        // Seleccionar cliente
-        document.getElementById('btnBuscarCliente').addEventListener('click', function() {
-            const clienteId = document.getElementById('clienteSelect').value;
-            if (!clienteId) {
-                alert('Seleccione un cliente');
-                return;
-            }
-
-            clienteSeleccionado = clientes.find(c => c.id === clienteId);
-            document.getElementById('clienteNombre').textContent =
-                `${clienteSeleccionado.Nombre} ${clienteSeleccionado.Apellido}`;
-            document.getElementById('clienteCedula').textContent = clienteSeleccionado.cedula;
-            document.getElementById('clienteInfo').classList.remove('hidden');
-            lucide.createIcons();
-        });
-
         // Agregar producto al carrito
-        function agregarAlCarrito(producto) {
-            const itemExistente = carrito.find(i => i.producto.id === producto.id);
+        function agregarAlCarrito(productoId) {
+            const producto = productos.find(p => p.id === productoId);
+            if (!producto) return;
+
+            const itemExistente = carrito.find(i => i.producto.id === productoId);
 
             if (itemExistente) {
                 if (itemExistente.cantidad < producto.stock) {
                     itemExistente.cantidad++;
-                    itemExistente.total = itemExistente.cantidad * itemExistente.Unitario;
+                    itemExistente.total = itemExistente.cantidad * itemExistente.precioUnitario;
                 } else {
-                    alert('No hay suficiente stock');
+                    mostrarError('No hay suficiente stock disponible');
                     return;
                 }
             } else {
                 carrito.push({
                     producto: producto,
                     cantidad: 1,
-                    precioUnitario: producto.Precio,
-                    total: producto.Precio
+                    precioUnitario: producto.precio,
+                    total: producto.precio
                 });
             }
 
@@ -237,6 +300,8 @@
                 item.cantidad = nuevaCantidad;
                 item.total = item.cantidad * item.precioUnitario;
                 renderCarrito();
+            } else if (nuevaCantidad > item.producto.stock) {
+                mostrarError('No hay suficiente stock disponible');
             }
         }
 
@@ -250,43 +315,40 @@
                 return;
             }
 
-            container.innerHTML = '';
             let total = 0;
-
-            carrito.forEach(item => {
+            container.innerHTML = carrito.map(item => {
                 total += item.total;
-                const div = document.createElement('div');
-                div.className = 'flex items-center justify-between p-3 bg-white rounded-lg';
-                div.innerHTML = `
-                    <div class="flex items-center gap-3 flex-1">
-                        <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center overflow-hidden">
-                            ${item.producto.ImagenBase64
-                                ? `<img src="${item.producto.ImagenBase64}" class="w-full h-full object-cover">`
-                                : `<i data-lucide="package" class="w-6 h-6 text-gray-400"></i>`
-                            }
+                return `
+                    <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                        <div class="flex items-center gap-3 flex-1">
+                            <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center overflow-hidden">
+                                ${item.producto.imagenBase64
+                                    ? `<img src="${item.producto.imagenBase64}" class="w-full h-full object-cover">`
+                                    : `<i data-lucide="package" class="w-6 h-6 text-gray-400"></i>`
+                                }
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-bold text-sm">${item.producto.nombre}</p>
+                                <p class="text-xs text-gray-600">$${item.precioUnitario.toFixed(2)} c/u</p>
+                            </div>
                         </div>
-                        <div class="flex-1">
-                            <p class="font-bold text-sm">${item.producto.Nombre}</p>
-                            <p class="text-xs text-gray-600">$${item.precioUnitario.toFixed(2)} c/u</p>
+                        <div class="flex items-center gap-2">
+                            <button onclick="cambiarCantidad('${item.producto.id}', ${item.cantidad - 1})"
+                                    class="w-8 h-8 bg-gray-200 rounded hover:bg-gray-300">-</button>
+                            <span class="w-12 text-center font-bold">${item.cantidad}</span>
+                            <button onclick="cambiarCantidad('${item.producto.id}', ${item.cantidad + 1})"
+                                    class="w-8 h-8 bg-gray-200 rounded hover:bg-gray-300">+</button>
                         </div>
+                        <div class="w-24 text-right">
+                            <p class="font-bold">$${item.total.toFixed(2)}</p>
+                        </div>
+                        <button onclick="eliminarDelCarrito('${item.producto.id}')"
+                                class="ml-2 text-red-600 hover:text-red-800">
+                            <i data-lucide="trash-2" class="w-5 h-5"></i>
+                        </button>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="cambiarCantidad('${item.producto.Id}', ${item.cantidad - 1})"
-                                class="w-8 h-8 bg-gray-200 rounded hover:bg-gray-300">-</button>
-                        <span class="w-12 text-center font-bold">${item.cantidad}</span>
-                        <button onclick="cambiarCantidad('${item.producto.Id}', ${item.cantidad + 1})"
-                                class="w-8 h-8 bg-gray-200 rounded hover:bg-gray-300">+</button>
-                    </div>
-                    <div class="w-24 text-right">
-                        <p class="font-bold">$${item.total.toFixed(2)}</p>
-                    </div>
-                    <button onclick="eliminarDelCarrito('${item.producto.Id}')"
-                            class="ml-2 text-red-600 hover:text-red-800">
-                        <i data-lucide="trash-2" class="w-5 h-5"></i>
-                    </button>
                 `;
-                container.appendChild(div);
-            });
+            }).join('');
 
             document.getElementById('totalCarrito').textContent = `$${total.toFixed(2)}`;
             lucide.createIcons();
@@ -295,17 +357,24 @@
         // Registrar venta
         document.getElementById('btnRegistrarVenta').addEventListener('click', async function() {
             if (!clienteSeleccionado) {
-                alert('Seleccione un cliente');
+                mostrarError('Debe seleccionar un cliente');
                 return;
             }
 
             if (carrito.length === 0) {
-                alert('Agregue productos al carrito');
+                mostrarError('Debe agregar productos al carrito');
                 return;
             }
 
             const estadoPago = document.querySelector('input[name="estadoPago"]:checked').value;
             const notas = document.getElementById('notasVenta').value;
+
+            // Confirmación
+            const mensaje = estadoPago === 'pagado' 
+                ? '¿Confirmar venta como PAGADA?' 
+                : '¿Confirmar venta como FIADA (crédito)?';
+            
+            if (!confirm(mensaje)) return;
 
             try {
                 // Registrar cada producto como una venta
@@ -317,7 +386,7 @@
                         precioUnitario: item.precioUnitario,
                         total: item.total,
                         estadoPago: estadoPago,
-                        notas: notas
+                        notas: notas || null
                     };
 
                     const response = await fetch('/api/VentasProductos', {
@@ -331,24 +400,23 @@
                     }
 
                     // Actualizar stock del producto
-                    const productoActualizado = {
-                        ...item.producto,
-                        stock: item.producto.stock - item.cantidad
-                    };
+                    const producto = item.producto;
+                    producto.stock = producto.stock - item.cantidad;
 
                     await fetch(`/api/Productos/${item.producto.id}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(productoActualizado)
+                        body: JSON.stringify(producto)
                     });
                 }
 
-                alert(`Venta registrada exitosamente como ${estadoPago === 'pagado' ? 'PAGADA' : 'FIADA'}`);
+                const tipoVenta = estadoPago === 'pagado' ? 'PAGADA' : 'FIADA';
+                alert(`✓ Venta registrada exitosamente como ${tipoVenta}`);
                 limpiar();
                 await cargarDatos();
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error al registrar venta');
+                mostrarError('Error al registrar la venta. Intente nuevamente.');
             }
         });
 
@@ -358,17 +426,31 @@
         function limpiar() {
             carrito = [];
             clienteSeleccionado = null;
-            document.getElementById('clienteSelect').value = '';
             document.getElementById('clienteInfo').classList.add('hidden');
+            document.getElementById('buscarClienteInput').value = '';
             document.getElementById('notasVenta').value = '';
             document.getElementById('buscarProducto').value = '';
+            document.querySelector('input[name="estadoPago"][value="pagado"]').checked = true;
             renderCarrito();
             renderProductos(productos);
         }
 
+        function mostrarError(mensaje) {
+            alert('⚠ ' + mensaje);
+        }
+
         // Exponer funciones globalmente
+        window.agregarAlCarrito = agregarAlCarrito;
         window.cambiarCantidad = cambiarCantidad;
         window.eliminarDelCarrito = eliminarDelCarrito;
+        window.seleccionarCliente = seleccionarCliente;
+
+        // Cerrar resultados al hacer click fuera
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('#buscarClienteInput') && !e.target.closest('#resultadosBusqueda')) {
+                document.getElementById('resultadosBusqueda').classList.add('hidden');
+            }
+        });
 
         // Inicializar
         cargarDatos();

@@ -1,306 +1,323 @@
-@model List<VidaFit.Controllers.WEB.CuentaPendienteReporte>
-@using System.Text.Json
 @{
-    Layout = "_AdminLayout";
     ViewData["Title"] = "Cuentas Pendientes";
-    ViewData["Subtitle"] = "Control de productos fiados y pagos pendientes";
-
-    decimal totalPendiente = 0;
-
-    if (Model != null && Model.Count > 0)
-    {
-        foreach (var item in Model)
-        {
-            totalPendiente += item.TotalPendiente;
-        }
-    }
-
-    decimal deudaPromedio = Model != null && Model.Count > 0 ? totalPendiente / Model.Count : 0;
 }
 
-<div class="space-y-6">
-    @if (Model != null && Model.Count > 0)
-    {
-        <!-- Resumen de Cuentas Pendientes -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-white rounded-lg shadow p-6 border-l-4 border-red-500">
-                <div class="flex items-center justify-between mb-3">
-                    <div>
-                        <p class="text-sm text-gray-600 mb-1">Total Pendiente</p>
-                        <p class="text-3xl font-bold text-gray-800">$@totalPendiente.ToString("N2")</p>
-                    </div>
-                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                        <i data-lucide="alert-circle" class="w-6 h-6 text-red-600"></i>
-                    </div>
-                </div>
-                <p class="text-xs text-red-600 flex items-center gap-1">
-                    <i data-lucide="trending-up" class="w-3 h-3"></i>
-                    Por cobrar
-                </p>
-            </div>
-
-            <div class="bg-white rounded-lg shadow p-6 border-l-4 border-yellow-500">
-                <div class="flex items-center justify-between mb-3">
-                    <div>
-                        <p class="text-sm text-gray-600 mb-1">Clientes con Deuda</p>
-                        <p class="text-3xl font-bold text-gray-800">@Model.Count</p>
-                    </div>
-                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                        <i data-lucide="users" class="w-6 h-6 text-yellow-600"></i>
-                    </div>
-                </div>
-                <p class="text-xs text-yellow-600 flex items-center gap-1">
-                    <i data-lucide="user-check" class="w-3 h-3"></i>
-                    Registrados
-                </p>
-            </div>
-
-            <div class="bg-white rounded-lg shadow p-6 border-l-4 border-orange-500">
-                <div class="flex items-center justify-between mb-3">
-                    <div>
-                        <p class="text-sm text-gray-600 mb-1">Deuda Promedio</p>
-                        <p class="text-3xl font-bold text-gray-800">$@deudaPromedio.ToString("N2")</p>
-                    </div>
-                    <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                        <i data-lucide="calculator" class="w-6 h-6 text-orange-600"></i>
-                    </div>
-                </div>
-                <p class="text-xs text-orange-600 flex items-center gap-1">
-                    <i data-lucide="bar-chart" class="w-3 h-3"></i>
-                    Por cliente
-                </p>
-            </div>
+<div class="max-w-7xl mx-auto p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-3xl font-bold text-gray-800">Productos Fiados - Cuentas Pendientes</h2>
+        <div class="flex gap-3">
+            <button id="btnActualizar" class="bg-vida-primary text-vida-dark font-bold py-2 px-6 rounded-lg hover:bg-yellow-400 transition">
+                <i data-lucide="refresh-cw" class="w-5 h-5 inline mr-2"></i>
+                Actualizar
+            </button>
+            <a href="/productos"
+               class="bg-gray-300 text-gray-700 font-bold py-2 px-6 rounded-lg hover:bg-gray-400 transition">
+                Volver
+            </a>
         </div>
+    </div>
 
-        <!-- Alertas Destacadas -->
-        <div class="bg-red-50 border-l-4 border-red-500 rounded-lg p-6">
-            <div class="flex items-start gap-3">
-                <i data-lucide="alert-triangle" class="w-6 h-6 text-red-600 mt-1"></i>
-                <div class="flex-1">
-                    <h3 class="text-lg font-bold text-red-800 mb-2">Clientes con Mayor Deuda</h3>
-                    <div class="space-y-2">
-                        @for (int i = 0; i < Math.Min(3, Model.Count); i++)
-                        {
-                            var cuenta = Model[i];
-                            <div class="bg-white rounded-lg p-3 shadow-sm">
-                                <div class="flex items-center justify-between">
-                                    <span class="font-semibold text-gray-800">@cuenta.Cliente.Nombre @cuenta.Cliente.Apellido</span>
-                                    <span class="text-lg font-bold text-red-600">$@cuenta.TotalPendiente.ToString("N2")</span>
-                                </div>
-                            </div>
-                        }
-                    </div>
+    <!-- Resumen -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-orange-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm mb-1">Total Pendiente</p>
+                    <p class="text-3xl font-bold text-orange-600" id="totalPendiente">$0.00</p>
+                </div>
+                <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                    <i data-lucide="dollar-sign" class="w-6 h-6 text-orange-600"></i>
                 </div>
             </div>
         </div>
-
-        <!-- Gráfica de Distribución -->
-        <div class="bg-white rounded-xl shadow-md p-6">
-            <h3 class="text-lg font-bold text-gray-800 mb-4">Distribución de Deudas</h3>
-            <div class="relative" style="height: 300px;">
-                <canvas id="chart-deudas"></canvas>
-            </div>
-        </div>
-
-        <!-- Tabla de Clientes con Deuda -->
-        <div class="bg-white rounded-xl shadow-md overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-                <h3 class="text-lg font-bold text-gray-800">Detalle de Cuentas Pendientes</h3>
-                <div class="flex items-center gap-2">
-                    <input type="text" id="search-input" placeholder="Buscar cliente..."
-                           class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-vida-primary focus:border-transparent">
+        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm mb-1">Clientes con Deuda</p>
+                    <p class="text-3xl font-bold text-gray-800" id="clientesConDeuda">0</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                    <i data-lucide="users" class="w-6 h-6 text-blue-600"></i>
                 </div>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full" id="tabla-cuentas">
-                    <thead class="bg-gray-50 border-b border-gray-200">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contacto Gimnasio</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Productos Fiados</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Monto Pendiente</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach (var item in Model)
-                        {
-                            <tr class="hover:bg-gray-50 transition-colors cuenta-row">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                                            <i data-lucide="user" class="w-5 h-5 text-gray-500"></i>
-                                        </div>
-                                        <div>
-                                            <div class="font-semibold text-gray-800 cliente-nombre">@item.Cliente.Nombre @item.Cliente.Apellido</div>
-                                            <div class="text-sm text-gray-500">Cédula: @item.Cliente.Cedula</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm space-y-1">
-                                        <a href="tel:+584247551680" class="text-green-600 hover:text-green-700 flex items-center gap-1 font-medium">
-                                            <i data-lucide="phone" class="w-4 h-4"></i>
-                                            +58 424 755 1680
-                                        </a>
-                                        <a href="mailto:janderalexisc@gmail.com" class="text-blue-600 hover:text-blue-700 flex items-center gap-1 font-medium">
-                                            <i data-lucide="mail" class="w-4 h-4"></i>
-                                            janderalexisc@gmail.com
-                                        </a>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <div class="flex flex-wrap gap-1">
-                                        @for (int i = 0; i < Math.Min(3, item.Productos.Count); i++)
-                                        {
-                                            <span class="inline-flex items-center px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
-                                                @item.Productos[i]
-                                            </span>
-                                        }
-                                        @if (item.Productos.Count > 3)
-                                        {
-                                            <span class="inline-flex items-center px-2 py-1 bg-gray-200 text-gray-600 text-xs rounded-full font-semibold">
-                                                +@(item.Productos.Count - 3) más
-                                            </span>
-                                        }
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right">
-                                    <span class="text-xl font-bold text-red-600">$@item.TotalPendiente.ToString("N2")</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center">
-                                    <div class="flex items-center justify-center gap-2">
-                                        <a href="/ventas-productos?clienteId=@item.Cliente.Id"
-                                           class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                           title="Ver detalle de ventas">
-                                            <i data-lucide="eye" class="w-4 h-4"></i>
-                                        </a>
-                                        <a href="/clientes/detalle/@item.Cliente.Id"
-                                           class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                                           title="Ver perfil del cliente">
-                                            <i data-lucide="user" class="w-4 h-4"></i>
-                                        </a>
-                                        <button onclick="mostrarContacto('@item.Cliente.Nombre', @item.TotalPendiente)"
-                                                class="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors"
-                                                title="Información de contacto">
-                                            <i data-lucide="phone" class="w-4 h-4"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm mb-1">Productos Fiados</p>
+                    <p class="text-3xl font-bold text-gray-800" id="productosFiados">0</p>
+                </div>
+                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                    <i data-lucide="package" class="w-6 h-6 text-purple-600"></i>
+                </div>
             </div>
         </div>
-    }
-    else
-    {
-        <!-- Sin Cuentas Pendientes -->
-        <div class="bg-white rounded-xl shadow-md p-12 text-center">
-            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i data-lucide="check-circle" class="w-12 h-12 text-green-600"></i>
+    </div>
+
+    <!-- Lista de cuentas pendientes por cliente -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="p-6 border-b bg-gray-50">
+            <div class="flex gap-4">
+                <input type="text" id="buscarCliente" placeholder="Buscar cliente por nombre, apellido o cédula..."
+                       class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary">
+                <select id="ordenarPor" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary">
+                    <option value="deuda-desc">Mayor deuda primero</option>
+                    <option value="deuda-asc">Menor deuda primero</option>
+                    <option value="nombre">Por nombre (A-Z)</option>
+                </select>
             </div>
-            <h3 class="text-2xl font-bold text-gray-800 mb-2">¡Excelente!</h3>
-            <p class="text-gray-600 text-lg">No hay cuentas pendientes en este momento</p>
-            <p class="text-gray-500 mt-2">Todos los clientes están al día con sus pagos</p>
         </div>
-    }
+        <div id="cuentasList" class="divide-y divide-gray-200">
+            <div class="text-center py-12 text-gray-500">
+                <i data-lucide="loader" class="w-8 h-8 mx-auto mb-2 animate-spin"></i>
+                <p>Cargando cuentas pendientes...</p>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const cuentasData = @Html.Raw(JsonSerializer.Serialize(Model));
+        let cuentasPendientes = [];
+        let cuentasPendientesOriginales = [];
 
-        // Búsqueda de clientes
-        document.getElementById('search-input')?.addEventListener('input', function(e) {
-            const search = e.target.value.toLowerCase();
-            const rows = document.querySelectorAll('.cuenta-row');
+        async function cargarCuentas() {
+            try {
+                const response = await fetch('/api/VentasProductos');
+                if (!response.ok) throw new Error('Error al cargar ventas');
+                
+                const ventas = await response.json();
 
-            rows.forEach(row => {
-                const nombre = row.querySelector('.cliente-nombre').textContent.toLowerCase();
-                if (nombre.includes(search)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        });
+                // Filtrar solo pendientes
+                const pendientes = ventas.filter(v => v.estadoPago === 'pendiente');
 
-        function mostrarContacto(nombre, monto) {
-            const mensaje = `Para resolver la deuda de ${nombre} ($${monto.toFixed(2)}), contáctanos:
-            
-📞 Teléfono: +58 424 755 1680
-📧 Email: janderalexisc@gmail.com
+                // Agrupar por cliente
+                const porCliente = {};
+                pendientes.forEach(v => {
+                    const clienteId = v.clienteId || v.cliente?.id;
+                    if (!clienteId) return;
 
-Horario de atención:
-Lunes a Viernes: 6:00 AM - 10:00 PM
-Sábados: 8:00 AM - 6:00 PM
-Domingos: 8:00 AM - 2:00 PM`;
-            
-            alert(mensaje);
+                    if (!porCliente[clienteId]) {
+                        porCliente[clienteId] = {
+                            cliente: v.cliente || {
+                                id: clienteId,
+                                nombre: 'Cliente',
+                                apellido: 'Desconocido',
+                                cedula: 'N/A'
+                            },
+                            ventas: [],
+                            total: 0
+                        };
+                    }
+                    porCliente[clienteId].ventas.push(v);
+                    porCliente[clienteId].total += v.total || 0;
+                });
+
+                cuentasPendientesOriginales = Object.values(porCliente);
+                cuentasPendientes = [...cuentasPendientesOriginales];
+
+                // Actualizar resumen
+                actualizarResumen(pendientes);
+                
+                // Aplicar ordenamiento inicial
+                ordenarCuentas();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('cuentasList').innerHTML = 
+                    '<div class="text-center py-8 text-red-500"><i data-lucide="alert-circle" class="w-8 h-8 mx-auto mb-2"></i><p>Error al cargar las cuentas pendientes</p></div>';
+                lucide.createIcons();
+            }
         }
 
-        function renderChart() {
-            if (cuentasData.length === 0) return;
+        function actualizarResumen(pendientes) {
+            const totalPendiente = cuentasPendientes.reduce((sum, c) => sum + c.total, 0);
+            document.getElementById('totalPendiente').textContent = `$${totalPendiente.toFixed(2)}`;
+            document.getElementById('clientesConDeuda').textContent = cuentasPendientes.length;
+            document.getElementById('productosFiados').textContent = pendientes.length;
+            lucide.createIcons();
+        }
 
-            const ctx = document.getElementById('chart-deudas');
+        function renderCuentas(cuentas) {
+            const container = document.getElementById('cuentasList');
 
-            const labels = cuentasData.map(c => `${c.Cliente.Nombre} ${c.Cliente.Apellido}`);
-            const data = cuentasData.map(c => c.TotalPendiente);
+            if (cuentas.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-gray-500">
+                        <i data-lucide="check-circle" class="w-16 h-16 mx-auto mb-3 text-green-500"></i>
+                        <p class="text-lg font-semibold">No hay cuentas pendientes</p>
+                        <p class="text-sm">Todos los clientes están al día</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
 
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Deuda',
-                        data: data,
-                        backgroundColor: [
-                            '#ef4444',
-                            '#f97316',
-                            '#f59e0b',
-                            '#eab308',
-                            '#84cc16',
-                            '#22c55e',
-                            '#10b981',
-                            '#14b8a6',
-                            '#06b6d4',
-                            '#0ea5e9'
-                        ],
-                        borderWidth: 2,
-                        borderColor: '#fff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: {
-                                boxWidth: 15,
-                                padding: 10
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            padding: 12,
-                            callbacks: {
-                                label: function(context) {
-                                    return context.label + ': $' + context.parsed.toFixed(2);
-                                }
-                            }
-                        }
+            container.innerHTML = cuentas.map((cuenta, index) => {
+                const cliente = cuenta.cliente || {};
+                return `
+                    <div class="p-6 hover:bg-gray-50 transition">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                                    <span class="text-orange-600 font-bold text-lg">${index + 1}</span>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-gray-800">
+                                        ${cliente.nombre || 'N/A'} ${cliente.apellido || ''}
+                                    </h3>
+                                    <p class="text-sm text-gray-600">Cédula: ${cliente.cedula || 'N/A'}</p>
+                                    <p class="text-xs text-gray-500">${cuenta.ventas.length} producto(s) fiado(s)</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-2xl font-bold text-orange-600">$${cuenta.total.toFixed(2)}</p>
+                                <button onclick="marcarComoPagado('${cliente.id}')"
+                                        class="mt-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm transition">
+                                    <i data-lucide="check" class="w-4 h-4 inline mr-1"></i>
+                                    Marcar Pagado
+                                </button>
+                                <button onclick="verDetalleCliente('${cliente.id}')"
+                                        class="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm transition ml-2">
+                                    <i data-lucide="eye" class="w-4 h-4 inline mr-1"></i>
+                                    Ver Detalle
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Detalle de productos colapsable -->
+                        <div id="detalle-${cliente.id}" class="hidden mt-4 space-y-2 border-t pt-4">
+                            ${cuenta.ventas.map(v => {
+                                const producto = v.producto || {};
+                                const fecha = v.fechaVenta ? new Date(v.fechaVenta).toLocaleDateString('es-ES') : 'N/A';
+                                return `
+                                    <div class="flex justify-between items-center text-sm bg-gray-50 p-3 rounded">
+                                        <div class="flex items-center gap-3 flex-1">
+                                            <i data-lucide="package" class="w-4 h-4 text-gray-400"></i>
+                                            <div>
+                                                <span class="font-medium">${producto.nombre || 'Producto desconocido'}</span>
+                                                <span class="text-gray-600 ml-2">x${v.cantidad || 0}</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-4">
+                                            <span class="font-bold text-orange-600">$${(v.total || 0).toFixed(2)}</span>
+                                            <span class="text-xs text-gray-500">${fecha}</span>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        function verDetalleCliente(clienteId) {
+            const detalle = document.getElementById(`detalle-${clienteId}`);
+            detalle.classList.toggle('hidden');
+            lucide.createIcons();
+        }
+
+        async function marcarComoPagado(clienteId) {
+            const cuenta = cuentasPendientes.find(c => c.cliente.id === clienteId);
+            if (!cuenta) return;
+
+            const mensaje = `¿Marcar como pagadas las ${cuenta.ventas.length} venta(s) de ${cuenta.cliente.nombre} ${cuenta.cliente.apellido} por un total de $${cuenta.total.toFixed(2)}?`;
+            
+            if (!confirm(mensaje)) return;
+
+            try {
+                let errores = 0;
+                
+                for (const venta of cuenta.ventas) {
+                    const ventaActualizada = {
+                        ...venta,
+                        estadoPago: 'pagado',
+                        fechaPago: new Date().toISOString()
+                    };
+
+                    const response = await fetch(`/api/VentasProductos/${venta.id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(ventaActualizada)
+                    });
+
+                    if (!response.ok) {
+                        errores++;
+                        console.error(`Error actualizando venta ${venta.id}`);
                     }
                 }
-            });
+
+                if (errores === 0) {
+                    alert(`✓ Deuda de ${cuenta.cliente.nombre} ${cuenta.cliente.apellido} marcada como pagada`);
+                } else {
+                    alert(`⚠ Se actualizaron algunas ventas pero hubo ${errores} error(es)`);
+                }
+                
+                cargarCuentas();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('⚠ Error al actualizar el pago. Intente nuevamente.');
+            }
         }
 
-        window.addEventListener('load', function() {
-            renderChart();
-            lucide.createIcons();
+        // Buscar cliente
+        document.getElementById('buscarCliente').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase().trim();
+            
+            if (query === '') {
+                cuentasPendientes = [...cuentasPendientesOriginales];
+            } else {
+                cuentasPendientes = cuentasPendientesOriginales.filter(c => {
+                    const nombre = (c.cliente.nombre || '').toLowerCase();
+                    const apellido = (c.cliente.apellido || '').toLowerCase();
+                    const cedula = (c.cliente.cedula || '').toLowerCase();
+                    
+                    return nombre.includes(query) || 
+                           apellido.includes(query) || 
+                           cedula.includes(query) ||
+                           `${nombre} ${apellido}`.includes(query);
+                });
+            }
+            
+            ordenarCuentas();
         });
+
+        // Ordenar cuentas
+        document.getElementById('ordenarPor').addEventListener('change', ordenarCuentas);
+
+        function ordenarCuentas() {
+            const orden = document.getElementById('ordenarPor').value;
+            
+            switch(orden) {
+                case 'deuda-desc':
+                    cuentasPendientes.sort((a, b) => b.total - a.total);
+                    break;
+                case 'deuda-asc':
+                    cuentasPendientes.sort((a, b) => a.total - b.total);
+                    break;
+                case 'nombre':
+                    cuentasPendientes.sort((a, b) => {
+                        const nombreA = `${a.cliente.nombre} ${a.cliente.apellido}`.toLowerCase();
+                        const nombreB = `${b.cliente.nombre} ${b.cliente.apellido}`.toLowerCase();
+                        return nombreA.localeCompare(nombreB);
+                    });
+                    break;
+            }
+            
+            renderCuentas(cuentasPendientes);
+        }
+
+        // Botón actualizar
+        document.getElementById('btnActualizar').addEventListener('click', cargarCuentas);
+
+        // Exponer funciones globalmente
+        window.marcarComoPagado = marcarComoPagado;
+        window.verDetalleCliente = verDetalleCliente;
+
+        // Inicializar
+        cargarCuentas();
     </script>
 }

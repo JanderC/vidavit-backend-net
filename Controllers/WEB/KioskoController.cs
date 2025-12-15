@@ -73,7 +73,7 @@ namespace VidaFit.Controllers.WEB
                         success = false,
                         message = "Huella no reconocida. Por favor ingresa tu cédula.",
                         alertType = "warning",
-                        useCedula = true, // Bandera para cambiar a modo cédula
+                        useCedula = true,
                         similarity = similarity
                     });
                 }
@@ -108,18 +108,18 @@ namespace VidaFit.Controllers.WEB
                     mensaje = "No tienes membresía activa. Acércate a recepción.";
                     alertType = "error";
                 }
-                else if (membresiaActiva.FechaVencimiento < DateTime.Now.Date)
+                else if (membresiaActiva.FechaVencimiento < DateTime.UtcNow.Date)  // ✅ CAMBIO AQUÍ
                 {
                     tieneAcceso = false;
                     mensaje = "Tu membresía ha vencido. Acércate a recepción para renovar.";
                     alertType = "error";
                     membresiaActiva.Estado = "vencida";
-                    membresiaActiva.UpdatedAt = DateTime.Now;
+                    membresiaActiva.UpdatedAt = DateTime.UtcNow;  // ✅ CAMBIO AQUÍ
                     await _context.SaveChangesAsync();
                 }
                 else
                 {
-                    diasRestantes = (membresiaActiva.FechaVencimiento - DateTime.Now.Date).Days;
+                    diasRestantes = (membresiaActiva.FechaVencimiento - DateTime.UtcNow.Date).Days;  // ✅ CAMBIO AQUÍ
 
                     if (diasRestantes <= 3)
                     {
@@ -133,11 +133,11 @@ namespace VidaFit.Controllers.WEB
                     }
                 }
 
-                // Registrar check-in
+                // ⚠️ CAMBIO CRÍTICO: Usar DateTime.UtcNow
                 var checkIn = new CheckIn
                 {
                     ClienteId = clienteEncontrado.Id,
-                    FechaHora = DateTime.Now,
+                    FechaHora = DateTime.UtcNow,  // ✅ CAMBIO AQUÍ
                     Metodo = "huella",
                     Exitoso = tieneAcceso,
                     Nota = $"Verificación biométrica: {similarity:F1}%"
@@ -219,18 +219,18 @@ namespace VidaFit.Controllers.WEB
                 mensaje = "No tienes membresía activa. Acércate a recepción.";
                 alertType = "error";
             }
-            else if (membresiaActiva.FechaVencimiento < DateTime.Now.Date)
+            else if (membresiaActiva.FechaVencimiento < DateTime.UtcNow.Date)  // ✅ CAMBIO AQUÍ
             {
                 tieneAcceso = false;
                 mensaje = "Tu membresía ha vencido. Acércate a recepción para renovar.";
                 alertType = "error";
                 membresiaActiva.Estado = "vencida";
-                membresiaActiva.UpdatedAt = DateTime.Now;
+                membresiaActiva.UpdatedAt = DateTime.UtcNow;  // ✅ CAMBIO AQUÍ
                 await _context.SaveChangesAsync();
             }
             else
             {
-                diasRestantes = (membresiaActiva.FechaVencimiento - DateTime.Now.Date).Days;
+                diasRestantes = (membresiaActiva.FechaVencimiento - DateTime.UtcNow.Date).Days;  // ✅ CAMBIO AQUÍ
 
                 if (diasRestantes <= 3)
                 {
@@ -244,11 +244,11 @@ namespace VidaFit.Controllers.WEB
                 }
             }
 
-            // Registrar check-in
+            // ⚠️ CAMBIO CRÍTICO: Usar DateTime.UtcNow
             var checkIn = new CheckIn
             {
                 ClienteId = cliente.Id,
-                FechaHora = DateTime.Now,
+                FechaHora = DateTime.UtcNow,  // ✅ CAMBIO AQUÍ
                 Metodo = "cedula",
                 Exitoso = tieneAcceso,
                 Nota = mensaje

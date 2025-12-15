@@ -36,7 +36,7 @@ namespace VidaFitBackend.Models
         public string EstadoPago { get; set; } = "pendiente";
 
         [Column("fecha_venta")]
-        public DateTime FechaVenta { get; set; } = DateTime.Now;
+        public DateTime FechaVenta { get; set; } = DateTime.UtcNow;
 
         [Column("fecha_pago")]
         public DateTime? FechaPago { get; set; }
@@ -45,10 +45,10 @@ namespace VidaFitBackend.Models
         public string? Notas { get; set; }
 
         [Column("created_at")]
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         [Column("updated_at")]
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         [ForeignKey("ClienteId")]
         public Cliente Cliente { get; set; }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - VIDA FIT</title>
+    <title>@ViewData["Title"] - TAURO GYM</title>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,10 +14,11 @@
             theme: {
                 extend: {
                     colors: {
-                        'vida-primary': '#7ED957',
-                        'vida-dark': '#0A0A0A',
-                        'vida-gray': '#1a1a1a',
-                        'vida-accent': '#90EE90'
+                        'tauro-red': '#E31E24',
+                        'tauro-dark': '#000000',
+                        'tauro-gray': '#1a1a1a',
+                        'tauro-light-red': '#FF4448',
+                        'tauro-accent': '#C41E23'
                     }
                 }
             }
@@ -27,7 +28,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
 
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -35,39 +36,71 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-        }
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
         }
 
-        /* Animaciones personalizadas */
-        @@keyframes pulse-green {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Bebas Neue', 'Montserrat', sans-serif;
+            letter-spacing: 1px;
         }
-        .animate-pulse-green {
-            animation: pulse-green 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+
+        }
+
+        .animate-pulse-red {
+            animation: pulse-red 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+
+        .text-glow {
+            animation: glow 2s ease-in-out infinite;
         }
 
         /* Scrollbar personalizado */
         ::-webkit-scrollbar {
-            width: 8px;
+            width: 10px;
         }
+
         ::-webkit-scrollbar-track {
             background: #1a1a1a;
         }
+
         ::-webkit-scrollbar-thumb {
-            background: #7ED957;
-            border-radius: 4px;
+            background: linear-gradient(180deg, #E31E24 0%, #C41E23 100%);
+            border-radius: 5px;
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #90EE90;
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: linear-gradient(180deg, #FF4448 0%, #E31E24 100%);
+            }
+
+        /* Efecto hover para cards */
+        .tauro-card {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(227, 30, 36, 0.2);
         }
+
+            .tauro-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 10px 30px rgba(227, 30, 36, 0.3);
+                border-color: rgba(227, 30, 36, 0.5);
+            }
+
+        /* Gradiente para botones */
+        .btn-tauro {
+            background: linear-gradient(135deg, #E31E24 0%, #C41E23 100%);
+            transition: all 0.3s ease;
+        }
+
+            .btn-tauro:hover {
+                background: linear-gradient(135deg, #FF4448 0%, #E31E24 100%);
+                box-shadow: 0 5px 20px rgba(227, 30, 36, 0.4);
+            }
     </style>
 
     @RenderSection("Styles", required: false)
 </head>
-<body class="bg-vida-dark text-gray-100">
+<body class="bg-tauro-dark text-gray-100">
     @RenderBody()
 
     <script>
