@@ -114,7 +114,7 @@ namespace VidaFit.Controllers.WEB
                     mensaje = "Tu membresía ha vencido. Acércate a recepción para renovar.";
                     alertType = "error";
                     membresiaActiva.Estado = "vencida";
-                    membresiaActiva.UpdatedAt = DateTime.Now;
+                    membresiaActiva.UpdatedAt = DateTime.UtcNow;
                     await _context.SaveChangesAsync();
                 }
                 else
@@ -137,7 +137,7 @@ namespace VidaFit.Controllers.WEB
                 var checkIn = new CheckIn
                 {
                     ClienteId = clienteEncontrado.Id,
-                    FechaHora = DateTime.Now,
+                    FechaHora = DateTime.UtcNow,
                     Metodo = "huella",
                     Exitoso = tieneAcceso,
                     Nota = $"Verificación biométrica: {similarity:F1}%"
@@ -156,6 +156,16 @@ namespace VidaFit.Controllers.WEB
                         nombre = $"{clienteEncontrado.Nombre} {clienteEncontrado.Apellido}",
                         fotoBase64 = clienteEncontrado.FotoBase64
                     },
+                    membresia = membresiaActiva != null ? new
+                    {
+                        estado = membresiaActiva.Estado,
+                        mensaje = mensaje,
+                        diasRestantes = diasRestantes,
+                        fechaVencimiento = membresiaActiva.FechaVencimiento,
+                        diasVencidos = membresiaActiva.FechaVencimiento < DateTime.UtcNow
+                            ? (DateTime.UtcNow.Date - membresiaActiva.FechaVencimiento).Days
+                            : (int?)null
+                    } : null,
                     diasRestantes = diasRestantes,
                     fechaVencimiento = membresiaActiva?.FechaVencimiento,
                     similarity = similarity
@@ -225,7 +235,7 @@ namespace VidaFit.Controllers.WEB
                 mensaje = "Tu membresía ha vencido. Acércate a recepción para renovar.";
                 alertType = "error";
                 membresiaActiva.Estado = "vencida";
-                membresiaActiva.UpdatedAt = DateTime.Now;
+                membresiaActiva.UpdatedAt = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
             }
             else
@@ -248,7 +258,7 @@ namespace VidaFit.Controllers.WEB
             var checkIn = new CheckIn
             {
                 ClienteId = cliente.Id,
-                FechaHora = DateTime.Now,
+                FechaHora = DateTime.UtcNow,
                 Metodo = "cedula",
                 Exitoso = tieneAcceso,
                 Nota = mensaje
@@ -267,6 +277,16 @@ namespace VidaFit.Controllers.WEB
                     nombre = $"{cliente.Nombre} {cliente.Apellido}",
                     fotoBase64 = cliente.FotoBase64
                 },
+                membresia = membresiaActiva != null ? new
+                {
+                    estado = membresiaActiva.Estado,
+                    mensaje = mensaje,
+                    diasRestantes = diasRestantes,
+                    fechaVencimiento = membresiaActiva.FechaVencimiento,
+                    diasVencidos = membresiaActiva.FechaVencimiento < DateTime.UtcNow
+                        ? (DateTime.UtcNow.Date - membresiaActiva.FechaVencimiento).Days
+                        : (int?)null
+                } : null,
                 diasRestantes = diasRestantes,
                 fechaVencimiento = membresiaActiva?.FechaVencimiento
             });

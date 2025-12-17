@@ -2,118 +2,164 @@
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Ventas de Productos";
-    
+
     var clienteNombre = ViewBag.ClienteNombre as string;
     var clienteId = ViewBag.ClienteId as Guid?;
     var estadoFiltro = ViewBag.EstadoFiltro as string ?? "todos";
-    
+
     if (!string.IsNullOrEmpty(clienteNombre))
     {
         ViewData["Subtitle"] = $"Ventas de {clienteNombre}";
     }
     else
     {
-        ViewData["Subtitle"] = "Registro de todas las ventas";
+        ViewData["Subtitle"] = "Registro de todas las ventas de productos";
     }
 
     decimal totalPendiente = 0;
     decimal totalPagado = 0;
+    decimal totalCancelado = 0;
+    int ventasPendientes = 0;
+    int ventasPagadas = 0;
 
     if (Model != null && Model.Count > 0)
     {
         foreach (var venta in Model)
         {
             if (venta.EstadoPago == "pendiente")
+            {
                 totalPendiente += venta.Total;
+                ventasPendientes++;
+            }
             else if (venta.EstadoPago == "pagado")
+            {
                 totalPagado += venta.Total;
+                ventasPagadas++;
+            }
+            else if (venta.EstadoPago == "cancelado")
+            {
+                totalCancelado += venta.Total;
+            }
         }
     }
 }
 
 <div class="space-y-6">
-    <!-- Header con botón volver si viene de un cliente -->
-    @if (clienteId.HasValue)
-    {
-        <div class="flex items-center gap-4">
-            <a href="/reportes/cuentas-pendientes" class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
+    <!-- Header con navegación -->
+    <div class="flex items-center justify-between">
+        @if (clienteId.HasValue)
+        {
+            <a href="/ventas-productos/cuentas-pendientes" class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
                 <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
                 Volver a Cuentas Pendientes
             </a>
-        </div>
-    }
+        }
+        else
+        {
+            <div></div>
+        }
 
-    <!-- Filtros -->
+        <div class="flex gap-3">
+            <a href="/ventas-productos/cuentas-pendientes" class="px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg transition">
+                <i data-lucide="alert-circle" class="w-5 h-5 inline mr-2"></i>
+                Cuentas Pendientes
+            </a>
+            <a href="/ventas-productos/vender" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition">
+                <i data-lucide="plus" class="w-5 h-5 inline mr-2"></i>
+                Nueva Venta
+            </a>
+        </div>
+    </div>
+
+    <!-- Resumen General o del Cliente -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
+            <div class="flex items-center justify-between mb-3">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">Total Ventas</p>
+                    <p class="text-3xl font-bold text-gray-800">@Model.Count</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                    <i data-lucide="shopping-bag" class="w-6 h-6 text-blue-600"></i>
+                </div>
+            </div>
+            <p class="text-xs text-blue-600">Total registradas</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
+            <div class="flex items-center justify-between mb-3">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">Pagadas</p>
+                    <p class="text-3xl font-bold text-green-600">$@totalPagado.ToString("N2")</p>
+                </div>
+                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                    <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
+                </div>
+            </div>
+            <p class="text-xs text-green-600">@ventasPagadas ventas</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-red-500">
+            <div class="flex items-center justify-between mb-3">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">Pendientes</p>
+                    <p class="text-3xl font-bold text-red-600">$@totalPendiente.ToString("N2")</p>
+                </div>
+                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                    <i data-lucide="alert-circle" class="w-6 h-6 text-red-600"></i>
+                </div>
+            </div>
+            <p class="text-xs text-red-600">@ventasPendientes ventas</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-vida-primary">
+            <div class="flex items-center justify-between mb-3">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">Total General</p>
+                    <p class="text-3xl font-bold text-gray-800">$@(totalPagado + totalPendiente)</p>
+                </div>
+                <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                    <i data-lucide="dollar-sign" class="w-6 h-6 text-yellow-600"></i>
+                </div>
+            </div>
+            <p class="text-xs text-gray-600">Ingresos totales</p>
+        </div>
+    </div>
+
+    <!-- Filtros y Búsqueda -->
     <div class="bg-white rounded-xl shadow-md p-6">
         <div class="flex flex-wrap items-center gap-4">
-            <div class="flex-1">
-                <h3 class="text-lg font-semibold text-gray-800">Filtrar por estado:</h3>
+            <div class="flex-1 min-w-[250px]">
+                <input type="text" id="searchInput" placeholder="Buscar por cliente o producto..."
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-transparent">
             </div>
             <div class="flex gap-2">
-                <a href="?clienteId=@clienteId&estado=todos" 
+                <a href="?clienteId=@clienteId&estado=todos"
                    class="px-4 py-2 rounded-lg font-medium transition-colors @(estadoFiltro == "todos" ? "bg-vida-primary text-vida-dark" : "bg-gray-100 text-gray-700 hover:bg-gray-200")">
+                    <i data-lucide="list" class="w-4 h-4 inline mr-1"></i>
                     Todos
                 </a>
-                <a href="?clienteId=@clienteId&estado=pendiente" 
+                <a href="?clienteId=@clienteId&estado=pendiente"
                    class="px-4 py-2 rounded-lg font-medium transition-colors @(estadoFiltro == "pendiente" ? "bg-red-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200")">
+                    <i data-lucide="clock" class="w-4 h-4 inline mr-1"></i>
                     Pendientes
                 </a>
-                <a href="?clienteId=@clienteId&estado=pagado" 
+                <a href="?clienteId=@clienteId&estado=pagado"
                    class="px-4 py-2 rounded-lg font-medium transition-colors @(estadoFiltro == "pagado" ? "bg-green-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200")">
+                    <i data-lucide="check-circle" class="w-4 h-4 inline mr-1"></i>
                     Pagados
                 </a>
             </div>
         </div>
     </div>
 
-    @if (clienteId.HasValue)
-    {
-        <!-- Resumen del cliente -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
-                <div class="flex items-center justify-between mb-3">
-                    <div>
-                        <p class="text-sm text-gray-600 mb-1">Total de Ventas</p>
-                        <p class="text-3xl font-bold text-gray-800">@Model.Count</p>
-                    </div>
-                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        <i data-lucide="shopping-bag" class="w-6 h-6 text-blue-600"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-lg shadow p-6 border-l-4 border-red-500">
-                <div class="flex items-center justify-between mb-3">
-                    <div>
-                        <p class="text-sm text-gray-600 mb-1">Total Pendiente</p>
-                        <p class="text-3xl font-bold text-gray-800">$@totalPendiente.ToString("N2")</p>
-                    </div>
-                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                        <i data-lucide="alert-circle" class="w-6 h-6 text-red-600"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
-                <div class="flex items-center justify-between mb-3">
-                    <div>
-                        <p class="text-sm text-gray-600 mb-1">Total Pagado</p>
-                        <p class="text-3xl font-bold text-gray-800">$@totalPagado.ToString("N2")</p>
-                    </div>
-                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                        <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
-
     @if (Model != null && Model.Count > 0)
     {
         <!-- Tabla de Ventas -->
         <div class="bg-white rounded-xl shadow-md overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                 <h3 class="text-lg font-bold text-gray-800">Detalle de Ventas</h3>
+                <span id="resultCount" class="text-sm text-gray-600">Mostrando @Model.Count ventas</span>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full">
@@ -126,47 +172,78 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
                             }
                             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Precio Unit.</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">P. Unit.</th>
                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
                             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
                             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody class="bg-white divide-y divide-gray-200" id="ventasTableBody">
                         @foreach (var venta in Model)
                         {
-                            var estadoColor = venta.EstadoPago == "pagado" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800";
-                            var estadoTexto = venta.EstadoPago == "pagado" ? "Pagado" : "Pendiente";
+                            var estadoColor = venta.EstadoPago == "pagado" ? "bg-green-100 text-green-800" :
+                            (venta.EstadoPago == "pendiente" ? "bg-red-100 text-red-800" : "bg-gray-100 text-gray-800");
+                            var estadoIcono = venta.EstadoPago == "pagado" ? "check-circle" :
+                            (venta.EstadoPago == "pendiente" ? "clock" : "x-circle");
+                            var estadoTexto = venta.EstadoPago == "pagado" ? "Pagado" :
+                            (venta.EstadoPago == "pendiente" ? "Pendiente" : "Cancelado");
 
-                            <tr class="hover:bg-gray-50 transition-colors">
+                            <tr class="hover:bg-gray-50 transition-colors venta-row"
+                                data-cliente="@venta.Cliente.Nombre @venta.Cliente.Apellido"
+                                data-producto="@venta.Producto.Nombre">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                    @venta.FechaVenta.ToString("dd/MM/yyyy HH:mm")
+                                    <div class="flex flex-col">
+                                        <span class="font-semibold">@venta.FechaVenta.ToString("dd/MM/yyyy")</span>
+                                        <span class="text-xs text-gray-500">@venta.FechaVenta.ToString("HH:mm")</span>
+                                    </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                                            <i data-lucide="package" class="w-5 h-5 text-gray-600"></i>
+                                        <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                                            @if (!string.IsNullOrEmpty(venta.Producto.ImagenBase64))
+                                            {
+                                                <img src="data:image/jpeg;base64,@venta.Producto.ImagenBase64" class="w-full h-full object-cover" alt="@venta.Producto.Nombre">
+                                            }
+                                            else
+                                            {
+                                                <i data-lucide="package" class="w-5 h-5 text-gray-600"></i>
+                                            }
                                         </div>
-                                        <span class="font-semibold text-gray-800">@venta.Producto.Nombre</span>
+                                        <div>
+                                            <span class="font-semibold text-gray-800">@venta.Producto.Nombre</span>
+                                            @if (!string.IsNullOrEmpty(venta.Producto.Categoria))
+                                            {
+                                                <span class="block text-xs text-gray-500">@venta.Producto.Categoria</span>
+                                            }
+                                        </div>
                                     </div>
                                 </td>
                                 @if (!clienteId.HasValue)
                                 {
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="text-sm text-gray-700">@venta.Cliente.Nombre @venta.Cliente.Apellido</span>
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                                                <i data-lucide="user" class="w-4 h-4 text-gray-500"></i>
+                                            </div>
+                                            <div>
+                                                <span class="text-sm font-semibold text-gray-700">@venta.Cliente.Nombre @venta.Cliente.Apellido</span>
+                                                <span class="block text-xs text-gray-500">@venta.Cliente.Cedula</span>
+                                            </div>
+                                        </div>
                                     </td>
                                 }
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
-                                    <span class="text-sm font-semibold text-gray-800">@venta.Cantidad</span>
+                                    <span class="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 text-sm font-semibold rounded-full">@venta.Cantidad</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right">
-                                    <span class="text-sm text-gray-600">$@venta.PrecioUnitario.ToString("N2")</span>
+                                    <span class="text-sm font-semibold text-gray-600">$@venta.PrecioUnitario.ToString("N2")</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right">
                                     <span class="text-lg font-bold text-gray-800">$@venta.Total.ToString("N2")</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                     <span class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full @estadoColor">
+                                        <i data-lucide="@estadoIcono" class="w-3 h-3 mr-1"></i>
                                         @estadoTexto
                                     </span>
                                 </td>
@@ -176,11 +253,11 @@
                                         {
                                             <form method="post" action="/ventas-productos/marcar-pagado/@venta.Id" class="inline">
                                                 @Html.AntiForgeryToken()
-                                                <button type="submit" 
+                                                <button type="submit"
                                                         onclick="return confirm('¿Marcar esta venta como pagada?')"
                                                         class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                                                         title="Marcar como pagado">
-                                                    <i data-lucide="check" class="w-4 h-4"></i>
+                                                    <i data-lucide="dollar-sign" class="w-4 h-4"></i>
                                                 </button>
                                             </form>
                                         }
@@ -202,15 +279,50 @@
     {
         <!-- Sin Ventas -->
         <div class="bg-white rounded-xl shadow-md p-12 text-center">
-            <i data-lucide="inbox" class="w-20 h-20 mx-auto mb-4 text-gray-400"></i>
+            <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="inbox" class="w-12 h-12 text-gray-400"></i>
+            </div>
             <h3 class="text-xl font-bold text-gray-800 mb-2">No hay ventas registradas</h3>
-            <p class="text-gray-600">@(clienteId.HasValue ? "Este cliente no tiene ventas registradas" : "Aún no se han registrado ventas")</p>
+            <p class="text-gray-600 mb-4">@(clienteId.HasValue ? "Este cliente no tiene ventas registradas" : "Aún no se han registrado ventas de productos")</p>
+            <a href="/ventas-productos/vender" class="inline-block px-6 py-3 bg-vida-primary text-vida-dark font-bold rounded-lg hover:bg-vida-accent transition">
+                <i data-lucide="plus" class="w-5 h-5 inline mr-2"></i>
+                Registrar Primera Venta
+            </a>
         </div>
     }
 </div>
 
 @section Scripts {
     <script>
+        // Búsqueda en tiempo real
+        const searchInput = document.getElementById('searchInput');
+        const ventasRows = document.querySelectorAll('.venta-row');
+        const resultCount = document.getElementById('resultCount');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                let visibleCount = 0;
+
+                ventasRows.forEach(row => {
+                    const cliente = row.getAttribute('data-cliente').toLowerCase();
+                    const producto = row.getAttribute('data-producto').toLowerCase();
+
+                    if (cliente.includes(searchTerm) || producto.includes(searchTerm)) {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                if (resultCount) {
+                    resultCount.textContent = `Mostrando ${visibleCount} de ${ventasRows.length} ventas`;
+                }
+            });
+        }
+
+        // Inicializar iconos
         window.addEventListener('load', function() {
             lucide.createIcons();
         });

@@ -31,6 +31,12 @@
             <i data-lucide="plus" class="w-5 h-5"></i>
             Nueva Membresía
         </a>
+
+        <a href="/membresias/planes/"
+           class="inline-flex items-center gap-2 px-6 py-2 bg-vida-primary hover:bg-vida-accent text-vida-dark font-semibold rounded-lg transition-all shadow-lg hover:shadow-xl">
+            <i data-lucide="plus" class="w-5 h-5"></i>
+            Nuevo Plan
+            </a>
     </div>
 
     <!-- Filtros por Plan -->
@@ -315,7 +321,7 @@
         function verDetalles(id) {
             const membresia = membresiasData.find(m => (m.id || m.Id) == id);
             if (membresia) {
-                alert(`Detalles:\nID: ${id}\nEstado: ${membresia.estado || membresia.Estado}\n\n(Puedes implementar un modal aquí)`);
+                alert(`Detalles:\nID: ${id}\nEstado: ${membresia.estado || membresia.Estado}\n\n(Si quieres mas diseño contactate al 584247551680 Ing Jander)`);
             }
         }
 

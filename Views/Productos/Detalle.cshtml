@@ -1,0 +1,186 @@
+@model VidaFitBackend.Models.VentaProducto
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Detalle de Venta";
+}
+
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-vida-primary to-yellow-500 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold text-vida-dark mb-2">Detalle de Venta</h2>
+                    <p class="text-vida-dark opacity-75">Venta #@Model.Id.ToString().Substring(0, 8)</p>
+                </div>
+                <div class="text-right">
+                    @if (Model.EstadoPago == "pagado")
+                    {
+                        <span class="inline-flex items-center px-4 py-2 bg-green-500 text-white rounded-full text-sm font-semibold">
+                            <i data-lucide="check-circle" class="w-4 h-4 mr-2"></i>
+                            Pagado
+                        </span>
+                    }
+                    else if (Model.EstadoPago == "pendiente")
+                    {
+                        <span class="inline-flex items-center px-4 py-2 bg-red-500 text-white rounded-full text-sm font-semibold">
+                            <i data-lucide="clock" class="w-4 h-4 mr-2"></i>
+                            Pendiente
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="inline-flex items-center px-4 py-2 bg-gray-500 text-white rounded-full text-sm font-semibold">
+                            <i data-lucide="x-circle" class="w-4 h-4 mr-2"></i>
+                            Cancelado
+                        </span>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="p-6 space-y-6">
+            <!-- Información del Cliente -->
+            <div class="border-b pb-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <i data-lucide="user" class="w-5 h-5"></i>
+                    Información del Cliente
+                </h3>
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
+                        <i data-lucide="user" class="w-8 h-8 text-gray-500"></i>
+                    </div>
+                    <div>
+                        <p class="text-xl font-bold text-gray-800">@Model.Cliente.Nombre @Model.Cliente.Apellido</p>
+                        <p class="text-sm text-gray-600">Cédula: @Model.Cliente.Cedula</p>
+                        @if (!string.IsNullOrEmpty(Model.Cliente.Telefono))
+                        {
+                            <p class="text-sm text-gray-600">Teléfono: @Model.Cliente.Telefono</p>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información del Producto -->
+            <div class="border-b pb-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <i data-lucide="package" class="w-5 h-5"></i>
+                    Información del Producto
+                </h3>
+                <div class="flex items-start gap-4">
+                    <div class="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
+                        @if (!string.IsNullOrEmpty(Model.Producto.ImagenBase64))
+                        {
+                            <img src="data:image/jpeg;base64,@Model.Producto.ImagenBase64" class="w-full h-full object-cover" alt="@Model.Producto.Nombre">
+                        }
+                        else
+                        {
+                            <i data-lucide="package" class="w-12 h-12 text-gray-400"></i>
+                        }
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-xl font-bold text-gray-800">@Model.Producto.Nombre</p>
+                        @if (!string.IsNullOrEmpty(Model.Producto.Descripcion))
+                        {
+                            <p class="text-sm text-gray-600 mt-1">@Model.Producto.Descripcion</p>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Producto.Categoria))
+                        {
+                            <span class="inline-block mt-2 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-semibold">
+                                @Model.Producto.Categoria
+                            </span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detalles de la Venta -->
+            <div class="border-b pb-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                    Detalles de la Venta
+                </h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="text-sm text-gray-600 mb-1">Cantidad</p>
+                        <p class="text-2xl font-bold text-gray-800">@Model.Cantidad unidades</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="text-sm text-gray-600 mb-1">Precio Unitario</p>
+                        <p class="text-2xl font-bold text-gray-800">$@Model.PrecioUnitario.ToString("N2")</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información de Fechas -->
+            <div class="border-b pb-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <i data-lucide="calendar" class="w-5 h-5"></i>
+                    Fechas
+                </h3>
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Fecha de Venta:</span>
+                        <span class="font-semibold text-gray-800">@Model.FechaVenta.ToString("dd/MM/yyyy HH:mm")</span>
+                    </div>
+                    @if (Model.FechaPago.HasValue)
+                    {
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-600">Fecha de Pago:</span>
+                            <span class="font-semibold text-green-600">@Model.FechaPago.Value.ToString("dd/MM/yyyy HH:mm")</span>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Notas -->
+            @if (!string.IsNullOrEmpty(Model.Notas))
+            {
+                <div class="border-b pb-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <i data-lucide="file-text" class="w-5 h-5"></i>
+                        Notas
+                    </h3>
+                    <div class="bg-yellow-50 p-4 rounded-lg">
+                        <p class="text-gray-700">@Model.Notas</p>
+                    </div>
+                </div>
+            }
+
+            <!-- Total -->
+            <div class="bg-gradient-to-r from-vida-primary to-yellow-400 p-6 rounded-lg">
+                <div class="flex items-center justify-between">
+                    <span class="text-xl font-bold text-vida-dark">TOTAL:</span>
+                    <span class="text-3xl font-bold text-vida-dark">$@Model.Total.ToString("N2")</span>
+                </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="flex gap-4 pt-4">
+                @if (Model.EstadoPago == "pendiente")
+                {
+                    <form method="post" action="/ventas-productos/marcar-pagado/@Model.Id" class="flex-1">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" 
+                                class="w-full bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 transition"
+                                onclick="return confirm('¿Marcar esta venta como pagada?')">
+                            <i data-lucide="dollar-sign" class="w-5 h-5 inline mr-2"></i>
+                            Marcar como Pagado
+                        </button>
+                    </form>
+                }
+                <a href="/ventas-productos" 
+                   class="flex-1 bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-lg hover:bg-gray-400 transition text-center">
+                    <i data-lucide="arrow-left" class="w-5 h-5 inline mr-2"></i>
+                    Volver al Listado
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        lucide.createIcons();
+    </script>
+}

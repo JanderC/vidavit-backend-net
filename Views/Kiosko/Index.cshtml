@@ -99,7 +99,7 @@
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 2000); // Timeout corto
 
-                    const response = await fetch('/kiosko/verificar-huella-evento', {
+                    const response = await fetch('/kiosko/checkin-huella', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -182,7 +182,7 @@
                 this.setState({ mode: 'scanning', message: 'Consultando información...' });
 
                 try {
-                    const response = await fetch('/kiosko/consultar-cedula', {
+                    const response = await fetch('/kiosko/checkin-cedula', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

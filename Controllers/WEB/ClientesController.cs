@@ -26,12 +26,14 @@ namespace VidaFit.Controllers.WEB
             return View(clientes);
         }
 
-        // GET: /clientes/detalle/{id}
+        // GET: /clientes/detalle/{id} o /clientes/details/{id}
         [HttpGet("detalle/{id}")]
+        [HttpGet("details/{id}")]
         public async Task<IActionResult> Detalle(Guid id)
         {
             var cliente = await _context.Clientes
                 .Include(c => c.Membresias)
+                    .ThenInclude(m => m.Plan)
                 .Include(c => c.CheckIns)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
@@ -53,7 +55,7 @@ namespace VidaFit.Controllers.WEB
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Crear(Cliente cliente)
         {
-            // Remover errores de validación de campos opcionales que pueden venir vacíos
+            // Remover errores de validación de campos opcionales y de navegación
             ModelState.Remove("Telefono");
             ModelState.Remove("Email");
             ModelState.Remove("FechaNacimiento");
@@ -66,6 +68,16 @@ namespace VidaFit.Controllers.WEB
 
             if (ModelState.IsValid)
             {
+                // Verificar si ya existe un cliente con esa cédula
+                var existente = await _context.Clientes
+                    .FirstOrDefaultAsync(c => c.Cedula == cliente.Cedula);
+
+                if (existente != null)
+                {
+                    ModelState.AddModelError("Cedula", "Ya existe un cliente con esta cédula");
+                    return View(cliente);
+                }
+
                 cliente.Id = Guid.NewGuid();
                 cliente.CreatedAt = DateTime.UtcNow;
                 cliente.UpdatedAt = DateTime.UtcNow;
@@ -84,7 +96,10 @@ namespace VidaFit.Controllers.WEB
                 // CRÍTICO: Convertir FechaNacimiento a UTC si tiene valor
                 if (cliente.FechaNacimiento.HasValue)
                 {
-                    cliente.FechaNacimiento = DateTime.SpecifyKind(cliente.FechaNacimiento.Value, DateTimeKind.Utc);
+                    cliente.FechaNacimiento = DateTime.SpecifyKind(
+                        cliente.FechaNacimiento.Value,
+                        DateTimeKind.Utc
+                    );
                 }
 
                 _context.Clientes.Add(cliente);
@@ -106,6 +121,7 @@ namespace VidaFit.Controllers.WEB
 
         // GET: /clientes/capturar-huella/{id}
         [HttpGet("capturar-huella/{id}")]
+        [HttpGet("capturefingerprint/{id}")]
         public async Task<IActionResult> CapturarHuella(Guid id)
         {
             var cliente = await _context.Clientes.FindAsync(id);
@@ -118,6 +134,7 @@ namespace VidaFit.Controllers.WEB
 
         // GET: /clientes/editar/{id}
         [HttpGet("editar/{id}")]
+        [HttpGet("edit/{id}")]
         public async Task<IActionResult> Editar(Guid id)
         {
             var cliente = await _context.Clientes.FindAsync(id);
@@ -134,24 +151,60 @@ namespace VidaFit.Controllers.WEB
             if (id != cliente.Id)
                 return BadRequest();
 
+            // Remover validación de colecciones de navegación
+            ModelState.Remove("Membresias");
+            ModelState.Remove("CheckIns");
+
             if (ModelState.IsValid)
             {
                 var dbCliente = await _context.Clientes.FindAsync(id);
                 if (dbCliente == null)
                     return NotFound();
 
+                // Verificar si la cédula ya existe en otro cliente
+                var cedulaExistente = await _context.Clientes
+                    .FirstOrDefaultAsync(c => c.Cedula == cliente.Cedula && c.Id != id);
+
+                if (cedulaExistente != null)
+                {
+                    ModelState.AddModelError("Cedula", "Ya existe otro cliente con esta cédula");
+                    return View(cliente);
+                }
+
                 dbCliente.Nombre = cliente.Nombre;
                 dbCliente.Apellido = cliente.Apellido;
                 dbCliente.Cedula = cliente.Cedula;
-                dbCliente.Telefono = cliente.Telefono;
-                dbCliente.Email = cliente.Email;
-                dbCliente.FechaNacimiento = cliente.FechaNacimiento;
-                dbCliente.Direccion = cliente.Direccion;
-                dbCliente.HuellaDigital = cliente.HuellaDigital;
-                dbCliente.HuellaTemplate = cliente.HuellaTemplate;
-                dbCliente.FotoBase64 = cliente.FotoBase64;
+                dbCliente.Telefono = string.IsNullOrWhiteSpace(cliente.Telefono) ? null : cliente.Telefono;
+                dbCliente.Email = string.IsNullOrWhiteSpace(cliente.Email) ? null : cliente.Email;
+                dbCliente.Direccion = string.IsNullOrWhiteSpace(cliente.Direccion) ? null : cliente.Direccion;
                 dbCliente.Activo = cliente.Activo;
                 dbCliente.UpdatedAt = DateTime.UtcNow;
+
+                // Actualizar fecha de nacimiento si viene
+                if (cliente.FechaNacimiento.HasValue)
+                {
+                    dbCliente.FechaNacimiento = DateTime.SpecifyKind(
+                        cliente.FechaNacimiento.Value,
+                        DateTimeKind.Utc
+                    );
+                }
+
+                // Actualizar foto solo si viene nueva
+                if (!string.IsNullOrWhiteSpace(cliente.FotoBase64))
+                {
+                    dbCliente.FotoBase64 = cliente.FotoBase64;
+                }
+
+                // Actualizar huella solo si viene nueva
+                if (!string.IsNullOrWhiteSpace(cliente.HuellaTemplate))
+                {
+                    dbCliente.HuellaTemplate = cliente.HuellaTemplate;
+                }
+
+                if (!string.IsNullOrWhiteSpace(cliente.HuellaDigital))
+                {
+                    dbCliente.HuellaDigital = cliente.HuellaDigital;
+                }
 
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -161,6 +214,7 @@ namespace VidaFit.Controllers.WEB
 
         // GET: /clientes/eliminar/{id}
         [HttpGet("eliminar/{id}")]
+        [HttpGet("delete/{id}")]
         public async Task<IActionResult> Eliminar(Guid id)
         {
             var cliente = await _context.Clientes.FindAsync(id);

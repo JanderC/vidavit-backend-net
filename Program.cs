@@ -11,6 +11,8 @@ using Microsoft.OpenApi.Models;
 using VidaFitBackend.Services;
 using VidaFit.Services;
 using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -122,6 +124,23 @@ Console.WriteLine("   🎛️  Panel Admin: http://localhost:5000/admin");
 Console.WriteLine("   📊 API REST: http://localhost:5000/api");
 Console.WriteLine("   📚 Swagger: http://localhost:5000/swagger");
 Console.WriteLine("═══════════════════════════════════════════════════════");
+Console.WriteLine("");
+Console.WriteLine("   🚀 El navegador se abrirá automáticamente...");
+Console.WriteLine("");
+Console.WriteLine("   ⚠️  IMPORTANTE: NO CIERRES ESTA VENTANA");
+Console.WriteLine("       La aplicación se detendrá si cierras la consola");
+Console.WriteLine("");
+Console.WriteLine("   Para detener el servidor, presiona Ctrl+C");
+Console.WriteLine("═══════════════════════════════════════════════════════");
+
+// ==================== AUTO-APERTURA DEL NAVEGADOR ====================
+// Esta tarea se ejecuta en segundo plano después de 1.5 segundos
+// para dar tiempo a que el servidor inicie completamente
+Task.Run(async () =>
+{
+    await Task.Delay(1500); // Esperar 1.5 segundos
+    OpenBrowser("http://localhost:5000/admin");
+});
 
 // ==================== CONFIGURACIÓN DEL PIPELINE HTTP ====================
 
@@ -158,3 +177,45 @@ app.MapControllerRoute(
     defaults: new { controller = "Kiosko", action = "Index" });
 
 app.Run("http://localhost:5000");
+
+// ==================== FUNCIÓN AUXILIAR PARA ABRIR NAVEGADOR ====================
+
+/// <summary>
+/// Abre el navegador predeterminado del sistema operativo
+/// Compatible con Windows, Linux y macOS
+/// </summary>
+static void OpenBrowser(string url)
+{
+    try
+    {
+        // Detectar el sistema operativo y usar el comando apropiado
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            // Windows: usar 'start' con cmd
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = url,
+                UseShellExecute = true
+            });
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            // Linux: usar 'xdg-open'
+            Process.Start("xdg-open", url);
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            // macOS: usar 'open'
+            Process.Start("open", url);
+        }
+        else
+        {
+            Console.WriteLine($"   ℹ️  Sistema operativo no reconocido. Abre manualmente: {url}");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"   ⚠️  No se pudo abrir el navegador automáticamente: {ex.Message}");
+        Console.WriteLine($"   ℹ️  Por favor, abre manualmente en tu navegador: {url}");
+    }
+}

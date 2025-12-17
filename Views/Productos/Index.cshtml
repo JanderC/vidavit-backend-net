@@ -1,186 +1,297 @@
-﻿@model IEnumerable<VidaFitBackend.Models.Producto>
-
+﻿@model List<VidaFitBackend.Models.Producto>
 @{
-    ViewData["Title"] = "Productos";
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Gestión de Productos";
 }
 
-<div class="max-w-7xl mx-auto p-6">
-    <!-- Header con botones -->
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-3xl font-bold text-gray-800">Gestión de Productos</h2>
-        <div class="flex gap-3">
-            <a href="/productos/crear"
-               class="bg-vida-primary text-vida-dark font-bold py-2 px-6 rounded-lg hover:bg-yellow-400 transition flex items-center gap-2">
-                <i data-lucide="plus-circle" class="w-5 h-5"></i>
-                Nuevo Producto
-            </a>
-            <a href="/productos/vender"
-               class="bg-green-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-700 transition flex items-center gap-2">
-                <i data-lucide="shopping-cart" class="w-5 h-5"></i>
-                Vender Productos
-            </a>
-            <a href="/productos/cuentas-pendientes"
-               class="bg-orange-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-orange-700 transition flex items-center gap-2">
-                <i data-lucide="alert-circle" class="w-5 h-5"></i>
-                Cuentas Pendientes
-            </a>
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800">Gestión de Productos</h2>
+                <p class="text-sm text-gray-600 mt-1">Administra el inventario de productos</p>
+            </div>
+            <div class="flex gap-3">
+                <a href="/ventas-productos/vender" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition">
+                    <i data-lucide="shopping-cart" class="w-5 h-5 inline mr-2"></i>
+                    Vender
+                </a>
+                <a href="/ventas-productos/cuentas-pendientes" class="px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg transition">
+                    <i data-lucide="alert-circle" class="w-5 h-5 inline mr-2"></i>
+                    Cuentas Pendientes
+                </a>
+                <a href="/productos/crear" class="px-6 py-3 bg-vida-primary hover:bg-vida-accent text-vida-dark font-bold rounded-lg transition">
+                    <i data-lucide="plus" class="w-5 h-5 inline mr-2"></i>
+                    Nuevo Producto
+                </a>
+            </div>
         </div>
     </div>
 
-    <!-- Filtros de búsqueda -->
-    <div class="bg-white rounded-xl shadow-md p-6 mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Buscar</label>
-                <input type="text" id="buscarProducto" placeholder="Nombre o categoría..."
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Categoría</label>
-                <select id="filtroCategoria"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary">
-                    <option value="">Todas</option>
-                    <option value="suplementos">Suplementos</option>
-                    <option value="bebidas">Bebidas</option>
-                    <option value="snacks">Snacks</option>
-                    <option value="accesorios">Accesorios</option>
-                    <option value="otros">Otros</option>
+    <!-- Resumen -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        @{
+            var totalProductos = Model.Count;
+            var productosActivos = Model.Count(p => p.Activo);
+            var valorInventario = Model.Where(p => p.Activo).Sum(p => p.Precio * p.Stock);
+            var stockBajo = Model.Count(p => p.Activo && p.Stock < 10);
+        }
+
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
+            <p class="text-sm text-gray-600 mb-1">Total Productos</p>
+            <p class="text-3xl font-bold text-gray-800">@totalProductos</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
+            <p class="text-sm text-gray-600 mb-1">Productos Activos</p>
+            <p class="text-3xl font-bold text-green-600">@productosActivos</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-vida-primary">
+            <p class="text-sm text-gray-600 mb-1">Valor Inventario</p>
+            <p class="text-3xl font-bold text-gray-800">$@valorInventario.ToString("N2")</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-red-500">
+            <p class="text-sm text-gray-600 mb-1">Stock Bajo</p>
+            <p class="text-3xl font-bold text-red-600">@stockBajo</p>
+        </div>
+    </div>
+
+    <!-- Grid de Productos -->
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold text-gray-800">Listado de Productos</h3>
+
+            <!-- Filtros -->
+            <div class="flex gap-2">
+                <input type="text" id="buscarProducto" placeholder="🔍 Buscar producto..."
+                       class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary">
+                <select id="filtroCategoria" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary">
+                    <option value="">Todas las categorías</option>
+                    @foreach (var categoria in Model.Where(p => !string.IsNullOrEmpty(p.Categoria)).Select(p => p.Categoria).Distinct())
+                    {
+                        <option value="@categoria">@categoria</option>
+                    }
                 </select>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
-                <select id="filtroEstado"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary">
+                <select id="filtroEstado" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary">
                     <option value="">Todos</option>
                     <option value="activo">Activos</option>
                     <option value="inactivo">Inactivos</option>
-                    <option value="sin-stock">Sin Stock</option>
                 </select>
             </div>
         </div>
-    </div>
 
-    <!-- Lista de productos -->
-    <div class="bg-white rounded-xl shadow-md overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Imagen</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200" id="productosTable">
+        @if (Model.Count == 0)
+        {
+            <div class="text-center py-12">
+                <i data-lucide="inbox" class="w-16 h-16 mx-auto mb-4 text-gray-400"></i>
+                <p class="text-gray-500 text-lg">No hay productos registrados</p>
+                <a href="/productos/crear" class="inline-block mt-4 px-6 py-2 bg-vida-primary text-vida-dark font-bold rounded-lg hover:bg-vida-accent transition">
+                    Crear primer producto
+                </a>
+            </div>
+        }
+        else
+        {
+            <div id="productosGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 @foreach (var producto in Model)
                 {
-                    <tr class="hover:bg-gray-50 producto-row"
-                        data-nombre="@producto.Nombre.ToLower()"
-                        data-categoria="@producto.Categoria?.ToLower()"
-                        data-activo="@producto.Activo.ToString().ToLower()"
-                        data-stock="@producto.Stock">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
-                                @if (!string.IsNullOrEmpty(producto.ImagenBase64))
+                    <div class="producto-card border rounded-lg overflow-hidden hover:shadow-lg transition @(!producto.Activo ? "opacity-50" : "")"
+                         data-nombre="@producto.Nombre.ToLower()"
+                         data-categoria="@(producto.Categoria?.ToLower() ?? "")"
+                         data-estado="@(producto.Activo ? "activo" : "inactivo")">
+                        <!-- Imagen -->
+                        <div class="aspect-square bg-gray-200 flex items-center justify-center overflow-hidden">
+                            @if (!string.IsNullOrEmpty(producto.ImagenBase64))
+                            {
+                                <img src="data:image/jpeg;base64,@producto.ImagenBase64" class="w-full h-full object-cover" alt="@producto.Nombre">
+                            }
+                            else
+                            {
+                                <i data-lucide="package" class="w-16 h-16 text-gray-400"></i>
+                            }
+                        </div>
+
+                        <!-- Información -->
+                        <div class="p-4">
+                            <div class="mb-2">
+                                <h4 class="font-bold text-gray-800 truncate">@producto.Nombre</h4>
+                                @if (!string.IsNullOrEmpty(producto.Categoria))
                                 {
-                                    <img src="@producto.ImagenBase64" class="w-full h-full object-cover" alt="@producto.Nombre">
-                                }
-                                else
-                                {
-                                    <i data-lucide="package" class="w-8 h-8 text-gray-400"></i>
+                                    <span class="inline-block px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full mt-1">
+                                        @producto.Categoria
+                                    </span>
                                 }
                             </div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="text-sm font-medium text-gray-900">@producto.Nombre</div>
-                            <div class="text-sm text-gray-500">@producto.Descripcion</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                @producto.Categoria
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-bold text-gray-900">$@producto.Precio.ToString("N2")</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full @(producto.Stock > 10 ? "bg-green-100 text-green-800" : producto.Stock > 0 ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800")">
-                                @producto.Stock unidades
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full @(producto.Activo ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800")">
-                                @(producto.Activo ? "Activo" : "Inactivo")
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+
+                            <div class="mb-3">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-2xl font-bold text-vida-dark">$@producto.Precio.ToString("N2")</span>
+                                    <span class="text-sm text-gray-600">
+                                        Stock: <span class="font-semibold @(producto.Stock < 10 ? "text-red-600" : "text-gray-800")">@producto.Stock</span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Acciones -->
                             <div class="flex gap-2">
-                                <a href="/productos/detalle/@producto.Id"
-                                   class="text-blue-600 hover:text-blue-900" title="Ver detalles">
-                                    <i data-lucide="eye" class="w-5 h-5"></i>
-                                </a>
                                 <a href="/productos/editar/@producto.Id"
-                                   class="text-yellow-600 hover:text-yellow-900" title="Editar">
-                                    <i data-lucide="edit" class="w-5 h-5"></i>
+                                   class="flex-1 bg-blue-600 text-white text-center py-2 rounded hover:bg-blue-700 transition text-sm"
+                                   title="Editar">
+                                    <i data-lucide="edit" class="w-4 h-4 inline"></i>
                                 </a>
-                                <a href="/productos/eliminar/@producto.Id"
-                                   class="text-red-600 hover:text-red-900" title="Eliminar">
-                                    <i data-lucide="trash-2" class="w-5 h-5"></i>
-                                </a>
+                                <button onclick="toggleActivoProducto('@producto.Id', @(producto.Activo ? "false" : "true"), '@producto.Nombre')"
+                                        class="flex-1 @(producto.Activo ? "bg-orange-600 hover:bg-orange-700" : "bg-green-600 hover:bg-green-700") text-white py-2 rounded transition text-sm"
+                                        title="@(producto.Activo ? "Desactivar" : "Activar")">
+                                    <i data-lucide="@(producto.Activo ? "toggle-right" : "toggle-left")" class="w-4 h-4 inline"></i>
+                                </button>
+                                <button onclick="eliminarProducto('@producto.Id', '@producto.Nombre')"
+                                        class="flex-1 bg-red-600 text-white py-2 rounded hover:bg-red-700 transition text-sm"
+                                        title="Eliminar">
+                                    <i data-lucide="trash-2" class="w-4 h-4 inline"></i>
+                                </button>
                             </div>
-                        </td>
-                    </tr>
+
+                            @if (!producto.Activo)
+                            {
+                                <div class="mt-2 text-center">
+                                    <span class="text-xs text-red-600 font-semibold">❌ INACTIVO</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
                 }
-            </tbody>
-        </table>
+            </div>
+
+            <div id="noResultados" class="hidden text-center py-12">
+                <i data-lucide="search-x" class="w-16 h-16 mx-auto mb-4 text-gray-400"></i>
+                <p class="text-gray-500 text-lg">No se encontraron productos con esos filtros</p>
+            </div>
+        }
     </div>
 </div>
 
 @section Scripts {
     <script>
-        // Filtro de búsqueda
-        document.getElementById('buscarProducto').addEventListener('input', filtrarProductos);
-        document.getElementById('filtroCategoria').addEventListener('change', filtrarProductos);
-        document.getElementById('filtroEstado').addEventListener('change', filtrarProductos);
+        // Filtros
+        const buscarInput = document.getElementById('buscarProducto');
+        const filtroCategoria = document.getElementById('filtroCategoria');
+        const filtroEstado = document.getElementById('filtroEstado');
+        const productosGrid = document.getElementById('productosGrid');
+        const noResultados = document.getElementById('noResultados');
 
-        function filtrarProductos() {
-            const busqueda = document.getElementById('buscarProducto').value.toLowerCase();
-            const categoria = document.getElementById('filtroCategoria').value.toLowerCase();
-            const estado = document.getElementById('filtroEstado').value.toLowerCase();
+        function aplicarFiltros() {
+            const busqueda = buscarInput?.value.toLowerCase() || '';
+            const categoria = filtroCategoria?.value.toLowerCase() || '';
+            const estado = filtroEstado?.value || '';
 
-            const rows = document.querySelectorAll('.producto-row');
+            const cards = document.querySelectorAll('.producto-card');
+            let visibles = 0;
 
-            rows.forEach(row => {
-                const nombre = row.dataset.nombre;
-                const cat = row.dataset.categoria;
-                const activo = row.dataset.activo === 'true';
-                const stock = parseInt(row.dataset.stock);
+            cards.forEach(card => {
+                const nombre = card.dataset.nombre;
+                const cardCategoria = card.dataset.categoria;
+                const cardEstado = card.dataset.estado;
 
-                let mostrar = true;
+                const matchBusqueda = !busqueda || nombre.includes(busqueda) || cardCategoria.includes(busqueda);
+                const matchCategoria = !categoria || cardCategoria === categoria;
+                const matchEstado = !estado || cardEstado === estado;
 
-                // Filtro de búsqueda
-                if (busqueda && !nombre.includes(busqueda) && !cat.includes(busqueda)) {
-                    mostrar = false;
+                if (matchBusqueda && matchCategoria && matchEstado) {
+                    card.classList.remove('hidden');
+                    visibles++;
+                } else {
+                    card.classList.add('hidden');
                 }
-
-                // Filtro de categoría
-                if (categoria && cat !== categoria) {
-                    mostrar = false;
-                }
-
-                // Filtro de estado
-                if (estado === 'activo' && !activo) mostrar = false;
-                if (estado === 'inactivo' && activo) mostrar = false;
-                if (estado === 'sin-stock' && stock > 0) mostrar = false;
-
-                row.style.display = mostrar ? '' : 'none';
             });
+
+            if (productosGrid) {
+                productosGrid.classList.toggle('hidden', visibles === 0);
+            }
+            if (noResultados) {
+                noResultados.classList.toggle('hidden', visibles > 0);
+            }
         }
 
-        // Inicializar iconos de Lucide
+        buscarInput?.addEventListener('input', aplicarFiltros);
+        filtroCategoria?.addEventListener('change', aplicarFiltros);
+        filtroEstado?.addEventListener('change', aplicarFiltros);
+
+        // Eliminar producto
+        async function eliminarProducto(id, nombre) {
+            const confirmar = confirm(
+                `⚠️ ¿Está seguro de eliminar el producto?\n\n` +
+                `Producto: ${nombre}\n\n` +
+                `Esta acción no se puede deshacer.`
+            );
+
+            if (!confirmar) return;
+
+            try {
+                const response = await fetch(`/api/Productos/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert(`✅ Producto "${nombre}" eliminado exitosamente`);
+                    window.location.reload();
+                } else {
+                    const error = await response.text();
+                    alert(`❌ Error al eliminar: ${error}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error al eliminar el producto: ' + error.message);
+            }
+        }
+
+        // Toggle Activo/Inactivo
+        async function toggleActivoProducto(id, nuevoEstado, nombre) {
+            const accion = nuevoEstado === 'true' ? 'activar' : 'desactivar';
+            const confirmar = confirm(
+                `¿Está seguro de ${accion} el producto?\n\n` +
+                `Producto: ${nombre}`
+            );
+
+            if (!confirmar) return;
+
+            try {
+                // Obtener el producto actual
+                const getResponse = await fetch(`/api/Productos/${id}`);
+                if (!getResponse.ok) throw new Error('No se pudo obtener el producto');
+
+                const producto = await getResponse.json();
+
+                // Actualizar solo el estado activo
+                producto.Activo = nuevoEstado === 'true';
+
+                // Enviar actualización
+                const response = await fetch(`/api/Productos/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(producto)
+                });
+
+                if (response.ok) {
+                    alert(`✅ Producto "${nombre}" ${accion === 'activar' ? 'activado' : 'desactivado'} exitosamente`);
+                    window.location.reload();
+                } else {
+                    const error = await response.text();
+                    alert(`❌ Error: ${error}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error al actualizar el producto: ' + error.message);
+            }
+        }
+
+        // Exponer funciones globalmente
+        window.eliminarProducto = eliminarProducto;
+        window.toggleActivoProducto = toggleActivoProducto;
+
+        // Inicializar iconos
         lucide.createIcons();
     </script>
 }

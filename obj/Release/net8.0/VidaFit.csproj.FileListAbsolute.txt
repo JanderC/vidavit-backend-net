@@ -422,10 +422,10 @@ C:\Users\usuario\source\repos\VidaFit\VidaFit\obj\Release\net8.0\staticwebassets
 C:\Users\usuario\source\repos\VidaFit\VidaFit\obj\Release\net8.0\staticwebassets\msbuild.buildMultiTargeting.VidaFit.props
 C:\Users\usuario\source\repos\VidaFit\VidaFit\obj\Release\net8.0\staticwebassets\msbuild.buildTransitive.VidaFit.props
 C:\Users\usuario\source\repos\VidaFit\VidaFit\obj\Release\net8.0\staticwebassets.pack.json
-C:\Users\usuario\source\repos\VidaFit\VidaFit\obj\Release\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\usuario\source\repos\VidaFit\VidaFit\obj\Release\net8.0\VidaFit.csproj.Up2Date
 C:\Users\usuario\source\repos\VidaFit\VidaFit\obj\Release\net8.0\VidaFit.dll
 C:\Users\usuario\source\repos\VidaFit\VidaFit\obj\Release\net8.0\refint\VidaFit.dll
 C:\Users\usuario\source\repos\VidaFit\VidaFit\obj\Release\net8.0\VidaFit.pdb
 C:\Users\usuario\source\repos\VidaFit\VidaFit\obj\Release\net8.0\VidaFit.genruntimeconfig.cache
 C:\Users\usuario\source\repos\VidaFit\VidaFit\obj\Release\net8.0\ref\VidaFit.dll
+C:\Users\usuario\source\repos\VidaFit\VidaFit\obj\Release\net8.0\staticwebassets.upToDateCheck.txt

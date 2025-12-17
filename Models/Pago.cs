@@ -41,14 +41,11 @@ namespace VidaFitBackend.Models
         [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        [Column("updated_at")]
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-
         // Propiedades de Navegación (Relaciones)
         [ForeignKey("MembresiaId")]
-        public virtual Membresia Membresia { get; set; }
+        public virtual Membresia? Membresia { get; set; }
 
         [ForeignKey("ClienteId")]
-        public virtual Cliente Cliente { get; set; }
+        public virtual Cliente? Cliente { get; set; }
     }
 }

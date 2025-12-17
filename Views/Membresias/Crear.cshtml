@@ -7,29 +7,42 @@
         <h2 class="text-2xl font-bold text-gray-800 mb-6">Nueva Membresía</h2>
 
         <form id="membresiaForm" class="space-y-6">
-            <!-- Buscar Cliente con Lupa -->
+            <!-- Buscar Cliente -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Buscar Cliente *</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Buscar Cliente <span class="text-red-500">*</span>
+                </label>
                 <div class="relative">
-                    <input type="text" id="clienteBuscar" placeholder="Buscar por nombre, apellido o cédula..."
-                           class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary text-gray-800 bg-white"
-                           autocomplete="off">
-                    <i data-lucide="search" class="absolute right-3 top-3 w-5 h-5 text-gray-400"></i>
+                    <input type="text"
+                           id="buscarClienteInput"
+                           placeholder="Escribe nombre, apellido o cédula..."
+                           autocomplete="off"
+                           class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-vida-primary text-gray-800 bg-white">
+                    <i data-lucide="search" class="absolute right-3 top-3.5 w-5 h-5 text-gray-400"></i>
                 </div>
-                
+
                 <!-- Resultados de búsqueda -->
-                <div id="clienteResultados" class="hidden absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+                <div id="resultadosBusqueda" class="hidden mt-2 border border-gray-300 rounded-lg bg-white shadow-lg max-h-64 overflow-y-auto">
+                    <!-- Resultados se llenan aquí -->
                 </div>
 
                 <!-- Cliente seleccionado -->
-                <div id="clienteSeleccionado" class="hidden mt-3 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <div id="clienteSeleccionado" class="hidden mt-3 p-4 bg-green-50 border-2 border-green-300 rounded-lg">
                     <div class="flex items-center justify-between">
-                        <div>
-                            <p class="font-semibold text-green-800" id="clienteNombre"></p>
-                            <p class="text-sm text-green-600" id="clienteCedula"></p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+                                <i data-lucide="user-check" class="w-6 h-6 text-white"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-green-900" id="clienteNombre"></p>
+                                <p class="text-sm text-green-700" id="clienteCedula"></p>
+                                <p class="text-xs text-green-600" id="clienteTelefono"></p>
+                            </div>
                         </div>
-                        <button type="button" onclick="limpiarCliente()" class="text-red-600 hover:text-red-800">
-                            <i data-lucide="x" class="w-5 h-5"></i>
+                        <button type="button" onclick="limpiarCliente()"
+                                class="px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition flex items-center gap-2">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                            Cambiar
                         </button>
                     </div>
                 </div>
@@ -39,63 +52,81 @@
 
             <!-- Seleccionar Plan -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Plan *</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Plan <span class="text-red-500">*</span>
+                </label>
                 <select name="planId" id="planSelect" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary text-gray-800 bg-white">
-                    <option value="" class="text-gray-500">Seleccione un plan...</option>
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-vida-primary text-gray-800 bg-white">
+                    <option value="">Seleccione un plan...</option>
                 </select>
-                <div id="planInfo" class="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800 hidden"></div>
+                <div id="planInfo" class="hidden mt-3 p-4 bg-blue-50 border-2 border-blue-300 rounded-lg">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="info" class="w-5 h-5 text-blue-600"></i>
+                        <span class="text-sm font-medium text-blue-800" id="planInfoTexto"></span>
+                    </div>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Fecha Inicio -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Inicio *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Fecha Inicio <span class="text-red-500">*</span>
+                    </label>
                     <input type="date" name="fechaInicio" id="fechaInicio" required
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary text-gray-800">
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-vida-primary text-gray-800 bg-white">
                 </div>
 
                 <!-- Fecha Vencimiento -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Vencimiento</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Fecha Vencimiento
+                    </label>
                     <input type="date" name="fechaVencimiento" id="fechaVencimiento" readonly
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-800">
+                           class="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-700">
                 </div>
 
                 <!-- Monto Pagado -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Monto Pagado *</label>
-                    <input type="number" step="0.01" name="montoPagado" id="montoPagado" required
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary text-gray-800">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Monto Pagado <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-3.5 text-gray-500 font-medium">$</span>
+                        <input type="number" step="0.01" name="montoPagado" id="montoPagado" required
+                               class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-vida-primary text-gray-800 bg-white">
+                    </div>
                 </div>
 
                 <!-- Método de Pago -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Método de Pago *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Método de Pago <span class="text-red-500">*</span>
+                    </label>
                     <select name="metodoPago" required
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary text-gray-800 bg-white">
-                        <option value="efectivo">Efectivo</option>
-                        <option value="tarjeta">Tarjeta</option>
-                        <option value="transferencia">Transferencia</option>
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-vida-primary text-gray-800 bg-white">
+                        <option value="efectivo">💵 Efectivo</option>
+                        <option value="tarjeta">💳 Tarjeta</option>
+                        <option value="transferencia">🏦 Transferencia</option>
                     </select>
                 </div>
             </div>
 
             <!-- Información de Duración -->
             <div id="duracionInfo" class="hidden">
-                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <div class="flex items-center gap-2 mb-2">
-                        <i data-lucide="calendar" class="w-5 h-5 text-green-600"></i>
-                        <h4 class="font-semibold text-green-800">Duración de la Membresía</h4>
+                <div class="bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-300 rounded-lg p-5">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i data-lucide="calendar-check" class="w-6 h-6 text-green-600"></i>
+                        <h4 class="font-bold text-green-900 text-lg">Duración de la Membresía</h4>
                     </div>
-                    <div class="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                            <p class="text-gray-600">Total de días:</p>
-                            <p class="font-bold text-green-700" id="totalDias">-</p>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="bg-white rounded-lg p-3 border border-green-200">
+                            <p class="text-xs text-gray-600 mb-1">Total de días</p>
+                            <p class="font-bold text-green-700 text-xl" id="totalDias">-</p>
                         </div>
-                        <div>
-                            <p class="text-gray-600">Vence el:</p>
-                            <p class="font-bold text-green-700" id="fechaVencTexto">-</p>
+                        <div class="bg-white rounded-lg p-3 border border-green-200 col-span-2">
+                            <p class="text-xs text-gray-600 mb-1">Vence el</p>
+                            <p class="font-bold text-green-700 text-lg" id="fechaVencTexto">-</p>
                         </div>
                     </div>
                 </div>
@@ -103,19 +134,23 @@
 
             <!-- Notas -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Notas (Opcional)</label>
-                <textarea name="notas" rows="2" placeholder="Ingrese notas adicionales..."
-                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary text-gray-800"></textarea>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Notas (Opcional)
+                </label>
+                <textarea name="notas" rows="3" placeholder="Información adicional sobre la membresía..."
+                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-vida-primary text-gray-800 bg-white resize-none"></textarea>
             </div>
 
             <!-- Botones -->
-            <div class="flex gap-4">
-                <button type="submit"
-                        class="flex-1 bg-vida-primary text-vida-dark font-bold py-3 px-6 rounded-lg hover:bg-yellow-400 transition">
+            <div class="flex gap-4 pt-4">
+                <button type="submit" id="btnCrear"
+                        class="flex-1 bg-vida-primary hover:bg-vida-accent text-vida-dark font-bold py-3.5 px-6 rounded-lg transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
+                    <i data-lucide="check-circle" class="w-5 h-5"></i>
                     Crear Membresía
                 </button>
                 <a href="/membresias"
-                   class="flex-1 bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-lg hover:bg-gray-400 transition text-center">
+                   class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold py-3.5 px-6 rounded-lg transition-all text-center flex items-center justify-center gap-2">
+                    <i data-lucide="x-circle" class="w-5 h-5"></i>
                     Cancelar
                 </a>
             </div>
@@ -126,158 +161,213 @@
 @section Scripts {
     <script>
         let planes = [];
+        let todosLosClientes = [];
+        let clienteSeleccionado = null;
         let buscarTimeout = null;
-        let clienteSeleccionadoId = null;
 
-        async function cargarPlanes() {
+        async function cargarDatos() {
             try {
-                const planesRes = await fetch('/api/Planes');
+                // Cargar planes activos
+                const planesRes = await fetch('/api/Planes/activos');
                 if (!planesRes.ok) throw new Error('Error al cargar planes');
-                
-                planes = await planesRes.json();
+
+                const planesData = await planesRes.json();
+                planes = planesData.map(p => ({
+                    id: p.Id || p.id,
+                    nombre: p.Nombre || p.nombre,
+                    precio: p.Precio || p.precio,
+                    duracionDias: p.DuracionDias || p.duracionDias
+                }));
+
                 const planSelect = document.getElementById('planSelect');
-                
                 planes.forEach(p => {
                     const option = document.createElement('option');
-                    option.value = p.id || p.Id;
-                    option.textContent = `${p.nombre || p.Nombre} - $${p.precio || p.Precio} (${p.duracionDias || p.DuracionDias} días)`;
-                    option.className = 'text-gray-800';
+                    option.value = p.id;
+                    option.textContent = `${p.nombre} - $${p.precio.toFixed(2)} (${p.duracionDias} días)`;
                     planSelect.appendChild(option);
                 });
 
-                const today = new Date();
-                document.getElementById('fechaInicio').valueAsDate = today;
+                // Cargar todos los clientes activos
+                const clientesRes = await fetch('/api/Clientes');
+                if (!clientesRes.ok) throw new Error('Error al cargar clientes');
+
+                const clientesData = await clientesRes.json();
+                todosLosClientes = clientesData
+                    .filter(c => c.Activo || c.activo)
+                    .map(c => ({
+                        id: c.Id || c.id,
+                        nombre: c.Nombre || c.nombre,
+                        apellido: c.Apellido || c.apellido,
+                        cedula: c.Cedula || c.cedula,
+                        telefono: c.Telefono || c.telefono || ''
+                    }));
+
+                // Establecer fecha de hoy
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('fechaInicio').value = today;
+
+                console.log(`Cargados ${planes.length} planes y ${todosLosClientes.length} clientes`);
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error al cargar planes');
+                alert('Error al cargar datos: ' + error.message);
             }
         }
 
-        document.getElementById('clienteBuscar').addEventListener('input', function(e) {
+        // Búsqueda de clientes
+        document.getElementById('buscarClienteInput').addEventListener('input', function(e) {
             clearTimeout(buscarTimeout);
-            const query = e.target.value.trim();
+            const query = e.target.value.trim().toLowerCase();
 
             if (query.length < 2) {
-                document.getElementById('clienteResultados').classList.add('hidden');
+                document.getElementById('resultadosBusqueda').classList.add('hidden');
                 return;
             }
 
-            buscarTimeout = setTimeout(async () => {
-                try {
-                    const response = await fetch(`/api/Membresias/buscar-clientes?q=${encodeURIComponent(query)}`);
-                    const clientes = await response.json();
-                    mostrarResultados(clientes);
-                } catch (error) {
-                    console.error('Error:', error);
-                }
+            buscarTimeout = setTimeout(() => {
+                const resultados = todosLosClientes.filter(c => {
+                    const nombreCompleto = `${c.nombre} ${c.apellido}`.toLowerCase();
+                    return nombreCompleto.includes(query) ||
+                           c.cedula.includes(query) ||
+                           c.telefono.includes(query);
+                }).slice(0, 10);
+
+                mostrarResultados(resultados);
             }, 300);
         });
 
-        function mostrarResultados(clientes) {
-            const resultadosDiv = document.getElementById('clienteResultados');
-            
-            if (clientes.length === 0) {
-                resultadosDiv.innerHTML = '<div class="p-4 text-gray-500 text-center">No se encontraron clientes</div>';
-                resultadosDiv.classList.remove('hidden');
+        function mostrarResultados(resultados) {
+            const div = document.getElementById('resultadosBusqueda');
+
+            if (resultados.length === 0) {
+                div.innerHTML = `
+                    <div class="p-4 text-center text-gray-500">
+                        <i data-lucide="search-x" class="w-8 h-8 mx-auto mb-2 text-gray-400"></i>
+                        <p>No se encontraron clientes</p>
+                    </div>
+                `;
+                div.classList.remove('hidden');
+                lucide.createIcons();
                 return;
             }
 
-            resultadosDiv.innerHTML = clientes.map(c => `
-                <div onclick="seleccionarCliente('${c.id}', '${c.nombreCompleto}', '${c.cedula}', ${c.tieneMembresia})" 
-                     class="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0">
+            div.innerHTML = resultados.map(c => `
+                <div onclick='seleccionarClienteDesdeResultado(${JSON.stringify(c).replace(/'/g, "&#39;")})'
+                     class="p-4 hover:bg-gray-50 cursor-pointer border-b last:border-b-0 transition">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="font-semibold text-gray-800">${c.nombreCompleto}</p>
-                            <p class="text-sm text-gray-600">Cédula: ${c.cedula}${c.telefono ? ' - Tel: ' + c.telefono : ''}</p>
+                            <p class="font-semibold text-gray-800">${c.nombre} ${c.apellido}</p>
+                            <p class="text-sm text-gray-600">Cédula: ${c.cedula}</p>
+                            ${c.telefono ? `<p class="text-xs text-gray-500">Tel: ${c.telefono}</p>` : ''}
                         </div>
-                        ${c.tieneMembresia ? '<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">Activo</span>' : ''}
+                        <i data-lucide="chevron-right" class="w-5 h-5 text-gray-400"></i>
                     </div>
                 </div>
             `).join('');
 
-            resultadosDiv.classList.remove('hidden');
+            div.classList.remove('hidden');
+            lucide.createIcons();
         }
 
-        function seleccionarCliente(id, nombre, cedula, tieneMembresia) {
-            if (tieneMembresia) {
-                if (!confirm('Este cliente ya tiene una membresía activa. ¿Desea continuar?')) {
-                    return;
+        async function seleccionarClienteDesdeResultado(cliente) {
+            // Verificar si tiene membresía activa
+            try {
+                const response = await fetch(`/api/Membresias/cliente/${cliente.id}`);
+                const membresias = await response.json();
+                const tieneActiva = membresias.some(m => (m.Estado || m.estado) === 'activa');
+
+                if (tieneActiva) {
+                    const confirmar = confirm(
+                        `⚠️ ${cliente.nombre} ${cliente.apellido} ya tiene una membresía activa.\n\n` +
+                        `¿Desea crear una nueva membresía de todas formas?`
+                    );
+                    if (!confirmar) return;
                 }
+            } catch (error) {
+                console.error('Error al verificar membresías:', error);
             }
 
-            clienteSeleccionadoId = id;
-            document.getElementById('clienteId').value = id;
-            document.getElementById('clienteNombre').textContent = nombre;
-            document.getElementById('clienteCedula').textContent = `Cédula: ${cedula}`;
+            clienteSeleccionado = cliente;
+            document.getElementById('clienteId').value = cliente.id;
+            document.getElementById('clienteNombre').textContent = `${cliente.nombre} ${cliente.apellido}`;
+            document.getElementById('clienteCedula').textContent = `Cédula: ${cliente.cedula}`;
+            document.getElementById('clienteTelefono').textContent = cliente.telefono ? `Tel: ${cliente.telefono}` : '';
+
             document.getElementById('clienteSeleccionado').classList.remove('hidden');
-            document.getElementById('clienteResultados').classList.add('hidden');
-            document.getElementById('clienteBuscar').value = '';
-            
+            document.getElementById('resultadosBusqueda').classList.add('hidden');
+            document.getElementById('buscarClienteInput').value = '';
+
             lucide.createIcons();
         }
 
         function limpiarCliente() {
-            clienteSeleccionadoId = null;
+            clienteSeleccionado = null;
             document.getElementById('clienteId').value = '';
             document.getElementById('clienteSeleccionado').classList.add('hidden');
+            document.getElementById('buscarClienteInput').focus();
         }
 
+        // Evento de selección de plan
         document.getElementById('planSelect').addEventListener('change', function() {
             const planId = this.value;
-            const plan = planes.find(p => (p.id || p.Id) == planId);
+            const plan = planes.find(p => p.id == planId);
 
             if (plan) {
-                const duracion = plan.duracionDias || plan.DuracionDias;
-                const precio = plan.precio || plan.Precio;
-                const nombre = plan.nombre || plan.Nombre;
-                
-                document.getElementById('planInfo').textContent = `${nombre} - ${duracion} días - $${precio}`;
+                document.getElementById('planInfoTexto').textContent =
+                    `${plan.nombre} - Duración: ${plan.duracionDias} días - Precio: $${plan.precio.toFixed(2)}`;
                 document.getElementById('planInfo').classList.remove('hidden');
-                document.getElementById('montoPagado').value = precio;
+                document.getElementById('montoPagado').value = plan.precio.toFixed(2);
 
-                const fechaInicio = document.getElementById('fechaInicio').valueAsDate;
+                const fechaInicio = document.getElementById('fechaInicio').value;
                 if (fechaInicio) {
-                    calcularFechaVencimiento(fechaInicio, duracion);
+                    calcularFechaVencimiento(fechaInicio, plan.duracionDias);
                 }
+            } else {
+                document.getElementById('planInfo').classList.add('hidden');
             }
+            lucide.createIcons();
         });
 
+        // Evento de cambio de fecha inicio
         document.getElementById('fechaInicio').addEventListener('change', function() {
             const planId = document.getElementById('planSelect').value;
-            const plan = planes.find(p => (p.id || p.Id) == planId);
+            const plan = planes.find(p => p.id == planId);
 
-            if (plan && this.valueAsDate) {
-                const duracion = plan.duracionDias || plan.DuracionDias;
-                calcularFechaVencimiento(this.valueAsDate, duracion);
+            if (plan && this.value) {
+                calcularFechaVencimiento(this.value, plan.duracionDias);
             }
         });
 
-        function calcularFechaVencimiento(fechaInicio, duracionDias) {
+        function calcularFechaVencimiento(fechaInicioStr, duracionDias) {
+            const fechaInicio = new Date(fechaInicioStr + 'T00:00:00');
             const fechaVenc = new Date(fechaInicio);
             fechaVenc.setDate(fechaVenc.getDate() + duracionDias);
-            
-            document.getElementById('fechaVencimiento').valueAsDate = fechaVenc;
+
+            const fechaVencStr = fechaVenc.toISOString().split('T')[0];
+            document.getElementById('fechaVencimiento').value = fechaVencStr;
             document.getElementById('totalDias').textContent = `${duracionDias} días`;
-            document.getElementById('fechaVencTexto').textContent = fechaVenc.toLocaleDateString('es-ES', {
+            document.getElementById('fechaVencTexto').textContent = fechaVenc.toLocaleDateString('es-DO', {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
             });
             document.getElementById('duracionInfo').classList.remove('hidden');
+            lucide.createIcons();
         }
 
+        // Submit del formulario
         document.getElementById('membresiaForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            if (!clienteSeleccionadoId) {
-                alert('Debe seleccionar un cliente');
+            if (!clienteSeleccionado) {
+                alert('⚠️ Debe seleccionar un cliente');
+                document.getElementById('buscarClienteInput').focus();
                 return;
             }
 
             const formData = new FormData(e.target);
             const data = {
-                clienteId: clienteSeleccionadoId,
+                clienteId: clienteSeleccionado.id,
                 planId: formData.get('planId'),
                 fechaInicio: formData.get('fechaInicio'),
                 fechaVencimiento: formData.get('fechaVencimiento'),
@@ -286,6 +376,12 @@
                 metodoPago: formData.get('metodoPago'),
                 notas: formData.get('notas') || ''
             };
+
+            const btn = document.getElementById('btnCrear');
+            const btnTexto = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader" class="w-5 h-5 animate-spin"></i> Creando...';
+            lucide.createIcons();
 
             try {
                 const response = await fetch('/api/Membresias', {
@@ -297,25 +393,33 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    alert('Membresía creada exitosamente');
+                    alert('✅ Membresía creada exitosamente');
                     window.location.href = '/membresias';
                 } else {
-                    alert('Error: ' + result.message);
+                    alert('❌ Error: ' + (result.message || 'No se pudo crear la membresía'));
+                    btn.disabled = false;
+                    btn.innerHTML = btnTexto;
+                    lucide.createIcons();
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error al crear membresía');
+                alert('❌ Error al crear membresía: ' + error.message);
+                btn.disabled = false;
+                btn.innerHTML = btnTexto;
+                lucide.createIcons();
             }
         });
 
+        // Cerrar resultados al hacer clic fuera
         document.addEventListener('click', function(e) {
-            if (!e.target.closest('#clienteBuscar') && !e.target.closest('#clienteResultados')) {
-                document.getElementById('clienteResultados').classList.add('hidden');
+            if (!e.target.closest('#buscarClienteInput') && !e.target.closest('#resultadosBusqueda')) {
+                document.getElementById('resultadosBusqueda').classList.add('hidden');
             }
         });
 
+        // Inicializar
         document.addEventListener('DOMContentLoaded', function() {
-            cargarPlanes();
+            cargarDatos();
             lucide.createIcons();
         });
     </script>

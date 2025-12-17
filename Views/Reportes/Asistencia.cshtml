@@ -3,7 +3,7 @@
     Layout = "_AdminLayout";
     ViewData["Title"] = "Reporte de Asistencia";
     ViewData["Subtitle"] = "Control de check-ins y visitas al gimnasio";
-    
+
     int totalCheckins = 0;
     foreach (var item in Model)
     {
@@ -26,11 +26,57 @@
                 <input type="date" id="fecha-hasta" value="@ViewBag.FechaFin.ToString("yyyy-MM-dd")"
                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-transparent">
             </div>
-            <button onclick="filtrarPorFecha()" 
+            <button onclick="filtrarPorFecha()"
                     class="px-6 py-2 bg-vida-primary hover:bg-vida-accent text-vida-dark font-semibold rounded-lg transition-all">
                 <i data-lucide="filter" class="w-4 h-4 inline-block mr-2"></i>
                 Filtrar
             </button>
+        </div>
+    </div>
+
+    <!-- Módulo de Check-ins del Día -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+            <div>
+                <h3 class="text-lg font-bold text-gray-800">Check-ins de Hoy</h3>
+                <p class="text-sm text-gray-500 mt-1">Clientes que han registrado entrada</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <select id="filtro-dias" onchange="cargarCheckIns()"
+                        class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-vida-primary focus:border-transparent">
+                    <option value="0">Hoy</option>
+                    <option value="1">Ayer</option>
+                    <option value="7">Últimos 7 días</option>
+                    <option value="30">Últimos 30 días</option>
+                </select>
+                <button onclick="cargarCheckIns()"
+                        class="px-4 py-2 bg-vida-primary hover:bg-vida-accent text-vida-dark font-semibold rounded-lg transition-all">
+                    <i data-lucide="refresh-cw" class="w-4 h-4 inline-block"></i>
+                </button>
+            </div>
+        </div>
+        <div class="overflow-x-auto" style="max-height: 500px; overflow-y: auto;">
+            <div id="loading-checkins" class="p-8 text-center">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-vida-primary border-t-transparent"></div>
+                <p class="text-gray-500 mt-2">Cargando check-ins...</p>
+            </div>
+            <table id="tabla-checkins" class="w-full hidden">
+                <thead class="bg-gray-50 border-b border-gray-200 sticky top-0">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Hora</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Método</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nota</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-checkins" class="bg-white divide-y divide-gray-200">
+                </tbody>
+            </table>
+            <div id="no-checkins" class="hidden p-8 text-center">
+                <i data-lucide="inbox" class="w-16 h-16 text-gray-300 mx-auto mb-4"></i>
+                <p class="text-gray-500">No hay check-ins registrados en este período</p>
+            </div>
         </div>
     </div>
 
@@ -168,12 +214,12 @@
 
         function renderChart() {
             const ctx = document.getElementById('chart-asistencia');
-            
+
             const labels = asistenciaData.map(d => {
                 const fecha = new Date(d.Fecha);
                 return fecha.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
             });
-            
+
             const data = asistenciaData.map(d => d.Total);
 
             new Chart(ctx, {
@@ -235,6 +281,143 @@
         window.addEventListener('load', function() {
             renderChart();
             lucide.createIcons();
+            cargarCheckIns(); // Cargar check-ins al iniciar
         });
+
+        // Función para cargar check-ins según el filtro seleccionado
+        async function cargarCheckIns() {
+            const loading = document.getElementById('loading-checkins');
+            const tabla = document.getElementById('tabla-checkins');
+            const tbody = document.getElementById('tbody-checkins');
+            const noData = document.getElementById('no-checkins');
+            const diasFiltro = parseInt(document.getElementById('filtro-dias').value);
+
+            // Mostrar loading
+            loading.classList.remove('hidden');
+            tabla.classList.add('hidden');
+            noData.classList.add('hidden');
+
+            try {
+                // Calcular fechas
+                let fechaHasta = new Date();
+                let fechaDesde = new Date();
+
+                if (diasFiltro === 0) {
+                    // Solo hoy
+                    fechaDesde = new Date();
+                } else if (diasFiltro === 1) {
+                    // Ayer
+                    fechaDesde.setDate(fechaDesde.getDate() - 1);
+                    fechaHasta.setDate(fechaHasta.getDate() - 1);
+                } else {
+                    // Rango de días
+                    fechaDesde.setDate(fechaDesde.getDate() - diasFiltro);
+                }
+
+                // Formatear fechas para el API
+                const formatoFecha = (fecha) => fecha.toISOString().split('T')[0];
+
+                // Llamar al API con rango de fechas
+                const url = `/api/CheckIn/rango?desde=${formatoFecha(fechaDesde)}&hasta=${formatoFecha(fechaHasta)}`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                // Ocultar loading
+                loading.classList.add('hidden');
+
+                if (data.success && data.checkIns && data.checkIns.length > 0) {
+                    // Renderizar tabla
+                    tbody.innerHTML = '';
+                    data.checkIns.forEach(checkIn => {
+                        // Parsear fecha correctamente (agregar Z si no la tiene)
+                        let fechaStr = checkIn.FechaHora || checkIn.fechaHora;
+                        if (fechaStr && !fechaStr.endsWith('Z')) {
+                            fechaStr += 'Z';
+                        }
+                        const fecha = new Date(fechaStr);
+                        const hora = fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+
+                        const metodoColor = {
+                            'huella': 'bg-blue-100 text-blue-800',
+                            'cedula': 'bg-purple-100 text-purple-800',
+                            'manual': 'bg-gray-100 text-gray-800'
+                        };
+
+                        const metodoIcon = {
+                            'huella': '👆',
+                            'cedula': '🆔',
+                            'manual': '✍️'
+                        };
+
+                        // Obtener valores con soporte para ambas notaciones (PascalCase y camelCase)
+                        const clienteNombre = checkIn.clienteNombre || checkIn.ClienteNombre || 'Desconocido';
+                        const metodo = (checkIn.Metodo || checkIn.metodo || 'desconocido').toLowerCase();
+                        const exitoso = checkIn.Exitoso !== undefined ? checkIn.Exitoso : checkIn.exitoso;
+                        const nota = checkIn.Nota || checkIn.nota || '-';
+                        const fotoCliente = checkIn.fotoCliente || checkIn.FotoCliente;
+
+                        const row = `
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center gap-3">
+                                        ${fotoCliente && fotoCliente !== 'string' ?
+                                            `<img src="${fotoCliente.startsWith('data:') ? fotoCliente : 'data:image/jpeg;base64,' + fotoCliente}"
+                                                 class="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
+                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                                             <div class="w-10 h-10 rounded-full bg-gray-200 items-center justify-center hidden">
+                                                <span class="text-sm font-bold text-gray-600">${clienteNombre.charAt(0)}</span>
+                                             </div>`
+                                            :
+                                            `<div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                                <span class="text-sm font-bold text-gray-600">${clienteNombre.charAt(0)}</span>
+                                             </div>`
+                                        }
+                                        <div>
+                                            <p class="font-semibold text-gray-800">${clienteNombre}</p>
+                                            <p class="text-xs text-gray-500">${fecha.toLocaleDateString('es-ES')}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <span class="font-semibold text-gray-800">${hora}</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <span class="inline-flex items-center gap-1 px-2 py-1 ${metodoColor[metodo] || 'bg-gray-100 text-gray-800'} text-xs font-semibold rounded-full">
+                                        ${metodoIcon[metodo] || '?'} ${metodo}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    ${exitoso ?
+                                        `<span class="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                            </svg> Exitoso
+                                        </span>`
+                                        :
+                                        `<span class="inline-flex items-center gap-1 px-2 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg> Denegado
+                                        </span>`
+                                    }
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-sm text-gray-600">${nota}</span>
+                                </td>
+                            </tr>
+                        `;
+                        tbody.innerHTML += row;
+                    });
+
+                    tabla.classList.remove('hidden');
+                } else {
+                    noData.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error al cargar check-ins:', error);
+                loading.classList.add('hidden');
+                noData.classList.remove('hidden');
+            }
+        }
     </script>
 }
