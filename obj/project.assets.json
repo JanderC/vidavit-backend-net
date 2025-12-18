@@ -3184,11 +3184,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\usuario\\source\\repos\\VidaFit\\VidaFit\\VidaFit.csproj",
+      "projectUniqueName": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\VidaFit.csproj",
       "projectName": "VidaFit",
-      "projectPath": "C:\\Users\\usuario\\source\\repos\\VidaFit\\VidaFit\\VidaFit.csproj",
+      "projectPath": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\VidaFit.csproj",
       "packagesPath": "C:\\Users\\usuario\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\usuario\\source\\repos\\VidaFit\\VidaFit\\obj\\",
+      "outputPath": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
