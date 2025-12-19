@@ -130,20 +130,44 @@
         let carrito = [];
         let clienteSeleccionado = null;
 
+        // ✅ CORREGIDO: Función para cargar datos
         async function cargarDatos() {
             try {
+                console.log('🔄 Cargando clientes...');
                 const clientesRes = await fetch('/api/Clientes');
+                if (!clientesRes.ok) {
+                    throw new Error(`Error HTTP ${clientesRes.status}: ${clientesRes.statusText}`);
+                }
                 clientes = await clientesRes.json();
+                console.log('✅ Clientes cargados:', clientes.length);
 
+                console.log('🔄 Cargando productos...');
                 const productosRes = await fetch('/api/Productos');
+                if (!productosRes.ok) {
+                    throw new Error(`Error HTTP ${productosRes.status}: ${productosRes.statusText}`);
+                }
                 productos = await productosRes.json();
+                console.log('✅ Productos cargados:', productos.length);
+                console.log('📦 Primer producto:', productos[0]);
+
                 renderProductos(productos);
             } catch (error) {
-                console.error('Error cargando datos:', error);
-                mostrarError('Error al cargar datos del sistema');
+                console.error('❌ Error cargando datos:', error);
+                mostrarError('Error al cargar datos del sistema: ' + error.message);
+
+                // Mostrar error en el grid de productos
+                document.getElementById('productosGrid').innerHTML = `
+                    <div class="col-span-full text-center py-8 text-red-500">
+                        <i data-lucide="alert-circle" class="w-8 h-8 mx-auto mb-2"></i>
+                        <p class="font-bold">Error al cargar productos</p>
+                        <p class="text-sm mt-2">${error.message}</p>
+                    </div>
+                `;
+                lucide.createIcons();
             }
         }
 
+        // ✅ CORREGIDO: Búsqueda de clientes con propiedades en minúsculas
         let timeoutBusqueda = null;
         document.getElementById('buscarClienteInput').addEventListener('input', function(e) {
             clearTimeout(timeoutBusqueda);
@@ -155,145 +179,191 @@
             }
 
             timeoutBusqueda = setTimeout(() => {
+                // ✅ USAR propiedades en PascalCase (como viene de la API)
                 const resultados = clientes.filter(c => {
-                    const nombre = (c.nombre || '').toLowerCase();
-                    const apellido = (c.apellido || '').toLowerCase();
-                    const cedula = (c.cedula || '').toLowerCase();
-
-                    return nombre.includes(query) ||
-                           apellido.includes(query) ||
-                           cedula.includes(query) ||
-                           `${nombre} ${apellido}`.includes(query);
+                    const nombre = (c.Nombre || '').toLowerCase();
+                    const apellido = (c.Apellido || '').toLowerCase();
+                    const cedula = (c.Cedula || '').toLowerCase();
+                    return nombre.includes(query) || apellido.includes(query) || cedula.includes(query);
                 });
 
-                mostrarResultadosBusqueda(resultados);
+                mostrarResultadosClientes(resultados);
             }, 300);
         });
 
-        function mostrarResultadosBusqueda(resultados) {
+        function mostrarResultadosClientes(resultados) {
             const container = document.getElementById('resultadosBusqueda');
 
             if (resultados.length === 0) {
-                container.innerHTML = '<p class="p-4 text-gray-500 text-sm font-semibold">No se encontraron clientes</p>';
+                container.innerHTML = '<p class="p-4 text-gray-500 text-center font-semibold">No se encontraron clientes</p>';
                 container.classList.remove('hidden');
                 return;
             }
 
+            // ✅ USAR propiedades en PascalCase
             container.innerHTML = resultados.map(c => `
-                <div class="p-4 hover:bg-gray-50 cursor-pointer border-b-2 last:border-b-0 transition-colors"
-                     onclick="seleccionarCliente('${c.id}')">
-                    <p class="font-black text-gray-900">${c.nombre} ${c.apellido}</p>
-                    <p class="text-xs text-gray-600 font-semibold">Cédula: ${c.cedula}</p>
-                </div>
+                <button type="button" onclick="seleccionarCliente('${c.Id}')"
+                        class="w-full text-left p-4 hover:bg-blue-50 border-b border-gray-200 transition-colors">
+                    <p class="font-black text-gray-900">${c.Nombre} ${c.Apellido}</p>
+                    <p class="text-sm text-gray-600 font-semibold">Cédula: ${c.Cedula}</p>
+                </button>
             `).join('');
 
             container.classList.remove('hidden');
         }
 
         function seleccionarCliente(clienteId) {
-            clienteSeleccionado = clientes.find(c => c.id === clienteId);
+            clienteSeleccionado = clientes.find(c => c.Id === clienteId);
+            if (!clienteSeleccionado) return;
 
-            if (clienteSeleccionado) {
-                document.getElementById('clienteNombre').textContent =
-                    `${clienteSeleccionado.nombre} ${clienteSeleccionado.apellido}`;
-                document.getElementById('clienteCedula').textContent =
-                    `Cédula: ${clienteSeleccionado.cedula}`;
-
-                document.getElementById('clienteInfo').classList.remove('hidden');
-                document.getElementById('buscarClienteInput').value = '';
-                document.getElementById('resultadosBusqueda').classList.add('hidden');
-
-                lucide.createIcons();
-            }
+            // ✅ USAR propiedades en PascalCase
+            document.getElementById('clienteNombre').textContent = `${clienteSeleccionado.Nombre} ${clienteSeleccionado.Apellido}`;
+            document.getElementById('clienteCedula').textContent = `Cédula: ${clienteSeleccionado.Cedula}`;
+            document.getElementById('clienteInfo').classList.remove('hidden');
+            document.getElementById('resultadosBusqueda').classList.add('hidden');
+            document.getElementById('buscarClienteInput').value = '';
         }
 
         document.getElementById('btnCambiarCliente').addEventListener('click', function() {
             clienteSeleccionado = null;
             document.getElementById('clienteInfo').classList.add('hidden');
-            document.getElementById('buscarClienteInput').value = '';
             document.getElementById('buscarClienteInput').focus();
         });
 
-        function renderProductos(lista) {
-            const grid = document.getElementById('productosGrid');
+        // ✅ CORREGIDO: Búsqueda de productos con propiedades en PascalCase
+        document.getElementById('buscarProducto').addEventListener('input', function(e) {
+            const query = e.target.value.trim().toLowerCase();
 
-            const productosActivos = lista.filter(p => p.activo && p.stock > 0);
-
-            if (productosActivos.length === 0) {
-                grid.innerHTML = '<div class="col-span-full text-center py-8 text-gray-500"><p class="font-bold">No hay productos disponibles</p></div>';
+            if (query.length === 0) {
+                renderProductos(productos);
                 return;
             }
 
-            grid.innerHTML = productosActivos.map(p => `
-                <div class="border-2 border-gray-200 rounded-xl p-4 hover:shadow-xl cursor-pointer transition-all hover:border-red-600" onclick="agregarAlCarrito('${p.id}')">
-                    <div class="aspect-square bg-gray-200 rounded-xl mb-3 flex items-center justify-center overflow-hidden">
-                        ${p.imagenBase64
-                            ? `<img src="${p.imagenBase64}" class="w-full h-full object-cover" alt="${p.nombre}">`
-                            : `<i data-lucide="package" class="w-12 h-12 text-gray-400"></i>`
-                        }
+            // ✅ USAR propiedades en PascalCase (como viene de la API)
+            const filtrados = productos.filter(p => {
+                const nombre = (p.Nombre || '').toLowerCase();
+                const categoria = (p.Categoria || '').toLowerCase();
+                const descripcion = (p.Descripcion || '').toLowerCase();
+                return nombre.includes(query) || categoria.includes(query) || descripcion.includes(query);
+            });
+
+            renderProductos(filtrados);
+        });
+
+        // ✅ CORREGIDO: Render de productos con propiedades en PascalCase
+        function renderProductos(productosArray) {
+            const container = document.getElementById('productosGrid');
+
+            if (!productosArray || productosArray.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-8 text-gray-500">
+                        <i data-lucide="package-x" class="w-8 h-8 mx-auto mb-2"></i>
+                        <p class="font-bold">No hay productos disponibles</p>
                     </div>
-                    <p class="font-black text-sm text-gray-900 truncate uppercase">${p.nombre}</p>
-                    <p class="text-xs text-gray-600 font-semibold">${p.categoria || 'Sin categoría'}</p>
-                    <p class="text-xl font-black text-emerald-600 mt-2">$${p.precio.toFixed(2)}</p>
-                    <p class="text-xs text-gray-500 font-bold">Stock: ${p.stock}</p>
-                </div>
-            `).join('');
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            // ✅ Filtrar solo productos activos
+            const productosActivos = productosArray.filter(p => p.Activo);
+
+            if (productosActivos.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-8 text-gray-500">
+                        <i data-lucide="package-x" class="w-8 h-8 mx-auto mb-2"></i>
+                        <p class="font-bold">No hay productos activos</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            // ✅ USAR propiedades en PascalCase
+            container.innerHTML = productosActivos.map(p => {
+                const enCarrito = carrito.some(i => i.producto.Id === p.Id);
+                const disponible = p.Stock > 0;
+
+                return `
+                    <div class="bg-white rounded-xl border-2 ${enCarrito ? 'border-emerald-600' : 'border-gray-200'} p-4 hover:shadow-lg transition-all">
+                        <div class="aspect-square bg-gray-100 rounded-xl mb-3 flex items-center justify-center overflow-hidden">
+                            ${p.ImagenBase64
+                                ? `<img src="${p.ImagenBase64}" class="w-full h-full object-cover">`
+                                : `<i data-lucide="package" class="w-12 h-12 text-gray-400"></i>`
+                            }
+                        </div>
+                        <h4 class="font-black text-sm text-gray-900 mb-1 line-clamp-2">${p.Nombre}</h4>
+                        ${p.Categoria ? `<p class="text-xs text-gray-600 font-semibold mb-2">${p.Categoria}</p>` : ''}
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-lg font-black text-emerald-600">$${p.Precio.toFixed(2)}</span>
+                            <span class="text-xs font-bold px-2 py-1 rounded ${disponible ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'}">
+                                Stock: ${p.Stock}
+                            </span>
+                        </div>
+                        <button onclick="agregarAlCarrito('${p.Id}')"
+                                ${!disponible ? 'disabled' : ''}
+                                class="w-full py-2 px-3 rounded-lg font-black text-xs uppercase tracking-wide transition-all ${
+                                    !disponible
+                                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                        : enCarrito
+                                            ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+                                            : 'bg-gray-900 text-white hover:bg-gray-800'
+                                }">
+                            ${!disponible ? 'Sin Stock' : enCarrito ? 'En Carrito' : 'Agregar'}
+                        </button>
+                    </div>
+                `;
+            }).join('');
 
             lucide.createIcons();
         }
 
-        document.getElementById('buscarProducto').addEventListener('input', function(e) {
-            const query = e.target.value.toLowerCase();
-            const filtrados = productos.filter(p => {
-                const nombre = (p.nombre || '').toLowerCase();
-                const categoria = (p.categoria || '').toLowerCase();
-                return nombre.includes(query) || categoria.includes(query);
-            });
-            renderProductos(filtrados);
-        });
-
+        // ✅ CORREGIDO: Agregar al carrito con propiedades en PascalCase
         function agregarAlCarrito(productoId) {
-            const producto = productos.find(p => p.id === productoId);
-            if (!producto) return;
+            const producto = productos.find(p => p.Id === productoId);
+            if (!producto || producto.Stock <= 0) return;
 
-            const itemExistente = carrito.find(i => i.producto.id === productoId);
+            const itemExistente = carrito.find(i => i.producto.Id === productoId);
 
             if (itemExistente) {
-                if (itemExistente.cantidad < producto.stock) {
+                if (itemExistente.cantidad < producto.Stock) {
                     itemExistente.cantidad++;
                     itemExistente.total = itemExistente.cantidad * itemExistente.precioUnitario;
                 } else {
-                    mostrarError('No hay suficiente stock disponible');
+                    mostrarError('No hay más stock disponible de este producto');
                     return;
                 }
             } else {
                 carrito.push({
                     producto: producto,
                     cantidad: 1,
-                    precioUnitario: producto.precio,
-                    total: producto.precio
+                    precioUnitario: producto.Precio,
+                    total: producto.Precio
                 });
             }
 
             renderCarrito();
+            renderProductos(productos);
         }
 
         function eliminarDelCarrito(productoId) {
-            carrito = carrito.filter(i => i.producto.id !== productoId);
+            carrito = carrito.filter(i => i.producto.Id !== productoId);
             renderCarrito();
+            renderProductos(productos);
         }
 
         function cambiarCantidad(productoId, nuevaCantidad) {
-            const item = carrito.find(i => i.producto.id === productoId);
-            if (item && nuevaCantidad > 0 && nuevaCantidad <= item.producto.stock) {
+            const item = carrito.find(i => i.producto.Id === productoId);
+            if (item && nuevaCantidad > 0 && nuevaCantidad <= item.producto.Stock) {
                 item.cantidad = nuevaCantidad;
                 item.total = item.cantidad * item.precioUnitario;
                 renderCarrito();
-            } else if (nuevaCantidad > item.producto.stock) {
+            } else if (item && nuevaCantidad > item.producto.Stock) {
                 mostrarError('No hay suficiente stock disponible');
             }
         }
 
+        // ✅ CORREGIDO: Render del carrito con propiedades en PascalCase
         function renderCarrito() {
             const container = document.getElementById('carritoItems');
 
@@ -310,27 +380,27 @@
                     <div class="flex items-center justify-between p-4 bg-white rounded-xl border-2 border-gray-200">
                         <div class="flex items-center gap-3 flex-1">
                             <div class="w-14 h-14 bg-gray-200 rounded-xl flex items-center justify-center overflow-hidden">
-                                ${item.producto.imagenBase64
-                                    ? `<img src="${item.producto.imagenBase64}" class="w-full h-full object-cover">`
+                                ${item.producto.ImagenBase64
+                                    ? `<img src="${item.producto.ImagenBase64}" class="w-full h-full object-cover">`
                                     : `<i data-lucide="package" class="w-6 h-6 text-gray-400"></i>`
                                 }
                             </div>
                             <div class="flex-1">
-                                <p class="font-black text-sm text-gray-900">${item.producto.nombre}</p>
+                                <p class="font-black text-sm text-gray-900">${item.producto.Nombre}</p>
                                 <p class="text-xs text-gray-600 font-bold">$${item.precioUnitario.toFixed(2)} c/u</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
-                            <button onclick="cambiarCantidad('${item.producto.id}', ${item.cantidad - 1})"
+                            <button onclick="cambiarCantidad('${item.producto.Id}', ${item.cantidad - 1})"
                                     class="w-10 h-10 bg-gray-200 rounded-lg hover:bg-gray-300 font-black">-</button>
                             <span class="w-12 text-center font-black text-lg">${item.cantidad}</span>
-                            <button onclick="cambiarCantidad('${item.producto.id}', ${item.cantidad + 1})"
+                            <button onclick="cambiarCantidad('${item.producto.Id}', ${item.cantidad + 1})"
                                     class="w-10 h-10 bg-gray-200 rounded-lg hover:bg-gray-300 font-black">+</button>
                         </div>
                         <div class="w-24 text-right">
                             <p class="font-black text-emerald-600 text-lg">$${item.total.toFixed(2)}</p>
                         </div>
-                        <button onclick="eliminarDelCarrito('${item.producto.id}')"
+                        <button onclick="eliminarDelCarrito('${item.producto.Id}')"
                                 class="ml-3 text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded-lg transition-colors">
                             <i data-lucide="trash-2" class="w-5 h-5"></i>
                         </button>
@@ -342,6 +412,7 @@
             lucide.createIcons();
         }
 
+        // ✅ CORREGIDO: Registro de venta con propiedades correctas
         document.getElementById('btnRegistrarVenta').addEventListener('click', async function() {
             if (!clienteSeleccionado) {
                 mostrarError('Debe seleccionar un cliente');
@@ -365,8 +436,8 @@
             try {
                 for (const item of carrito) {
                     const venta = {
-                        clienteId: clienteSeleccionado.id,
-                        productoId: item.producto.id,
+                        clienteId: clienteSeleccionado.Id,
+                        productoId: item.producto.Id,
                         cantidad: item.cantidad,
                         precioUnitario: item.precioUnitario,
                         total: item.total,
@@ -381,13 +452,15 @@
                     });
 
                     if (!response.ok) {
-                        throw new Error('Error al registrar venta');
+                        const errorText = await response.text();
+                        throw new Error(`Error al registrar venta: ${errorText}`);
                     }
 
+                    // Actualizar stock del producto
                     const producto = item.producto;
-                    producto.stock = producto.stock - item.cantidad;
+                    producto.Stock = producto.Stock - item.cantidad;
 
-                    await fetch(`/api/Productos/${item.producto.id}`, {
+                    await fetch(`/api/Productos/${item.producto.Id}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(producto)
@@ -400,7 +473,7 @@
                 await cargarDatos();
             } catch (error) {
                 console.error('Error:', error);
-                mostrarError('Error al registrar la venta. Intente nuevamente.');
+                mostrarError('Error al registrar la venta: ' + error.message);
             }
         });
 
@@ -422,17 +495,20 @@
             alert('⚠ ' + mensaje);
         }
 
+        // Exponer funciones globalmente
         window.agregarAlCarrito = agregarAlCarrito;
         window.cambiarCantidad = cambiarCantidad;
         window.eliminarDelCarrito = eliminarDelCarrito;
         window.seleccionarCliente = seleccionarCliente;
 
+        // Cerrar resultados de búsqueda al hacer clic fuera
         document.addEventListener('click', function(e) {
             if (!e.target.closest('#buscarClienteInput') && !e.target.closest('#resultadosBusqueda')) {
                 document.getElementById('resultadosBusqueda').classList.add('hidden');
             }
         });
 
+        // Inicializar
         cargarDatos();
         lucide.createIcons();
     </script>

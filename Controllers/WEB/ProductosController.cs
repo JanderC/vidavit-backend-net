@@ -55,12 +55,26 @@ namespace VidaFit.Controllers.WEB
             return View(producto);
         }
 
-        // NOTA: Los métodos Vender() y CuentasPendientes() fueron movidos a VentasProductosController
-        // para evitar conflictos de routing. Ahora las rutas correctas son:
-        // - /ventas-productos/vender
-        // - /ventas-productos/cuentas-pendientes
+        // ✅ GET: /productos/vender
+        [HttpGet("vender")]
+        public IActionResult Vender()
+        {
+            return View();
+        }
 
-        // NOTA: El método Eliminar(id) fue removido porque ahora se elimina directamente
-        // desde el Index usando JavaScript y el API REST (DELETE /api/Productos/{id})
+        // ✅ GET: /productos/cuentas-pendientes
+        [HttpGet("cuentas-pendientes")]
+        public async Task<IActionResult> CuentasPendientes()
+        {
+            // Obtener todas las ventas pendientes de pago
+            var ventasPendientes = await _context.VentasProductos
+                .Include(v => v.Cliente)
+                .Include(v => v.Producto)
+                .Where(v => v.EstadoPago == "pendiente")
+                .OrderByDescending(v => v.FechaVenta)
+                .ToListAsync();
+
+            return View(ventasPendientes);
+        }
     }
 }

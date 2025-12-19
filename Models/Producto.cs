@@ -17,7 +17,7 @@ namespace VidaFitBackend.Models
         public string Nombre { get; set; }
 
         [Column("descripcion")]
-        public string Descripcion { get; set; }
+        public string? Descripcion { get; set; }
 
         [Column("precio")]
         [Required]
