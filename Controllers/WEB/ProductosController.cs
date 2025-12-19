@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using VidaFit.Data;
 using VidaFitBackend.Models;
 
-
 namespace VidaFit.Controllers.WEB
 {
     [Route("productos")]
@@ -46,24 +45,6 @@ namespace VidaFit.Controllers.WEB
             return View();
         }
 
-        // POST: /productos/crear
-        [HttpPost("crear")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Crear(Producto producto)
-        {
-            if (ModelState.IsValid)
-            {
-                producto.Id = Guid.NewGuid();
-                producto.CreatedAt = DateTime.UtcNow;
-                producto.UpdatedAt = DateTime.UtcNow;
-                producto.Activo = true;
-                _context.Productos.Add(producto);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(producto);
-        }
-
         // GET: /productos/editar/{id}
         [HttpGet("editar/{id}")]
         public async Task<IActionResult> Editar(Guid id)
@@ -74,70 +55,12 @@ namespace VidaFit.Controllers.WEB
             return View(producto);
         }
 
-        // POST: /productos/editar/{id}
-        [HttpPost("editar/{id}")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Editar(Guid id, Producto producto)
-        {
-            if (id != producto.Id)
-                return BadRequest();
+        // NOTA: Los métodos Vender() y CuentasPendientes() fueron movidos a VentasProductosController
+        // para evitar conflictos de routing. Ahora las rutas correctas son:
+        // - /ventas-productos/vender
+        // - /ventas-productos/cuentas-pendientes
 
-            if (ModelState.IsValid)
-            {
-                var dbProducto = await _context.Productos.FindAsync(id);
-                if (dbProducto == null)
-                    return NotFound();
-
-                dbProducto.Nombre = producto.Nombre;
-                dbProducto.Descripcion = producto.Descripcion;
-                dbProducto.Precio = producto.Precio;
-                dbProducto.Stock = producto.Stock;
-                dbProducto.ImagenBase64 = producto.ImagenBase64;
-                dbProducto.Categoria = producto.Categoria;
-                dbProducto.Activo = producto.Activo;
-                dbProducto.UpdatedAt = DateTime.UtcNow;
-
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(producto);
-        }
-
-        // GET: /productos/eliminar/{id}
-        [HttpGet("eliminar/{id}")]
-        public async Task<IActionResult> Eliminar(Guid id)
-        {
-            var producto = await _context.Productos.FindAsync(id);
-            if (producto == null)
-                return NotFound();
-            return View(producto);
-        }
-
-        // POST: /productos/eliminar/{id}
-        [HttpPost("eliminar/{id}"), ActionName("Eliminar")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EliminarConfirmado(Guid id)
-        {
-            var producto = await _context.Productos.FindAsync(id);
-            if (producto == null)
-                return NotFound();
-
-            _context.Productos.Remove(producto);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        // GET: /productos/vender
-        [HttpGet("vender")]
-        public IActionResult Vender()
-        {
-            return View();
-        }
-
-        [HttpGet("cuentas-pendientes")]
-        public IActionResult CuentasPendientes()
-        {
-            return View();
-        }
+        // NOTA: El método Eliminar(id) fue removido porque ahora se elimina directamente
+        // desde el Index usando JavaScript y el API REST (DELETE /api/Productos/{id})
     }
 }

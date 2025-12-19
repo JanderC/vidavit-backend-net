@@ -1,0 +1,201 @@
+﻿@model VidaFitBackend.Models.Plan
+@{
+    ViewData["Title"] = "Editar Plan";
+}
+
+<div class="max-w-3xl mx-auto p-6">
+    <div class="bg-white rounded-xl shadow-lg p-8">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800">Editar Plan</h2>
+                <p class="text-gray-600 mt-1">Modifica la información del plan</p>
+            </div>
+            <a href="/membresias/planes"
+               class="px-4 py-2 text-gray-600 hover:text-gray-800 flex items-center gap-2">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                Volver
+            </a>
+        </div>
+
+        <form id="planForm" class="space-y-6">
+            <input type="hidden" id="planId" value="@Model.Id">
+
+            <!-- Nombre -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Nombre del Plan <span class="text-red-500">*</span>
+                </label>
+                <input type="text" id="nombre" value="@Model.Nombre" required
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-vida-primary text-gray-800">
+            </div>
+
+            <!-- Descripción -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Descripción
+                </label>
+                <textarea id="descripcion" rows="3"
+                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-vida-primary text-gray-800 resize-none">@Model.Descripcion</textarea>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Tipo -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Tipo <span class="text-red-500">*</span>
+                    </label>
+                    <select id="tipo" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-vida-primary text-gray-800">
+                        <option value="semanal" selected="@(Model.Tipo == "semanal")">Semanal</option>
+                        <option value="mensual" selected="@(Model.Tipo == "mensual")">Mensual</option>
+                        <option value="personalizado" selected="@(Model.Tipo == "personalizado")">Personalizado</option>
+                    </select>
+                </div>
+
+                <!-- Duración -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Duración (días) <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" id="duracionDias" value="@Model.DuracionDias" required min="1"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-vida-primary text-gray-800">
+                </div>
+
+                <!-- Precio -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Precio <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-3.5 text-gray-500 font-medium">$</span>
+                        <input type="number" id="precio" value="@Model.Precio" required min="0" step="0.01"
+                               class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-vida-primary text-gray-800">
+                    </div>
+                </div>
+
+                <!-- Color -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Color de Identificación
+                    </label>
+                    <div class="flex gap-2">
+                        <input type="color" id="color" value="@Model.Color"
+                               class="h-12 w-16 border border-gray-300 rounded-lg cursor-pointer">
+                        <input type="text" id="colorHex" value="@Model.Color" placeholder="#00FF00"
+                               class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary text-gray-800">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estado -->
+            <div>
+                <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" id="activo" @(Model.Activo ? "checked" : "")
+                           class="w-5 h-5 text-vida-primary border-gray-300 rounded focus:ring-vida-primary">
+                    <span class="text-sm font-medium text-gray-700">Plan Activo</span>
+                </label>
+                <p class="text-xs text-gray-500 mt-1 ml-8">Los planes inactivos no aparecen al crear membresías</p>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex gap-4 pt-4 border-t">
+                <button type="submit" id="btnGuardar"
+                        class="flex-1 bg-vida-primary hover:bg-vida-accent text-vida-dark font-bold py-3.5 px-6 rounded-lg transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
+                    <i data-lucide="save" class="w-5 h-5"></i>
+                    Guardar Cambios
+                </button>
+                <a href="/membresias/planes"
+                   class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold py-3.5 px-6 rounded-lg transition-all text-center flex items-center justify-center gap-2">
+                    <i data-lucide="x-circle" class="w-5 h-5"></i>
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Sincronizar color picker con input hex
+        const colorPicker = document.getElementById('color');
+        const colorHex = document.getElementById('colorHex');
+
+        colorPicker.addEventListener('input', function() {
+            colorHex.value = this.value.toUpperCase();
+        });
+
+        colorHex.addEventListener('input', function() {
+            if (/^#[0-9A-F]{6}$/i.test(this.value)) {
+                colorPicker.value = this.value;
+            }
+        });
+
+        // Submit formulario
+        document.getElementById('planForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const planId = document.getElementById('planId').value;
+            const data = {
+                id: planId,
+                nombre: document.getElementById('nombre').value.trim(),
+                descripcion: document.getElementById('descripcion').value.trim() || null,
+                tipo: document.getElementById('tipo').value,
+                duracionDias: parseInt(document.getElementById('duracionDias').value),
+                precio: parseFloat(document.getElementById('precio').value),
+                color: document.getElementById('color').value,
+                activo: document.getElementById('activo').checked
+            };
+
+            // Validaciones
+            if (!data.nombre) {
+                alert('⚠️ El nombre del plan es requerido');
+                return;
+            }
+
+            if (data.duracionDias <= 0) {
+                alert('⚠️ La duración debe ser mayor a 0');
+                return;
+            }
+
+            if (data.precio <= 0) {
+                alert('⚠️ El precio debe ser mayor a 0');
+                return;
+            }
+
+            const btn = document.getElementById('btnGuardar');
+            const btnTexto = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader" class="w-5 h-5 animate-spin"></i> Guardando...';
+            lucide.createIcons();
+
+            try {
+                const response = await fetch(`/api/Planes/${planId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert('✅ Plan actualizado exitosamente');
+                    window.location.href = '/membresias/planes';
+                } else {
+                    const error = await response.text();
+                    alert('❌ Error: ' + error);
+                    btn.disabled = false;
+                    btn.innerHTML = btnTexto;
+                    lucide.createIcons();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error al actualizar el plan: ' + error.message);
+                btn.disabled = false;
+                btn.innerHTML = btnTexto;
+                lucide.createIcons();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+        });
+    </script>
+}

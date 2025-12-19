@@ -70,7 +70,7 @@ namespace VidaFit.Controllers.API
                     tieneAcceso = false;
                     mensaje = "No tienes membresía activa. Acércate a recepción.";
                 }
-                else if (membresiaActiva.FechaVencimiento < DateTime.UtcNow.Date)
+                else if (membresiaActiva.FechaVencimiento < DateTime.Now.Date)
                 {
                     tieneAcceso = false;
                     mensaje = "Tu membresía ha vencido. Acércate a recepción para renovar.";
@@ -79,17 +79,18 @@ namespace VidaFit.Controllers.API
                 }
                 else
                 {
-                    diasRestantes = (membresiaActiva.FechaVencimiento - DateTime.UtcNow.Date).Days;
+                    diasRestantes = (membresiaActiva.FechaVencimiento - DateTime.Now.Date).Days;
                     mensaje = diasRestantes <= 3
                         ? $"¡Bienvenido! Tu membresía vence en {diasRestantes} días"
                         : "¡Bienvenido!";
                 }
 
-                // ⚠️ CAMBIO CRÍTICO: Usar DateTime.UtcNow en lugar de DateTime.Now
+                // Registrar check-in
+                // Registrar check-in
                 var checkIn = new CheckIn
                 {
                     ClienteId = cliente.Id,
-                    FechaHora = DateTime.UtcNow,  // ✅ CAMBIO AQUÍ
+                    FechaHora = DateTime.UtcNow,
                     Metodo = "cedula",
                     Exitoso = tieneAcceso,
                     Nota = mensaje
@@ -108,7 +109,17 @@ namespace VidaFit.Controllers.API
                         nombre = $"{cliente.Nombre} {cliente.Apellido}",
                         fotoBase64 = cliente.FotoBase64,
                         diasRestantes
-                    }
+                    },
+                    membresia = membresiaActiva != null ? new
+                    {
+                        estado = membresiaActiva.Estado,
+                        mensaje = mensaje,
+                        diasRestantes = diasRestantes,
+                        fechaVencimiento = membresiaActiva.FechaVencimiento,
+                        diasVencidos = membresiaActiva.FechaVencimiento < DateTime.UtcNow
+                            ? (DateTime.UtcNow.Date - membresiaActiva.FechaVencimiento).Days
+                            : (int?)null
+                    } : null
                 });
             }
             catch (Exception ex)
@@ -130,7 +141,7 @@ namespace VidaFit.Controllers.API
         {
             try
             {
-                var today = DateTime.UtcNow.Date;  // ✅ CAMBIO AQUÍ
+                var today = DateTime.UtcNow.Date;
                 var checkIns = await _context.CheckIns
                     .Include(c => c.Cliente)
                     .Where(c => c.FechaHora.Date == today)
@@ -151,6 +162,59 @@ namespace VidaFit.Controllers.API
                 {
                     success = true,
                     total = checkIns.Count,
+                    checkIns
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Error al obtener check-ins",
+                    error = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// Obtener check-ins con filtro de fechas
+        /// </summary>
+        [HttpGet("rango")]
+        public async Task<IActionResult> GetCheckInsPorRango([FromQuery] DateTime? desde, [FromQuery] DateTime? hasta)
+        {
+            try
+            {
+                // Convertir fechas a UTC explícitamente
+                var fechaDesde = desde.HasValue
+                    ? DateTime.SpecifyKind(desde.Value.Date, DateTimeKind.Utc)
+                    : DateTime.UtcNow.Date;
+
+                var fechaHasta = hasta.HasValue
+                    ? DateTime.SpecifyKind(hasta.Value.Date, DateTimeKind.Utc)
+                    : DateTime.UtcNow.Date;
+
+                var checkIns = await _context.CheckIns
+                    .Include(c => c.Cliente)
+                    .Where(c => c.FechaHora.Date >= fechaDesde && c.FechaHora.Date <= fechaHasta)
+                    .OrderByDescending(c => c.FechaHora)
+                    .Select(c => new
+                    {
+                        c.Id,
+                        c.FechaHora,
+                        clienteNombre = $"{c.Cliente.Nombre} {c.Cliente.Apellido}",
+                        c.Metodo,
+                        c.Exitoso,
+                        c.Nota,
+                        fotoCliente = c.Cliente.FotoBase64
+                    })
+                    .ToListAsync();
+
+                return Ok(new
+                {
+                    success = true,
+                    total = checkIns.Count,
+                    desde = fechaDesde,
+                    hasta = fechaHasta,
                     checkIns
                 });
             }
@@ -244,11 +308,11 @@ namespace VidaFit.Controllers.API
                     });
                 }
 
-                // ⚠️ CAMBIO CRÍTICO: Usar DateTime.UtcNow
+                // Registrar check-in
                 var checkIn = new CheckIn
                 {
                     ClienteId = cliente.Id,
-                    FechaHora = request.FechaHora ?? DateTime.UtcNow,  // ✅ CAMBIO AQUÍ
+                    FechaHora = request.FechaHora ?? DateTime.UtcNow,
                     Metodo = "manual",
                     Exitoso = true,
                     Nota = request.Nota ?? "Check-in manual por administrador"

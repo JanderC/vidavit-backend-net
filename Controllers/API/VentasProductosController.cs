@@ -2,14 +2,12 @@
 using Microsoft.EntityFrameworkCore;
 using VidaFit.Data;
 using VidaFitBackend.Models;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace VidaFit.Controllers.WEB
+namespace VidaFit.Controllers.API
 {
-    [Route("ventas-productos")]
-    public class VentasProductosController : Controller
+    [ApiController]
+    [Route("api/[controller]")]
+    public class VentasProductosController : ControllerBase
     {
         private readonly AppDbContext _context;
 
@@ -18,41 +16,20 @@ namespace VidaFit.Controllers.WEB
             _context = context;
         }
 
-        // GET: /ventas-productos
-        [HttpGet("")]
-        public async Task<IActionResult> Index(Guid? clienteId, string estado = "todos")
+        // GET: api/VentasProductos
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<VentaProducto>>> GetVentasProductos()
         {
-            var query = _context.VentasProductos
+            return await _context.VentasProductos
                 .Include(v => v.Cliente)
                 .Include(v => v.Producto)
-                .AsQueryable();
-
-            // Filtrar por cliente si se proporciona
-            if (clienteId.HasValue)
-            {
-                query = query.Where(v => v.ClienteId == clienteId.Value);
-                var cliente = await _context.Clientes.FindAsync(clienteId.Value);
-                ViewBag.ClienteNombre = cliente != null ? $"{cliente.Nombre} {cliente.Apellido}" : "";
-                ViewBag.ClienteId = clienteId.Value;
-            }
-
-            // Filtrar por estado
-            if (estado != "todos")
-            {
-                query = query.Where(v => v.EstadoPago == estado);
-            }
-
-            var ventas = await query
                 .OrderByDescending(v => v.FechaVenta)
                 .ToListAsync();
-
-            ViewBag.EstadoFiltro = estado;
-            return View(ventas);
         }
 
-        // GET: /ventas-productos/detalle/{id}
-        [HttpGet("detalle/{id}")]
-        public async Task<IActionResult> Detalle(Guid id)
+        // GET: api/VentasProductos/{id}
+        [HttpGet("{id}")]
+        public async Task<ActionResult<VentaProducto>> GetVentaProducto(Guid id)
         {
             var venta = await _context.VentasProductos
                 .Include(v => v.Cliente)
@@ -62,44 +39,156 @@ namespace VidaFit.Controllers.WEB
             if (venta == null)
                 return NotFound();
 
-            return View(venta);
+            return venta;
         }
 
-        // GET: /ventas-productos/crear
-        [HttpGet("crear")]
-        public async Task<IActionResult> Crear()
+        // GET: api/VentasProductos/cliente/{clienteId}
+        [HttpGet("cliente/{clienteId}")]
+        public async Task<ActionResult<IEnumerable<VentaProducto>>> GetVentasPorCliente(Guid clienteId)
         {
-            ViewBag.Clientes = await _context.Clientes.Where(c => c.Activo).ToListAsync();
-            ViewBag.Productos = await _context.Productos.Where(p => p.Activo).ToListAsync();
-            return View();
+            return await _context.VentasProductos
+                .Include(v => v.Cliente)
+                .Include(v => v.Producto)
+                .Where(v => v.ClienteId == clienteId)
+                .OrderByDescending(v => v.FechaVenta)
+                .ToListAsync();
         }
 
-        // POST: /ventas-productos/crear
-        [HttpPost("crear")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Crear(VentaProducto venta)
+        // DTO para crear ventas (sin necesidad de objetos completos)
+        public class CreateVentaDto
         {
-            if (ModelState.IsValid)
+            public Guid ClienteId { get; set; }
+            public Guid ProductoId { get; set; }
+            public int Cantidad { get; set; }
+            public decimal PrecioUnitario { get; set; }
+            public decimal Total { get; set; }
+            public string EstadoPago { get; set; } = "pendiente";
+            public string? Notas { get; set; }
+        }
+
+        // POST: api/VentasProductos
+        [HttpPost]
+        public async Task<ActionResult<VentaProducto>> CreateVentaProducto([FromBody] CreateVentaDto ventaDto)
+        {
+            // Validar que el cliente existe
+            var clienteExiste = await _context.Clientes.AnyAsync(c => c.Id == ventaDto.ClienteId);
+            if (!clienteExiste)
+                return BadRequest("El cliente no existe");
+
+            // Validar que el producto existe
+            var producto = await _context.Productos.FindAsync(ventaDto.ProductoId);
+            if (producto == null)
+                return BadRequest("El producto no existe");
+
+            // Validar stock
+            if (producto.Stock < ventaDto.Cantidad)
+                return BadRequest($"Stock insuficiente. Disponible: {producto.Stock}");
+
+            // Crear la venta
+            var venta = new VentaProducto
             {
-                venta.Id = Guid.NewGuid();
-                venta.CreatedAt = DateTime.UtcNow;
-                venta.UpdatedAt = DateTime.UtcNow;
-                venta.FechaVenta = DateTime.UtcNow;
+                Id = Guid.NewGuid(),
+                ClienteId = ventaDto.ClienteId,
+                ProductoId = ventaDto.ProductoId,
+                Cantidad = ventaDto.Cantidad,
+                PrecioUnitario = ventaDto.PrecioUnitario,
+                Total = ventaDto.Total > 0 ? ventaDto.Total : ventaDto.Cantidad * ventaDto.PrecioUnitario,
+                EstadoPago = ventaDto.EstadoPago,
+                Notas = ventaDto.Notas,
+                FechaVenta = DateTime.UtcNow,
+                FechaPago = ventaDto.EstadoPago == "pagado" ? DateTime.UtcNow : null,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
 
-                _context.VentasProductos.Add(venta);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+            // Actualizar stock del producto
+            producto.Stock -= venta.Cantidad;
+            producto.UpdatedAt = DateTime.UtcNow;
+
+            _context.VentasProductos.Add(venta);
+            await _context.SaveChangesAsync();
+
+            // Cargar las relaciones para devolver el objeto completo
+            await _context.Entry(venta)
+                .Reference(v => v.Cliente)
+                .LoadAsync();
+            await _context.Entry(venta)
+                .Reference(v => v.Producto)
+                .LoadAsync();
+
+            return CreatedAtAction(nameof(GetVentaProducto), new { id = venta.Id }, venta);
+        }
+
+        // PUT: api/VentasProductos/{id}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateVentaProducto(Guid id, [FromBody] CreateVentaDto ventaDto)
+        {
+            var dbVenta = await _context.VentasProductos.FindAsync(id);
+            if (dbVenta == null)
+                return NotFound();
+
+            // Restaurar stock anterior
+            var productoAnterior = await _context.Productos.FindAsync(dbVenta.ProductoId);
+            if (productoAnterior != null)
+            {
+                productoAnterior.Stock += dbVenta.Cantidad;
             }
 
-            ViewBag.Clientes = await _context.Clientes.Where(c => c.Activo).ToListAsync();
-            ViewBag.Productos = await _context.Productos.Where(p => p.Activo).ToListAsync();
-            return View(venta);
+            // Validar nuevo producto
+            var productoNuevo = await _context.Productos.FindAsync(ventaDto.ProductoId);
+            if (productoNuevo == null)
+                return BadRequest("El producto no existe");
+
+            if (productoNuevo.Stock < ventaDto.Cantidad)
+                return BadRequest($"Stock insuficiente. Disponible: {productoNuevo.Stock}");
+
+            // Actualizar venta
+            dbVenta.ClienteId = ventaDto.ClienteId;
+            dbVenta.ProductoId = ventaDto.ProductoId;
+            dbVenta.Cantidad = ventaDto.Cantidad;
+            dbVenta.PrecioUnitario = ventaDto.PrecioUnitario;
+            dbVenta.Total = ventaDto.Total > 0 ? ventaDto.Total : ventaDto.Cantidad * ventaDto.PrecioUnitario;
+            dbVenta.EstadoPago = ventaDto.EstadoPago;
+            dbVenta.Notas = ventaDto.Notas;
+            dbVenta.UpdatedAt = DateTime.UtcNow;
+
+            if (ventaDto.EstadoPago == "pagado" && dbVenta.FechaPago == null)
+            {
+                dbVenta.FechaPago = DateTime.UtcNow;
+            }
+
+            // Actualizar stock del nuevo producto
+            productoNuevo.Stock -= ventaDto.Cantidad;
+            productoNuevo.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
 
-        // POST: /ventas-productos/marcar-pagado/{id}
-        [HttpPost("marcar-pagado/{id}")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> MarcarPagado(Guid id)
+        // DELETE: api/VentasProductos/{id}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteVentaProducto(Guid id)
+        {
+            var venta = await _context.VentasProductos.FindAsync(id);
+            if (venta == null)
+                return NotFound();
+
+            // Devolver el stock al producto
+            var producto = await _context.Productos.FindAsync(venta.ProductoId);
+            if (producto != null)
+            {
+                producto.Stock += venta.Cantidad;
+                producto.UpdatedAt = DateTime.UtcNow;
+            }
+
+            _context.VentasProductos.Remove(venta);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        // POST: api/VentasProductos/{id}/marcar-pagado
+        [HttpPost("{id}/marcar-pagado")]
+        public async Task<IActionResult> MarcarComoPagado(Guid id)
         {
             var venta = await _context.VentasProductos.FindAsync(id);
             if (venta == null)
@@ -110,7 +199,29 @@ namespace VidaFit.Controllers.WEB
             venta.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return Ok(new { mensaje = "Venta marcada como pagada exitosamente" });
+        }
+
+        // GET: api/VentasProductos/cuentas-pendientes
+        [HttpGet("cuentas-pendientes")]
+        public async Task<ActionResult<IEnumerable<object>>> GetCuentasPendientes()
+        {
+            var cuentasPendientes = await _context.VentasProductos
+                .Include(v => v.Cliente)
+                .Include(v => v.Producto)
+                .Where(v => v.EstadoPago == "pendiente")
+                .GroupBy(v => v.ClienteId)
+                .Select(g => new
+                {
+                    Cliente = g.First().Cliente,
+                    TotalPendiente = g.Sum(v => v.Total),
+                    CantidadVentas = g.Count(),
+                    Productos = g.Select(v => v.Producto.Nombre).ToList()
+                })
+                .OrderByDescending(c => c.TotalPendiente)
+                .ToListAsync();
+
+            return Ok(cuentasPendientes);
         }
     }
 }
