@@ -27,7 +27,7 @@
                 <div class="flex items-center justify-between mb-3">
                     <div>
                         <p class="text-sm text-gray-600 mb-1">Total Pendiente</p>
-                        <p class="text-3xl font-bold text-gray-800">$@totalPendiente</p>
+                        <p class="text-3xl font-bold text-gray-800">$@totalPendiente.ToString("N2")</p>
                     </div>
                     <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
                         <i data-lucide="alert-circle" class="w-6 h-6 text-red-600"></i>
@@ -166,7 +166,7 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right">
-                                    <span class="text-xl font-bold text-red-600">$@item.TotalPendiente</span>
+                                    <span class="text-xl font-bold text-red-600">$@item.TotalPendiente.ToString("N2")</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                     <div class="flex items-center justify-center gap-2">
