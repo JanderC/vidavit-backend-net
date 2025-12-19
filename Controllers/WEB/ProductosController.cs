@@ -55,18 +55,64 @@ namespace VidaFit.Controllers.WEB
             return View(producto);
         }
 
-        // ✅ GET: /productos/vender
+        // GET: /productos/eliminar/{id}
+        [HttpGet("eliminar/{id}")]
+        public async Task<IActionResult> Eliminar(Guid id)
+        {
+            var producto = await _context.Productos
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (producto == null)
+                return NotFound();
+
+            var tieneVentas = await _context.VentasProductos
+                .AnyAsync(v => v.ProductoId == id);
+
+            if (tieneVentas)
+            {
+                TempData["Error"] = "No se puede eliminar el producto porque tiene ventas asociadas.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(producto);
+        }
+
+        // POST: /productos/eliminar/{id}
+        [HttpPost("eliminar/{id}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EliminarConfirmado(Guid id)
+        {
+            var producto = await _context.Productos.FindAsync(id);
+            if (producto == null)
+                return NotFound();
+
+            var tieneVentas = await _context.VentasProductos
+                .AnyAsync(v => v.ProductoId == id);
+
+            if (tieneVentas)
+            {
+                TempData["Error"] = "No se puede eliminar el producto porque tiene ventas asociadas.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            _context.Productos.Remove(producto);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Producto eliminado exitosamente.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: /productos/vender
         [HttpGet("vender")]
         public IActionResult Vender()
         {
             return View();
         }
 
-        // ✅ GET: /productos/cuentas-pendientes
+        // GET: /productos/cuentas-pendientes
         [HttpGet("cuentas-pendientes")]
         public async Task<IActionResult> CuentasPendientes()
         {
-            // Obtener todas las ventas pendientes de pago
             var ventasPendientes = await _context.VentasProductos
                 .Include(v => v.Cliente)
                 .Include(v => v.Producto)

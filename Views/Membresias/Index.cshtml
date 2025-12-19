@@ -270,6 +270,11 @@
                                     title="Ver detalles">
                                 <i data-lucide="eye" class="w-6 h-6"></i>
                             </button>
+                            <button onclick="eliminarMembresia('${m.id || m.Id}', '${clienteNombre}')"
+                                    class="p-3 text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                                    title="Eliminar membresía">
+                                <i data-lucide="trash-2" class="w-6 h-6"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -314,6 +319,32 @@
                 alert(`Detalles:\nID: ${id}\nEstado: ${membresia.estado || membresia.Estado}`);
             }
         }
+
+        async function eliminarMembresia(id, clienteNombre) {
+            if (!confirm(`¿Estás seguro de que deseas eliminar esta membresía de ${clienteNombre}?\n\nEsta acción no se puede deshacer.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/Membresias/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok || response.status === 204) {
+                    alert('✅ Membresía eliminada exitosamente');
+                    loadMembresias();
+                } else {
+                    const error = await response.text();
+                    alert('❌ Error: ' + error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error al eliminar la membresía');
+            }
+        }
+
+        window.eliminarMembresia = eliminarMembresia;
 
         window.addEventListener('load', function() {
             loadPlanes();

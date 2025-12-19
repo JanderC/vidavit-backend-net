@@ -123,18 +123,20 @@
                 await new Promise(resolve => setTimeout(resolve, 1500));
 
                 if (data.success && data.cliente) {
+                    const diasRestantes = data.cliente?.diasRestantes ?? data.membresia?.diasRestantes ?? null;
                     this.setState({
                         mode: 'success',
                         cliente: data.cliente,
-                        diasRestantes: data.diasRestantes,
+                        diasRestantes: diasRestantes,
                         message: data.message,
                         similarity: data.similarity
                     });
                 } else {
+                    const diasRestantes = data.cliente?.diasRestantes ?? data.membresia?.diasRestantes ?? null;
                     this.setState({
                         mode: 'error',
                         message: data.message || 'No se pudo verificar la huella',
-                        diasRestantes: data.diasRestantes
+                        diasRestantes: diasRestantes
                     });
                 }
             }
@@ -158,18 +160,20 @@
                     const data = await response.json();
                     await new Promise(resolve => setTimeout(resolve, 1500));
 
+                    const diasRestantes = data.cliente?.diasRestantes ?? data.membresia?.diasRestantes ?? null;
+
                     if (data.success) {
                         this.setState({
                             mode: 'success',
                             cliente: data.cliente,
-                            diasRestantes: data.diasRestantes,
+                            diasRestantes: diasRestantes,
                             message: data.message
                         });
                     } else {
                         this.setState({
                             mode: 'error',
                             message: data.message,
-                            diasRestantes: data.diasRestantes
+                            diasRestantes: diasRestantes
                         });
                     }
                 } catch (error) {
@@ -413,7 +417,7 @@
                                 ` : ''}
 
                                 <div class="mt-8">
-                                    <p class="text-3xl text-white font-bold">¡Disfruta tu entrenamiento!</p>
+                                    <p class="text-3xl text-white font-bold">¡Sin prisa, pero con ¡DISCIPLINA!(Insiste,Persiste,Resiste)</p>
                                     <p class="text-xl text-emerald-300 mt-3">Da lo mejor de ti</p>
                                 </div>
                             </div>
