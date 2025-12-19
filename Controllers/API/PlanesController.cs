@@ -10,13 +10,13 @@ namespace VidaFit.Controllers.API
     public class PlanesController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private static readonly string[] TIPOS_VALIDOS = { "semanal", "mensual", "personalizado", "diario", "trimestral", "semestral", "anual", "otro" };
 
         public PlanesController(AppDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/Planes
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Plan>>> GetPlanes()
         {
@@ -26,7 +26,6 @@ namespace VidaFit.Controllers.API
                 .ToListAsync();
         }
 
-        // GET: api/Planes/activos
         [HttpGet("activos")]
         public async Task<ActionResult<IEnumerable<Plan>>> GetPlanesActivos()
         {
@@ -36,29 +35,27 @@ namespace VidaFit.Controllers.API
                 .ToListAsync();
         }
 
-        // GET: api/Planes/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<Plan>> GetPlan(Guid id)
         {
             var plan = await _context.Planes.FindAsync(id);
-
             if (plan == null)
                 return NotFound();
-
             return plan;
         }
 
-        // GET: api/Planes/tipo/{tipo}
         [HttpGet("tipo/{tipo}")]
         public async Task<ActionResult<IEnumerable<Plan>>> GetPlanesPorTipo(string tipo)
         {
+            if (!TIPOS_VALIDOS.Contains(tipo.ToLower()))
+                return BadRequest($"Tipo inválido. Permitidos: {string.Join(", ", TIPOS_VALIDOS)}");
+
             return await _context.Planes
-                .Where(p => p.Tipo == tipo && p.Activo)
+                .Where(p => p.Tipo == tipo.ToLower() && p.Activo)
                 .OrderBy(p => p.Precio)
                 .ToListAsync();
         }
 
-        // DTO para crear/actualizar planes
         public class PlanDto
         {
             public string Nombre { get; set; }
@@ -70,7 +67,6 @@ namespace VidaFit.Controllers.API
             public bool Activo { get; set; } = true;
         }
 
-        // POST: api/Planes
         [HttpPost]
         public async Task<ActionResult<Plan>> CreatePlan([FromBody] PlanDto planDto)
         {
@@ -80,13 +76,15 @@ namespace VidaFit.Controllers.API
             if (string.IsNullOrWhiteSpace(planDto.Tipo))
                 return BadRequest("El tipo de plan es requerido");
 
+            if (!TIPOS_VALIDOS.Contains(planDto.Tipo.ToLower()))
+                return BadRequest($"Tipo inválido '{planDto.Tipo}'. Solo se permite: semanal, mensual, personalizado");
+
             if (planDto.DuracionDias <= 0)
                 return BadRequest("La duración debe ser mayor a 0");
 
             if (planDto.Precio <= 0)
                 return BadRequest("El precio debe ser mayor a 0");
 
-            // Validar que no exista un plan con el mismo nombre
             var existeNombre = await _context.Planes
                 .AnyAsync(p => p.Nombre.ToLower() == planDto.Nombre.ToLower());
 
@@ -98,7 +96,7 @@ namespace VidaFit.Controllers.API
                 Id = Guid.NewGuid(),
                 Nombre = planDto.Nombre,
                 Descripcion = planDto.Descripcion,
-                Tipo = planDto.Tipo,
+                Tipo = planDto.Tipo.ToLower(),
                 DuracionDias = planDto.DuracionDias,
                 Precio = planDto.Precio,
                 Color = string.IsNullOrWhiteSpace(planDto.Color) ? "#00FF00" : planDto.Color,
@@ -113,7 +111,6 @@ namespace VidaFit.Controllers.API
             return CreatedAtAction(nameof(GetPlan), new { id = plan.Id }, plan);
         }
 
-        // PUT: api/Planes/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdatePlan(Guid id, [FromBody] Plan plan)
         {
@@ -130,13 +127,15 @@ namespace VidaFit.Controllers.API
             if (string.IsNullOrWhiteSpace(plan.Tipo))
                 return BadRequest("El tipo de plan es requerido");
 
+            if (!TIPOS_VALIDOS.Contains(plan.Tipo.ToLower()))
+                return BadRequest($"Tipo inválido '{plan.Tipo}'. Solo se permite: semanal, mensual, personalizado");
+
             if (plan.DuracionDias <= 0)
                 return BadRequest("La duración debe ser mayor a 0");
 
             if (plan.Precio <= 0)
                 return BadRequest("El precio debe ser mayor a 0");
 
-            // Validar que no exista otro plan con el mismo nombre
             var existeNombre = await _context.Planes
                 .AnyAsync(p => p.Nombre.ToLower() == plan.Nombre.ToLower() && p.Id != id);
 
@@ -145,7 +144,7 @@ namespace VidaFit.Controllers.API
 
             dbPlan.Nombre = plan.Nombre;
             dbPlan.Descripcion = plan.Descripcion;
-            dbPlan.Tipo = plan.Tipo;
+            dbPlan.Tipo = plan.Tipo.ToLower();
             dbPlan.DuracionDias = plan.DuracionDias;
             dbPlan.Precio = plan.Precio;
             dbPlan.Color = plan.Color;
@@ -156,7 +155,6 @@ namespace VidaFit.Controllers.API
             return NoContent();
         }
 
-        // DELETE: api/Planes/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePlan(Guid id)
         {
@@ -164,9 +162,7 @@ namespace VidaFit.Controllers.API
             if (plan == null)
                 return NotFound("Plan no encontrado");
 
-            // Verificar si el plan tiene membresías asociadas
-            var tieneMembresias = await _context.Membresias
-                .AnyAsync(m => m.PlanId == id);
+            var tieneMembresias = await _context.Membresias.AnyAsync(m => m.PlanId == id);
 
             if (tieneMembresias)
             {
@@ -182,7 +178,6 @@ namespace VidaFit.Controllers.API
             return Ok(new { mensaje = "Plan eliminado exitosamente" });
         }
 
-        // PATCH: api/Planes/{id}/toggle-activo
         [HttpPatch("{id}/toggle-activo")]
         public async Task<IActionResult> ToggleActivo(Guid id)
         {
@@ -202,7 +197,6 @@ namespace VidaFit.Controllers.API
             });
         }
 
-        // GET: api/Planes/estadisticas
         [HttpGet("estadisticas")]
         public async Task<ActionResult<object>> GetEstadisticas()
         {
@@ -241,16 +235,14 @@ namespace VidaFit.Controllers.API
             });
         }
 
-        // GET: api/Planes/tipos
         [HttpGet("tipos")]
-        public async Task<ActionResult<IEnumerable<string>>> GetTipos()
+        public ActionResult<IEnumerable<object>> GetTipos()
         {
-            var tipos = await _context.Planes
-                .Where(p => !string.IsNullOrEmpty(p.Tipo))
-                .Select(p => p.Tipo)
-                .Distinct()
-                .OrderBy(t => t)
-                .ToListAsync();
+            var tipos = TIPOS_VALIDOS.Select(t => new
+            {
+                valor = t,
+                nombre = char.ToUpper(t[0]) + t.Substring(1)
+            });
 
             return Ok(tipos);
         }
