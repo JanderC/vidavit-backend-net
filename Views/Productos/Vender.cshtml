@@ -1,123 +1,122 @@
 @{
     ViewData["Title"] = "Vender Productos";
+    ViewData["Subtitle"] = "Punto de venta - TAURO GYM";
+    Layout = "_AdminLayout";
 }
 
-<div class="max-w-6xl mx-auto p-6">
-    <div class="bg-white rounded-xl shadow-lg p-8">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6">Venta de Productos</h2>
+<div class="max-w-6xl mx-auto">
+    <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
+        <div class="flex items-center gap-4 mb-8 pb-6 border-b-2 border-gray-200">
+            <div class="bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-xl p-4">
+                <i data-lucide="shopping-cart" class="w-8 h-8 text-white"></i>
+            </div>
+            <div>
+                <h2 class="text-3xl font-black text-gray-900 uppercase tracking-wide">Venta de Productos</h2>
+                <p class="text-sm text-gray-600 font-semibold mt-1">Registrar venta de productos</p>
+            </div>
+        </div>
 
-        <!-- Seleccionar Cliente -->
-        <div class="mb-6 p-4 bg-blue-50 rounded-lg">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Cliente *</label>
-            
-            <!-- Búsqueda de cliente mejorada -->
+        <div class="mb-6 p-6 bg-blue-50 rounded-2xl border-2 border-blue-300">
+            <label class="block text-sm font-black text-gray-900 mb-3 uppercase tracking-wide">Cliente *</label>
+
             <div class="mb-3">
                 <input type="text" id="buscarClienteInput" placeholder="Buscar por nombre, apellido o cédula..."
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary">
-                
-                <!-- Resultados de búsqueda -->
-                <div id="resultadosBusqueda" class="hidden mt-2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                    <!-- Resultados dinámicos aquí -->
+                       class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 font-semibold">
+
+                <div id="resultadosBusqueda" class="hidden mt-2 bg-white border-2 border-gray-300 rounded-xl shadow-xl max-h-60 overflow-y-auto">
                 </div>
             </div>
 
-            <!-- Cliente seleccionado -->
             <div id="clienteInfo" class="hidden">
-                <div class="flex items-center gap-3 p-3 bg-white rounded-lg border-2 border-vida-primary">
-                    <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
-                        <i data-lucide="user" class="w-6 h-6 text-gray-600"></i>
+                <div class="flex items-center gap-3 p-5 bg-white rounded-xl border-2 border-blue-600">
+                    <div class="w-14 h-14 bg-gray-300 rounded-full flex items-center justify-center">
+                        <i data-lucide="user" class="w-7 h-7 text-gray-600"></i>
                     </div>
                     <div class="flex-1">
-                        <p class="font-bold text-gray-800" id="clienteNombre"></p>
-                        <p class="text-sm text-gray-600" id="clienteCedula"></p>
+                        <p class="font-black text-gray-900 text-lg" id="clienteNombre"></p>
+                        <p class="text-sm text-gray-600 font-bold" id="clienteCedula"></p>
                     </div>
                     <button type="button" id="btnCambiarCliente"
-                            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                            class="px-6 py-3 bg-gray-200 text-gray-900 rounded-xl hover:bg-gray-300 font-black uppercase tracking-wide">
                         Cambiar
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Lista de Productos Disponibles -->
         <div class="mb-6">
-            <h3 class="text-lg font-bold text-gray-800 mb-3">Productos Disponibles</h3>
-            <div class="mb-3">
+            <h3 class="text-xl font-black text-gray-900 mb-4 uppercase tracking-wide">Productos Disponibles</h3>
+            <div class="mb-4">
                 <input type="text" id="buscarProducto" placeholder="Buscar producto..."
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary">
+                       class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
             </div>
             <div id="productosGrid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-96 overflow-y-auto">
                 <div class="col-span-full text-center py-8 text-gray-500">
                     <i data-lucide="loader" class="w-8 h-8 mx-auto mb-2 animate-spin"></i>
-                    <p>Cargando productos...</p>
+                    <p class="font-bold">Cargando productos...</p>
                 </div>
             </div>
         </div>
 
-        <!-- Carrito de Compra -->
-        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
-            <h3 class="text-lg font-bold text-gray-800 mb-3">Carrito de Compra</h3>
-            <div id="carritoItems" class="space-y-2 mb-4">
-                <p class="text-gray-500 text-center py-4">No hay productos en el carrito</p>
+        <div class="mb-6 p-6 bg-gray-50 rounded-2xl border-2 border-gray-200">
+            <h3 class="text-xl font-black text-gray-900 mb-4 uppercase tracking-wide">Carrito de Compra</h3>
+            <div id="carritoItems" class="space-y-3 mb-4">
+                <p class="text-gray-500 text-center py-4 font-semibold">No hay productos en el carrito</p>
             </div>
 
-            <!-- Total -->
-            <div class="border-t pt-4">
-                <div class="flex justify-between items-center text-xl font-bold">
-                    <span>Total:</span>
-                    <span id="totalCarrito" class="text-vida-dark">$0.00</span>
+            <div class="border-t-2 border-gray-300 pt-6">
+                <div class="flex justify-between items-center text-2xl font-black">
+                    <span class="uppercase tracking-wide">Total:</span>
+                    <span id="totalCarrito" class="text-emerald-600">$0.00</span>
                 </div>
             </div>
         </div>
 
-        <!-- Opciones de Pago -->
-        <div class="mb-6 p-4 bg-yellow-50 rounded-lg">
-            <h3 class="text-lg font-bold text-gray-800 mb-3">Método de Pago</h3>
+        <div class="mb-6 p-6 bg-amber-50 rounded-2xl border-2 border-amber-300">
+            <h3 class="text-xl font-black text-gray-900 mb-4 uppercase tracking-wide">Método de Pago</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label class="flex items-center p-3 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-vida-primary transition">
+                    <label class="flex items-center p-5 border-2 border-gray-300 rounded-xl cursor-pointer hover:border-emerald-600 transition-all bg-white">
                         <input type="radio" name="estadoPago" value="pagado" checked
-                               class="mr-3 w-5 h-5 text-vida-primary">
+                               class="mr-3 w-5 h-5 text-emerald-600">
                         <div>
-                            <p class="font-bold text-gray-800">Contado (Pagado)</p>
-                            <p class="text-sm text-gray-600">Pago inmediato</p>
+                            <p class="font-black text-gray-900 uppercase tracking-wide">Contado (Pagado)</p>
+                            <p class="text-sm text-gray-600 font-semibold">Pago inmediato</p>
                         </div>
                     </label>
                 </div>
                 <div>
-                    <label class="flex items-center p-3 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-orange-500 transition">
+                    <label class="flex items-center p-5 border-2 border-gray-300 rounded-xl cursor-pointer hover:border-orange-600 transition-all bg-white">
                         <input type="radio" name="estadoPago" value="pendiente"
-                               class="mr-3 w-5 h-5 text-orange-500">
+                               class="mr-3 w-5 h-5 text-orange-600">
                         <div>
-                            <p class="font-bold text-gray-800">Fiado (Crédito)</p>
-                            <p class="text-sm text-gray-600">Pago pendiente</p>
+                            <p class="font-black text-gray-900 uppercase tracking-wide">Fiado (Crédito)</p>
+                            <p class="text-sm text-gray-600 font-semibold">Pago pendiente</p>
                         </div>
                     </label>
                 </div>
             </div>
 
-            <!-- Notas -->
             <div class="mt-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Notas</label>
+                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Notas</label>
                 <textarea id="notasVenta" rows="2" placeholder="Observaciones adicionales..."
-                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary"></textarea>
+                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-600 focus:border-amber-600 font-semibold"></textarea>
             </div>
         </div>
 
-        <!-- Botones -->
         <div class="flex gap-4">
             <button type="button" id="btnRegistrarVenta"
-                    class="flex-1 bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 transition">
+                    class="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900 text-white font-black py-4 px-6 rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
                 <i data-lucide="check-circle" class="w-5 h-5 inline mr-2"></i>
                 Registrar Venta
             </button>
             <button type="button" id="btnLimpiar"
-                    class="px-6 py-3 bg-gray-300 text-gray-700 font-bold rounded-lg hover:bg-gray-400 transition">
+                    class="px-8 py-4 bg-gray-300 text-gray-900 font-black rounded-xl hover:bg-gray-400 transition-all uppercase tracking-wide">
                 <i data-lucide="x-circle" class="w-5 h-5 inline mr-2"></i>
                 Limpiar
             </button>
             <a href="/productos"
-               class="px-6 py-3 bg-gray-300 text-gray-700 font-bold rounded-lg hover:bg-gray-400 transition text-center">
+               class="px-8 py-4 bg-gray-300 text-gray-900 font-black rounded-xl hover:bg-gray-400 transition-all text-center uppercase tracking-wide">
                 Cancelar
             </a>
         </div>
@@ -131,14 +130,11 @@
         let carrito = [];
         let clienteSeleccionado = null;
 
-        // Cargar datos iniciales
         async function cargarDatos() {
             try {
-                // Cargar clientes
                 const clientesRes = await fetch('/api/Clientes');
                 clientes = await clientesRes.json();
 
-                // Cargar productos
                 const productosRes = await fetch('/api/Productos');
                 productos = await productosRes.json();
                 renderProductos(productos);
@@ -148,12 +144,11 @@
             }
         }
 
-        // Búsqueda de cliente en tiempo real
         let timeoutBusqueda = null;
         document.getElementById('buscarClienteInput').addEventListener('input', function(e) {
             clearTimeout(timeoutBusqueda);
             const query = e.target.value.trim().toLowerCase();
-            
+
             if (query.length < 2) {
                 document.getElementById('resultadosBusqueda').classList.add('hidden');
                 return;
@@ -164,9 +159,9 @@
                     const nombre = (c.nombre || '').toLowerCase();
                     const apellido = (c.apellido || '').toLowerCase();
                     const cedula = (c.cedula || '').toLowerCase();
-                    
-                    return nombre.includes(query) || 
-                           apellido.includes(query) || 
+
+                    return nombre.includes(query) ||
+                           apellido.includes(query) ||
                            cedula.includes(query) ||
                            `${nombre} ${apellido}`.includes(query);
                 });
@@ -177,42 +172,41 @@
 
         function mostrarResultadosBusqueda(resultados) {
             const container = document.getElementById('resultadosBusqueda');
-            
+
             if (resultados.length === 0) {
-                container.innerHTML = '<p class="p-4 text-gray-500 text-sm">No se encontraron clientes</p>';
+                container.innerHTML = '<p class="p-4 text-gray-500 text-sm font-semibold">No se encontraron clientes</p>';
                 container.classList.remove('hidden');
                 return;
             }
 
             container.innerHTML = resultados.map(c => `
-                <div class="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0" 
+                <div class="p-4 hover:bg-gray-50 cursor-pointer border-b-2 last:border-b-0 transition-colors"
                      onclick="seleccionarCliente('${c.id}')">
-                    <p class="font-semibold text-gray-800">${c.nombre} ${c.apellido}</p>
-                    <p class="text-xs text-gray-600">Cédula: ${c.cedula}</p>
+                    <p class="font-black text-gray-900">${c.nombre} ${c.apellido}</p>
+                    <p class="text-xs text-gray-600 font-semibold">Cédula: ${c.cedula}</p>
                 </div>
             `).join('');
-            
+
             container.classList.remove('hidden');
         }
 
         function seleccionarCliente(clienteId) {
             clienteSeleccionado = clientes.find(c => c.id === clienteId);
-            
+
             if (clienteSeleccionado) {
-                document.getElementById('clienteNombre').textContent = 
+                document.getElementById('clienteNombre').textContent =
                     `${clienteSeleccionado.nombre} ${clienteSeleccionado.apellido}`;
-                document.getElementById('clienteCedula').textContent = 
+                document.getElementById('clienteCedula').textContent =
                     `Cédula: ${clienteSeleccionado.cedula}`;
-                
+
                 document.getElementById('clienteInfo').classList.remove('hidden');
                 document.getElementById('buscarClienteInput').value = '';
                 document.getElementById('resultadosBusqueda').classList.add('hidden');
-                
+
                 lucide.createIcons();
             }
         }
 
-        // Cambiar cliente
         document.getElementById('btnCambiarCliente').addEventListener('click', function() {
             clienteSeleccionado = null;
             document.getElementById('clienteInfo').classList.add('hidden');
@@ -220,36 +214,34 @@
             document.getElementById('buscarClienteInput').focus();
         });
 
-        // Renderizar productos en grid
         function renderProductos(lista) {
             const grid = document.getElementById('productosGrid');
-            
+
             const productosActivos = lista.filter(p => p.activo && p.stock > 0);
-            
+
             if (productosActivos.length === 0) {
-                grid.innerHTML = '<div class="col-span-full text-center py-8 text-gray-500"><p>No hay productos disponibles</p></div>';
+                grid.innerHTML = '<div class="col-span-full text-center py-8 text-gray-500"><p class="font-bold">No hay productos disponibles</p></div>';
                 return;
             }
 
             grid.innerHTML = productosActivos.map(p => `
-                <div class="border rounded-lg p-3 hover:shadow-lg cursor-pointer transition" onclick="agregarAlCarrito('${p.id}')">
-                    <div class="aspect-square bg-gray-200 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
+                <div class="border-2 border-gray-200 rounded-xl p-4 hover:shadow-xl cursor-pointer transition-all hover:border-red-600" onclick="agregarAlCarrito('${p.id}')">
+                    <div class="aspect-square bg-gray-200 rounded-xl mb-3 flex items-center justify-center overflow-hidden">
                         ${p.imagenBase64
                             ? `<img src="${p.imagenBase64}" class="w-full h-full object-cover" alt="${p.nombre}">`
                             : `<i data-lucide="package" class="w-12 h-12 text-gray-400"></i>`
                         }
                     </div>
-                    <p class="font-bold text-sm text-gray-800 truncate">${p.nombre}</p>
-                    <p class="text-xs text-gray-600">${p.categoria || 'Sin categoría'}</p>
-                    <p class="text-lg font-bold text-vida-dark mt-1">$${p.precio.toFixed(2)}</p>
-                    <p class="text-xs text-gray-500">Stock: ${p.stock}</p>
+                    <p class="font-black text-sm text-gray-900 truncate uppercase">${p.nombre}</p>
+                    <p class="text-xs text-gray-600 font-semibold">${p.categoria || 'Sin categoría'}</p>
+                    <p class="text-xl font-black text-emerald-600 mt-2">$${p.precio.toFixed(2)}</p>
+                    <p class="text-xs text-gray-500 font-bold">Stock: ${p.stock}</p>
                 </div>
             `).join('');
 
             lucide.createIcons();
         }
 
-        // Buscar productos
         document.getElementById('buscarProducto').addEventListener('input', function(e) {
             const query = e.target.value.toLowerCase();
             const filtrados = productos.filter(p => {
@@ -260,7 +252,6 @@
             renderProductos(filtrados);
         });
 
-        // Agregar producto al carrito
         function agregarAlCarrito(productoId) {
             const producto = productos.find(p => p.id === productoId);
             if (!producto) return;
@@ -287,13 +278,11 @@
             renderCarrito();
         }
 
-        // Eliminar del carrito
         function eliminarDelCarrito(productoId) {
             carrito = carrito.filter(i => i.producto.id !== productoId);
             renderCarrito();
         }
 
-        // Cambiar cantidad
         function cambiarCantidad(productoId, nuevaCantidad) {
             const item = carrito.find(i => i.producto.id === productoId);
             if (item && nuevaCantidad > 0 && nuevaCantidad <= item.producto.stock) {
@@ -305,12 +294,11 @@
             }
         }
 
-        // Renderizar carrito
         function renderCarrito() {
             const container = document.getElementById('carritoItems');
 
             if (carrito.length === 0) {
-                container.innerHTML = '<p class="text-gray-500 text-center py-4">No hay productos en el carrito</p>';
+                container.innerHTML = '<p class="text-gray-500 text-center py-4 font-semibold">No hay productos en el carrito</p>';
                 document.getElementById('totalCarrito').textContent = '$0.00';
                 return;
             }
@@ -319,31 +307,31 @@
             container.innerHTML = carrito.map(item => {
                 total += item.total;
                 return `
-                    <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                    <div class="flex items-center justify-between p-4 bg-white rounded-xl border-2 border-gray-200">
                         <div class="flex items-center gap-3 flex-1">
-                            <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center overflow-hidden">
+                            <div class="w-14 h-14 bg-gray-200 rounded-xl flex items-center justify-center overflow-hidden">
                                 ${item.producto.imagenBase64
                                     ? `<img src="${item.producto.imagenBase64}" class="w-full h-full object-cover">`
                                     : `<i data-lucide="package" class="w-6 h-6 text-gray-400"></i>`
                                 }
                             </div>
                             <div class="flex-1">
-                                <p class="font-bold text-sm">${item.producto.nombre}</p>
-                                <p class="text-xs text-gray-600">$${item.precioUnitario.toFixed(2)} c/u</p>
+                                <p class="font-black text-sm text-gray-900">${item.producto.nombre}</p>
+                                <p class="text-xs text-gray-600 font-bold">$${item.precioUnitario.toFixed(2)} c/u</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
                             <button onclick="cambiarCantidad('${item.producto.id}', ${item.cantidad - 1})"
-                                    class="w-8 h-8 bg-gray-200 rounded hover:bg-gray-300">-</button>
-                            <span class="w-12 text-center font-bold">${item.cantidad}</span>
+                                    class="w-10 h-10 bg-gray-200 rounded-lg hover:bg-gray-300 font-black">-</button>
+                            <span class="w-12 text-center font-black text-lg">${item.cantidad}</span>
                             <button onclick="cambiarCantidad('${item.producto.id}', ${item.cantidad + 1})"
-                                    class="w-8 h-8 bg-gray-200 rounded hover:bg-gray-300">+</button>
+                                    class="w-10 h-10 bg-gray-200 rounded-lg hover:bg-gray-300 font-black">+</button>
                         </div>
                         <div class="w-24 text-right">
-                            <p class="font-bold">$${item.total.toFixed(2)}</p>
+                            <p class="font-black text-emerald-600 text-lg">$${item.total.toFixed(2)}</p>
                         </div>
                         <button onclick="eliminarDelCarrito('${item.producto.id}')"
-                                class="ml-2 text-red-600 hover:text-red-800">
+                                class="ml-3 text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded-lg transition-colors">
                             <i data-lucide="trash-2" class="w-5 h-5"></i>
                         </button>
                     </div>
@@ -354,7 +342,6 @@
             lucide.createIcons();
         }
 
-        // Registrar venta
         document.getElementById('btnRegistrarVenta').addEventListener('click', async function() {
             if (!clienteSeleccionado) {
                 mostrarError('Debe seleccionar un cliente');
@@ -369,15 +356,13 @@
             const estadoPago = document.querySelector('input[name="estadoPago"]:checked').value;
             const notas = document.getElementById('notasVenta').value;
 
-            // Confirmación
-            const mensaje = estadoPago === 'pagado' 
-                ? '¿Confirmar venta como PAGADA?' 
+            const mensaje = estadoPago === 'pagado'
+                ? '¿Confirmar venta como PAGADA?'
                 : '¿Confirmar venta como FIADA (crédito)?';
-            
+
             if (!confirm(mensaje)) return;
 
             try {
-                // Registrar cada producto como una venta
                 for (const item of carrito) {
                     const venta = {
                         clienteId: clienteSeleccionado.id,
@@ -399,7 +384,6 @@
                         throw new Error('Error al registrar venta');
                     }
 
-                    // Actualizar stock del producto
                     const producto = item.producto;
                     producto.stock = producto.stock - item.cantidad;
 
@@ -420,7 +404,6 @@
             }
         });
 
-        // Limpiar formulario
         document.getElementById('btnLimpiar').addEventListener('click', limpiar);
 
         function limpiar() {
@@ -439,20 +422,17 @@
             alert('⚠ ' + mensaje);
         }
 
-        // Exponer funciones globalmente
         window.agregarAlCarrito = agregarAlCarrito;
         window.cambiarCantidad = cambiarCantidad;
         window.eliminarDelCarrito = eliminarDelCarrito;
         window.seleccionarCliente = seleccionarCliente;
 
-        // Cerrar resultados al hacer click fuera
         document.addEventListener('click', function(e) {
             if (!e.target.closest('#buscarClienteInput') && !e.target.closest('#resultadosBusqueda')) {
                 document.getElementById('resultadosBusqueda').classList.add('hidden');
             }
         });
 
-        // Inicializar
         cargarDatos();
         lucide.createIcons();
     </script>

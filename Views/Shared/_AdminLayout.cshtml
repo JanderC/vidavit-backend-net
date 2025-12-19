@@ -6,10 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - TAURO GYM Admin</title>
 
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Configuración de Tailwind personalizada -->
     <script>
         tailwind.config = {
             theme: {
@@ -26,12 +24,10 @@
         }
     </script>
 
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-    <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
@@ -40,17 +36,16 @@
         }
 
         h1, h2, h3, h4, h5, h6 {
-            font-family: 'Bebas Neue', 'Montserrat', sans-serif;
-            letter-spacing: 1px;
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 2px;
         }
 
-        /* Scrollbar personalizado */
         ::-webkit-scrollbar {
             width: 10px;
         }
 
         ::-webkit-scrollbar-track {
-            background: #f1f1f1;
+            background: #1a1a1a;
         }
 
         ::-webkit-scrollbar-thumb {
@@ -62,7 +57,6 @@
                 background: linear-gradient(180deg, #FF4448 0%, #E31E24 100%);
             }
 
-        /* Efecto hover para nav items */
         .nav-item {
             position: relative;
             overflow: hidden;
@@ -74,7 +68,7 @@
                 left: 0;
                 top: 0;
                 height: 100%;
-                width: 3px;
+                width: 4px;
                 background: linear-gradient(180deg, #E31E24 0%, #FF4448 100%);
                 transform: scaleY(0);
                 transition: transform 0.3s ease;
@@ -84,147 +78,145 @@
                 transform: scaleY(1);
             }
 
-    
+            .nav-item.active::before {
+                transform: scaleY(1);
+            }
 
-        .logo-glow {
-            animation: logoGlow 3s ease-in-out infinite;
+            .nav-item:hover {
+                background: rgba(227, 30, 36, 0.1);
+            }
+
+
+        .logo-container {
+            animation: pulse-glow 3s ease-in-out infinite;
         }
     </style>
 
     @RenderSection("Styles", required: false)
 </head>
 <body class="bg-gray-50">
-    <!-- Sidebar -->
-    <aside class="fixed left-0 top-0 h-screen w-64 bg-gradient-to-b from-tauro-dark to-tauro-gray text-white shadow-2xl z-50 border-r-2 border-tauro-red">
-        <div class="p-6 border-b-2 border-tauro-red">
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 bg-tauro-red rounded-full flex items-center justify-center logo-glow">
-                    <span class="text-2xl font-bold">🐂</span>
+    <aside class="fixed left-0 top-0 h-screen w-64 bg-gradient-to-b from-black via-tauro-gray to-black text-white shadow-2xl z-50 border-r-2 border-red-600">
+        <div class="p-6 border-b-2 border-red-600">
+            <div class="flex flex-col items-center gap-3">
+                <div class="logo-container inline-block px-6 py-3 bg-gradient-to-r from-red-600 to-red-800 rounded-xl">
+                    <h1 class="text-3xl font-black text-white tracking-widest">TAURO GYM</h1>
                 </div>
-                <div>
-                    <h1 class="text-2xl font-bold text-tauro-red" style="font-family: 'Bebas Neue', sans-serif; letter-spacing: 2px;">TAURO GYM</h1>
-                    <p class="text-xs text-gray-400 mt-1">Panel de Administración</p>
-                </div>
+                <p class="text-xs text-gray-400 uppercase tracking-widest font-bold">Panel Administrativo</p>
             </div>
         </div>
 
-        <nav class="p-4 space-y-2">
-            <a href="/admin/dashboard" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-tauro-gray transition-colors group">
-                <i data-lucide="layout-dashboard" class="w-5 h-5 text-tauro-red"></i>
-                <span class="font-medium">Dashboard</span>
+        <nav class="p-4 space-y-2 overflow-y-auto h-[calc(100vh-280px)]">
+            <a href="/admin/dashboard" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-900 transition-all group">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 text-red-500 group-hover:scale-110 transition-transform"></i>
+                <span class="font-semibold">Dashboard</span>
             </a>
 
-            <a href="/clientes" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-tauro-gray transition-colors group">
-                <i data-lucide="users" class="w-5 h-5 text-tauro-red"></i>
-                <span class="font-medium">Clientes</span>
+            <a href="/clientes" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-900 transition-all group">
+                <i data-lucide="users" class="w-5 h-5 text-red-500 group-hover:scale-110 transition-transform"></i>
+                <span class="font-semibold">Clientes</span>
             </a>
 
-            <a href="/membresias" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-tauro-gray transition-colors group">
-                <i data-lucide="credit-card" class="w-5 h-5 text-tauro-red"></i>
-                <span class="font-medium">Membresías</span>
+            <a href="/membresias" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-900 transition-all group">
+                <i data-lucide="credit-card" class="w-5 h-5 text-red-500 group-hover:scale-110 transition-transform"></i>
+                <span class="font-semibold">Membresías</span>
             </a>
 
-            <a href="/planes" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-tauro-gray transition-colors group">
-                <i data-lucide="star" class="w-5 h-5 text-tauro-red"></i>
-                <span class="font-medium">Planes</span>
+            <a href="/planes" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-900 transition-all group">
+                <i data-lucide="star" class="w-5 h-5 text-red-500 group-hover:scale-110 transition-transform"></i>
+                <span class="font-semibold">Planes</span>
             </a>
 
-            <a href="/productos" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-tauro-gray transition-colors group">
-                <i data-lucide="package" class="w-5 h-5 text-tauro-red"></i>
-                <span class="font-medium">Tienda</span>
+            <a href="/productos" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-900 transition-all group">
+                <i data-lucide="package" class="w-5 h-5 text-red-500 group-hover:scale-110 transition-transform"></i>
+                <span class="font-semibold">Tienda</span>
             </a>
 
-            <div class="pt-4 border-t-2 border-gray-700 mt-4">
-                <p class="text-xs text-gray-500 uppercase font-semibold mb-2 px-4">Caja & Reportes</p>
+            <div class="pt-4 border-t-2 border-gray-800 mt-4">
+                <p class="text-xs text-gray-500 uppercase font-black mb-3 px-4 tracking-wider">Caja & Reportes</p>
 
-                <a href="/caja" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-tauro-gray transition-colors text-sm">
-                    <i data-lucide="dollar-sign" class="w-4 h-4 text-tauro-red"></i>
-                    <span>Caja</span>
+                <a href="/caja" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-900 transition-all text-sm group">
+                    <i data-lucide="wallet" class="w-5 h-5 text-red-500 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-semibold">Caja</span>
                 </a>
 
-                <a href="/reportes/asistencia" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-tauro-gray transition-colors text-sm">
-                    <i data-lucide="calendar-check" class="w-4 h-4 text-tauro-red"></i>
+                <a href="/reportes/asistencia" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-900 transition-all text-sm group">
+                    <i data-lucide="calendar-check" class="w-4 h-4 text-red-500 group-hover:scale-110 transition-transform"></i>
                     <span>Asistencia</span>
                 </a>
 
-                <a href="/reportes/ingresos-membresias" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-tauro-gray transition-colors text-sm">
-                    <i data-lucide="trending-up" class="w-4 h-4 text-tauro-red"></i>
+                <a href="/reportes/ingresos-membresias" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-900 transition-all text-sm group">
+                    <i data-lucide="trending-up" class="w-4 h-4 text-red-500 group-hover:scale-110 transition-transform"></i>
                     <span>Membresías</span>
                 </a>
 
-                <a href="/reportes/productos-mas-vendidos" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-tauro-gray transition-colors text-sm">
-                    <i data-lucide="shopping-cart" class="w-4 h-4 text-tauro-red"></i>
+                <a href="/reportes/productos-mas-vendidos" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-900 transition-all text-sm group">
+                    <i data-lucide="shopping-cart" class="w-4 h-4 text-red-500 group-hover:scale-110 transition-transform"></i>
                     <span>Productos Vendidos</span>
                 </a>
 
-                <a href="/reportes/cuentas-pendientes" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-tauro-gray transition-colors text-sm">
-                    <i data-lucide="alert-circle" class="w-4 h-4 text-tauro-red"></i>
+                <a href="/reportes/cuentas-pendientes" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-900 transition-all text-sm group">
+                    <i data-lucide="alert-circle" class="w-4 h-4 text-red-500 group-hover:scale-110 transition-transform"></i>
                     <span>Cuentas Pendientes</span>
                 </a>
 
-                <a href="/reportes/clientes-inactivos" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-tauro-gray transition-colors text-sm">
-                    <i data-lucide="user-x" class="w-4 h-4 text-tauro-red"></i>
+                <a href="/reportes/clientes-inactivos" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-900 transition-all text-sm group">
+                    <i data-lucide="user-x" class="w-4 h-4 text-red-500 group-hover:scale-110 transition-transform"></i>
                     <span>Clientes Inactivos</span>
                 </a>
             </div>
         </nav>
 
-        <div class="absolute bottom-0 left-0 right-0 p-4 border-t-2 border-gray-700 bg-gradient-to-t from-black to-transparent">
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t-2 border-gray-800 bg-gradient-to-t from-black to-transparent">
             <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-tauro-red to-tauro-accent flex items-center justify-center text-white font-bold shadow-lg">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center text-white font-black text-lg shadow-lg">
                     A
                 </div>
                 <div class="flex-1">
-                    <p class="text-sm font-semibold">Administrador</p>
-                    <p class="text-xs text-gray-400">Panel Admin</p>
+                    <p class="text-sm font-bold">Administrador</p>
+                    <p class="text-xs text-gray-500 uppercase tracking-wide">TAURO GYM</p>
                 </div>
             </div>
             <form action="/admin/logout" method="post" class="w-full">
                 @Html.AntiForgeryToken()
-                <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-lg transition-all text-sm font-medium shadow-lg">
-                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 rounded-xl transition-all font-bold shadow-xl hover:shadow-2xl transform hover:scale-105">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
                     Cerrar Sesión
                 </button>
             </form>
         </div>
     </aside>
 
-    <!-- Main Content -->
     <main class="ml-64 min-h-screen">
-        <!-- Header -->
-        <header class="bg-gradient-to-r from-white to-gray-50 shadow-md border-b-2 border-tauro-red sticky top-0 z-40">
-            <div class="px-6 py-4">
+        <header class="bg-gradient-to-r from-white to-gray-100 shadow-lg border-b-4 border-red-600 sticky top-0 z-40">
+            <div class="px-8 py-5">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h2 class="text-3xl font-bold bg-gradient-to-r from-tauro-red to-tauro-accent bg-clip-text text-transparent" style="font-family: 'Bebas Neue', sans-serif;">
+                        <h2 class="text-4xl font-black bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent uppercase tracking-wide">
                             @ViewData["Title"]
                         </h2>
                         @if (ViewData["Subtitle"] != null)
                         {
-                            <p class="text-sm text-gray-600 mt-1">@ViewData["Subtitle"]</p>
+                            <p class="text-sm text-gray-600 mt-2 font-semibold">@ViewData["Subtitle"]</p>
                         }
                     </div>
                     <div class="flex items-center gap-4">
-                        <div class="text-right">
-                            <p class="text-sm text-gray-600">Última actualización</p>
-                            <p class="text-xs text-gray-500" id="current-time"></p>
+                        <div class="text-right px-6 py-3 bg-gray-900 rounded-xl border border-gray-800">
+                            <p class="text-xs text-gray-400 uppercase tracking-wide font-bold">Última actualización</p>
+                            <p class="text-sm text-white font-bold" id="current-time"></p>
                         </div>
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- Content Area -->
-        <div class="p-6">
+        <div class="p-8">
             @RenderBody()
         </div>
     </main>
 
     <script>
-        // Inicializar iconos Lucide
         lucide.createIcons();
 
-        // Actualizar hora actual
         function updateTime() {
             const now = new Date();
             const timeStr = now.toLocaleString('es-ES', {

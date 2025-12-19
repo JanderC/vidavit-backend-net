@@ -1,40 +1,39 @@
 ﻿@{
     ViewData["Title"] = "Cuentas Pendientes";
+    ViewData["Subtitle"] = "Productos Fiados - TAURO GYM";
+    Layout = "_AdminLayout";
 }
 
-<div class="max-w-7xl mx-auto p-6">
+<div class="max-w-7xl mx-auto">
     <div class="flex justify-between items-center mb-6">
-        <h2 class="text-3xl font-bold text-gray-800">Productos Fiados - Cuentas Pendientes</h2>
+        <h2 class="text-4xl font-black text-gray-900 uppercase tracking-wide">Productos Fiados</h2>
         <a href="/productos"
-           class="bg-gray-300 text-gray-700 font-bold py-2 px-6 rounded-lg hover:bg-gray-400 transition">
+           class="bg-gray-300 hover:bg-gray-400 text-gray-900 font-black py-3 px-8 rounded-xl transition-all uppercase tracking-wide">
             Volver
         </a>
     </div>
 
-    <!-- Resumen -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <div class="bg-white rounded-xl shadow-md p-6">
-            <p class="text-gray-600 text-sm">Total Pendiente</p>
-            <p class="text-3xl font-bold text-orange-600" id="totalPendiente">$0.00</p>
+        <div class="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-orange-600">
+            <p class="text-gray-600 text-sm font-black uppercase tracking-wide mb-2">Total Pendiente</p>
+            <p class="text-4xl font-black text-orange-600" id="totalPendiente">$0.00</p>
         </div>
-        <div class="bg-white rounded-xl shadow-md p-6">
-            <p class="text-gray-600 text-sm">Clientes con Deuda</p>
-            <p class="text-3xl font-bold text-gray-800" id="clientesConDeuda">0</p>
+        <div class="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-red-600">
+            <p class="text-gray-600 text-sm font-black uppercase tracking-wide mb-2">Clientes con Deuda</p>
+            <p class="text-4xl font-black text-gray-900" id="clientesConDeuda">0</p>
         </div>
-        <div class="bg-white rounded-xl shadow-md p-6">
-            <p class="text-gray-600 text-sm">Productos Fiados</p>
-            <p class="text-3xl font-bold text-gray-800" id="productosFiados">0</p>
+        <div class="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-blue-600">
+            <p class="text-gray-600 text-sm font-black uppercase tracking-wide mb-2">Productos Fiados</p>
+            <p class="text-4xl font-black text-gray-900" id="productosFiados">0</p>
         </div>
     </div>
 
-    <!-- Lista de cuentas pendientes por cliente -->
-    <div class="bg-white rounded-xl shadow-md overflow-hidden">
-        <div class="p-6 border-b">
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-gray-200">
+        <div class="p-6 border-b-2 border-gray-200">
             <input type="text" id="buscarCliente" placeholder="Buscar cliente..."
-                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary">
+                   class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
         </div>
-        <div id="cuentasList" class="divide-y divide-gray-200">
-            <!-- Se carga dinámicamente -->
+        <div id="cuentasList" class="divide-y-2 divide-gray-200">
         </div>
     </div>
 </div>
@@ -48,10 +47,8 @@
                 const response = await fetch('/api/VentasProductos');
                 const ventas = await response.json();
 
-                // Filtrar solo pendientes
                 const pendientes = ventas.filter(v => v.estadoPago === 'pendiente');
 
-                // Agrupar por cliente
                 const porCliente = {};
                 pendientes.forEach(v => {
                     if (!porCliente[v.clienteId]) {
@@ -67,7 +64,6 @@
 
                 cuentasPendientes = Object.values(porCliente);
 
-                // Actualizar resumen
                 const totalPendiente = cuentasPendientes.reduce((sum, c) => sum + c.total, 0);
                 document.getElementById('totalPendiente').textContent = `$${totalPendiente.toFixed(2)}`;
                 document.getElementById('clientesConDeuda').textContent = cuentasPendientes.length;
@@ -83,38 +79,38 @@
             const container = document.getElementById('cuentasList');
 
             if (cuentas.length === 0) {
-                container.innerHTML = '<p class="text-center text-gray-500 py-8">No hay cuentas pendientes</p>';
+                container.innerHTML = '<p class="text-center text-gray-500 py-12 font-bold text-lg">No hay cuentas pendientes</p>';
                 return;
             }
 
             container.innerHTML = cuentas.map(cuenta => `
-                <div class="p-6 hover:bg-gray-50">
-                    <div class="flex justify-between items-start mb-4">
+                <div class="p-8 hover:bg-gray-50 transition-colors">
+                    <div class="flex justify-between items-start mb-6">
                         <div>
-                            <h3 class="text-lg font-bold text-gray-800">
+                            <h3 class="text-2xl font-black text-gray-900 uppercase tracking-wide">
                                 ${cuenta.cliente.nombre} ${cuenta.cliente.apellido}
                             </h3>
-                            <p class="text-sm text-gray-600">${cuenta.cliente.cedula}</p>
+                            <p class="text-sm text-gray-600 font-bold mt-1">${cuenta.cliente.cedula}</p>
                         </div>
                         <div class="text-right">
-                            <p class="text-2xl font-bold text-orange-600">$${cuenta.total.toFixed(2)}</p>
+                            <p class="text-3xl font-black text-orange-600">$${cuenta.total.toFixed(2)}</p>
                             <button onclick="marcarComoPagado('${cuenta.cliente.id}')"
-                                    class="mt-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm">
-                                Marcar como Pagado
+                                    class="mt-3 bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900 text-white px-6 py-3 rounded-xl font-black uppercase tracking-wide shadow-lg">
+                                Marcar Pagado
                             </button>
                         </div>
                     </div>
-                    <div class="space-y-2">
+                    <div class="space-y-3">
                         ${cuenta.ventas.map(v => `
-                            <div class="flex justify-between items-center text-sm bg-gray-50 p-3 rounded">
+                            <div class="flex justify-between items-center text-sm bg-gray-50 p-4 rounded-xl border-2 border-gray-200">
                                 <div class="flex items-center gap-3">
-                                    <i data-lucide="package" class="w-4 h-4 text-gray-400"></i>
-                                    <span class="font-medium">${v.producto.nombre}</span>
-                                    <span class="text-gray-600">x${v.cantidad}</span>
+                                    <i data-lucide="package" class="w-5 h-5 text-gray-400"></i>
+                                    <span class="font-black text-gray-900">${v.producto.nombre}</span>
+                                    <span class="text-gray-600 font-bold">x${v.cantidad}</span>
                                 </div>
                                 <div class="flex items-center gap-4">
-                                    <span class="font-bold">$${v.total.toFixed(2)}</span>
-                                    <span class="text-xs text-gray-500">${new Date(v.fechaVenta).toLocaleDateString()}</span>
+                                    <span class="font-black text-gray-900 text-lg">$${v.total.toFixed(2)}</span>
+                                    <span class="text-xs text-gray-500 font-semibold">${new Date(v.fechaVenta).toLocaleDateString()}</span>
                                 </div>
                             </div>
                         `).join('')}
@@ -142,7 +138,7 @@
                     });
                 }
 
-                alert('Deuda marcada como pagada');
+                alert('✓ Deuda marcada como pagada');
                 cargarCuentas();
             } catch (error) {
                 console.error('Error:', error);
@@ -150,7 +146,6 @@
             }
         }
 
-        // Buscar cliente
         document.getElementById('buscarCliente').addEventListener('input', function(e) {
             const query = e.target.value.toLowerCase();
             const filtradas = cuentasPendientes.filter(c =>
@@ -163,5 +158,6 @@
 
         window.marcarComoPagado = marcarComoPagado;
         cargarCuentas();
+        lucide.createIcons();
     </script>
 }

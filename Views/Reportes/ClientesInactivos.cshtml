@@ -2,17 +2,16 @@
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Clientes Inactivos";
-    ViewData["Subtitle"] = "Seguimiento de clientes sin asistencia reciente";
+    ViewData["Subtitle"] = "Seguimiento de clientes - TAURO GYM";
 }
 
 <div class="space-y-6">
-    <!-- Filtro de Días -->
-    <div class="bg-white rounded-xl shadow-md p-6">
+    <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200">
         <div class="flex flex-wrap items-end gap-4">
             <div class="flex-1 min-w-[200px]">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Días sin asistir</label>
-                <select id="dias-inactividad" onchange="filtrarPorDias()" 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-transparent">
+                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Días sin asistir</label>
+                <select id="dias-inactividad" onchange="filtrarPorDias()"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold bg-white">
                     <option value="7" selected="@(ViewBag.Dias == 7)">7 días (1 semana)</option>
                     <option value="15" selected="@(ViewBag.Dias == 15)">15 días</option>
                     <option value="30" selected="@(ViewBag.Dias == 30)">30 días (1 mes)</option>
@@ -20,8 +19,8 @@
                     <option value="90" selected="@(ViewBag.Dias == 90)">90 días (3 meses)</option>
                 </select>
             </div>
-            <button onclick="exportarLista()" 
-                    class="px-6 py-2 bg-vida-primary hover:bg-vida-accent text-vida-dark font-semibold rounded-lg transition-all">
+            <button onclick="exportarLista()"
+                    class="px-8 py-3 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
                 <i data-lucide="download" class="w-4 h-4 inline-block mr-2"></i>
                 Exportar Lista
             </button>
@@ -30,90 +29,88 @@
 
     @if (Model.Any())
     {
-        <!-- Resumen de Inactividad -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="bg-white rounded-lg shadow p-6 border-l-4 border-red-500">
+            <div class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-red-600">
                 <div class="flex items-center justify-between mb-3">
                     <div>
-                        <p class="text-sm text-gray-600 mb-1">Clientes Inactivos</p>
-                        <p class="text-3xl font-bold text-gray-800">@Model.Count()</p>
+                        <p class="text-sm text-gray-600 mb-1 font-black uppercase tracking-wide">Clientes Inactivos</p>
+                        <p class="text-4xl font-black text-gray-900">@Model.Count()</p>
                     </div>
-                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                        <i data-lucide="user-x" class="w-6 h-6 text-red-600"></i>
+                    <div class="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center">
+                        <i data-lucide="user-x" class="w-7 h-7 text-red-600"></i>
                     </div>
                 </div>
-                <p class="text-xs text-red-600 flex items-center gap-1">
+                <p class="text-xs text-red-600 flex items-center gap-1 font-bold">
                     <i data-lucide="alert-circle" class="w-3 h-3"></i>
                     Requieren atención
                 </p>
             </div>
 
-            <div class="bg-white rounded-lg shadow p-6 border-l-4 border-orange-500">
+            <div class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-orange-600">
                 <div class="flex items-center justify-between mb-3">
                     <div>
-                        <p class="text-sm text-gray-600 mb-1">Período Analizado</p>
-                        <p class="text-3xl font-bold text-gray-800">@ViewBag.Dias</p>
+                        <p class="text-sm text-gray-600 mb-1 font-black uppercase tracking-wide">Período Analizado</p>
+                        <p class="text-4xl font-black text-gray-900">@ViewBag.Dias</p>
                     </div>
-                    <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                        <i data-lucide="calendar" class="w-6 h-6 text-orange-600"></i>
+                    <div class="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center">
+                        <i data-lucide="calendar" class="w-7 h-7 text-orange-600"></i>
                     </div>
                 </div>
-                <p class="text-xs text-orange-600 flex items-center gap-1">
+                <p class="text-xs text-orange-600 flex items-center gap-1 font-bold">
                     <i data-lucide="clock" class="w-3 h-3"></i>
                     Días sin visita
                 </p>
             </div>
 
-            <div class="bg-white rounded-lg shadow p-6 border-l-4 border-yellow-500">
+            <div class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-amber-600">
                 <div class="flex items-center justify-between mb-3">
                     <div>
-                        <p class="text-sm text-gray-600 mb-1">Con Membresía</p>
-                        <p class="text-3xl font-bold text-gray-800">@Model.Count(c => c.Membresias != null && c.Membresias.Any(m => m.Estado == "activa"))</p>
+                        <p class="text-sm text-gray-600 mb-1 font-black uppercase tracking-wide">Con Membresía</p>
+                        <p class="text-4xl font-black text-gray-900">@Model.Count(c => c.Membresias != null && c.Membresias.Any(m => m.Estado == "activa"))</p>
                     </div>
-                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                        <i data-lucide="credit-card" class="w-6 h-6 text-yellow-600"></i>
+                    <div class="w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center">
+                        <i data-lucide="credit-card" class="w-7 h-7 text-amber-600"></i>
                     </div>
                 </div>
-                <p class="text-xs text-yellow-600 flex items-center gap-1">
+                <p class="text-xs text-amber-600 flex items-center gap-1 font-bold">
                     <i data-lucide="alert-triangle" class="w-3 h-3"></i>
                     Pagando pero no asisten
                 </p>
             </div>
 
-            <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
+            <div class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-blue-600">
                 <div class="flex items-center justify-between mb-3">
                     <div>
-                        <p class="text-sm text-gray-600 mb-1">Tasa de Inactividad</p>
-                        <p class="text-3xl font-bold text-gray-800">@((Model.Count() * 100.0 / (Model.Count() + 1)).ToString("F1"))%</p>
+                        <p class="text-sm text-gray-600 mb-1 font-black uppercase tracking-wide">Tasa de Inactividad</p>
+                        <p class="text-4xl font-black text-gray-900">@((Model.Count() * 100.0 / (Model.Count() + 1)).ToString("F1"))%</p>
                     </div>
-                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        <i data-lucide="percent" class="w-6 h-6 text-blue-600"></i>
+                    <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i data-lucide="percent" class="w-7 h-7 text-blue-600"></i>
                     </div>
                 </div>
-                <p class="text-xs text-blue-600 flex items-center gap-1">
+                <p class="text-xs text-blue-600 flex items-center gap-1 font-bold">
                     <i data-lucide="trending-down" class="w-3 h-3"></i>
                     Del total
                 </p>
             </div>
         </div>
 
-        <!-- Alerta de Seguimiento -->
-        <div class="bg-yellow-50 border-l-4 border-yellow-500 rounded-lg p-6">
+        <div class="bg-amber-50 border-l-4 border-amber-600 rounded-2xl p-6 border-2 border-amber-200">
             <div class="flex items-start gap-3">
-                <i data-lucide="alert-triangle" class="w-6 h-6 text-yellow-600 mt-1"></i>
+                <i data-lucide="alert-triangle" class="w-7 h-7 text-amber-600 mt-1"></i>
                 <div class="flex-1">
-                    <h3 class="text-lg font-bold text-yellow-800 mb-2">Recomendaciones de Seguimiento</h3>
-                    <ul class="space-y-2 text-sm text-yellow-700">
+                    <h3 class="text-xl font-black text-amber-900 mb-3 uppercase tracking-wide">Recomendaciones de Seguimiento</h3>
+                    <ul class="space-y-3 text-sm text-amber-800 font-semibold">
                         <li class="flex items-center gap-2">
-                            <i data-lucide="phone" class="w-4 h-4"></i>
+                            <i data-lucide="phone" class="w-5 h-5"></i>
                             Contactar a clientes con membresías activas para conocer el motivo de su inasistencia
                         </li>
                         <li class="flex items-center gap-2">
-                            <i data-lucide="gift" class="w-4 h-4"></i>
+                            <i data-lucide="gift" class="w-5 h-5"></i>
                             Ofrecer incentivos o promociones especiales para reactivar su participación
                         </li>
                         <li class="flex items-center gap-2">
-                            <i data-lucide="mail" class="w-4 h-4"></i>
+                            <i data-lucide="mail" class="w-5 h-5"></i>
                             Enviar recordatorios amigables sobre los beneficios de mantener una rutina constante
                         </li>
                     </ul>
@@ -121,62 +118,61 @@
             </div>
         </div>
 
-        <!-- Tabla de Clientes Inactivos -->
-        <div class="bg-white rounded-xl shadow-md overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-                <h3 class="text-lg font-bold text-gray-800">Listado de Clientes Inactivos</h3>
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-gray-200">
+            <div class="px-6 py-4 border-b-2 border-gray-200 flex items-center justify-between bg-gradient-to-r from-gray-900 to-black">
+                <h3 class="text-xl font-black text-white uppercase tracking-wide">Listado de Clientes Inactivos</h3>
                 <div class="flex items-center gap-2">
                     <input type="text" id="search-input" placeholder="Buscar cliente..."
-                           class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-vida-primary focus:border-transparent">
+                           class="px-4 py-2 border-2 border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
                 </div>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full" id="tabla-inactivos">
-                    <thead class="bg-gray-50 border-b border-gray-200">
+                    <thead class="bg-gray-50 border-b-2 border-gray-200">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contacto</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Estado Membresía</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Último Check-in</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                            <th class="px-6 py-4 text-left text-xs font-black text-gray-600 uppercase tracking-wider">Cliente</th>
+                            <th class="px-6 py-4 text-left text-xs font-black text-gray-600 uppercase tracking-wider">Contacto</th>
+                            <th class="px-6 py-4 text-center text-xs font-black text-gray-600 uppercase tracking-wider">Estado Membresía</th>
+                            <th class="px-6 py-4 text-center text-xs font-black text-gray-600 uppercase tracking-wider">Último Check-in</th>
+                            <th class="px-6 py-4 text-center text-xs font-black text-gray-600 uppercase tracking-wider">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody class="bg-white divide-y-2 divide-gray-200">
                         @foreach (var cliente in Model.OrderBy(c => c.Nombre))
                         {
                             var ultimoCheckIn = cliente.CheckIns?.OrderByDescending(ci => ci.FechaHora).FirstOrDefault();
                             var membresiasActivas = cliente.Membresias?.Where(m => m.Estado == "activa");
                             var tieneMembresia = membresiasActivas?.Any() ?? false;
-                            
+
                             <tr class="hover:bg-gray-50 transition-colors cliente-row">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center gap-3">
                                         @if (!string.IsNullOrEmpty(cliente.FotoBase64))
                                         {
-                                            <img src="data:image/jpeg;base64,@cliente.FotoBase64" 
-                                                 class="w-10 h-10 rounded-full object-cover border-2 border-gray-300">
+                                            <img src="data:image/jpeg;base64,@cliente.FotoBase64"
+                                                 class="w-12 h-12 rounded-full object-cover border-2 border-red-600">
                                         }
                                         else
                                         {
-                                            <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                                                <i data-lucide="user" class="w-5 h-5 text-gray-500"></i>
+                                            <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+                                                <i data-lucide="user" class="w-6 h-6 text-gray-500"></i>
                                             </div>
                                         }
                                         <div>
-                                            <div class="font-semibold text-gray-800 cliente-nombre">@cliente.Nombre @cliente.Apellido</div>
-                                            <div class="text-sm text-gray-500">Cédula: @cliente.Cedula</div>
+                                            <div class="font-black text-gray-900 cliente-nombre">@cliente.Nombre @cliente.Apellido</div>
+                                            <div class="text-sm text-gray-600 font-semibold">Cédula: @cliente.Cedula</div>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm">
-                                        <div class="text-gray-700 flex items-center gap-1">
+                                        <div class="text-gray-700 flex items-center gap-1 font-bold">
                                             <i data-lucide="phone" class="w-4 h-4"></i>
                                             @cliente.Telefono
                                         </div>
                                         @if (!string.IsNullOrEmpty(cliente.Email))
                                         {
-                                            <div class="text-gray-500 flex items-center gap-1">
+                                            <div class="text-gray-600 flex items-center gap-1 font-semibold">
                                                 <i data-lucide="mail" class="w-4 h-4"></i>
                                                 @cliente.Email
                                             </div>
@@ -186,14 +182,14 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                     @if (tieneMembresia)
                                     {
-                                        <span class="inline-flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">
+                                        <span class="inline-flex items-center gap-1 px-4 py-2 bg-amber-100 text-amber-800 font-black rounded-full uppercase text-xs tracking-wide">
                                             <i data-lucide="alert-circle" class="w-3 h-3"></i>
                                             Activa (No asiste)
                                         </span>
                                     }
                                     else
                                     {
-                                        <span class="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">
+                                        <span class="inline-flex items-center gap-1 px-4 py-2 bg-gray-100 text-gray-600 font-black rounded-full uppercase text-xs tracking-wide">
                                             <i data-lucide="x-circle" class="w-3 h-3"></i>
                                             Sin membresía
                                         </span>
@@ -204,39 +200,39 @@
                                     {
                                         var diasInactivo = (DateTime.Now - ultimoCheckIn.FechaHora).Days;
                                         <div class="text-sm">
-                                            <div class="font-semibold text-gray-800">@ultimoCheckIn.FechaHora.ToString("dd/MM/yyyy")</div>
-                                            <div class="text-red-600">Hace @diasInactivo días</div>
+                                            <div class="font-black text-gray-900">@ultimoCheckIn.FechaHora.ToString("dd/MM/yyyy")</div>
+                                            <div class="text-red-600 font-black">Hace @diasInactivo días</div>
                                         </div>
                                     }
                                     else
                                     {
-                                        <span class="text-sm text-gray-500">Sin registros</span>
+                                        <span class="text-sm text-gray-500 font-bold">Sin registros</span>
                                     }
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                     <div class="flex items-center justify-center gap-2">
-                                        <a href="/clientes/detalle/@cliente.Id" 
+                                        <a href="/clientes/detalle/@cliente.Id"
                                            class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                                            title="Ver detalle">
-                                            <i data-lucide="eye" class="w-4 h-4"></i>
+                                            <i data-lucide="eye" class="w-5 h-5"></i>
                                         </a>
                                         <button onclick="contactarCliente('@cliente.Telefono', '@cliente.Nombre')"
-                                                class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                                class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
                                                 title="Contactar">
-                                            <i data-lucide="phone" class="w-4 h-4"></i>
+                                            <i data-lucide="phone" class="w-5 h-5"></i>
                                         </button>
                                         <button onclick="enviarRecordatorio('@cliente.Email', '@cliente.Nombre')"
-                                                class="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors"
+                                                class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
                                                 title="Enviar recordatorio"
-                                                @(string.IsNullOrEmpty(cliente.Email) ? "disabled" : "")>
-                                            <i data-lucide="mail" class="w-4 h-4"></i>
+                                        @(string.IsNullOrEmpty(cliente.Email) ? "disabled" : "")>
+                                            <i data-lucide="mail" class="w-5 h-5"></i>
                                         </button>
                                         @if (tieneMembresia)
                                         {
-                                            <a href="/membresias?clienteId=@cliente.Id" 
+                                            <a href="/membresias?clienteId=@cliente.Id"
                                                class="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
                                                title="Ver membresías">
-                                                <i data-lucide="credit-card" class="w-4 h-4"></i>
+                                                <i data-lucide="credit-card" class="w-5 h-5"></i>
                                             </a>
                                         }
                                     </div>
@@ -250,25 +246,23 @@
     }
     else
     {
-        <!-- Sin Clientes Inactivos -->
-        <div class="bg-white rounded-xl shadow-md p-12 text-center">
-            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i data-lucide="check-circle" class="w-12 h-12 text-green-600"></i>
+        <div class="bg-white rounded-2xl shadow-xl p-12 text-center border-2 border-gray-200">
+            <div class="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="check-circle" class="w-14 h-14 text-emerald-600"></i>
             </div>
-            <h3 class="text-2xl font-bold text-gray-800 mb-2">¡Excelente Participación!</h3>
-            <p class="text-gray-600 text-lg">No hay clientes inactivos en los últimos @ViewBag.Dias días</p>
-            <p class="text-gray-500 mt-2">Todos los clientes mantienen una asistencia regular</p>
+            <h3 class="text-3xl font-black text-gray-900 mb-3 uppercase tracking-wide">¡Excelente Participación!</h3>
+            <p class="text-gray-600 text-lg font-bold">No hay clientes inactivos en los últimos @ViewBag.Dias días</p>
+            <p class="text-gray-500 mt-2 font-semibold">Todos los clientes mantienen una asistencia regular</p>
         </div>
     }
 </div>
 
 @section Scripts {
     <script>
-        // Búsqueda de clientes
         document.getElementById('search-input')?.addEventListener('input', function(e) {
             const search = e.target.value.toLowerCase();
             const rows = document.querySelectorAll('.cliente-row');
-            
+
             rows.forEach(row => {
                 const nombre = row.querySelector('.cliente-nombre').textContent.toLowerCase();
                 if (nombre.includes(search)) {

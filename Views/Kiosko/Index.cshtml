@@ -162,73 +162,74 @@
                         this.setState({
                             mode: 'success',
                             cliente: data.cliente,
-                            diasRestantes: data.cliente?.diasRestantes,
+                            diasRestantes: data.diasRestantes,
                             message: data.message
                         });
                     } else {
                         this.setState({
                             mode: 'error',
-                            message: data.message || 'No se encontró información'
+                            message: data.message,
+                            diasRestantes: data.diasRestantes
                         });
                     }
                 } catch (error) {
                     this.setState({
                         mode: 'error',
-                        message: 'Error de conexión. Intenta nuevamente.'
+                        message: 'Error al consultar la información. Intenta de nuevo.'
                     });
                 }
             }
 
             renderIdle() {
                 return `
-                    <div class="min-h-screen bg-gradient-to-br from-black via-tauro-gray to-tauro-dark flex flex-col items-center justify-center p-8 relative overflow-hidden">
-                        <div class="absolute inset-0 opacity-20">
-                            <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-tauro-red rounded-full blur-3xl animate-pulse"></div>
-                            <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-tauro-red rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+                    <div class="min-h-screen relative overflow-hidden" style="background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);">
+                        <div class="absolute inset-0 opacity-10">
+                            <div class="absolute top-10 left-10 w-96 h-96 bg-red-600 rounded-full filter blur-3xl"></div>
+                            <div class="absolute bottom-10 right-10 w-96 h-96 bg-gray-800 rounded-full filter blur-3xl"></div>
                         </div>
 
-                        <div class="absolute top-8 right-8 text-right z-10">
-                            <p id="clock-time" class="text-4xl font-bold text-white mb-1">00:00:00</p>
-                            <p id="clock-date" class="text-xl text-gray-400">Cargando...</p>
-                        </div>
-
-                        <div class="text-center z-10">
-                            <div class="mb-12">
-                                <div class="mb-6 flex justify-center">
-                                    <div class="w-32 h-32 bg-gradient-to-br from-tauro-red to-tauro-accent rounded-full flex items-center justify-center shadow-2xl" style="animation: glow 3s ease-in-out infinite; box-shadow: 0 0 50px rgba(227, 30, 36, 0.6);">
-                                        <span class="text-7xl">🐂</span>
-                                    </div>
+                        <div class="relative z-10 flex flex-col items-center justify-center min-h-screen px-8">
+                            <div class="text-center mb-16">
+                                <div class="inline-block mb-6 px-8 py-3 bg-gradient-to-r from-red-600 to-red-800 rounded-full">
+                                    <h1 class="text-5xl font-black tracking-widest text-white">TAURO GYM</h1>
                                 </div>
-                                <h1 class="text-8xl font-black text-white mb-4 tracking-tight" style="font-family: 'Bebas Neue', sans-serif; letter-spacing: 3px;">
-                                    TAURO <span class="text-tauro-red">GYM</span>
-                                </h1>
-                                <p class="text-3xl text-gray-400 font-light">Sistema de Check-In</p>
+                                <div class="mt-8 space-y-3">
+                                    <p id="clock-time" class="text-7xl font-bold text-white tracking-tight"></p>
+                                    <p id="clock-date" class="text-2xl text-gray-400 uppercase tracking-wide"></p>
+                                </div>
                             </div>
 
-                            <div class="mb-12 bg-tauro-red/10 border-2 border-tauro-red rounded-2xl px-12 py-8 backdrop-blur-sm">
-                                <div class="mb-6 flex justify-center">
-                                    <div class="relative">
-                                        <div class="absolute inset-0 bg-tauro-red rounded-full blur-2xl opacity-50 animate-pulse"></div>
-                                        <div class="relative bg-gradient-to-br from-tauro-red to-tauro-accent p-12 rounded-full">
-                                            <svg class="w-24 h-24 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path>
-                                            </svg>
+                            <div class="w-full max-w-2xl">
+                                <div class="bg-gradient-to-br from-gray-900 to-black border-2 border-red-600 rounded-3xl p-12 shadow-2xl">
+                                    <div class="text-center space-y-8">
+                                        <div class="flex justify-center">
+                                            <div class="relative">
+                                                <div class="w-32 h-32 bg-red-600 rounded-full flex items-center justify-center animate-pulse">
+                                                    <svg class="w-20 h-20 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+                                                    </svg>
+                                                </div>
+                                                <div class="absolute inset-0 w-32 h-32 bg-red-600 rounded-full animate-ping opacity-20"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="space-y-4">
+                                            <h2 class="text-4xl font-bold text-white uppercase tracking-wider">Sistema de Acceso</h2>
+                                            <p class="text-2xl text-gray-300">Coloca tu huella para ingresar</p>
+                                        </div>
+
+                                        <div class="pt-6 border-t border-gray-800">
+                                            <button onclick="app.setState({ mode: 'cedula', message: '' })"
+                                                class="w-full py-5 bg-gray-800 hover:bg-gray-700 text-white rounded-xl text-xl font-semibold transition-all duration-300 transform hover:scale-105 border border-gray-700">
+                                                Ingresar con Cédula
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
-                                <h2 class="text-4xl font-bold text-white mb-3">Coloca tu dedo en el sensor</h2>
-                                <p class="text-2xl text-tauro-red mb-4">✓ Esperando huella...</p>
-                                <p class="text-lg text-gray-400">El sistema detectará tu huella automáticamente</p>
                             </div>
 
-                            <div class="mt-8">
-                                <button onclick="app.stopFingerprintDetection(); app.setState({ mode: 'cedula' });"
-                                    class="px-10 py-4 bg-white/10 hover:bg-white/20 border-2 border-white/30 text-white rounded-xl text-xl font-semibold transition-all backdrop-blur-sm">
-                                    <svg class="w-6 h-6 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path>
-                                    </svg>
-                                    Consultar con Cédula
-                                </button>
+                            <div class="mt-12 text-center">
+                                <p class="text-gray-500 text-lg">Horario: Lunes a Domingo 5:00 AM - 11:00 PM</p>
                             </div>
                         </div>
                     </div>
@@ -237,45 +238,60 @@
 
             renderCedula() {
                 return `
-                    <div class="min-h-screen bg-gradient-to-br from-black via-tauro-gray to-tauro-dark flex flex-col items-center justify-center p-8">
-                        ${this.state.message ? `
-                            <div class="mb-6 bg-yellow-500/20 border-2 border-yellow-500 rounded-xl px-6 py-4 max-w-2xl">
-                                <p class="text-yellow-300 text-xl text-center">⚠️ ${this.state.message}</p>
-                            </div>
-                        ` : ''}
+                    <div class="min-h-screen relative overflow-hidden" style="background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);">
+                        <div class="absolute inset-0 opacity-10">
+                            <div class="absolute top-10 left-10 w-96 h-96 bg-red-600 rounded-full filter blur-3xl"></div>
+                            <div class="absolute bottom-10 right-10 w-96 h-96 bg-gray-800 rounded-full filter blur-3xl"></div>
+                        </div>
 
-                        <div class="text-center max-w-2xl w-full">
-                            <div class="mb-8">
-                                <div class="bg-white/10 p-8 rounded-full inline-block mb-6 backdrop-blur-sm">
-                                    <svg class="w-20 h-20 text-tauro-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path>
-                                    </svg>
+                        <div class="relative z-10 flex flex-col items-center justify-center min-h-screen px-8">
+                            <div class="text-center mb-12">
+                                <div class="inline-block mb-6 px-8 py-3 bg-gradient-to-r from-red-600 to-red-800 rounded-full">
+                                    <h1 class="text-4xl font-black tracking-widest text-white">TAURO GYM</h1>
                                 </div>
-                                <h2 class="text-5xl font-bold text-white mb-4">Consulta tu Información</h2>
-                                <p class="text-2xl text-gray-400">Ingresa tu cédula sin guiones</p>
                             </div>
 
-                            <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border-2 border-white/10">
-                                <input type="text" id="cedula-input" value="${this.state.cedula}"
-                                    oninput="app.setState({ cedula: this.value })"
-                                    onkeypress="if(event.key === 'Enter') app.handleCedulaConsulta()"
-                                    placeholder="Ejemplo: 0011234567"
-                                    class="w-full px-6 py-6 text-4xl text-center bg-white/10 border-2 border-tauro-red rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-tauro-red/50"
-                                    autofocus />
+                            <div class="w-full max-w-2xl">
+                                <div class="bg-gradient-to-br from-gray-900 to-black border-2 border-red-600 rounded-3xl p-12 shadow-2xl">
+                                    <div class="text-center space-y-8">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 h-24 bg-red-600 rounded-full flex items-center justify-center">
+                                                <svg class="w-14 h-14 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                                </svg>
+                                            </div>
+                                        </div>
 
-                                <button onclick="app.handleCedulaConsulta()"
-                                    class="w-full mt-6 px-8 py-5 bg-gradient-to-r from-tauro-red to-tauro-accent hover:from-tauro-accent hover:to-tauro-red text-white rounded-xl text-2xl font-bold transition-all shadow-lg">
-                                    Consultar
-                                </button>
+                                        <div class="space-y-3">
+                                            <h2 class="text-3xl font-bold text-white uppercase">Identificación Manual</h2>
+                                            ${this.state.message ? `<p class="text-xl text-red-400">${this.state.message}</p>` : ''}
+                                        </div>
+
+                                        <div class="space-y-6">
+                                            <div>
+                                                <label class="block text-left text-lg text-gray-400 mb-3 font-semibold">Número de Cédula</label>
+                                                <input type="text"
+                                                    id="cedula-input"
+                                                    value="${this.state.cedula}"
+                                                    oninput="app.state.cedula = this.value; app.render();"
+                                                    onkeypress="if(event.key === 'Enter') app.handleCedulaConsulta()"
+                                                    placeholder="Ingresa tu número de cédula"
+                                                    class="w-full px-6 py-5 bg-gray-800 border-2 border-gray-700 rounded-xl text-white text-2xl text-center focus:border-red-600 focus:outline-none transition-all"/>
+                                            </div>
+
+                                            <button onclick="app.handleCedulaConsulta()"
+                                                class="w-full py-5 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white rounded-xl text-xl font-bold transition-all duration-300 transform hover:scale-105 shadow-lg">
+                                                VERIFICAR IDENTIDAD
+                                            </button>
+
+                                            <button onclick="app.reset(); app.startFingerprintDetection();"
+                                                class="w-full py-4 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-lg font-semibold transition-all duration-300 border border-gray-700">
+                                                Volver a Huella Dactilar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-
-                            <button onclick="app.reset(); app.startFingerprintDetection();"
-                                class="mt-8 px-8 py-4 bg-white/10 hover:bg-white/20 border-2 border-white/30 text-white rounded-xl text-xl font-semibold transition-all">
-                                <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                                </svg>
-                                Volver a Huella
-                            </button>
                         </div>
                     </div>
                 `;
@@ -283,26 +299,33 @@
 
             renderScanning() {
                 return `
-                    <div class="min-h-screen bg-gradient-to-br from-black via-tauro-gray to-tauro-dark flex items-center justify-center p-8">
-                        <div class="text-center">
-                            <div class="mb-8 flex justify-center">
-                                <div class="relative">
-                                    <div class="absolute inset-0 bg-tauro-red rounded-full blur-2xl opacity-50 animate-pulse"></div>
-                                    <div class="relative bg-gradient-to-br from-tauro-red to-tauro-accent p-16 rounded-full">
-                                        <svg class="w-32 h-32 text-white animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                        </svg>
+                    <div class="min-h-screen relative overflow-hidden" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);">
+                        <div class="absolute inset-0 opacity-20">
+                            <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-600 rounded-full filter blur-3xl animate-pulse"></div>
+                            <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-600 rounded-full filter blur-3xl animate-pulse" style="animation-delay: 0.5s;"></div>
+                        </div>
+
+                        <div class="relative z-10 flex items-center justify-center min-h-screen px-8">
+                            <div class="text-center">
+                                <div class="mb-12 flex justify-center">
+                                    <div class="relative">
+                                        <div class="w-48 h-48 border-8 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <svg class="w-24 h-24 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                            </svg>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <h2 class="text-5xl font-bold text-white mb-4">${this.state.message}</h2>
-                            <p class="text-2xl text-gray-400">Por favor espera...</p>
+                                <h2 class="text-5xl font-black text-white mb-6 uppercase tracking-wide">${this.state.message}</h2>
+                                <p class="text-2xl text-cyan-300 font-semibold">Procesando...</p>
 
-                            <div class="flex justify-center gap-2 mt-8">
-                                <div class="w-3 h-3 bg-tauro-red rounded-full animate-bounce"></div>
-                                <div class="w-3 h-3 bg-tauro-red rounded-full animate-bounce" style="animation-delay: 0.1s;"></div>
-                                <div class="w-3 h-3 bg-tauro-red rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
+                                <div class="flex justify-center gap-3 mt-10">
+                                    <div class="w-4 h-4 bg-cyan-500 rounded-full animate-bounce shadow-lg shadow-cyan-500/50"></div>
+                                    <div class="w-4 h-4 bg-cyan-500 rounded-full animate-bounce shadow-lg shadow-cyan-500/50" style="animation-delay: 0.15s;"></div>
+                                    <div class="w-4 h-4 bg-cyan-500 rounded-full animate-bounce shadow-lg shadow-cyan-500/50" style="animation-delay: 0.3s;"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -312,62 +335,87 @@
             renderSuccess() {
                 const { cliente, diasRestantes, similarity } = this.state;
                 return `
-                    <div class="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-black flex items-center justify-center p-8">
-                        <div class="text-center max-w-3xl">
-                            <div class="mb-8 flex justify-center">
-                                <div class="bg-green-500 p-12 rounded-full shadow-2xl">
-                                    <svg class="w-32 h-32 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                </div>
-                            </div>
+                    <div class="min-h-screen relative overflow-hidden" style="background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%);">
+                        <div class="absolute inset-0 opacity-20">
+                            <div class="absolute top-10 right-10 w-96 h-96 bg-emerald-400 rounded-full filter blur-3xl"></div>
+                            <div class="absolute bottom-10 left-10 w-96 h-96 bg-green-500 rounded-full filter blur-3xl"></div>
+                        </div>
 
-                            ${cliente?.fotoBase64 ? `
-                                <div class="mb-6 flex justify-center">
-                                    <img src="${cliente.fotoBase64.startsWith('data:') ? cliente.fotoBase64 : 'data:image/jpeg;base64,' + cliente.fotoBase64}"
-                                         class="w-40 h-40 rounded-full border-4 border-green-400 shadow-xl object-cover"/>
-                                </div>
-                            ` : ''}
-
-                            <h2 class="text-6xl font-black text-white mb-4">¡BIENVENIDO!</h2>
-                            <p class="text-4xl text-green-300 mb-8 font-bold">${cliente?.nombre || ''}</p>
-
-                            <div class="bg-black/50 rounded-2xl px-10 py-8 border-2 ${
-                                diasRestantes !== null && diasRestantes !== undefined ?
-                                    (diasRestantes <= 3 ? 'border-yellow-500' : 'border-green-500')
-                                : 'border-red-500'
-                            } mb-6">
-                                <div class="mb-4">
-                                    <p class="text-xl text-gray-300 mb-2">Estado de Membresía</p>
-                                    <p class="text-4xl font-bold ${
-                                        diasRestantes !== null && diasRestantes !== undefined ? 'text-green-400' : 'text-red-400'
-                                    }">
-                                        ${this.state.message}
-                                    </p>
+                        <div class="relative z-10 flex items-center justify-center min-h-screen px-8">
+                            <div class="text-center max-w-4xl">
+                                <div class="mb-10 flex justify-center">
+                                    <div class="relative">
+                                        <div class="w-40 h-40 bg-emerald-500 rounded-full flex items-center justify-center shadow-2xl">
+                                            <svg class="w-24 h-24 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                        </div>
+                                        <div class="absolute inset-0 w-40 h-40 bg-emerald-500 rounded-full animate-ping opacity-20"></div>
+                                    </div>
                                 </div>
 
-                                ${diasRestantes !== null && diasRestantes !== undefined ? `
-                                    <div class="border-t-2 border-gray-700 pt-4 mt-4">
-                                        <p class="text-lg text-gray-400 mb-2">
-                                            ${diasRestantes <= 7 ? '⚠️ Tiempo restante' : '✓ Tiempo restante'}
-                                        </p>
-                                        <p class="text-5xl font-bold ${
-                                            diasRestantes <= 3 ? 'text-yellow-400' : 'text-green-400'
+                                ${cliente?.fotoBase64 ? `
+                                    <div class="mb-8 flex justify-center">
+                                        <div class="relative">
+                                            <img src="${cliente.fotoBase64.startsWith('data:') ? cliente.fotoBase64 : 'data:image/jpeg;base64,' + cliente.fotoBase64}"
+                                                 class="w-48 h-48 rounded-full border-4 border-emerald-400 shadow-2xl object-cover"/>
+                                            <div class="absolute -bottom-2 -right-2 w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center border-4 border-green-800">
+                                                <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ` : ''}
+
+                                <h2 class="text-6xl font-black text-white mb-4 uppercase tracking-wider">¡Bienvenido!</h2>
+                                <p class="text-5xl text-emerald-300 mb-10 font-bold">${cliente?.nombre || ''}</p>
+
+                                <div class="bg-black/40 backdrop-blur-sm rounded-3xl px-12 py-10 border-2 ${
+                                    diasRestantes !== null && diasRestantes !== undefined ?
+                                        (diasRestantes <= 3 ? 'border-yellow-400' : 'border-emerald-400')
+                                    : 'border-red-500'
+                                } mb-8">
+                                    <div class="mb-6">
+                                        <p class="text-xl text-gray-300 mb-3 uppercase tracking-wide font-semibold">Estado de Membresía</p>
+                                        <p class="text-4xl font-black ${
+                                            diasRestantes !== null && diasRestantes !== undefined ? 'text-emerald-300' : 'text-red-400'
                                         }">
-                                            ${diasRestantes} ${diasRestantes === 1 ? 'día' : 'días'}
+                                            ${this.state.message}
+                                        </p>
+                                    </div>
+
+                                    ${diasRestantes !== null && diasRestantes !== undefined ? `
+                                        <div class="border-t-2 border-gray-700/50 pt-6 mt-6">
+                                            <p class="text-lg text-gray-400 mb-3 uppercase tracking-wide">
+                                                ${diasRestantes <= 7 ? 'Tiempo restante' : 'Vigencia'}
+                                            </p>
+                                            <p class="text-6xl font-black ${
+                                                diasRestantes <= 3 ? 'text-yellow-400' : 'text-emerald-400'
+                                            }">
+                                                ${diasRestantes} ${diasRestantes === 1 ? 'DÍA' : 'DÍAS'}
+                                            </p>
+                                            ${diasRestantes <= 7 ? `
+                                                <p class="text-yellow-400 text-lg mt-4 font-semibold">
+                                                    Renueva pronto tu membresía
+                                                </p>
+                                            ` : ''}
+                                        </div>
+                                    ` : ''}
+                                </div>
+
+                                ${similarity ? `
+                                    <div class="mb-8 inline-block px-6 py-3 bg-black/30 rounded-full border border-emerald-500/30">
+                                        <p class="text-emerald-300 font-semibold">
+                                            Verificación: ${similarity.toFixed(1)}% de coincidencia
                                         </p>
                                     </div>
                                 ` : ''}
-                            </div>
 
-                            ${similarity ? `
-                                <div class="mt-4 text-sm text-gray-400">
-                                    <p>🔐 Verificación biométrica: ${similarity.toFixed(1)}% de coincidencia</p>
+                                <div class="mt-8">
+                                    <p class="text-3xl text-white font-bold">¡Disfruta tu entrenamiento!</p>
+                                    <p class="text-xl text-emerald-300 mt-3">Da lo mejor de ti</p>
                                 </div>
-                            ` : ''}
-
-                            <div class="mt-6 text-gray-400">
-                                <p class="text-2xl">¡Disfruta tu entrenamiento! 💪</p>
                             </div>
                         </div>
                     </div>
@@ -377,40 +425,58 @@
             renderError() {
                 const { diasRestantes } = this.state;
                 return `
-                    <div class="min-h-screen bg-gradient-to-br from-red-900 via-red-800 to-black flex items-center justify-center p-8">
-                        <div class="text-center max-w-3xl">
-                            <div class="mb-8 flex justify-center">
-                                <div class="bg-red-500 p-12 rounded-full shadow-2xl">
-                                    <svg class="w-32 h-32 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                </div>
-                            </div>
+                    <div class="min-h-screen relative overflow-hidden" style="background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 50%, #b91c1c 100%);">
+                        <div class="absolute inset-0 opacity-20">
+                            <div class="absolute top-10 left-10 w-96 h-96 bg-red-500 rounded-full filter blur-3xl"></div>
+                            <div class="absolute bottom-10 right-10 w-96 h-96 bg-orange-600 rounded-full filter blur-3xl"></div>
+                        </div>
 
-                            <h2 class="text-6xl font-black text-white mb-4">ACCESO DENEGADO</h2>
-
-                            <div class="bg-black/50 rounded-xl px-12 py-8 max-w-2xl mx-auto border-2 border-red-500 mb-8">
-                                <svg class="w-16 h-16 text-red-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                                </svg>
-                                <p class="text-3xl text-red-300 mb-4 font-semibold">${this.state.message}</p>
-
-                                ${diasRestantes !== null && diasRestantes !== undefined && diasRestantes < 0 ? `
-                                    <div class="border-t-2 border-red-700 pt-4 mt-4">
-                                        <p class="text-lg text-red-400 mb-2">⛔ Vencida hace</p>
-                                        <p class="text-3xl font-bold text-red-400">
-                                            ${Math.abs(diasRestantes)} ${Math.abs(diasRestantes) === 1 ? 'día' : 'días'}
-                                        </p>
+                        <div class="relative z-10 flex items-center justify-center min-h-screen px-8">
+                            <div class="text-center max-w-3xl">
+                                <div class="mb-10 flex justify-center">
+                                    <div class="relative">
+                                        <div class="w-40 h-40 bg-red-600 rounded-full flex items-center justify-center shadow-2xl">
+                                            <svg class="w-24 h-24 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                        </div>
+                                        <div class="absolute inset-0 w-40 h-40 bg-red-600 rounded-full animate-ping opacity-20"></div>
                                     </div>
-                                ` : ''}
+                                </div>
 
-                                <p class="text-xl text-gray-400 mt-6">📞 Dirígete a recepción para asistencia</p>
+                                <h2 class="text-6xl font-black text-white mb-8 uppercase tracking-wider">Acceso Denegado</h2>
+
+                                <div class="bg-black/40 backdrop-blur-sm rounded-3xl px-12 py-10 border-2 border-red-500 mb-10">
+                                    <div class="mb-6 flex justify-center">
+                                        <div class="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center">
+                                            <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+
+                                    <p class="text-3xl text-red-200 mb-4 font-bold">${this.state.message}</p>
+
+                                    ${diasRestantes !== null && diasRestantes !== undefined && diasRestantes < 0 ? `
+                                        <div class="border-t-2 border-red-700/50 pt-6 mt-6">
+                                            <p class="text-lg text-red-300 mb-3 uppercase tracking-wide font-semibold">Membresía Vencida</p>
+                                            <p class="text-5xl font-black text-red-300">
+                                                ${Math.abs(diasRestantes)} ${Math.abs(diasRestantes) === 1 ? 'DÍA' : 'DÍAS'}
+                                            </p>
+                                            <p class="text-red-200 text-lg mt-3">desde su vencimiento</p>
+                                        </div>
+                                    ` : ''}
+
+                                    <div class="mt-8 pt-6 border-t border-red-700/50">
+                                        <p class="text-xl text-red-200 font-semibold">Dirígete a recepción para asistencia</p>
+                                    </div>
+                                </div>
+
+                                <button onclick="app.reset(); app.startFingerprintDetection();"
+                                    class="px-12 py-5 bg-gray-900 hover:bg-gray-800 text-white rounded-xl text-xl font-bold transition-all duration-300 transform hover:scale-105 border-2 border-gray-700">
+                                    VOLVER AL INICIO
+                                </button>
                             </div>
-
-                            <button onclick="app.reset(); app.startFingerprintDetection();"
-                                class="px-12 py-4 bg-gray-700 hover:bg-gray-600 text-white rounded-xl text-2xl font-bold transition-all">
-                                Volver al Inicio
-                            </button>
                         </div>
                     </div>
                 `;

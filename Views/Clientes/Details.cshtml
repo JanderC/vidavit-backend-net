@@ -2,99 +2,95 @@
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = $"{Model.Nombre} {Model.Apellido}";
-    ViewData["Subtitle"] = "Información detallada del cliente";
+    ViewData["Subtitle"] = "Perfil del Cliente - TAURO GYM";
 }
 
 <div class="space-y-6">
-    <!-- Header con acciones -->
     <div class="flex items-center justify-between">
-        <a href="/clientes" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-800">
-            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <a href="/clientes" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 font-bold uppercase tracking-wide">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i>
             Volver a Clientes
         </a>
 
-        <div class="flex gap-2">
+        <div class="flex gap-3">
             <a href="/clientes/edit/@Model.Id"
-               class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors inline-flex items-center gap-2">
-                <i data-lucide="edit" class="w-4 h-4"></i>
+               class="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-xl transition-all inline-flex items-center gap-2 font-black uppercase tracking-wide shadow-lg">
+                <i data-lucide="edit" class="w-5 h-5"></i>
                 Editar
             </a>
         </div>
     </div>
 
-    <!-- Información Principal -->
-    <div class="bg-white rounded-xl shadow-md p-6">
-        <div class="flex items-start gap-6">
-            <!-- Foto -->
+    <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
+        <div class="flex items-start gap-8">
             <div class="flex-shrink-0">
                 @if (!string.IsNullOrEmpty(Model.FotoBase64))
                 {
                     <img src="data:image/jpeg;base64,@Model.FotoBase64"
-                         class="w-32 h-32 rounded-lg object-cover border-2 border-gray-300" alt="@Model.Nombre">
+                         class="w-40 h-40 rounded-2xl object-cover border-4 border-red-600 shadow-xl" alt="@Model.Nombre">
                 }
                 else
                 {
-                    <div class="w-32 h-32 rounded-lg bg-gray-100 border-2 border-gray-300 flex items-center justify-center">
-                        <i data-lucide="user" class="w-16 h-16 text-gray-400"></i>
+                    <div class="w-40 h-40 rounded-2xl bg-gray-200 border-4 border-gray-400 flex items-center justify-center">
+                        <i data-lucide="user" class="w-20 h-20 text-gray-500"></i>
                     </div>
                 }
             </div>
 
-            <!-- Información -->
             <div class="flex-1">
-                <h2 class="text-3xl font-bold text-gray-800 mb-2">@Model.Nombre @Model.Apellido</h2>
+                <h2 class="text-4xl font-black text-gray-900 mb-4 uppercase tracking-wide">@Model.Nombre @Model.Apellido</h2>
 
-                <div class="grid grid-cols-2 gap-4 mt-4">
+                <div class="grid grid-cols-2 gap-6 mt-6">
                     <div>
-                        <p class="text-sm text-gray-500">Cédula</p>
-                        <p class="font-semibold">@Model.Cedula</p>
+                        <p class="text-sm text-gray-500 font-bold uppercase tracking-wide">Cédula</p>
+                        <p class="font-black text-lg text-gray-900">@Model.Cedula</p>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-500">Teléfono</p>
-                        <p class="font-semibold">@Model.Telefono</p>
+                        <p class="text-sm text-gray-500 font-bold uppercase tracking-wide">Teléfono</p>
+                        <p class="font-black text-lg text-gray-900">@Model.Telefono</p>
                     </div>
                     @if (!string.IsNullOrEmpty(Model.Email))
                     {
                         <div>
-                            <p class="text-sm text-gray-500">Email</p>
-                            <p class="font-semibold">@Model.Email</p>
+                            <p class="text-sm text-gray-500 font-bold uppercase tracking-wide">Email</p>
+                            <p class="font-black text-lg text-gray-900">@Model.Email</p>
                         </div>
                     }
                     @if (Model.FechaNacimiento.HasValue)
                     {
                         <div>
-                            <p class="text-sm text-gray-500">Fecha de Nacimiento</p>
-                            <p class="font-semibold">@Model.FechaNacimiento.Value.ToString("dd/MM/yyyy")</p>
+                            <p class="text-sm text-gray-500 font-bold uppercase tracking-wide">Fecha de Nacimiento</p>
+                            <p class="font-black text-lg text-gray-900">@Model.FechaNacimiento.Value.ToString("dd/MM/yyyy")</p>
                         </div>
                     }
                 </div>
 
                 @if (!string.IsNullOrEmpty(Model.Direccion))
                 {
-                    <div class="mt-4">
-                        <p class="text-sm text-gray-500">Dirección</p>
-                        <p class="font-semibold">@Model.Direccion</p>
+                    <div class="mt-6">
+                        <p class="text-sm text-gray-500 font-bold uppercase tracking-wide">Dirección</p>
+                        <p class="font-black text-lg text-gray-900">@Model.Direccion</p>
                     </div>
                 }
 
-                <div class="mt-4">
+                <div class="mt-6 flex gap-3">
                     @if (Model.Activo)
                     {
-                        <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-semibold rounded-full">
-                            <i data-lucide="check-circle" class="w-3 h-3 inline"></i> Activo
+                        <span class="px-4 py-2 bg-emerald-100 text-emerald-800 font-black rounded-full inline-flex items-center gap-2 uppercase tracking-wide">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i> Activo
                         </span>
                     }
                     else
                     {
-                        <span class="px-3 py-1 bg-red-100 text-red-800 text-sm font-semibold rounded-full">
-                            <i data-lucide="x-circle" class="w-3 h-3 inline"></i> Inactivo
+                        <span class="px-4 py-2 bg-red-100 text-red-800 font-black rounded-full inline-flex items-center gap-2 uppercase tracking-wide">
+                            <i data-lucide="x-circle" class="w-4 h-4"></i> Inactivo
                         </span>
                     }
 
                     @if (!string.IsNullOrEmpty(Model.HuellaTemplate))
                     {
-                        <span class="ml-2 px-3 py-1 bg-purple-100 text-purple-800 text-sm font-semibold rounded-full">
-                            <i data-lucide="fingerprint" class="w-3 h-3 inline"></i> Con Huella
+                        <span class="px-4 py-2 bg-purple-100 text-purple-800 font-black rounded-full inline-flex items-center gap-2 uppercase tracking-wide">
+                            <i data-lucide="fingerprint" class="w-4 h-4"></i> Con Huella
                         </span>
                     }
                 </div>
@@ -102,39 +98,37 @@
         </div>
     </div>
 
-    <!-- Membresías -->
-    <div class="bg-white rounded-xl shadow-md p-6">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                <i data-lucide="credit-card" class="w-5 h-5 text-vida-primary"></i>
+    <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-2xl font-black text-gray-900 flex items-center gap-2 uppercase tracking-wide">
+                <i data-lucide="credit-card" class="w-6 h-6 text-red-600"></i>
                 Membresías
             </h3>
             <button onclick="window.location.href='/membresias/crear?clienteId=@Model.Id'"
-                    class="px-4 py-2 bg-vida-primary hover:bg-vida-accent text-vida-dark font-semibold rounded-lg transition-all inline-flex items-center gap-2">
-                <i data-lucide="plus" class="w-4 h-4"></i>
+                    class="px-6 py-3 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all inline-flex items-center gap-2 uppercase tracking-wide shadow-lg">
+                <i data-lucide="plus" class="w-5 h-5"></i>
                 Nueva Membresía
             </button>
         </div>
 
         <div id="membresias-list" class="space-y-3">
             <div class="text-center py-8 text-gray-500">
-                <i data-lucide="loader" class="w-8 h-8 mx-auto mb-2 animate-spin"></i>
-                <p>Cargando membresías...</p>
+                <i data-lucide="loader" class="w-10 h-10 mx-auto mb-2 animate-spin"></i>
+                <p class="font-bold">Cargando membresías...</p>
             </div>
         </div>
     </div>
 
-    <!-- Historial de Check-ins -->
-    <div class="bg-white rounded-xl shadow-md p-6">
-        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <i data-lucide="history" class="w-5 h-5 text-vida-primary"></i>
+    <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
+        <h3 class="text-2xl font-black text-gray-900 mb-6 flex items-center gap-2 uppercase tracking-wide">
+            <i data-lucide="history" class="w-6 h-6 text-red-600"></i>
             Historial de Check-ins
         </h3>
 
         <div id="checkins-list" class="space-y-2">
             <div class="text-center py-8 text-gray-500">
-                <i data-lucide="loader" class="w-8 h-8 mx-auto mb-2 animate-spin"></i>
-                <p>Cargando historial...</p>
+                <i data-lucide="loader" class="w-10 h-10 mx-auto mb-2 animate-spin"></i>
+                <p class="font-bold">Cargando historial...</p>
             </div>
         </div>
     </div>
@@ -145,7 +139,6 @@
         const API_URL = '/api';
         const clienteId = '@Model.Id';
 
-        // Cargar membresías
         async function loadMembresias() {
             try {
                 const response = await fetch(`${API_URL}/Clientes/${clienteId}/membresias`);
@@ -157,7 +150,7 @@
                     container.innerHTML = `
                         <div class="text-center py-8 text-gray-500">
                             <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-2 text-gray-400"></i>
-                            <p>No hay membresías registradas</p>
+                            <p class="font-bold">No hay membresías registradas</p>
                         </div>
                     `;
                 } else {
@@ -186,24 +179,24 @@
                         }
 
                         return `
-                            <div class="p-4 border border-gray-200 rounded-lg hover:border-vida-primary transition-colors">
+                            <div class="p-5 border-2 border-gray-200 rounded-xl hover:border-red-600 transition-all">
                                 <div class="flex items-center justify-between">
                                     <div class="flex-1">
                                         <div class="flex items-center gap-2 mb-2">
-                                            <span class="font-semibold text-gray-800">${m.plan?.nombre || 'Plan'}</span>
-                                            <span class="px-2 py-1 ${estadoClass} text-xs font-semibold rounded-full inline-flex items-center gap-1">
+                                            <span class="font-black text-gray-900 text-lg">${m.plan?.nombre || 'Plan'}</span>
+                                            <span class="px-3 py-1 ${estadoClass} font-black rounded-full inline-flex items-center gap-1 uppercase text-xs">
                                                 <i data-lucide="${estadoIcon}" class="w-3 h-3"></i>
                                                 ${m.estado}
                                             </span>
                                         </div>
-                                        <div class="text-sm text-gray-600">
+                                        <div class="text-sm text-gray-600 font-semibold">
                                             <span>Inicio: ${new Date(m.fechaInicio).toLocaleDateString('es-ES')}</span>
                                             <span class="mx-2">•</span>
                                             <span>Vence: ${fechaVenc.toLocaleDateString('es-ES')}</span>
-                                            ${m.estado === 'activa' ? `<span class="mx-2">•</span><span class="font-semibold">${diasRestantes} días restantes</span>` : ''}
+                                            ${m.estado === 'activa' ? `<span class="mx-2">•</span><span class="font-black text-red-600">${diasRestantes} días restantes</span>` : ''}
                                         </div>
-                                        <div class="text-sm text-gray-500 mt-1">
-                                            Monto: <span class="font-semibold">$${m.montoPagado.toFixed(2)}</span>
+                                        <div class="text-sm text-gray-700 mt-1 font-bold">
+                                            Monto: <span class="text-emerald-600">$${m.montoPagado.toFixed(2)}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -218,7 +211,6 @@
             }
         }
 
-        // Cargar check-ins
         async function loadCheckIns() {
             try {
                 const response = await fetch(`${API_URL}/CheckIn/cliente/${clienteId}?limit=20`);
@@ -231,25 +223,25 @@
                     container.innerHTML = `
                         <div class="text-center py-8 text-gray-500">
                             <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-2 text-gray-400"></i>
-                            <p>No hay check-ins registrados</p>
+                            <p class="font-bold">No hay check-ins registrados</p>
                         </div>
                     `;
                 } else {
                     container.innerHTML = checkIns.map(ci => {
                         const fecha = new Date(ci.fechaHora);
-                        const iconClass = ci.exitoso ? 'text-green-500' : 'text-red-500';
+                        const iconClass = ci.exitoso ? 'text-emerald-600' : 'text-red-600';
                         const icon = ci.exitoso ? 'check-circle' : 'x-circle';
 
                         return `
-                            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                            <div class="flex items-center justify-between p-4 border-2 border-gray-200 rounded-xl hover:bg-gray-50 transition-all">
                                 <div class="flex items-center gap-3">
-                                    <i data-lucide="${icon}" class="w-5 h-5 ${iconClass}"></i>
+                                    <i data-lucide="${icon}" class="w-6 h-6 ${iconClass}"></i>
                                     <div>
-                                        <p class="font-semibold text-gray-800">${fecha.toLocaleDateString('es-ES')} ${fecha.toLocaleTimeString('es-ES')}</p>
-                                        <p class="text-sm text-gray-600">${ci.nota || 'Check-in exitoso'}</p>
+                                        <p class="font-black text-gray-900">${fecha.toLocaleDateString('es-ES')} ${fecha.toLocaleTimeString('es-ES')}</p>
+                                        <p class="text-sm text-gray-600 font-semibold">${ci.nota || 'Check-in exitoso'}</p>
                                     </div>
                                 </div>
-                                <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-semibold rounded">
+                                <span class="px-3 py-1 bg-gray-200 text-gray-800 font-black rounded-full uppercase text-xs">
                                     ${ci.metodo}
                                 </span>
                             </div>
@@ -263,7 +255,6 @@
             }
         }
 
-        // Cargar datos al iniciar
         window.addEventListener('load', function() {
             loadMembresias();
             loadCheckIns();

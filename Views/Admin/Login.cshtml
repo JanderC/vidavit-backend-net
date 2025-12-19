@@ -10,7 +10,7 @@
     <title>Iniciar Sesión - TAURO GYM</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -32,111 +32,121 @@
 
         h1, h2 {
             font-family: 'Bebas Neue', sans-serif;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
         }
 
-        {
-            box-shadow: 0 0 20px rgba(227, 30, 36, 0.5);
+
+        .logo-container {
+            animation: pulse-glow 3s ease-in-out infinite;
         }
 
-        50% {
-            box-shadow: 0 0 40px rgba(227, 30, 36, 0.8);
-        }
-
-        }
-
-        .bull-logo {
-            animation: glow 3s ease-in-out infinite;
+        .grid-pattern {
+            background-image:
+                linear-gradient(rgba(227, 30, 36, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(227, 30, 36, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
         }
     </style>
 </head>
 <body>
-    <div class="min-h-screen bg-gradient-to-br from-tauro-dark via-tauro-gray to-black flex items-center justify-center p-4 relative overflow-hidden">
-        <!-- Efectos de fondo -->
-        <div class="absolute inset-0 opacity-10">
-            <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-tauro-red rounded-full blur-3xl"></div>
-            <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-tauro-red rounded-full blur-3xl"></div>
+    <div class="min-h-screen bg-black relative overflow-hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 grid-pattern"></div>
+
+        <div class="absolute inset-0 opacity-20">
+            <div class="absolute top-0 left-1/4 w-96 h-96 bg-red-600 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-red-800 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
         </div>
 
         <div class="w-full max-w-md relative z-10">
-            <!-- Logo -->
-            <div class="text-center mb-8">
-                <div class="mb-6 flex justify-center">
-                    <div class="w-24 h-24 bg-gradient-to-br from-tauro-red to-tauro-accent rounded-full flex items-center justify-center bull-logo shadow-2xl">
-                        <span class="text-5xl">🐂</span>
+            <div class="text-center mb-10">
+                <div class="mb-8 flex justify-center">
+                    <div class="logo-container inline-block px-10 py-5 bg-gradient-to-r from-red-600 to-red-800 rounded-2xl transform hover:scale-105 transition-transform duration-300">
+                        <h1 class="text-6xl font-black text-white tracking-widest">
+                            TAURO GYM
+                        </h1>
                     </div>
                 </div>
-                <h1 class="text-7xl font-black text-white mb-2">
-                    TAURO <span class="text-tauro-red">GYM</span>
-                </h1>
-                <p class="text-gray-400 uppercase tracking-widest text-sm">Panel Administrativo</p>
+                <div class="inline-block px-6 py-2 bg-gray-900 border border-red-600 rounded-full">
+                    <p class="text-red-500 uppercase tracking-widest text-sm font-bold">Panel Administrativo</p>
+                </div>
             </div>
 
-            <!-- Formulario de Login -->
-            <div class="bg-tauro-gray/80 backdrop-blur-lg rounded-2xl border-2 border-tauro-red/30 shadow-2xl p-8">
-                <div class="text-center mb-6">
-                    <div class="w-20 h-20 bg-gradient-to-br from-tauro-red to-tauro-accent rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                        <i data-lucide="shield-check" class="w-10 h-10 text-white"></i>
+            <div class="bg-gradient-to-br from-gray-900 to-black backdrop-blur-lg rounded-3xl border-2 border-red-600 shadow-2xl p-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-40 h-40 bg-red-600 rounded-full blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"></div>
+
+                <div class="text-center mb-8 relative z-10">
+                    <div class="w-24 h-24 bg-gradient-to-br from-red-600 to-red-800 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-2xl transform hover:rotate-3 transition-transform">
+                        <i data-lucide="shield-check" class="w-12 h-12 text-white"></i>
                     </div>
-                    <h2 class="text-3xl font-bold text-white">Iniciar Sesión</h2>
-                    <p class="text-gray-400 text-sm mt-1">Ingresa tus credenciales</p>
+                    <h2 class="text-4xl font-black text-white uppercase tracking-wider">Iniciar Sesión</h2>
+                    <p class="text-gray-400 text-sm mt-2 font-semibold uppercase tracking-wide">Acceso al Sistema</p>
                 </div>
 
                 @if (ViewBag.Error != null)
                 {
-                    <div class="bg-red-900/30 border-2 border-red-500 rounded-lg p-4 mb-6 flex items-center gap-3">
-                        <i data-lucide="alert-circle" class="w-5 h-5 text-red-400"></i>
-                        <p class="text-red-300 text-sm">@ViewBag.Error</p>
+                    <div class="bg-red-900/40 border-2 border-red-500 rounded-xl p-4 mb-6 flex items-center gap-3 backdrop-blur-sm">
+                        <i data-lucide="alert-circle" class="w-6 h-6 text-red-400"></i>
+                        <p class="text-red-300 text-sm font-semibold">@ViewBag.Error</p>
                     </div>
                 }
 
-                <form method="post" action="/admin/login" class="space-y-5">
+                <form method="post" action="/admin/login" class="space-y-6 relative z-10">
                     @Html.AntiForgeryToken()
 
                     <div>
-                        <label class="block text-gray-300 text-sm font-semibold mb-2">
-                            <i data-lucide="mail" class="w-4 h-4 inline mr-1"></i>
+                        <label class="block text-gray-300 text-sm font-bold mb-3 uppercase tracking-wide">
+                            <i data-lucide="mail" class="w-4 h-4 inline mr-2"></i>
                             Correo Electrónico
                         </label>
                         <input type="email" name="email" required placeholder="admin@taurogym.com"
-                               class="w-full px-4 py-3 bg-black/50 border-2 border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-tauro-red transition-colors" />
+                               class="w-full px-5 py-4 bg-black/60 border-2 border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-red-600 transition-all font-semibold" />
                     </div>
 
                     <div>
-                        <label class="block text-gray-300 text-sm font-semibold mb-2">
-                            <i data-lucide="lock" class="w-4 h-4 inline mr-1"></i>
+                        <label class="block text-gray-300 text-sm font-bold mb-3 uppercase tracking-wide">
+                            <i data-lucide="lock" class="w-4 h-4 inline mr-2"></i>
                             Contraseña
                         </label>
                         <input type="password" name="password" required placeholder="••••••••"
-                               class="w-full px-4 py-3 bg-black/50 border-2 border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-tauro-red transition-colors" />
+                               class="w-full px-5 py-4 bg-black/60 border-2 border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-red-600 transition-all font-semibold" />
                     </div>
 
                     <button type="submit"
-                            class="w-full py-4 bg-gradient-to-r from-tauro-red to-tauro-accent hover:from-tauro-accent hover:to-tauro-red text-white font-bold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-tauro-red/50 flex items-center justify-center gap-2">
-                        <i data-lucide="log-in" class="w-5 h-5"></i>
-                        <span>INGRESAR</span>
+                            class="w-full py-5 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black text-lg rounded-xl transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-red-600/50 flex items-center justify-center gap-3 uppercase tracking-wider">
+                        <i data-lucide="log-in" class="w-6 h-6"></i>
+                        <span>Ingresar al Sistema</span>
                     </button>
                 </form>
 
-                <div class="mt-6 pt-6 border-t-2 border-gray-700">
-                    <p class="text-xs text-gray-500 text-center mb-2">Credenciales por defecto:</p>
-                    <div class="bg-black/50 rounded-lg p-3 font-mono text-xs text-gray-400 text-center border border-gray-700">
-                        <p>Email: <span class="text-tauro-red font-semibold">admin@taurogym.com</span></p>
-                        <p>Password: <span class="text-tauro-red font-semibold">admin123</span></p>
+                <div class="mt-8 pt-6 border-t-2 border-gray-800 relative z-10">
+                    <p class="text-xs text-gray-500 text-center mb-3 uppercase tracking-wide font-bold">Credenciales por defecto:</p>
+                    <div class="bg-black/70 rounded-xl p-4 font-mono text-xs text-center border-2 border-gray-800">
+                        <div class="flex items-center justify-center gap-2 mb-2">
+                            <span class="text-gray-400">Email:</span>
+                            <span class="text-red-500 font-bold">admin@taurogym.com</span>
+                        </div>
+                        <div class="flex items-center justify-center gap-2">
+                            <span class="text-gray-400">Password:</span>
+                            <span class="text-red-500 font-bold">admin123</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="text-center mt-6">
-                <a href="/kiosko" class="text-gray-400 hover:text-tauro-red transition-colors inline-flex items-center gap-2 text-sm font-semibold">
-                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <div class="text-center mt-8">
+                <a href="/kiosko" class="text-gray-400 hover:text-red-500 transition-colors inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wide group">
+                    <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i>
                     Volver al Kiosko
                 </a>
             </div>
 
-            <p class="text-center text-gray-600 text-xs mt-8">
-                TAURO GYM © 2024 - Todos los derechos reservados
-            </p>
+            <div class="mt-10 text-center">
+                <div class="inline-block px-6 py-2 bg-gray-900 border border-gray-800 rounded-full">
+                    <p class="text-gray-600 text-xs font-bold uppercase tracking-wider">
+                        TAURO GYM © 2024
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 

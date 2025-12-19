@@ -1,44 +1,42 @@
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Membresías";
-    ViewData["Subtitle"] = "Gestión de membresías del gimnasio";
+    ViewData["Subtitle"] = "Gestión de membresías - TAURO GYM";
 }
 
 <div class="mb-6">
-    <!-- Filtros por Estado -->
     <div class="flex items-center justify-between mb-4">
         <div class="flex gap-3">
             <button onclick="filterByEstado('todas')"
-                    class="filter-btn px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors" data-estado="todas">
+                    class="filter-btn px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-xl transition-all font-bold uppercase tracking-wide" data-estado="todas">
                 Todas
             </button>
             <button onclick="filterByEstado('activa')"
-                    class="filter-btn px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors" data-estado="activa">
+                    class="filter-btn px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-xl transition-all font-bold uppercase tracking-wide" data-estado="activa">
                 Activas
             </button>
             <button onclick="filterByEstado('vencida')"
-                    class="filter-btn px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors" data-estado="vencida">
+                    class="filter-btn px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-xl transition-all font-bold uppercase tracking-wide" data-estado="vencida">
                 Vencidas
             </button>
             <button onclick="filterByEstado('suspendida')"
-                    class="filter-btn px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors" data-estado="suspendida">
+                    class="filter-btn px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-xl transition-all font-bold uppercase tracking-wide" data-estado="suspendida">
                 Suspendidas
             </button>
         </div>
 
         <a href="/membresias/crear"
-           class="inline-flex items-center gap-2 px-6 py-2 bg-vida-primary hover:bg-vida-accent text-vida-dark font-semibold rounded-lg transition-all shadow-lg hover:shadow-xl">
+           class="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
             <i data-lucide="plus" class="w-5 h-5"></i>
             Nueva Membresía
         </a>
     </div>
 
-    <!-- Filtros por Plan -->
-    <div class="bg-white rounded-lg shadow p-4 mb-4">
+    <div class="bg-white rounded-2xl shadow-lg p-5 mb-4 border-2 border-gray-200">
         <div class="flex items-center gap-3 flex-wrap">
-            <span class="text-sm font-medium text-gray-700">Filtrar por plan:</span>
-            <button onclick="filterByPlan(null)" 
-                    class="plan-filter-btn px-3 py-1 bg-vida-primary text-vida-dark text-sm rounded-lg font-semibold" 
+            <span class="text-sm font-black text-gray-900 uppercase tracking-wide">Filtrar por plan:</span>
+            <button onclick="filterByPlan(null)"
+                    class="plan-filter-btn px-4 py-2 bg-gradient-to-r from-red-600 to-red-800 text-white rounded-xl font-black uppercase text-xs tracking-wide"
                     data-plan="todos">
                 Todos los planes
             </button>
@@ -47,33 +45,31 @@
     </div>
 </div>
 
-<!-- Estadísticas Rápidas -->
 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-    <div class="bg-white rounded-lg shadow p-4 border-l-4 border-green-500">
-        <p class="text-sm text-gray-600">Activas</p>
-        <p class="text-2xl font-bold text-gray-800" id="count-activas">0</p>
+    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-emerald-600">
+        <p class="text-sm text-gray-600 font-bold uppercase tracking-wide mb-2">Activas</p>
+        <p class="text-4xl font-black text-gray-900" id="count-activas">0</p>
     </div>
-    <div class="bg-white rounded-lg shadow p-4 border-l-4 border-yellow-500">
-        <p class="text-sm text-gray-600">Por Vencer (7 días)</p>
-        <p class="text-2xl font-bold text-gray-800" id="count-por-vencer">0</p>
+    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-amber-500">
+        <p class="text-sm text-gray-600 font-bold uppercase tracking-wide mb-2">Por Vencer (7 días)</p>
+        <p class="text-4xl font-black text-gray-900" id="count-por-vencer">0</p>
     </div>
-    <div class="bg-white rounded-lg shadow p-4 border-l-4 border-red-500">
-        <p class="text-sm text-gray-600">Vencidas</p>
-        <p class="text-2xl font-bold text-gray-800" id="count-vencidas">0</p>
+    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-600">
+        <p class="text-sm text-gray-600 font-bold uppercase tracking-wide mb-2">Vencidas</p>
+        <p class="text-4xl font-black text-gray-900" id="count-vencidas">0</p>
     </div>
-    <div class="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
-        <p class="text-sm text-gray-600">Total</p>
-        <p class="text-2xl font-bold text-gray-800" id="count-total">0</p>
+    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-600">
+        <p class="text-sm text-gray-600 font-bold uppercase tracking-wide mb-2">Total</p>
+        <p class="text-4xl font-black text-gray-900" id="count-total">0</p>
     </div>
 </div>
 
-<!-- Lista de Membresías -->
-<div class="bg-white rounded-xl shadow-md overflow-hidden">
+<div class="bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-gray-200">
     <div id="membresias-container" class="p-6">
         <div class="flex items-center justify-center h-64">
             <div class="text-center">
-                <div class="animate-spin w-12 h-12 border-4 border-vida-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-                <p class="text-gray-600">Cargando membresías...</p>
+                <div class="animate-spin w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p class="text-gray-600 font-bold">Cargando membresías...</p>
             </div>
         </div>
     </div>
@@ -91,7 +87,7 @@
             try {
                 const response = await fetch(`${API_URL}/Membresias`);
                 if (!response.ok) throw new Error('Error en la respuesta');
-                
+
                 membresiasData = await response.json();
                 console.log('Membresías cargadas:', membresiasData.length);
 
@@ -100,10 +96,10 @@
             } catch (error) {
                 console.error('Error:', error);
                 document.getElementById('membresias-container').innerHTML = `
-                    <div class="text-center py-12 text-red-500">
+                    <div class="text-center py-12 text-red-600">
                         <i data-lucide="alert-circle" class="w-12 h-12 mx-auto mb-2"></i>
-                        <p class="font-semibold">Error al cargar las membresías</p>
-                        <button onclick="loadMembresias()" class="mt-4 px-4 py-2 bg-vida-primary text-vida-dark rounded-lg hover:bg-yellow-400">
+                        <p class="font-black text-xl uppercase tracking-wide">Error al cargar las membresías</p>
+                        <button onclick="loadMembresias()" class="mt-4 px-6 py-3 bg-gradient-to-r from-red-600 to-red-800 text-white rounded-xl hover:from-red-700 hover:to-red-900 font-black uppercase tracking-wide">
                             Reintentar
                         </button>
                     </div>
@@ -116,11 +112,11 @@
             try {
                 const response = await fetch(`${API_URL}/Planes`);
                 planesData = await response.json();
-                
+
                 const container = document.getElementById('planesFilters');
                 container.innerHTML = planesData.map(p => `
-                    <button onclick="filterByPlan('${p.id || p.Id}')" 
-                            class="plan-filter-btn px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200" 
+                    <button onclick="filterByPlan('${p.id || p.Id}')"
+                            class="plan-filter-btn px-4 py-2 bg-gray-200 text-gray-900 rounded-xl hover:bg-gray-300 font-bold uppercase text-xs tracking-wide"
                             data-plan="${p.id || p.Id}">
                         ${p.nombre || p.Nombre}
                     </button>
@@ -133,7 +129,7 @@
         function calcularEstadisticas() {
             const hoy = new Date();
             hoy.setHours(0, 0, 0, 0);
-            
+
             const activas = membresiasData.filter(m => (m.estado || m.Estado) === 'activa').length;
             const vencidas = membresiasData.filter(m => (m.estado || m.Estado) === 'vencida').length;
 
@@ -155,20 +151,20 @@
             const container = document.getElementById('membresias-container');
 
             let filtradas = membresiasData;
-            
+
             if (filtroEstado !== 'todas') {
                 filtradas = filtradas.filter(m => (m.estado || m.Estado) === filtroEstado);
             }
 
             if (filtroPlan) {
-                filtradas = filtradas.filter(m => (m.planId || m.PlanId) === filtroPlan);
+                filtradas = filtradas.filter(m => (m.planId || m.PlanId) == filtroPlan);
             }
 
             if (filtradas.length === 0) {
                 container.innerHTML = `
                     <div class="text-center py-12 text-gray-500">
                         <i data-lucide="inbox" class="w-16 h-16 mx-auto mb-4 text-gray-400"></i>
-                        <p class="text-lg">No hay membresías con los filtros seleccionados</p>
+                        <p class="text-lg font-bold">No hay membresías con los filtros seleccionados</p>
                     </div>
                 `;
                 lucide.createIcons();
@@ -176,7 +172,7 @@
             }
 
             container.innerHTML = `
-                <div class="space-y-3">
+                <div class="space-y-4">
                     ${filtradas.map(m => renderMembresia(m)).join('')}
                 </div>
             `;
@@ -188,91 +184,91 @@
             const fechaInicio = new Date(m.fechaInicio || m.FechaInicio);
             const fechaVenc = new Date(m.fechaVencimiento || m.FechaVencimiento);
             const estado = m.estado || m.Estado;
-            
+
             const fechaInicioStr = fechaInicio.toLocaleDateString('es-ES');
             const fechaVencStr = fechaVenc.toLocaleDateString('es-ES');
-            
+
             const hoy = new Date();
             hoy.setHours(0, 0, 0, 0);
             fechaVenc.setHours(0, 0, 0, 0);
-            
+
             const diasRestantes = Math.ceil((fechaVenc - hoy) / (1000 * 60 * 60 * 24));
 
             let estadoBadge = '';
             let diasTexto = '';
-            
+
             if (estado === 'activa') {
                 if (diasRestantes < 0) {
-                    estadoBadge = '<span class="px-3 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full">Vencida (actualizar)</span>';
-                    diasTexto = `<span class="text-red-600 font-bold">Vencida hace ${Math.abs(diasRestantes)} días</span>`;
+                    estadoBadge = '<span class="px-4 py-2 bg-red-100 text-red-800 font-black rounded-full uppercase text-xs tracking-wide">Vencida (actualizar)</span>';
+                    diasTexto = `<span class="text-red-600 font-black">Vencida hace ${Math.abs(diasRestantes)} días</span>`;
                 } else if (diasRestantes === 0) {
-                    estadoBadge = '<span class="px-3 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full animate-pulse">Vence HOY</span>';
-                    diasTexto = '<span class="text-red-600 font-bold animate-pulse">¡Vence HOY!</span>';
+                    estadoBadge = '<span class="px-4 py-2 bg-red-100 text-red-800 font-black rounded-full animate-pulse uppercase text-xs tracking-wide">Vence HOY</span>';
+                    diasTexto = '<span class="text-red-600 font-black animate-pulse">¡Vence HOY!</span>';
                 } else if (diasRestantes <= 3) {
-                    estadoBadge = '<span class="px-3 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full">Vence pronto</span>';
-                    diasTexto = `<span class="text-red-600 font-bold">${diasRestantes} ${diasRestantes === 1 ? 'día' : 'días'}</span>`;
+                    estadoBadge = '<span class="px-4 py-2 bg-red-100 text-red-800 font-black rounded-full uppercase text-xs tracking-wide">Vence pronto</span>';
+                    diasTexto = `<span class="text-red-600 font-black">${diasRestantes} ${diasRestantes === 1 ? 'día' : 'días'}</span>`;
                 } else if (diasRestantes <= 7) {
-                    estadoBadge = '<span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">Por vencer</span>';
-                    diasTexto = `<span class="text-yellow-600 font-semibold">${diasRestantes} días</span>`;
+                    estadoBadge = '<span class="px-4 py-2 bg-amber-100 text-amber-800 font-black rounded-full uppercase text-xs tracking-wide">Por vencer</span>';
+                    diasTexto = `<span class="text-amber-600 font-black">${diasRestantes} días</span>`;
                 } else {
-                    estadoBadge = '<span class="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">Activa</span>';
-                    diasTexto = `<span class="text-green-600 font-semibold">${diasRestantes} días</span>`;
+                    estadoBadge = '<span class="px-4 py-2 bg-emerald-100 text-emerald-800 font-black rounded-full uppercase text-xs tracking-wide">Activa</span>';
+                    diasTexto = `<span class="text-emerald-600 font-black">${diasRestantes} días</span>`;
                 }
             } else if (estado === 'vencida') {
-                estadoBadge = '<span class="px-3 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full">Vencida</span>';
-                diasTexto = '<span class="text-red-600">Vencida</span>';
+                estadoBadge = '<span class="px-4 py-2 bg-red-100 text-red-800 font-black rounded-full uppercase text-xs tracking-wide">Vencida</span>';
+                diasTexto = '<span class="text-red-600 font-black">Vencida</span>';
             } else if (estado === 'suspendida') {
-                estadoBadge = '<span class="px-3 py-1 bg-gray-100 text-gray-800 text-xs font-semibold rounded-full">Suspendida</span>';
-                diasTexto = '<span class="text-gray-600">-</span>';
+                estadoBadge = '<span class="px-4 py-2 bg-gray-100 text-gray-800 font-black rounded-full uppercase text-xs tracking-wide">Suspendida</span>';
+                diasTexto = '<span class="text-gray-600 font-bold">-</span>';
             }
 
             const cliente = m.cliente || m.Cliente;
             const plan = m.plan || m.Plan;
-            
-            const clienteNombre = cliente ? 
-                `${cliente.nombre || cliente.Nombre} ${cliente.apellido || cliente.Apellido}` : 
+
+            const clienteNombre = cliente ?
+                `${cliente.nombre || cliente.Nombre} ${cliente.apellido || cliente.Apellido}` :
                 'Cliente no disponible';
             const planNombre = plan ? (plan.nombre || plan.Nombre) : 'Plan no disponible';
             const planTipo = plan ? (plan.tipo || plan.Tipo) : '';
-            const planColor = plan ? (plan.color || plan.Color || '#00FF00') : '#00FF00';
+            const planColor = plan ? (plan.color || plan.Color || '#E31E24') : '#E31E24';
 
             return `
-                <div class="p-4 border-l-4 border-gray-200 rounded-lg hover:shadow-md transition-all" style="border-left-color: ${planColor}">
+                <div class="p-6 border-l-4 rounded-2xl hover:shadow-xl transition-all bg-gray-50 border-2 border-gray-200" style="border-left-color: ${planColor}">
                     <div class="flex items-center justify-between">
                         <div class="flex-1">
-                            <div class="flex items-center gap-3 mb-3">
-                                <h3 class="font-bold text-gray-800 text-lg">${clienteNombre}</h3>
+                            <div class="flex items-center gap-3 mb-4">
+                                <h3 class="font-black text-gray-900 text-xl uppercase tracking-wide">${clienteNombre}</h3>
                                 ${estadoBadge}
-                                <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">${planTipo}</span>
+                                <span class="px-3 py-1 bg-gray-200 text-gray-900 font-black rounded-full uppercase text-xs">${planTipo}</span>
                             </div>
                             <div class="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
                                 <div>
-                                    <p class="text-gray-500 mb-1">Plan</p>
-                                    <p class="font-semibold text-gray-800">${planNombre}</p>
+                                    <p class="text-gray-600 mb-1 font-bold uppercase tracking-wide text-xs">Plan</p>
+                                    <p class="font-black text-gray-900">${planNombre}</p>
                                 </div>
                                 <div>
-                                    <p class="text-gray-500 mb-1">Inicio</p>
-                                    <p class="font-semibold text-gray-800">${fechaInicioStr}</p>
+                                    <p class="text-gray-600 mb-1 font-bold uppercase tracking-wide text-xs">Inicio</p>
+                                    <p class="font-black text-gray-900">${fechaInicioStr}</p>
                                 </div>
                                 <div>
-                                    <p class="text-gray-500 mb-1">Vencimiento</p>
-                                    <p class="font-semibold text-gray-800">${fechaVencStr}</p>
+                                    <p class="text-gray-600 mb-1 font-bold uppercase tracking-wide text-xs">Vencimiento</p>
+                                    <p class="font-black text-gray-900">${fechaVencStr}</p>
                                 </div>
                                 <div>
-                                    <p class="text-gray-500 mb-1">Días restantes</p>
+                                    <p class="text-gray-600 mb-1 font-bold uppercase tracking-wide text-xs">Días restantes</p>
                                     <p class="font-semibold">${diasTexto}</p>
                                 </div>
                                 <div>
-                                    <p class="text-gray-500 mb-1">Monto</p>
-                                    <p class="font-semibold text-gray-800">$${m.montoPagado || m.MontoPagado}</p>
+                                    <p class="text-gray-600 mb-1 font-bold uppercase tracking-wide text-xs">Monto</p>
+                                    <p class="font-black text-emerald-600 text-lg">$${m.montoPagado || m.MontoPagado}</p>
                                 </div>
                             </div>
                         </div>
                         <div class="flex items-center gap-2 ml-4">
                             <button onclick="verDetalles('${m.id || m.Id}')"
-                                    class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
+                                    class="p-3 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
                                     title="Ver detalles">
-                                <i data-lucide="eye" class="w-5 h-5"></i>
+                                <i data-lucide="eye" class="w-6 h-6"></i>
                             </button>
                         </div>
                     </div>
@@ -285,11 +281,11 @@
 
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 if (btn.dataset.estado === estado) {
-                    btn.classList.remove('bg-gray-100', 'text-gray-700');
-                    btn.classList.add('bg-vida-primary', 'text-vida-dark', 'font-semibold');
+                    btn.classList.remove('bg-gray-200', 'text-gray-900');
+                    btn.classList.add('bg-gradient-to-r', 'from-red-600', 'to-red-800', 'text-white', 'shadow-lg');
                 } else {
-                    btn.classList.add('bg-gray-100', 'text-gray-700');
-                    btn.classList.remove('bg-vida-primary', 'text-vida-dark', 'font-semibold');
+                    btn.classList.add('bg-gray-200', 'text-gray-900');
+                    btn.classList.remove('bg-gradient-to-r', 'from-red-600', 'to-red-800', 'text-white', 'shadow-lg');
                 }
             });
 
@@ -301,11 +297,11 @@
 
             document.querySelectorAll('.plan-filter-btn').forEach(btn => {
                 if (btn.dataset.plan === (planId || 'todos')) {
-                    btn.classList.remove('bg-gray-100', 'text-gray-700');
-                    btn.classList.add('bg-vida-primary', 'text-vida-dark', 'font-semibold');
+                    btn.classList.remove('bg-gray-200', 'text-gray-900');
+                    btn.classList.add('bg-gradient-to-r', 'from-red-600', 'to-red-800', 'text-white');
                 } else {
-                    btn.classList.add('bg-gray-100', 'text-gray-700');
-                    btn.classList.remove('bg-vida-primary', 'text-vida-dark', 'font-semibold');
+                    btn.classList.add('bg-gray-200', 'text-gray-900');
+                    btn.classList.remove('bg-gradient-to-r', 'from-red-600', 'to-red-800', 'text-white');
                 }
             });
 

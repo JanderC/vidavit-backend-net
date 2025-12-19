@@ -1,76 +1,87 @@
 ﻿@{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Reportes";
-    ViewData["Subtitle"] = "Análisis y estadísticas del gimnasio";
+    ViewData["Subtitle"] = "Análisis y estadísticas - TAURO GYM";
 }
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <!-- Reporte de Asistencia -->
-    <a href="/reportes/asistencia" class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow">
+    <a href="/reportes/asistencia" class="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all transform hover:scale-105 border-2 border-gray-200">
         <div class="flex items-center gap-4">
-            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                <i data-lucide="activity" class="w-8 h-8 text-blue-600"></i>
+            <div class="w-20 h-20 bg-blue-100 rounded-2xl flex items-center justify-center">
+                <i data-lucide="activity" class="w-10 h-10 text-blue-600"></i>
             </div>
             <div class="flex-1">
-                <h3 class="text-lg font-bold text-gray-800">Asistencia</h3>
-                <p class="text-sm text-gray-600">Análisis de check-ins y visitas</p>
+                <h3 class="text-xl font-black text-gray-900 uppercase tracking-wide">Asistencia</h3>
+                <p class="text-sm text-gray-600 font-semibold">Análisis de check-ins y visitas</p>
             </div>
-            <i data-lucide="chevron-right" class="w-5 h-5 text-gray-400"></i>
+            <i data-lucide="chevron-right" class="w-6 h-6 text-gray-400"></i>
         </div>
     </a>
 
-    <!-- Reporte de Ingresos -->
-    <a href="/reportes/ingresos" class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow">
+    <a href="/reportes/ingresos" class="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all transform hover:scale-105 border-2 border-gray-200">
         <div class="flex items-center gap-4">
-            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                <i data-lucide="dollar-sign" class="w-8 h-8 text-green-600"></i>
+            <div class="w-20 h-20 bg-emerald-100 rounded-2xl flex items-center justify-center">
+                <i data-lucide="dollar-sign" class="w-10 h-10 text-emerald-600"></i>
             </div>
             <div class="flex-1">
-                <h3 class="text-lg font-bold text-gray-800">Ingresos</h3>
-                <p class="text-sm text-gray-600">Reporte financiero y pagos</p>
+                <h3 class="text-xl font-black text-gray-900 uppercase tracking-wide">Ingresos</h3>
+                <p class="text-sm text-gray-600 font-semibold">Reporte financiero y pagos</p>
             </div>
-            <i data-lucide="chevron-right" class="w-5 h-5 text-gray-400"></i>
+            <i data-lucide="chevron-right" class="w-6 h-6 text-gray-400"></i>
         </div>
     </a>
 
-    <!-- Reporte de Clientes (Próximamente) -->
-    <div class="bg-white rounded-xl shadow-md p-6 opacity-50 cursor-not-allowed">
+    <a href="/reportes/clientes-inactivos" class="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all transform hover:scale-105 border-2 border-gray-200">
         <div class="flex items-center gap-4">
-            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center">
-                <i data-lucide="users" class="w-8 h-8 text-purple-600"></i>
+            <div class="w-20 h-20 bg-purple-100 rounded-2xl flex items-center justify-center">
+                <i data-lucide="user-x" class="w-10 h-10 text-purple-600"></i>
             </div>
             <div class="flex-1">
-                <h3 class="text-lg font-bold text-gray-800">Clientes</h3>
-                <p class="text-sm text-gray-600">Próximamente...</p>
+                <h3 class="text-xl font-black text-gray-900 uppercase tracking-wide">Clientes Inactivos</h3>
+                <p class="text-sm text-gray-600 font-semibold">Seguimiento de clientes</p>
             </div>
+            <i data-lucide="chevron-right" class="w-6 h-6 text-gray-400"></i>
         </div>
-    </div>
+    </a>
 
-    <!-- Reporte de Productos (Próximamente) -->
-    <div class="bg-white rounded-xl shadow-md p-6 opacity-50 cursor-not-allowed">
+    <a href="/reportes/productos-mas-vendidos" class="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all transform hover:scale-105 border-2 border-gray-200">
         <div class="flex items-center gap-4">
-            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center">
-                <i data-lucide="package" class="w-8 h-8 text-yellow-600"></i>
+            <div class="w-20 h-20 bg-amber-100 rounded-2xl flex items-center justify-center">
+                <i data-lucide="package" class="w-10 h-10 text-amber-600"></i>
             </div>
             <div class="flex-1">
-                <h3 class="text-lg font-bold text-gray-800">Productos</h3>
-                <p class="text-sm text-gray-600">Próximamente...</p>
+                <h3 class="text-xl font-black text-gray-900 uppercase tracking-wide">Productos</h3>
+                <p class="text-sm text-gray-600 font-semibold">Más vendidos</p>
             </div>
+            <i data-lucide="chevron-right" class="w-6 h-6 text-gray-400"></i>
         </div>
-    </div>
+    </a>
 
-    <!-- Reporte de Membresías (Próximamente) -->
-    <div class="bg-white rounded-xl shadow-md p-6 opacity-50 cursor-not-allowed">
+    <a href="/reportes/ingresos-membresias" class="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all transform hover:scale-105 border-2 border-gray-200">
         <div class="flex items-center gap-4">
-            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
-                <i data-lucide="credit-card" class="w-8 h-8 text-red-600"></i>
+            <div class="w-20 h-20 bg-red-100 rounded-2xl flex items-center justify-center">
+                <i data-lucide="credit-card" class="w-10 h-10 text-red-600"></i>
             </div>
             <div class="flex-1">
-                <h3 class="text-lg font-bold text-gray-800">Membresías</h3>
-                <p class="text-sm text-gray-600">Próximamente...</p>
+                <h3 class="text-xl font-black text-gray-900 uppercase tracking-wide">Membresías</h3>
+                <p class="text-sm text-gray-600 font-semibold">Ingresos por membresías</p>
             </div>
+            <i data-lucide="chevron-right" class="w-6 h-6 text-gray-400"></i>
         </div>
-    </div>
+    </a>
+
+    <a href="/reportes/cuentas-pendientes" class="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all transform hover:scale-105 border-2 border-gray-200">
+        <div class="flex items-center gap-4">
+            <div class="w-20 h-20 bg-orange-100 rounded-2xl flex items-center justify-center">
+                <i data-lucide="alert-circle" class="w-10 h-10 text-orange-600"></i>
+            </div>
+            <div class="flex-1">
+                <h3 class="text-xl font-black text-gray-900 uppercase tracking-wide">Cuentas Pendientes</h3>
+                <p class="text-sm text-gray-600 font-semibold">Productos fiados</p>
+            </div>
+            <i data-lucide="chevron-right" class="w-6 h-6 text-gray-400"></i>
+        </div>
+    </a>
 </div>
 
 @section Scripts {

@@ -1,77 +1,39 @@
 @{
     ViewData["Title"] = "Cuentas Pendientes";
+    ViewData["Subtitle"] = "Productos Fiados - TAURO GYM";
+    Layout = "_AdminLayout";
 }
 
-<div class="max-w-7xl mx-auto p-6">
+<div class="max-w-7xl mx-auto">
     <div class="flex justify-between items-center mb-6">
-        <h2 class="text-3xl font-bold text-gray-800">Productos Fiados - Cuentas Pendientes</h2>
-        <div class="flex gap-3">
-            <button id="btnActualizar" class="bg-vida-primary text-vida-dark font-bold py-2 px-6 rounded-lg hover:bg-yellow-400 transition">
-                <i data-lucide="refresh-cw" class="w-5 h-5 inline mr-2"></i>
-                Actualizar
-            </button>
-            <a href="/productos"
-               class="bg-gray-300 text-gray-700 font-bold py-2 px-6 rounded-lg hover:bg-gray-400 transition">
-                Volver
-            </a>
-        </div>
+        <h2 class="text-4xl font-black text-gray-900 uppercase tracking-wide">Productos Fiados</h2>
+        <a href="/productos"
+           class="bg-gray-300 hover:bg-gray-400 text-gray-900 font-black py-3 px-8 rounded-xl transition-all uppercase tracking-wide">
+            Volver
+        </a>
     </div>
 
-    <!-- Resumen -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-orange-500">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-600 text-sm mb-1">Total Pendiente</p>
-                    <p class="text-3xl font-bold text-orange-600" id="totalPendiente">$0.00</p>
-                </div>
-                <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                    <i data-lucide="dollar-sign" class="w-6 h-6 text-orange-600"></i>
-                </div>
-            </div>
+        <div class="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-orange-600">
+            <p class="text-gray-600 text-sm font-black uppercase tracking-wide mb-2">Total Pendiente</p>
+            <p class="text-4xl font-black text-orange-600" id="totalPendiente">$0.00</p>
         </div>
-        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-600 text-sm mb-1">Clientes con Deuda</p>
-                    <p class="text-3xl font-bold text-gray-800" id="clientesConDeuda">0</p>
-                </div>
-                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                    <i data-lucide="users" class="w-6 h-6 text-blue-600"></i>
-                </div>
-            </div>
+        <div class="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-red-600">
+            <p class="text-gray-600 text-sm font-black uppercase tracking-wide mb-2">Clientes con Deuda</p>
+            <p class="text-4xl font-black text-gray-900" id="clientesConDeuda">0</p>
         </div>
-        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-600 text-sm mb-1">Productos Fiados</p>
-                    <p class="text-3xl font-bold text-gray-800" id="productosFiados">0</p>
-                </div>
-                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                    <i data-lucide="package" class="w-6 h-6 text-purple-600"></i>
-                </div>
-            </div>
+        <div class="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-blue-600">
+            <p class="text-gray-600 text-sm font-black uppercase tracking-wide mb-2">Productos Fiados</p>
+            <p class="text-4xl font-black text-gray-900" id="productosFiados">0</p>
         </div>
     </div>
 
-    <!-- Lista de cuentas pendientes por cliente -->
-    <div class="bg-white rounded-xl shadow-md overflow-hidden">
-        <div class="p-6 border-b bg-gray-50">
-            <div class="flex gap-4">
-                <input type="text" id="buscarCliente" placeholder="Buscar cliente por nombre, apellido o cédula..."
-                       class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary">
-                <select id="ordenarPor" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary">
-                    <option value="deuda-desc">Mayor deuda primero</option>
-                    <option value="deuda-asc">Menor deuda primero</option>
-                    <option value="nombre">Por nombre (A-Z)</option>
-                </select>
-            </div>
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-gray-200">
+        <div class="p-6 border-b-2 border-gray-200">
+            <input type="text" id="buscarCliente" placeholder="Buscar cliente..."
+                   class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
         </div>
-        <div id="cuentasList" class="divide-y divide-gray-200">
-            <div class="text-center py-12 text-gray-500">
-                <i data-lucide="loader" class="w-8 h-8 mx-auto mb-2 animate-spin"></i>
-                <p>Cargando cuentas pendientes...</p>
-            </div>
+        <div id="cuentasList" class="divide-y-2 divide-gray-200">
         </div>
     </div>
 </div>
@@ -79,245 +41,123 @@
 @section Scripts {
     <script>
         let cuentasPendientes = [];
-        let cuentasPendientesOriginales = [];
 
         async function cargarCuentas() {
             try {
                 const response = await fetch('/api/VentasProductos');
-                if (!response.ok) throw new Error('Error al cargar ventas');
-                
                 const ventas = await response.json();
 
-                // Filtrar solo pendientes
                 const pendientes = ventas.filter(v => v.estadoPago === 'pendiente');
 
-                // Agrupar por cliente
                 const porCliente = {};
                 pendientes.forEach(v => {
-                    const clienteId = v.clienteId || v.cliente?.id;
-                    if (!clienteId) return;
-
-                    if (!porCliente[clienteId]) {
-                        porCliente[clienteId] = {
-                            cliente: v.cliente || {
-                                id: clienteId,
-                                nombre: 'Cliente',
-                                apellido: 'Desconocido',
-                                cedula: 'N/A'
-                            },
+                    if (!porCliente[v.clienteId]) {
+                        porCliente[v.clienteId] = {
+                            cliente: v.cliente,
                             ventas: [],
                             total: 0
                         };
                     }
-                    porCliente[clienteId].ventas.push(v);
-                    porCliente[clienteId].total += v.total || 0;
+                    porCliente[v.clienteId].ventas.push(v);
+                    porCliente[v.clienteId].total += v.total;
                 });
 
-                cuentasPendientesOriginales = Object.values(porCliente);
-                cuentasPendientes = [...cuentasPendientesOriginales];
+                cuentasPendientes = Object.values(porCliente);
 
-                // Actualizar resumen
-                actualizarResumen(pendientes);
-                
-                // Aplicar ordenamiento inicial
-                ordenarCuentas();
-                
+                const totalPendiente = cuentasPendientes.reduce((sum, c) => sum + c.total, 0);
+                document.getElementById('totalPendiente').textContent = `$${totalPendiente.toFixed(2)}`;
+                document.getElementById('clientesConDeuda').textContent = cuentasPendientes.length;
+                document.getElementById('productosFiados').textContent = pendientes.length;
+
+                renderCuentas(cuentasPendientes);
             } catch (error) {
                 console.error('Error:', error);
-                document.getElementById('cuentasList').innerHTML = 
-                    '<div class="text-center py-8 text-red-500"><i data-lucide="alert-circle" class="w-8 h-8 mx-auto mb-2"></i><p>Error al cargar las cuentas pendientes</p></div>';
-                lucide.createIcons();
             }
-        }
-
-        function actualizarResumen(pendientes) {
-            const totalPendiente = cuentasPendientes.reduce((sum, c) => sum + c.total, 0);
-            document.getElementById('totalPendiente').textContent = `$${totalPendiente.toFixed(2)}`;
-            document.getElementById('clientesConDeuda').textContent = cuentasPendientes.length;
-            document.getElementById('productosFiados').textContent = pendientes.length;
-            lucide.createIcons();
         }
 
         function renderCuentas(cuentas) {
             const container = document.getElementById('cuentasList');
 
             if (cuentas.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-12 text-gray-500">
-                        <i data-lucide="check-circle" class="w-16 h-16 mx-auto mb-3 text-green-500"></i>
-                        <p class="text-lg font-semibold">No hay cuentas pendientes</p>
-                        <p class="text-sm">Todos los clientes están al día</p>
-                    </div>
-                `;
-                lucide.createIcons();
+                container.innerHTML = '<p class="text-center text-gray-500 py-12 font-bold text-lg">No hay cuentas pendientes</p>';
                 return;
             }
 
-            container.innerHTML = cuentas.map((cuenta, index) => {
-                const cliente = cuenta.cliente || {};
-                return `
-                    <div class="p-6 hover:bg-gray-50 transition">
-                        <div class="flex justify-between items-start mb-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                                    <span class="text-orange-600 font-bold text-lg">${index + 1}</span>
-                                </div>
-                                <div>
-                                    <h3 class="text-lg font-bold text-gray-800">
-                                        ${cliente.nombre || 'N/A'} ${cliente.apellido || ''}
-                                    </h3>
-                                    <p class="text-sm text-gray-600">Cédula: ${cliente.cedula || 'N/A'}</p>
-                                    <p class="text-xs text-gray-500">${cuenta.ventas.length} producto(s) fiado(s)</p>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-2xl font-bold text-orange-600">$${cuenta.total.toFixed(2)}</p>
-                                <button onclick="marcarComoPagado('${cliente.id}')"
-                                        class="mt-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm transition">
-                                    <i data-lucide="check" class="w-4 h-4 inline mr-1"></i>
-                                    Marcar Pagado
-                                </button>
-                                <button onclick="verDetalleCliente('${cliente.id}')"
-                                        class="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm transition ml-2">
-                                    <i data-lucide="eye" class="w-4 h-4 inline mr-1"></i>
-                                    Ver Detalle
-                                </button>
-                            </div>
+            container.innerHTML = cuentas.map(cuenta => `
+                <div class="p-8 hover:bg-gray-50 transition-colors">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h3 class="text-2xl font-black text-gray-900 uppercase tracking-wide">
+                                ${cuenta.cliente.nombre} ${cuenta.cliente.apellido}
+                            </h3>
+                            <p class="text-sm text-gray-600 font-bold mt-1">${cuenta.cliente.cedula}</p>
                         </div>
-                        
-                        <!-- Detalle de productos colapsable -->
-                        <div id="detalle-${cliente.id}" class="hidden mt-4 space-y-2 border-t pt-4">
-                            ${cuenta.ventas.map(v => {
-                                const producto = v.producto || {};
-                                const fecha = v.fechaVenta ? new Date(v.fechaVenta).toLocaleDateString('es-ES') : 'N/A';
-                                return `
-                                    <div class="flex justify-between items-center text-sm bg-gray-50 p-3 rounded">
-                                        <div class="flex items-center gap-3 flex-1">
-                                            <i data-lucide="package" class="w-4 h-4 text-gray-400"></i>
-                                            <div>
-                                                <span class="font-medium">${producto.nombre || 'Producto desconocido'}</span>
-                                                <span class="text-gray-600 ml-2">x${v.cantidad || 0}</span>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-center gap-4">
-                                            <span class="font-bold text-orange-600">$${(v.total || 0).toFixed(2)}</span>
-                                            <span class="text-xs text-gray-500">${fecha}</span>
-                                        </div>
-                                    </div>
-                                `;
-                            }).join('')}
+                        <div class="text-right">
+                            <p class="text-3xl font-black text-orange-600">$${cuenta.total.toFixed(2)}</p>
+                            <button onclick="marcarComoPagado('${cuenta.cliente.id}')"
+                                    class="mt-3 bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900 text-white px-6 py-3 rounded-xl font-black uppercase tracking-wide shadow-lg">
+                                Marcar Pagado
+                            </button>
                         </div>
                     </div>
-                `;
-            }).join('');
+                    <div class="space-y-3">
+                        ${cuenta.ventas.map(v => `
+                            <div class="flex justify-between items-center text-sm bg-gray-50 p-4 rounded-xl border-2 border-gray-200">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="package" class="w-5 h-5 text-gray-400"></i>
+                                    <span class="font-black text-gray-900">${v.producto.nombre}</span>
+                                    <span class="text-gray-600 font-bold">x${v.cantidad}</span>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <span class="font-black text-gray-900 text-lg">$${v.total.toFixed(2)}</span>
+                                    <span class="text-xs text-gray-500 font-semibold">${new Date(v.fechaVenta).toLocaleDateString()}</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
 
-            lucide.createIcons();
-        }
-
-        function verDetalleCliente(clienteId) {
-            const detalle = document.getElementById(`detalle-${clienteId}`);
-            detalle.classList.toggle('hidden');
             lucide.createIcons();
         }
 
         async function marcarComoPagado(clienteId) {
-            const cuenta = cuentasPendientes.find(c => c.cliente.id === clienteId);
-            if (!cuenta) return;
-
-            const mensaje = `¿Marcar como pagadas las ${cuenta.ventas.length} venta(s) de ${cuenta.cliente.nombre} ${cuenta.cliente.apellido} por un total de $${cuenta.total.toFixed(2)}?`;
-            
-            if (!confirm(mensaje)) return;
+            if (!confirm('¿Marcar todas las deudas de este cliente como pagadas?')) return;
 
             try {
-                let errores = 0;
-                
-                for (const venta of cuenta.ventas) {
-                    const ventaActualizada = {
-                        ...venta,
-                        estadoPago: 'pagado',
-                        fechaPago: new Date().toISOString()
-                    };
+                const cuenta = cuentasPendientes.find(c => c.cliente.id === clienteId);
 
-                    const response = await fetch(`/api/VentasProductos/${venta.id}`, {
+                for (const venta of cuenta.ventas) {
+                    venta.estadoPago = 'pagado';
+                    venta.fechaPago = new Date().toISOString();
+
+                    await fetch(`/api/VentasProductos/${venta.id}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(ventaActualizada)
+                        body: JSON.stringify(venta)
                     });
-
-                    if (!response.ok) {
-                        errores++;
-                        console.error(`Error actualizando venta ${venta.id}`);
-                    }
                 }
 
-                if (errores === 0) {
-                    alert(`✓ Deuda de ${cuenta.cliente.nombre} ${cuenta.cliente.apellido} marcada como pagada`);
-                } else {
-                    alert(`⚠ Se actualizaron algunas ventas pero hubo ${errores} error(es)`);
-                }
-                
+                alert('✓ Deuda marcada como pagada');
                 cargarCuentas();
             } catch (error) {
                 console.error('Error:', error);
-                alert('⚠ Error al actualizar el pago. Intente nuevamente.');
+                alert('Error al actualizar el pago');
             }
         }
 
-        // Buscar cliente
         document.getElementById('buscarCliente').addEventListener('input', function(e) {
-            const query = e.target.value.toLowerCase().trim();
-            
-            if (query === '') {
-                cuentasPendientes = [...cuentasPendientesOriginales];
-            } else {
-                cuentasPendientes = cuentasPendientesOriginales.filter(c => {
-                    const nombre = (c.cliente.nombre || '').toLowerCase();
-                    const apellido = (c.cliente.apellido || '').toLowerCase();
-                    const cedula = (c.cliente.cedula || '').toLowerCase();
-                    
-                    return nombre.includes(query) || 
-                           apellido.includes(query) || 
-                           cedula.includes(query) ||
-                           `${nombre} ${apellido}`.includes(query);
-                });
-            }
-            
-            ordenarCuentas();
+            const query = e.target.value.toLowerCase();
+            const filtradas = cuentasPendientes.filter(c =>
+                c.cliente.nombre.toLowerCase().includes(query) ||
+                c.cliente.apellido.toLowerCase().includes(query) ||
+                c.cliente.cedula.includes(query)
+            );
+            renderCuentas(filtradas);
         });
 
-        // Ordenar cuentas
-        document.getElementById('ordenarPor').addEventListener('change', ordenarCuentas);
-
-        function ordenarCuentas() {
-            const orden = document.getElementById('ordenarPor').value;
-            
-            switch(orden) {
-                case 'deuda-desc':
-                    cuentasPendientes.sort((a, b) => b.total - a.total);
-                    break;
-                case 'deuda-asc':
-                    cuentasPendientes.sort((a, b) => a.total - b.total);
-                    break;
-                case 'nombre':
-                    cuentasPendientes.sort((a, b) => {
-                        const nombreA = `${a.cliente.nombre} ${a.cliente.apellido}`.toLowerCase();
-                        const nombreB = `${b.cliente.nombre} ${b.cliente.apellido}`.toLowerCase();
-                        return nombreA.localeCompare(nombreB);
-                    });
-                    break;
-            }
-            
-            renderCuentas(cuentasPendientes);
-        }
-
-        // Botón actualizar
-        document.getElementById('btnActualizar').addEventListener('click', cargarCuentas);
-
-        // Exponer funciones globalmente
         window.marcarComoPagado = marcarComoPagado;
-        window.verDetalleCliente = verDetalleCliente;
-
-        // Inicializar
         cargarCuentas();
+        lucide.createIcons();
     </script>
 }

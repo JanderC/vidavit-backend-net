@@ -1,25 +1,33 @@
 ﻿@{
     ViewData["Title"] = "Crear Producto";
+    ViewData["Subtitle"] = "Nuevo producto - TAURO GYM";
+    Layout = "_AdminLayout";
 }
 
-<div class="max-w-4xl mx-auto p-6">
-    <div class="bg-white rounded-xl shadow-lg p-8">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6">Nuevo Producto</h2>
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
+        <div class="flex items-center gap-4 mb-8 pb-6 border-b-2 border-gray-200">
+            <div class="bg-gradient-to-br from-red-600 to-red-800 rounded-xl p-4">
+                <i data-lucide="package-plus" class="w-8 h-8 text-white"></i>
+            </div>
+            <div>
+                <h2 class="text-3xl font-black text-gray-900 uppercase tracking-wide">Nuevo Producto</h2>
+                <p class="text-sm text-gray-600 font-semibold mt-1">Agregar producto al inventario</p>
+            </div>
+        </div>
 
         <form id="productoForm" class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Nombre -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Nombre *</label>
+                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Nombre *</label>
                     <input type="text" name="nombre" required
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary">
+                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
                 </div>
 
-                <!-- Categoría -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Categoría</label>
+                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Categoría</label>
                     <select name="categoria"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary">
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold bg-white">
                         <option value="suplementos">Suplementos</option>
                         <option value="bebidas">Bebidas</option>
                         <option value="snacks">Snacks</option>
@@ -28,44 +36,39 @@
                     </select>
                 </div>
 
-                <!-- Precio -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Precio *</label>
+                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Precio *</label>
                     <input type="number" step="0.01" name="precio" required
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary">
+                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
                 </div>
 
-                <!-- Stock -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Stock *</label>
+                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Stock *</label>
                     <input type="number" name="stock" required
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary">
+                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
                 </div>
             </div>
 
-            <!-- Descripción -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Descripción</label>
                 <textarea name="descripcion" rows="3"
-                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary"></textarea>
+                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"></textarea>
             </div>
 
-            <!-- Imagen (opcional) -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Imagen del Producto</label>
+                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Imagen del Producto</label>
                 <input type="file" id="imagenInput" accept="image/*"
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                       class="w-full px-4 py-2 border-2 border-gray-300 rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-gradient-to-r file:from-red-600 file:to-red-800 file:text-white file:font-bold hover:file:from-red-700 hover:file:to-red-900">
                 <input type="hidden" name="imagenBase64" id="imagenBase64">
             </div>
 
-            <!-- Botones -->
-            <div class="flex gap-4">
+            <div class="flex gap-4 pt-6 border-t-2 border-gray-200">
                 <button type="submit"
-                        class="flex-1 bg-vida-primary text-vida-dark font-bold py-3 px-6 rounded-lg hover:bg-yellow-400 transition">
+                        class="flex-1 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black py-4 px-6 rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
                     Crear Producto
                 </button>
                 <a href="/productos"
-                   class="flex-1 bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-lg hover:bg-gray-400 transition text-center">
+                   class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 font-black py-4 px-6 rounded-xl transition-all text-center uppercase tracking-wide">
                     Cancelar
                 </a>
             </div>
@@ -75,7 +78,6 @@
 
 @section Scripts {
     <script>
-        // Convertir imagen a Base64
         document.getElementById('imagenInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -87,7 +89,6 @@
             }
         });
 
-        // Enviar formulario
         document.getElementById('productoForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -109,7 +110,7 @@
                 });
 
                 if (response.ok) {
-                    alert('Producto creado exitosamente');
+                    alert('✓ Producto creado exitosamente');
                     window.location.href = '/productos';
                 } else {
                     alert('Error al crear producto');
@@ -119,5 +120,7 @@
                 alert('Error al crear producto');
             }
         });
+
+        lucide.createIcons();
     </script>
 }
