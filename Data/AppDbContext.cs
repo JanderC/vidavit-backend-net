@@ -247,15 +247,31 @@ namespace VidaFit.Data
             {
                 if (entry.State == EntityState.Added)
                 {
-                    if (entry.Property("CreatedAt") != null)
+                    try
                     {
-                        entry.Property("CreatedAt").CurrentValue = DateTime.UtcNow;
+                        var createdAtProp = entry.Property("CreatedAt");
+                        if (createdAtProp != null)
+                        {
+                            createdAtProp.CurrentValue = DateTime.UtcNow;
+                        }
+                    }
+                    catch
+                    {
+                        // Propiedad no existe, continuar
                     }
                 }
 
-                if (entry.Property("UpdatedAt") != null)
+                try
                 {
-                    entry.Property("UpdatedAt").CurrentValue = DateTime.UtcNow;
+                    var updatedAtProp = entry.Property("UpdatedAt");
+                    if (updatedAtProp != null)
+                    {
+                        updatedAtProp.CurrentValue = DateTime.UtcNow;
+                    }
+                }
+                catch
+                {
+                    // Propiedad no existe, continuar
                 }
             }
         }

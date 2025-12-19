@@ -125,50 +125,90 @@
 @section Scripts {
     <script>
         let planes = [];
-        let buscarTimeout = null;
+        let todosLosClientes = [];
         let clienteSeleccionadoId = null;
+        let buscarTimeout = null;
 
         async function cargarPlanes() {
             try {
-                const planesRes = await fetch('/api/Planes');
-                if (!planesRes.ok) throw new Error('Error al cargar planes');
+                // Cargar planes - intenta primero con /activos, si falla usa el endpoint original
+                let planesRes = await fetch('/api/Planes/activos');
+                if (!planesRes.ok) {
+                    planesRes = await fetch('/api/Planes');
+                    if (!planesRes.ok) throw new Error('Error al cargar planes');
+                }
 
-                planes = await planesRes.json();
+                const planesData = await planesRes.json();
+                planes = planesData.map(p => ({
+                    id: p.Id || p.id,
+                    nombre: p.Nombre || p.nombre,
+                    precio: p.Precio || p.precio,
+                    duracionDias: p.DuracionDias || p.duracionDias
+                }));
+
                 const planSelect = document.getElementById('planSelect');
-
                 planes.forEach(p => {
                     const option = document.createElement('option');
-                    option.value = p.id || p.Id;
-                    option.textContent = `${p.nombre || p.Nombre} - $${p.precio || p.Precio} (${p.duracionDias || p.DuracionDias} días)`;
+                    option.value = p.id;
+                    option.textContent = `${p.nombre} - $${p.precio} (${p.duracionDias} días)`;
                     option.className = 'text-gray-900 font-semibold';
                     planSelect.appendChild(option);
                 });
 
-                const today = new Date();
-                document.getElementById('fechaInicio').valueAsDate = today;
+                // Establecer fecha de hoy
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('fechaInicio').value = today;
+
+                // Cargar todos los clientes
+                await cargarClientes();
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error al cargar planes');
+                alert('Error al cargar planes: ' + error.message);
+            }
+        }
+
+        async function cargarClientes() {
+            try {
+                const clientesRes = await fetch('/api/Clientes');
+                if (!clientesRes.ok) throw new Error('Error al cargar clientes');
+
+                const clientesData = await clientesRes.json();
+                todosLosClientes = clientesData
+                    .filter(c => c.Activo || c.activo)
+                    .map(c => ({
+                        id: c.Id || c.id,
+                        nombre: c.Nombre || c.nombre,
+                        apellido: c.Apellido || c.apellido,
+                        cedula: c.Cedula || c.cedula,
+                        telefono: c.Telefono || c.telefono || '',
+                        tieneMembresia: false // Se verificará cuando se seleccione
+                    }));
+
+                console.log(`Cargados ${todosLosClientes.length} clientes activos`);
+            } catch (error) {
+                console.error('Error al cargar clientes:', error);
+                alert('Error al cargar clientes: ' + error.message);
             }
         }
 
         document.getElementById('clienteBuscar').addEventListener('input', function(e) {
             clearTimeout(buscarTimeout);
-            const query = e.target.value.trim();
+            const query = e.target.value.trim().toLowerCase();
 
             if (query.length < 2) {
                 document.getElementById('clienteResultados').classList.add('hidden');
                 return;
             }
 
-            buscarTimeout = setTimeout(async () => {
-                try {
-                    const response = await fetch(`/api/Membresias/buscar-clientes?q=${encodeURIComponent(query)}`);
-                    const clientes = await response.json();
-                    mostrarResultados(clientes);
-                } catch (error) {
-                    console.error('Error:', error);
-                }
+            buscarTimeout = setTimeout(() => {
+                const resultados = todosLosClientes.filter(c => {
+                    const nombreCompleto = `${c.nombre} ${c.apellido}`.toLowerCase();
+                    return nombreCompleto.includes(query) ||
+                           c.cedula.includes(query) ||
+                           c.telefono.includes(query);
+                }).slice(0, 10);
+
+                mostrarResultados(resultados);
             }, 300);
         });
 
@@ -182,14 +222,13 @@
             }
 
             resultadosDiv.innerHTML = clientes.map(c => `
-                <div onclick="seleccionarCliente('${c.id}', '${c.nombreCompleto}', '${c.cedula}', ${c.tieneMembresia})"
+                <div onclick='seleccionarCliente(${JSON.stringify(c).replace(/'/g, "&#39;")})'
                      class="p-4 hover:bg-gray-50 cursor-pointer border-b last:border-b-0 transition-all">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="font-black text-gray-900">${c.nombreCompleto}</p>
+                            <p class="font-black text-gray-900">${c.nombre} ${c.apellido}</p>
                             <p class="text-sm text-gray-600 font-semibold">Cédula: ${c.cedula}${c.telefono ? ' - Tel: ' + c.telefono : ''}</p>
                         </div>
-                        ${c.tieneMembresia ? '<span class="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs rounded-full font-black uppercase">Activo</span>' : ''}
                     </div>
                 </div>
             `).join('');
@@ -197,17 +236,28 @@
             resultadosDiv.classList.remove('hidden');
         }
 
-        function seleccionarCliente(id, nombre, cedula, tieneMembresia) {
-            if (tieneMembresia) {
-                if (!confirm('Este cliente ya tiene una membresía activa. ¿Desea continuar?')) {
-                    return;
+        async function seleccionarCliente(cliente) {
+            // Verificar si tiene membresía activa
+            try {
+                const response = await fetch(`/api/Membresias/cliente/${cliente.id}`);
+                if (response.ok) {
+                    const membresias = await response.json();
+                    const tieneActiva = membresias.some(m => (m.Estado || m.estado) === 'activa');
+
+                    if (tieneActiva) {
+                        if (!confirm('Este cliente ya tiene una membresía activa. ¿Desea continuar?')) {
+                            return;
+                        }
+                    }
                 }
+            } catch (error) {
+                console.error('Error al verificar membresías:', error);
             }
 
-            clienteSeleccionadoId = id;
-            document.getElementById('clienteId').value = id;
-            document.getElementById('clienteNombre').textContent = nombre;
-            document.getElementById('clienteCedula').textContent = `Cédula: ${cedula}`;
+            clienteSeleccionadoId = cliente.id;
+            document.getElementById('clienteId').value = cliente.id;
+            document.getElementById('clienteNombre').textContent = `${cliente.nombre} ${cliente.apellido}`;
+            document.getElementById('clienteCedula').textContent = `Cédula: ${cliente.cedula}`;
             document.getElementById('clienteSeleccionado').classList.remove('hidden');
             document.getElementById('clienteResultados').classList.add('hidden');
             document.getElementById('clienteBuscar').value = '';
@@ -223,39 +273,36 @@
 
         document.getElementById('planSelect').addEventListener('change', function() {
             const planId = this.value;
-            const plan = planes.find(p => (p.id || p.Id) == planId);
+            const plan = planes.find(p => p.id == planId);
 
             if (plan) {
-                const duracion = plan.duracionDias || plan.DuracionDias;
-                const precio = plan.precio || plan.Precio;
-                const nombre = plan.nombre || plan.Nombre;
-
-                document.getElementById('planInfo').textContent = `${nombre} - ${duracion} días - $${precio}`;
+                document.getElementById('planInfo').textContent = `${plan.nombre} - ${plan.duracionDias} días - $${plan.precio}`;
                 document.getElementById('planInfo').classList.remove('hidden');
-                document.getElementById('montoPagado').value = precio;
+                document.getElementById('montoPagado').value = plan.precio;
 
-                const fechaInicio = document.getElementById('fechaInicio').valueAsDate;
+                const fechaInicio = document.getElementById('fechaInicio').value;
                 if (fechaInicio) {
-                    calcularFechaVencimiento(fechaInicio, duracion);
+                    calcularFechaVencimiento(fechaInicio, plan.duracionDias);
                 }
             }
         });
 
         document.getElementById('fechaInicio').addEventListener('change', function() {
             const planId = document.getElementById('planSelect').value;
-            const plan = planes.find(p => (p.id || p.Id) == planId);
+            const plan = planes.find(p => p.id == planId);
 
-            if (plan && this.valueAsDate) {
-                const duracion = plan.duracionDias || plan.DuracionDias;
-                calcularFechaVencimiento(this.valueAsDate, duracion);
+            if (plan && this.value) {
+                calcularFechaVencimiento(this.value, plan.duracionDias);
             }
         });
 
-        function calcularFechaVencimiento(fechaInicio, duracionDias) {
+        function calcularFechaVencimiento(fechaInicioStr, duracionDias) {
+            const fechaInicio = new Date(fechaInicioStr + 'T00:00:00');
             const fechaVenc = new Date(fechaInicio);
             fechaVenc.setDate(fechaVenc.getDate() + duracionDias);
 
-            document.getElementById('fechaVencimiento').valueAsDate = fechaVenc;
+            const fechaVencStr = fechaVenc.toISOString().split('T')[0];
+            document.getElementById('fechaVencimiento').value = fechaVencStr;
             document.getElementById('totalDias').textContent = `${duracionDias} días`;
             document.getElementById('fechaVencTexto').textContent = fechaVenc.toLocaleDateString('es-ES', {
                 weekday: 'long',
