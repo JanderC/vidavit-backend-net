@@ -24,6 +24,18 @@
       <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-Jtxf9L\u002B5ITKRc1gIRl4VbUpGkRNfOBXjYTdhJD4facM="}]]]></EndpointProperties>
       <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=3600, must-revalidate"},{"Name":"Content-Length","Value":"5430"},{"Name":"Content-Type","Value":"image/x-icon"},{"Name":"ETag","Value":"\u0022Jtxf9L\u002B5ITKRc1gIRl4VbUpGkRNfOBXjYTdhJD4facM=\u0022"},{"Name":"Last-Modified","Value":"Thu, 18 Dec 2025 23:09:04 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/VidaFit/images/tauro-gym-logo.png">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\tauro-gym-logo.png'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-o50HVlQa4oFIgof5xo\u002BYZxVV7T0cA87Q1\u002BkdKGGx6PQ="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=3600, must-revalidate"},{"Name":"Content-Length","Value":"249587"},{"Name":"Content-Type","Value":"image/png"},{"Name":"ETag","Value":"\u0022o50HVlQa4oFIgof5xo\u002BYZxVV7T0cA87Q1\u002BkdKGGx6PQ=\u0022"},{"Name":"Last-Modified","Value":"Fri, 19 Dec 2025 14:32:16 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/VidaFit/images/tauro-gym-logo.zkbccfb88v.png">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\tauro-gym-logo.png'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"zkbccfb88v"},{"Name":"integrity","Value":"sha256-o50HVlQa4oFIgof5xo\u002BYZxVV7T0cA87Q1\u002BkdKGGx6PQ="},{"Name":"label","Value":"_content/VidaFit/images/tauro-gym-logo.png"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"249587"},{"Name":"Content-Type","Value":"image/png"},{"Name":"ETag","Value":"\u0022o50HVlQa4oFIgof5xo\u002BYZxVV7T0cA87Q1\u002BkdKGGx6PQ=\u0022"},{"Name":"Last-Modified","Value":"Fri, 19 Dec 2025 14:32:16 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/VidaFit/js/site.js">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\site.js'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
@@ -724,13 +736,13 @@
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\VidaFit.8yav6x6fyq.bundle.scp.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"8yav6x6fyq"},{"Name":"integrity","Value":"sha256-0KxmtF\u002BrvTq38paNmJtstC4TCzxSAy14hBIMJnMeHGU="},{"Name":"label","Value":"_content/VidaFit/VidaFit.bundle.scp.css"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1125"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u00220KxmtF\u002BrvTq38paNmJtstC4TCzxSAy14hBIMJnMeHGU=\u0022"},{"Name":"Last-Modified","Value":"Thu, 18 Dec 2025 23:09:03 GMT"}]]]></ResponseHeaders>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1125"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u00220KxmtF\u002BrvTq38paNmJtstC4TCzxSAy14hBIMJnMeHGU=\u0022"},{"Name":"Last-Modified","Value":"Mon, 22 Dec 2025 13:48:19 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/VidaFit/VidaFit.bundle.scp.css">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\VidaFit.8yav6x6fyq.bundle.scp.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-0KxmtF\u002BrvTq38paNmJtstC4TCzxSAy14hBIMJnMeHGU="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1125"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u00220KxmtF\u002BrvTq38paNmJtstC4TCzxSAy14hBIMJnMeHGU=\u0022"},{"Name":"Last-Modified","Value":"Thu, 18 Dec 2025 23:09:03 GMT"}]]]></ResponseHeaders>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1125"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u00220KxmtF\u002BrvTq38paNmJtstC4TCzxSAy14hBIMJnMeHGU=\u0022"},{"Name":"Last-Modified","Value":"Mon, 22 Dec 2025 13:48:19 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
   </ItemGroup>
 </Project>

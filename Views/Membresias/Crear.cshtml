@@ -1,6 +1,6 @@
 @{
     ViewData["Title"] = "Crear Membresía";
-    ViewData["Subtitle"] = "Nueva membresía - TAURO GYM";
+    ViewData["Subtitle"] = "Nueva membresía con opción de pago parcial - TAURO GYM";
     Layout = "_AdminLayout";
 }
 
@@ -12,11 +12,12 @@
             </div>
             <div>
                 <h2 class="text-3xl font-black text-gray-900 uppercase tracking-wide">Nueva Membresía</h2>
-                <p class="text-sm text-gray-600 font-semibold mt-1">Registrar membresía para un cliente</p>
+                <p class="text-sm text-gray-600 font-semibold mt-1">Registrar membresía con opción de pago parcial</p>
             </div>
         </div>
 
         <form id="membresiaForm" class="space-y-6">
+            <!-- CLIENTE -->
             <div>
                 <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Buscar Cliente *</label>
                 <div class="relative">
@@ -44,6 +45,7 @@
                 <input type="hidden" name="clienteId" id="clienteId" required>
             </div>
 
+            <!-- PLAN -->
             <div>
                 <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Plan *</label>
                 <select name="planId" id="planSelect" required
@@ -53,6 +55,7 @@
                 <div id="planInfo" class="mt-3 p-4 bg-blue-50 border-2 border-blue-500 rounded-xl text-sm text-blue-900 font-bold hidden"></div>
             </div>
 
+            <!-- FECHAS -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Fecha Inicio *</label>
@@ -65,11 +68,30 @@
                     <input type="date" name="fechaVencimiento" id="fechaVencimiento" readonly
                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl bg-gray-100 text-gray-900 font-semibold">
                 </div>
+            </div>
 
+            <!-- PRECIO DEL PLAN (DISPLAY) -->
+            <div id="precioContainer" class="hidden p-5 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-400 rounded-xl">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-blue-700 font-bold uppercase tracking-wide">Precio Total del Plan:</p>
+                        <p class="text-3xl font-black text-blue-900" id="precioPlan">$0.00</p>
+                    </div>
+                    <div class="bg-blue-200 p-3 rounded-xl">
+                        <i data-lucide="dollar-sign" class="w-8 h-8 text-blue-700"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MONTO PAGADO Y MÉTODO -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Monto Pagado *</label>
-                    <input type="number" step="0.01" name="montoPagado" id="montoPagado" required
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 text-gray-900 font-semibold">
+                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
+                        Monto a Pagar Ahora *
+                        <span class="text-xs text-gray-500 normal-case">(Puede pagar menos del total)</span>
+                    </label>
+                    <input type="number" step="0.01" min="0" name="montoPagado" id="montoPagado" required
+                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 text-gray-900 font-semibold text-lg">
                 </div>
 
                 <div>
@@ -83,6 +105,32 @@
                 </div>
             </div>
 
+            <!-- ALERTA DE SALDO PENDIENTE -->
+            <div id="saldoPendienteAlert" class="hidden p-5 bg-gradient-to-r from-orange-50 to-red-50 border-2 border-orange-400 rounded-xl">
+                <div class="flex items-start gap-4">
+                    <div class="bg-orange-200 p-3 rounded-xl">
+                        <i data-lucide="alert-triangle" class="w-8 h-8 text-orange-700"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-black text-orange-900 text-lg uppercase tracking-wide mb-2">⚠️ Pago Parcial Detectado</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-orange-700 font-bold">Monto a Pagar:</p>
+                                <p class="text-2xl font-black text-orange-900" id="montoPagandoDisplay">$0.00</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-red-700 font-bold">Saldo a Deber:</p>
+                                <p class="text-2xl font-black text-red-600" id="saldoDeberDisplay">$0.00</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-orange-800 font-bold mt-3 bg-orange-100 p-3 rounded-lg border border-orange-300">
+                            📝 Se creará automáticamente una DEUDA por el saldo pendiente
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INFORMACIÓN DE DURACIÓN -->
             <div id="duracionInfo" class="hidden">
                 <div class="bg-emerald-50 border-2 border-emerald-500 rounded-xl p-5">
                     <div class="flex items-center gap-2 mb-4">
@@ -102,19 +150,23 @@
                 </div>
             </div>
 
+            <!-- NOTAS -->
             <div>
                 <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Notas (Opcional)</label>
                 <textarea name="notas" rows="2" placeholder="Ingrese notas adicionales..."
                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 text-gray-900 font-semibold"></textarea>
             </div>
 
+            <!-- BOTONES -->
             <div class="flex gap-4 pt-6 border-t-2 border-gray-200">
                 <button type="submit"
                         class="flex-1 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black py-4 px-6 rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
+                    <i data-lucide="check-circle" class="w-5 h-5 inline mr-2"></i>
                     Crear Membresía
                 </button>
                 <a href="/membresias"
                    class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 font-black py-4 px-6 rounded-xl transition-all text-center uppercase tracking-wide">
+                    <i data-lucide="x-circle" class="w-5 h-5 inline mr-2"></i>
                     Cancelar
                 </a>
             </div>
@@ -128,10 +180,10 @@
         let todosLosClientes = [];
         let clienteSeleccionadoId = null;
         let buscarTimeout = null;
+        let planSeleccionado = null;
 
         async function cargarPlanes() {
             try {
-                // Cargar planes - intenta primero con /activos, si falla usa el endpoint original
                 let planesRes = await fetch('/api/Planes/activos');
                 if (!planesRes.ok) {
                     planesRes = await fetch('/api/Planes');
@@ -150,63 +202,50 @@
                 planes.forEach(p => {
                     const option = document.createElement('option');
                     option.value = p.id;
-                    option.textContent = `${p.nombre} - $${p.precio} (${p.duracionDias} días)`;
+                    option.textContent = `${p.nombre} - $${p.precio.toFixed(2)} (${p.duracionDias} días)`;
                     option.className = 'text-gray-900 font-semibold';
                     planSelect.appendChild(option);
                 });
 
                 // Establecer fecha de hoy
-                const today = new Date().toISOString().split('T')[0];
-                document.getElementById('fechaInicio').value = today;
+                const hoy = new Date().toISOString().split('T')[0];
+                document.getElementById('fechaInicio').value = hoy;
 
-                // Cargar todos los clientes
-                await cargarClientes();
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error al cargar planes: ' + error.message);
-            }
-        }
-
-        async function cargarClientes() {
-            try {
+                // Cargar clientes
                 const clientesRes = await fetch('/api/Clientes');
-                if (!clientesRes.ok) throw new Error('Error al cargar clientes');
-
-                const clientesData = await clientesRes.json();
-                todosLosClientes = clientesData
-                    .filter(c => c.Activo || c.activo)
-                    .map(c => ({
+                if (clientesRes.ok) {
+                    const clientesData = await clientesRes.json();
+                    todosLosClientes = clientesData.map(c => ({
                         id: c.Id || c.id,
                         nombre: c.Nombre || c.nombre,
                         apellido: c.Apellido || c.apellido,
                         cedula: c.Cedula || c.cedula,
-                        telefono: c.Telefono || c.telefono || '',
-                        tieneMembresia: false // Se verificará cuando se seleccione
+                        telefono: c.Telefono || c.telefono
                     }));
+                }
 
-                console.log(`Cargados ${todosLosClientes.length} clientes activos`);
             } catch (error) {
-                console.error('Error al cargar clientes:', error);
-                alert('Error al cargar clientes: ' + error.message);
+                console.error('Error cargando datos:', error);
+                alert('Error al cargar planes y clientes');
             }
         }
 
+        // Buscar cliente
         document.getElementById('clienteBuscar').addEventListener('input', function(e) {
             clearTimeout(buscarTimeout);
-            const query = e.target.value.trim().toLowerCase();
+            const termino = e.target.value.toLowerCase().trim();
 
-            if (query.length < 2) {
+            if (termino.length < 2) {
                 document.getElementById('clienteResultados').classList.add('hidden');
                 return;
             }
 
             buscarTimeout = setTimeout(() => {
-                const resultados = todosLosClientes.filter(c => {
-                    const nombreCompleto = `${c.nombre} ${c.apellido}`.toLowerCase();
-                    return nombreCompleto.includes(query) ||
-                           c.cedula.includes(query) ||
-                           c.telefono.includes(query);
-                }).slice(0, 10);
+                const resultados = todosLosClientes.filter(c =>
+                    c.nombre.toLowerCase().includes(termino) ||
+                    c.apellido.toLowerCase().includes(termino) ||
+                    c.cedula.includes(termino)
+                ).slice(0, 5);
 
                 mostrarResultados(resultados);
             }, 300);
@@ -237,7 +276,7 @@
         }
 
         async function seleccionarCliente(cliente) {
-            // Verificar si tiene membresía activa
+            // Verificar membresía activa
             try {
                 const response = await fetch(`/api/Membresias/cliente/${cliente.id}`);
                 if (response.ok) {
@@ -245,7 +284,7 @@
                     const tieneActiva = membresias.some(m => (m.Estado || m.estado) === 'activa');
 
                     if (tieneActiva) {
-                        if (!confirm('Este cliente ya tiene una membresía activa. ¿Desea continuar?')) {
+                        if (!confirm('⚠️ Este cliente ya tiene una membresía activa. ¿Desea continuar?')) {
                             return;
                         }
                     }
@@ -271,30 +310,70 @@
             document.getElementById('clienteSeleccionado').classList.add('hidden');
         }
 
+        // Seleccionar plan
         document.getElementById('planSelect').addEventListener('change', function() {
             const planId = this.value;
-            const plan = planes.find(p => p.id == planId);
+            planSeleccionado = planes.find(p => p.id == planId);
 
-            if (plan) {
-                document.getElementById('planInfo').textContent = `${plan.nombre} - ${plan.duracionDias} días - $${plan.precio}`;
+            if (planSeleccionado) {
+                document.getElementById('planInfo').textContent = `${planSeleccionado.nombre} - ${planSeleccionado.duracionDias} días - $${planSeleccionado.precio.toFixed(2)}`;
                 document.getElementById('planInfo').classList.remove('hidden');
-                document.getElementById('montoPagado').value = plan.precio;
+
+                // Mostrar precio
+                document.getElementById('precioPlan').textContent = `$${planSeleccionado.precio.toFixed(2)}`;
+                document.getElementById('precioContainer').classList.remove('hidden');
+
+                // Setear monto pagado con el precio del plan
+                document.getElementById('montoPagado').value = planSeleccionado.precio.toFixed(2);
+                document.getElementById('montoPagado').max = planSeleccionado.precio;
 
                 const fechaInicio = document.getElementById('fechaInicio').value;
                 if (fechaInicio) {
-                    calcularFechaVencimiento(fechaInicio, plan.duracionDias);
+                    calcularFechaVencimiento(fechaInicio, planSeleccionado.duracionDias);
                 }
+
+                calcularSaldoPendiente();
+                lucide.createIcons();
             }
         });
 
+        // Cambio de fecha inicio
         document.getElementById('fechaInicio').addEventListener('change', function() {
-            const planId = document.getElementById('planSelect').value;
-            const plan = planes.find(p => p.id == planId);
-
-            if (plan && this.value) {
-                calcularFechaVencimiento(this.value, plan.duracionDias);
+            if (planSeleccionado && this.value) {
+                calcularFechaVencimiento(this.value, planSeleccionado.duracionDias);
             }
         });
+
+        // Calcular saldo pendiente en tiempo real
+        document.getElementById('montoPagado').addEventListener('input', calcularSaldoPendiente);
+
+        function calcularSaldoPendiente() {
+            if (!planSeleccionado) return;
+
+            const precioPlan = planSeleccionado.precio;
+            const montoPagado = parseFloat(document.getElementById('montoPagado').value) || 0;
+            const saldoPendiente = Math.max(0, precioPlan - montoPagado);
+
+            const alertDiv = document.getElementById('saldoPendienteAlert');
+
+            if (saldoPendiente > 0 && montoPagado > 0) {
+                // Mostrar alerta de pago parcial
+                document.getElementById('montoPagandoDisplay').textContent = `$${montoPagado.toFixed(2)}`;
+                document.getElementById('saldoDeberDisplay').textContent = `$${saldoPendiente.toFixed(2)}`;
+                alertDiv.classList.remove('hidden');
+            } else if (montoPagado === 0) {
+                // Pago completo fiado
+                document.getElementById('montoPagandoDisplay').textContent = '$0.00';
+                document.getElementById('saldoDeberDisplay').textContent = `$${precioPlan.toFixed(2)}`;
+                alertDiv.classList.remove('hidden');
+                alertDiv.querySelector('h4').textContent = '⚠️ Membresía Fiada Completa';
+            } else {
+                // Pago completo
+                alertDiv.classList.add('hidden');
+            }
+
+            lucide.createIcons();
+        }
 
         function calcularFechaVencimiento(fechaInicioStr, duracionDias) {
             const fechaInicio = new Date(fechaInicioStr + 'T00:00:00');
@@ -313,24 +392,52 @@
             document.getElementById('duracionInfo').classList.remove('hidden');
         }
 
+        // Submit form
         document.getElementById('membresiaForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
             if (!clienteSeleccionadoId) {
-                alert('Debe seleccionar un cliente');
+                alert('⚠️ Debe seleccionar un cliente');
+                return;
+            }
+
+            if (!planSeleccionado) {
+                alert('⚠️ Debe seleccionar un plan');
                 return;
             }
 
             const formData = new FormData(e.target);
+            const montoPagado = parseFloat(formData.get('montoPagado'));
+            const precioPlan = planSeleccionado.precio;
+            const saldoPendiente = precioPlan - montoPagado;
+
+            // Validar monto
+            if (montoPagado < 0 || montoPagado > precioPlan) {
+                alert('⚠️ El monto pagado debe estar entre $0 y $' + precioPlan.toFixed(2));
+                return;
+            }
+
+            // Confirmación
+            let mensaje = '';
+            if (montoPagado === 0) {
+                mensaje = `¿Confirmar membresía FIADA?\n\n💰 Total: $${precioPlan.toFixed(2)}\n🔴 Se registrará como DEUDA COMPLETA`;
+            } else if (saldoPendiente > 0) {
+                mensaje = `¿Confirmar membresía con PAGO PARCIAL?\n\n💵 Paga ahora: $${montoPagado.toFixed(2)}\n🔴 Saldo a deber: $${saldoPendiente.toFixed(2)}\n📝 Se creará deuda automáticamente`;
+            } else {
+                mensaje = `¿Confirmar membresía PAGADA?\n\n✅ Monto: $${montoPagado.toFixed(2)}`;
+            }
+
+            if (!confirm(mensaje)) return;
+
             const data = {
                 clienteId: clienteSeleccionadoId,
                 planId: formData.get('planId'),
                 fechaInicio: formData.get('fechaInicio'),
                 fechaVencimiento: formData.get('fechaVencimiento'),
-                estado: 'activa',
-                montoPagado: parseFloat(formData.get('montoPagado')),
+                montoPagado: montoPagado,
                 metodoPago: formData.get('metodoPago'),
-                notas: formData.get('notas') || ''
+                notas: formData.get('notas') || '',
+                usuarioId: null // TODO: Obtener del usuario logueado
             };
 
             try {
@@ -343,23 +450,29 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    alert('✓ Membresía creada exitosamente');
+                    let mensajeExito = '✓ Membresía creada exitosamente';
+                    if (result.saldoPendiente > 0) {
+                        mensajeExito += `\n\n📝 Se registró deuda de $${result.saldoPendiente.toFixed(2)}`;
+                    }
+                    alert(mensajeExito);
                     window.location.href = '/membresias';
                 } else {
-                    alert('Error: ' + result.message);
+                    alert('❌ Error: ' + result.message);
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error al crear membresía');
+                alert('❌ Error al crear membresía: ' + error.message);
             }
         });
 
+        // Cerrar resultados al hacer clic fuera
         document.addEventListener('click', function(e) {
             if (!e.target.closest('#clienteBuscar') && !e.target.closest('#clienteResultados')) {
                 document.getElementById('clienteResultados').classList.add('hidden');
             }
         });
 
+        // Inicializar
         document.addEventListener('DOMContentLoaded', function() {
             cargarPlanes();
             lucide.createIcons();

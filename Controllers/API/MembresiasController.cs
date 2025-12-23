@@ -57,6 +57,13 @@ namespace VidaFit.Controllers.API
                     ? notasEl.GetString()
                     : null;
 
+                // Obtener usuario ID si está disponible (para movimientos de caja)
+                Guid? usuarioId = null;
+                if (data.TryGetProperty("usuarioId", out var userEl) && !string.IsNullOrWhiteSpace(userEl.GetString()))
+                {
+                    usuarioId = Guid.Parse(userEl.GetString());
+                }
+
                 // Validar cliente
                 var cliente = await _context.Clientes.FindAsync(clienteId);
                 if (cliente == null || !cliente.Activo)
@@ -69,6 +76,12 @@ namespace VidaFit.Controllers.API
                 if (plan == null || !plan.Activo)
                 {
                     return Ok(new { success = false, message = "Plan no válido" });
+                }
+
+                // Validar que el monto pagado no sea mayor al precio del plan
+                if (montoPagado > plan.Precio)
+                {
+                    return Ok(new { success = false, message = "El monto pagado no puede ser mayor al precio del plan" });
                 }
 
                 // Crear membresía
@@ -99,18 +112,80 @@ namespace VidaFit.Controllers.API
                     FechaPago = DateTime.UtcNow,
                     MetodoPago = metodoPago,
                     ReciboNumero = null,
-                    Notas = null,
+                    Notas = montoPagado < plan.Precio ? "Pago parcial de membresía" : null,
                     CreatedAt = DateTime.UtcNow
                 };
 
                 _context.Pagos.Add(pago);
+
+                // SI HAY DEUDA (pago parcial), registrarla automáticamente
+                decimal saldoPendiente = plan.Precio - montoPagado;
+                Guid? deudaId = null;
+
+                if (saldoPendiente > 0)
+                {
+                    var deuda = new DeudaCliente
+                    {
+                        Id = Guid.NewGuid(),
+                        ClienteId = clienteId,
+                        Concepto = $"Saldo pendiente membresía {plan.Nombre}",
+                        MontoTotal = saldoPendiente,
+                        MontoPagado = 0,
+                        Saldo = saldoPendiente,
+                        Estado = "pendiente",
+                        FechaCreacion = DateTime.UtcNow,
+                        FechaVencimiento = DateTime.SpecifyKind(fechaVencimiento, DateTimeKind.Utc),
+                        Notas = $"Pago inicial: ${montoPagado:N2} de ${plan.Precio:N2}",
+                        CreatedAt = DateTime.UtcNow
+                    };
+
+                    _context.DeudasClientes.Add(deuda);
+                    deudaId = deuda.Id;
+                }
+
+                // Registrar ingreso en caja (solo el monto pagado)
+                if (usuarioId.HasValue && montoPagado > 0)
+                {
+                    var movimientoCaja = new MovimientoCaja
+                    {
+                        Id = Guid.NewGuid(),
+                        Tipo = "ingreso",
+                        Categoria = "membresia",
+                        Monto = montoPagado,
+                        Descripcion = $"Venta membresía {plan.Nombre} - {cliente.Nombre} {cliente.Apellido}" +
+                                    (saldoPendiente > 0 ? $" (Pago parcial, saldo: ${saldoPendiente:N2})" : ""),
+                        ReferenciaId = membresia.Id,
+                        UsuarioId = usuarioId.Value,
+                        MetodoPago = metodoPago,
+                        Fecha = DateTime.UtcNow,
+                        CreatedAt = DateTime.UtcNow
+                    };
+
+                    _context.MovimientosCaja.Add(movimientoCaja);
+                }
+
                 await _context.SaveChangesAsync();
 
-                return Ok(new { success = true, data = membresia });
+                return Ok(new
+                {
+                    success = true,
+                    data = membresia,
+                    deudaId = deudaId,
+                    saldoPendiente = saldoPendiente,
+                    message = saldoPendiente > 0
+                        ? $"Membresía creada. Saldo pendiente: ${saldoPendiente:N2}"
+                        : "Membresía creada exitosamente"
+                });
             }
             catch (Exception ex)
             {
-                return Ok(new { success = false, message = "Error al crear membresía", error = ex.Message, inner = ex.InnerException?.Message });
+                return Ok(new
+                {
+                    success = false,
+                    message = "Error al crear membresía",
+                    error = ex.Message,
+                    inner = ex.InnerException?.Message
+                });
             }
         }
 
@@ -162,11 +237,13 @@ namespace VidaFit.Controllers.API
                     Id = m.Id,
                     PlanId = m.PlanId,
                     PlanNombre = m.Plan.Nombre,
+                    PlanPrecio = m.Plan.Precio,
                     FechaInicio = m.FechaInicio,
                     FechaVencimiento = m.FechaVencimiento,
                     Estado = m.Estado,
                     MontoPagado = m.MontoPagado,
-                    MetodoPago = m.MetodoPago
+                    MetodoPago = m.MetodoPago,
+                    SaldoPendiente = m.Plan.Precio - m.MontoPagado
                 })
                 .ToListAsync();
 

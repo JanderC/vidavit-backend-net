@@ -11,6 +11,9 @@ using Microsoft.OpenApi.Models;
 using VidaFitBackend.Services;
 using VidaFit.Services;
 using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -87,7 +90,7 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new()
     {
-        Title = "VIDA FIT API",
+        Title = "TAURO GYM API",
         Version = "v1",
         Description = "Sistema de Gestión de Gimnasio con Check-in Biométrico"
     });
@@ -103,15 +106,16 @@ fingerprintService.Initialize();
 
 // Mostrar banner DESPUÉS de la inicialización
 Console.WriteLine("═══════════════════════════════════════════════════════");
-Console.WriteLine("   ██╗   ██╗██╗██████╗  █████╗     ███████╗██╗████████╗");
-Console.WriteLine("   ██║   ██║██║██╔══██╗██╔══██╗    ██╔════╝██║╚══██╔══╝");
-Console.WriteLine("   ██║   ██║██║██║  ██║███████║    █████╗  ██║   ██║   ");
-Console.WriteLine("   ╚██╗ ██╔╝██║██║  ██║██╔══██║    ██╔══╝  ██║   ██║   ");
-Console.WriteLine("    ╚████╔╝ ██║██████╔╝██║  ██║    ██║     ██║   ██║   ");
-Console.WriteLine("     ╚═══╝  ╚═╝╚═════╝ ╚═╝  ╚═╝    ╚═╝     ╚═╝   ╚═╝   ");
+Console.WriteLine("   ████████╗ █████╗ ██╗   ██╗██████╗  ██████╗          ");
+Console.WriteLine("   ╚══██╔══╝██╔══██╗██║   ██║██╔══██╗██╔═══██╗         ");
+Console.WriteLine("      ██║   ███████║██║   ██║██████╔╝██║   ██║         ");
+Console.WriteLine("      ██║   ██╔══██║██║   ██║██╔══██╗██║   ██║         ");
+Console.WriteLine("      ██║   ██║  ██║╚██████╔╝██║  ██║╚██████╔╝         ");
+Console.WriteLine("      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝ ╚═════╝          ");
+Console.WriteLine("                    GYM SYSTEM                          ");
 Console.WriteLine("═══════════════════════════════════════════════════════");
-Console.WriteLine("   Sistema de Gestión de Gimnasio");
-Console.WriteLine("   Versión 1.0 - API + MVC Híbrido");
+Console.WriteLine("   Sistema de Gestión de Gimnasio TAURO GYM");
+Console.WriteLine("   Versión 1.0 - Sistema Integrado");
 Console.WriteLine("═══════════════════════════════════════════════════════");
 Console.WriteLine($"   ✓ Servidor iniciado en: http://localhost:5000");
 Console.WriteLine($"   ✓ Base de datos: PostgreSQL - Conectada");
@@ -129,7 +133,7 @@ Console.WriteLine("════════════════════�
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "VIDA FIT API v1"));
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "TAURO GYM API v1"));
 }
 
 // Archivos estáticos (CSS, JS, imágenes)
@@ -157,4 +161,76 @@ app.MapControllerRoute(
     pattern: "kiosko",
     defaults: new { controller = "Kiosko", action = "Index" });
 
+// ==================== ABRIR NAVEGADOR AUTOMÁTICAMENTE ====================
+
+// Configurar el hook de inicio de la aplicación
+var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
+
+lifetime.ApplicationStarted.Register(() =>
+{
+    // Esperar un momento para asegurar que el servidor esté completamente listo
+    Task.Run(async () =>
+    {
+        await Task.Delay(1500); // Espera 1.5 segundos
+
+        Console.WriteLine("═══════════════════════════════════════════════════════");
+        Console.WriteLine("   ⚡ Abriendo navegador automáticamente...");
+        Console.WriteLine("═══════════════════════════════════════════════════════");
+
+        // Abrir Panel Admin
+        OpenBrowser("http://localhost:5000/admin");
+        Console.WriteLine("   ✓ Panel Admin abierto");
+
+        // Pequeña pausa entre ventanas
+        await Task.Delay(800);
+
+        // Abrir Kiosko
+        OpenBrowser("http://localhost:5000/kiosko");
+        Console.WriteLine("   ✓ Kiosko abierto");
+
+        Console.WriteLine("═══════════════════════════════════════════════════════");
+        Console.WriteLine("   ✅ Sistema listo para usar");
+        Console.WriteLine("   ⚠️  Presiona Ctrl+C para detener el servidor");
+        Console.WriteLine("═══════════════════════════════════════════════════════");
+    });
+});
+
+// ==================== INICIAR APLICACIÓN ====================
+
 app.Run("http://localhost:5000");
+
+// ==================== FUNCIÓN PARA ABRIR NAVEGADOR ====================
+
+static void OpenBrowser(string url)
+{
+    try
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            // Windows - Usar cmd para abrir en el navegador predeterminado
+            var psi = new ProcessStartInfo
+            {
+                FileName = "cmd",
+                Arguments = $"/c start {url}",
+                CreateNoWindow = true,
+                UseShellExecute = false
+            };
+            Process.Start(psi);
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            // Linux
+            Process.Start("xdg-open", url);
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            // macOS
+            Process.Start("open", url);
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"   ⚠️  No se pudo abrir el navegador: {ex.Message}");
+        Console.WriteLine($"   📌 Abre manualmente: {url}");
+    }
+}

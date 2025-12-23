@@ -23,6 +23,13 @@ namespace VidaFit.Data
         public DbSet<Pago> Pagos { get; set; }
         public DbSet<Notificacion> Notificaciones { get; set; }
 
+        // Nuevas tablas para sistema de caja
+        public DbSet<MovimientoCaja> MovimientosCaja { get; set; }
+        public DbSet<Empleado> Empleados { get; set; }
+        public DbSet<PagoEmpleado> PagosEmpleados { get; set; }
+        public DbSet<DeudaCliente> DeudasClientes { get; set; }
+        public DbSet<AbonoDeuda> AbonosDeuda { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -147,6 +154,97 @@ namespace VidaFit.Data
                 entity.HasIndex(n => n.FechaCreacion);
             });
 
+            // ==================== NUEVAS TABLAS SISTEMA DE CAJA ====================
+
+            modelBuilder.Entity<MovimientoCaja>(entity =>
+            {
+                entity.ToTable("movimientos_caja");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Monto).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.Tipo).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.Categoria).IsRequired().HasMaxLength(50);
+
+                // Relación con Usuario
+                entity.HasOne(m => m.Usuario)
+                    .WithMany()
+                    .HasForeignKey(m => m.UsuarioId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Índices
+                entity.HasIndex(m => m.Fecha);
+                entity.HasIndex(m => m.Tipo);
+                entity.HasIndex(m => m.Categoria);
+            });
+
+            modelBuilder.Entity<Empleado>(entity =>
+            {
+                entity.ToTable("empleados");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Nombre).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Apellido).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Cedula).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.Salario).HasColumnType("decimal(10,2)");
+                entity.HasIndex(e => e.Cedula).IsUnique();
+                entity.HasIndex(e => e.Activo);
+            });
+
+            modelBuilder.Entity<PagoEmpleado>(entity =>
+            {
+                entity.ToTable("pagos_empleados");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Monto).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.Periodo).HasMaxLength(50);
+
+                // Relación
+                entity.HasOne(p => p.Empleado)
+                    .WithMany()
+                    .HasForeignKey(p => p.EmpleadoId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // Índices
+                entity.HasIndex(p => p.EmpleadoId);
+                entity.HasIndex(p => p.FechaPago);
+            });
+
+            modelBuilder.Entity<DeudaCliente>(entity =>
+            {
+                entity.ToTable("deudas_clientes");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Concepto).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.MontoTotal).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.MontoPagado).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.Saldo).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.Estado).HasMaxLength(20);
+
+                // Relación
+                entity.HasOne(d => d.Cliente)
+                    .WithMany()
+                    .HasForeignKey(d => d.ClienteId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // Índices
+                entity.HasIndex(d => d.ClienteId);
+                entity.HasIndex(d => d.Estado);
+                entity.HasIndex(d => d.FechaVencimiento);
+            });
+
+            modelBuilder.Entity<AbonoDeuda>(entity =>
+            {
+                entity.ToTable("abonos_deuda");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Monto).HasColumnType("decimal(10,2)");
+
+                // Relación
+                entity.HasOne(a => a.Deuda)
+                    .WithMany(d => d.Abonos)
+                    .HasForeignKey(a => a.DeudaId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // Índices
+                entity.HasIndex(a => a.DeudaId);
+                entity.HasIndex(a => a.FechaAbono);
+            });
+
             // ==================== CONFIGURACIÓN DE CONVERSIÓN DE NOMBRES ====================
 
             // Configurar nombres de columnas en snake_case (PostgreSQL style)
@@ -172,6 +270,9 @@ namespace VidaFit.Data
                         "Direccion" => "direccion",
                         "HuellaDigital" => "huella_digital",
                         "HuellaTemplate" => "huella_template",
+                        "HuellaTemplate1" => "huella_template_1",
+                        "HuellaTemplate2" => "huella_template_2",
+                        "HuellaTemplate3" => "huella_template_3",
                         "FotoBase64" => "foto_base64",
                         "Descripcion" => "descripcion",
                         "Tipo" => "tipo",
@@ -209,6 +310,20 @@ namespace VidaFit.Data
                         "Prioridad" => "prioridad",
                         "FechaCreacion" => "fecha_creacion",
                         "FechaLeida" => "fecha_leida",
+                        // Nuevas propiedades para sistema de caja
+                        "ReferenciaId" => "referencia_id",
+                        "UsuarioId" => "usuario_id",
+                        "Fecha" => "fecha",
+                        "Cargo" => "cargo",
+                        "Salario" => "salario",
+                        "FechaContratacion" => "fecha_contratacion",
+                        "EmpleadoId" => "empleado_id",
+                        "Periodo" => "periodo",
+                        "Concepto" => "concepto",
+                        "MontoTotal" => "monto_total",
+                        "Saldo" => "saldo",
+                        "DeudaId" => "deuda_id",
+                        "FechaAbono" => "fecha_abono",
                         _ => property.Name.ToLower()
                     };
 

@@ -186,45 +186,45 @@
 
             renderIdle() {
                 return `
-                    <div class="min-h-screen relative overflow-hidden" style="background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);">
+                    <div class="min-h-screen relative overflow-hidden" style="background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);">
                         <div class="absolute inset-0 opacity-10">
-                            <div class="absolute top-10 left-10 w-96 h-96 bg-red-600 rounded-full filter blur-3xl"></div>
-                            <div class="absolute bottom-10 right-10 w-96 h-96 bg-gray-800 rounded-full filter blur-3xl"></div>
+                            <div class="absolute top-10 left-10 w-96 h-96 rounded-full filter blur-3xl" style="background: #D12423;"></div>
+                            <div class="absolute bottom-10 right-10 w-96 h-96 rounded-full filter blur-3xl" style="background: #D12423;"></div>
                         </div>
 
                         <div class="relative z-10 flex flex-col items-center justify-center min-h-screen px-8">
                             <div class="text-center mb-16">
-                                <div class="inline-block mb-6 px-8 py-3 bg-gradient-to-r from-red-600 to-red-800 rounded-full">
-                                    <h1 class="text-5xl font-black tracking-widest text-white">TAURO GYM</h1>
+                                <div class="mb-8 flex justify-center">
+                                    <img src="/images/tauro-gym-logo.png" alt="TAURO GYM" class="h-48 w-48 object-contain drop-shadow-2xl" />
                                 </div>
                                 <div class="mt-8 space-y-3">
                                     <p id="clock-time" class="text-7xl font-bold text-white tracking-tight"></p>
-                                    <p id="clock-date" class="text-2xl text-gray-400 uppercase tracking-wide"></p>
+                                    <p id="clock-date" class="text-2xl uppercase tracking-wide" style="color: #D12423;"></p>
                                 </div>
                             </div>
 
                             <div class="w-full max-w-2xl">
-                                <div class="bg-gradient-to-br from-gray-900 to-black border-2 border-red-600 rounded-3xl p-12 shadow-2xl">
+                                <div class="rounded-3xl p-12 shadow-2xl" style="background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%); border: 3px solid #D12423;">
                                     <div class="text-center space-y-8">
                                         <div class="flex justify-center">
                                             <div class="relative">
-                                                <div class="w-32 h-32 bg-red-600 rounded-full flex items-center justify-center animate-pulse">
+                                                <div class="w-32 h-32 rounded-full flex items-center justify-center animate-pulse" style="background: #D12423;">
                                                     <svg class="w-20 h-20 text-white" fill="currentColor" viewBox="0 0 24 24">
                                                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
                                                     </svg>
                                                 </div>
-                                                <div class="absolute inset-0 w-32 h-32 bg-red-600 rounded-full animate-ping opacity-20"></div>
+                                                <div class="absolute inset-0 w-32 h-32 rounded-full animate-ping opacity-20" style="background: #D12423;"></div>
                                             </div>
                                         </div>
 
                                         <div class="space-y-4">
                                             <h2 class="text-4xl font-bold text-white uppercase tracking-wider">Sistema de Acceso</h2>
-                                            <p class="text-2xl text-gray-300">Coloca tu huella para ingresar</p>
+                                            <p class="text-2xl" style="color: #D12423;">Coloca tu huella para ingresar</p>
                                         </div>
 
-                                        <div class="pt-6 border-t border-gray-800">
+                                        <div class="pt-6" style="border-top: 1px solid #333;">
                                             <button onclick="app.setState({ mode: 'cedula', message: '' })"
-                                                class="w-full py-5 bg-gray-800 hover:bg-gray-700 text-white rounded-xl text-xl font-semibold transition-all duration-300 transform hover:scale-105 border border-gray-700">
+                                                class="w-full py-5 text-white rounded-xl text-xl font-semibold transition-all duration-300 transform hover:scale-105" style="background: #1a1a1a; border: 2px solid #D12423;">
                                                 Ingresar con Cédula
                                             </button>
                                         </div>
@@ -242,24 +242,24 @@
 
             renderCedula() {
                 return `
-                    <div class="min-h-screen relative overflow-hidden" style="background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);">
+                    <div class="min-h-screen relative overflow-hidden" style="background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);">
                         <div class="absolute inset-0 opacity-10">
-                            <div class="absolute top-10 left-10 w-96 h-96 bg-red-600 rounded-full filter blur-3xl"></div>
-                            <div class="absolute bottom-10 right-10 w-96 h-96 bg-gray-800 rounded-full filter blur-3xl"></div>
+                            <div class="absolute top-10 left-10 w-96 h-96 rounded-full filter blur-3xl" style="background: #D12423;"></div>
+                            <div class="absolute bottom-10 right-10 w-96 h-96 rounded-full filter blur-3xl" style="background: #D12423;"></div>
                         </div>
 
                         <div class="relative z-10 flex flex-col items-center justify-center min-h-screen px-8">
                             <div class="text-center mb-12">
-                                <div class="inline-block mb-6 px-8 py-3 bg-gradient-to-r from-red-600 to-red-800 rounded-full">
-                                    <h1 class="text-4xl font-black tracking-widest text-white">TAURO GYM</h1>
+                                <div class="mb-6 flex justify-center">
+                                    <img src="/images/tauro-gym-logo.png" alt="TAURO GYM" class="h-32 w-32 object-contain drop-shadow-2xl" />
                                 </div>
                             </div>
 
                             <div class="w-full max-w-2xl">
-                                <div class="bg-gradient-to-br from-gray-900 to-black border-2 border-red-600 rounded-3xl p-12 shadow-2xl">
+                                <div class="rounded-3xl p-12 shadow-2xl" style="background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%); border: 3px solid #D12423;">
                                     <div class="text-center space-y-8">
                                         <div class="flex justify-center">
-                                            <div class="w-24 h-24 bg-red-600 rounded-full flex items-center justify-center">
+                                            <div class="w-24 h-24 rounded-full flex items-center justify-center" style="background: #D12423;">
                                                 <svg class="w-14 h-14 text-white" fill="currentColor" viewBox="0 0 24 24">
                                                     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                                                 </svg>
@@ -268,28 +268,28 @@
 
                                         <div class="space-y-3">
                                             <h2 class="text-3xl font-bold text-white uppercase">Identificación Manual</h2>
-                                            ${this.state.message ? `<p class="text-xl text-red-400">${this.state.message}</p>` : ''}
+                                            ${this.state.message ? `<p class="text-xl" style="color: #D12423;">${this.state.message}</p>` : ''}
                                         </div>
 
                                         <div class="space-y-6">
                                             <div>
-                                                <label class="block text-left text-lg text-gray-400 mb-3 font-semibold">Número de Cédula</label>
+                                                <label class="block text-left text-lg mb-3 font-semibold" style="color: #D12423;">Número de Cédula</label>
                                                 <input type="text"
                                                     id="cedula-input"
                                                     value="${this.state.cedula}"
                                                     oninput="app.state.cedula = this.value; app.render();"
                                                     onkeypress="if(event.key === 'Enter') app.handleCedulaConsulta()"
                                                     placeholder="Ingresa tu número de cédula"
-                                                    class="w-full px-6 py-5 bg-gray-800 border-2 border-gray-700 rounded-xl text-white text-2xl text-center focus:border-red-600 focus:outline-none transition-all"/>
+                                                    class="w-full px-6 py-5 rounded-xl text-white text-2xl text-center focus:outline-none transition-all" style="background: #1a1a1a; border: 2px solid #333;"/>
                                             </div>
 
                                             <button onclick="app.handleCedulaConsulta()"
-                                                class="w-full py-5 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white rounded-xl text-xl font-bold transition-all duration-300 transform hover:scale-105 shadow-lg">
+                                                class="w-full py-5 text-white rounded-xl text-xl font-bold transition-all duration-300 transform hover:scale-105 shadow-lg" style="background: #D12423;">
                                                 VERIFICAR IDENTIDAD
                                             </button>
 
                                             <button onclick="app.reset(); app.startFingerprintDetection();"
-                                                class="w-full py-4 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-lg font-semibold transition-all duration-300 border border-gray-700">
+                                                class="w-full py-4 text-white rounded-xl text-lg font-semibold transition-all duration-300" style="background: #1a1a1a; border: 2px solid #D12423;">
                                                 Volver a Huella Dactilar
                                             </button>
                                         </div>
@@ -339,32 +339,39 @@
             renderSuccess() {
                 const { cliente, diasRestantes, similarity } = this.state;
                 return `
-                    <div class="min-h-screen relative overflow-hidden" style="background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%);">
-                        <div class="absolute inset-0 opacity-20">
-                            <div class="absolute top-10 right-10 w-96 h-96 bg-emerald-400 rounded-full filter blur-3xl"></div>
-                            <div class="absolute bottom-10 left-10 w-96 h-96 bg-green-500 rounded-full filter blur-3xl"></div>
+                    <div class="min-h-screen relative overflow-hidden" style="background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);">
+                        <div class="absolute inset-0 opacity-15">
+                            <div class="absolute top-10 right-10 w-96 h-96 rounded-full filter blur-3xl" style="background: #D12423;"></div>
+                            <div class="absolute bottom-10 left-10 w-96 h-96 rounded-full filter blur-3xl" style="background: #D12423;"></div>
                         </div>
 
                         <div class="relative z-10 flex items-center justify-center min-h-screen px-8">
                             <div class="text-center max-w-4xl">
+                                <!-- Logo -->
+                                <div class="mb-8 flex justify-center">
+                                    <img src="/images/tauro-gym-logo.png" alt="TAURO GYM" class="h-40 w-40 object-contain drop-shadow-2xl" />
+                                </div>
+
+                                <!-- Check Icon -->
                                 <div class="mb-10 flex justify-center">
                                     <div class="relative">
-                                        <div class="w-40 h-40 bg-emerald-500 rounded-full flex items-center justify-center shadow-2xl">
-                                            <svg class="w-24 h-24 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                                        <div class="w-32 h-32 rounded-full flex items-center justify-center shadow-2xl" style="background: #D12423;">
+                                            <svg class="w-20 h-20 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                             </svg>
                                         </div>
-                                        <div class="absolute inset-0 w-40 h-40 bg-emerald-500 rounded-full animate-ping opacity-20"></div>
+                                        <div class="absolute inset-0 w-32 h-32 rounded-full animate-ping opacity-20" style="background: #D12423;"></div>
                                     </div>
                                 </div>
 
+                                <!-- Foto del cliente -->
                                 ${cliente?.fotoBase64 ? `
                                     <div class="mb-8 flex justify-center">
                                         <div class="relative">
                                             <img src="${cliente.fotoBase64.startsWith('data:') ? cliente.fotoBase64 : 'data:image/jpeg;base64,' + cliente.fotoBase64}"
-                                                 class="w-48 h-48 rounded-full border-4 border-emerald-400 shadow-2xl object-cover"/>
-                                            <div class="absolute -bottom-2 -right-2 w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center border-4 border-green-800">
-                                                <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                 class="w-56 h-56 rounded-full shadow-2xl object-cover" style="border: 5px solid #D12423;"/>
+                                            <div class="absolute -bottom-3 -right-3 w-20 h-20 rounded-full flex items-center justify-center" style="background: #D12423; border: 5px solid #000;">
+                                                <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                                                 </svg>
                                             </div>
@@ -372,53 +379,60 @@
                                     </div>
                                 ` : ''}
 
-                                <h2 class="text-6xl font-black text-white mb-4 uppercase tracking-wider">¡Bienvenido!</h2>
-                                <p class="text-5xl text-emerald-300 mb-10 font-bold">${cliente?.nombre || ''}</p>
+                                <!-- Nombre del cliente -->
+                                <h2 class="text-7xl font-black text-white mb-2 uppercase tracking-wider">¡Bienvenido!</h2>
+                                <p class="text-6xl font-bold mb-10" style="color: #D12423;">${cliente?.nombre || ''}</p>
 
-                                <div class="bg-black/40 backdrop-blur-sm rounded-3xl px-12 py-10 border-2 ${
+                                <!-- Card de información -->
+                                <div class="rounded-3xl px-12 py-10 mb-8 backdrop-blur-sm" style="background: rgba(0,0,0,0.6); border: 3px solid ${
                                     diasRestantes !== null && diasRestantes !== undefined ?
-                                        (diasRestantes <= 3 ? 'border-yellow-400' : 'border-emerald-400')
-                                    : 'border-red-500'
-                                } mb-8">
+                                        (diasRestantes <= 3 ? '#FFA500' : '#D12423')
+                                    : '#D12423'
+                                };">
+                                    <!-- Estado de Membresía -->
                                     <div class="mb-6">
-                                        <p class="text-xl text-gray-300 mb-3 uppercase tracking-wide font-semibold">Estado de Membresía</p>
+                                        <p class="text-xl mb-3 uppercase tracking-wide font-semibold" style="color: #D12423;">Estado de Membresía</p>
                                         <p class="text-4xl font-black ${
-                                            diasRestantes !== null && diasRestantes !== undefined ? 'text-emerald-300' : 'text-red-400'
-                                        }">
+                                            diasRestantes !== null && diasRestantes !== undefined ? 'text-white' : ''
+                                        }" style="${diasRestantes === null || diasRestantes === undefined ? 'color: #FFA500;' : ''}">
                                             ${this.state.message}
                                         </p>
                                     </div>
 
+                                    <!-- Días restantes -->
                                     ${diasRestantes !== null && diasRestantes !== undefined ? `
-                                        <div class="border-t-2 border-gray-700/50 pt-6 mt-6">
-                                            <p class="text-lg text-gray-400 mb-3 uppercase tracking-wide">
-                                                ${diasRestantes <= 7 ? 'Tiempo restante' : 'Vigencia'}
+                                        <div class="pt-6 mt-6" style="border-top: 2px solid rgba(209, 36, 35, 0.3);">
+                                            <p class="text-lg mb-3 uppercase tracking-wide" style="color: #D12423;">
+                                                ${diasRestantes <= 7 ? 'Tiempo Restante' : 'Vigencia'}
                                             </p>
-                                            <p class="text-6xl font-black ${
-                                                diasRestantes <= 3 ? 'text-yellow-400' : 'text-emerald-400'
-                                            }">
+                                            <p class="text-7xl font-black" style="color: ${
+                                                diasRestantes <= 3 ? '#FFA500' : '#FFFFFF'
+                                            };">
                                                 ${diasRestantes} ${diasRestantes === 1 ? 'DÍA' : 'DÍAS'}
                                             </p>
                                             ${diasRestantes <= 7 ? `
-                                                <p class="text-yellow-400 text-lg mt-4 font-semibold">
-                                                    Renueva pronto tu membresía
+                                                <p class="text-xl mt-4 font-semibold" style="color: #FFA500;">
+                                                    ⚠️ Renueva pronto tu membresía
                                                 </p>
                                             ` : ''}
                                         </div>
                                     ` : ''}
+
+                                    <!-- Verificación de similitud -->
+                                    ${similarity ? `
+                                        <div class="mt-6 pt-6" style="border-top: 2px solid rgba(209, 36, 35, 0.3);">
+                                            <p class="text-lg font-semibold" style="color: #D12423;">
+                                                🔒 Verificación: ${similarity.toFixed(1)}% de coincidencia
+                                            </p>
+                                        </div>
+                                    ` : ''}
                                 </div>
 
-                                ${similarity ? `
-                                    <div class="mb-8 inline-block px-6 py-3 bg-black/30 rounded-full border border-emerald-500/30">
-                                        <p class="text-emerald-300 font-semibold">
-                                            Verificación: ${similarity.toFixed(1)}% de coincidencia
-                                        </p>
-                                    </div>
-                                ` : ''}
-
-                                <div class="mt-8">
-                                    <p class="text-3xl text-white font-bold">¡Sin prisa, pero con ¡DISCIPLINA!(Insiste,Persiste,Resiste)</p>
-                                    <p class="text-xl text-emerald-300 mt-3">Da lo mejor de ti</p>
+                                <!-- Mensaje motivacional -->
+                                <div class="mt-8 space-y-3">
+                                    <p class="text-3xl text-white font-bold">¡Sin prisa, pero con ¡DISCIPLINA!</p>
+                                    <p class="text-2xl font-semibold" style="color: #D12423;">(Insiste, Persiste, Resiste)</p>
+                                    <p class="text-xl text-white mt-3">Da lo mejor de ti 💪</p>
                                 </div>
                             </div>
                         </div>
@@ -429,55 +443,61 @@
             renderError() {
                 const { diasRestantes } = this.state;
                 return `
-                    <div class="min-h-screen relative overflow-hidden" style="background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 50%, #b91c1c 100%);">
-                        <div class="absolute inset-0 opacity-20">
-                            <div class="absolute top-10 left-10 w-96 h-96 bg-red-500 rounded-full filter blur-3xl"></div>
-                            <div class="absolute bottom-10 right-10 w-96 h-96 bg-orange-600 rounded-full filter blur-3xl"></div>
+                    <div class="min-h-screen relative overflow-hidden" style="background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);">
+                        <div class="absolute inset-0 opacity-15">
+                            <div class="absolute top-10 left-10 w-96 h-96 rounded-full filter blur-3xl" style="background: #D12423;"></div>
+                            <div class="absolute bottom-10 right-10 w-96 h-96 rounded-full filter blur-3xl" style="background: #D12423;"></div>
                         </div>
 
                         <div class="relative z-10 flex items-center justify-center min-h-screen px-8">
                             <div class="text-center max-w-3xl">
+                                <!-- Logo -->
+                                <div class="mb-8 flex justify-center">
+                                    <img src="/images/tauro-gym-logo.png" alt="TAURO GYM" class="h-32 w-32 object-contain drop-shadow-2xl" />
+                                </div>
+
+                                <!-- Error Icon -->
                                 <div class="mb-10 flex justify-center">
                                     <div class="relative">
-                                        <div class="w-40 h-40 bg-red-600 rounded-full flex items-center justify-center shadow-2xl">
+                                        <div class="w-40 h-40 rounded-full flex items-center justify-center shadow-2xl" style="background: #D12423;">
                                             <svg class="w-24 h-24 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
                                             </svg>
                                         </div>
-                                        <div class="absolute inset-0 w-40 h-40 bg-red-600 rounded-full animate-ping opacity-20"></div>
+                                        <div class="absolute inset-0 w-40 h-40 rounded-full animate-ping opacity-20" style="background: #D12423;"></div>
                                     </div>
                                 </div>
 
                                 <h2 class="text-6xl font-black text-white mb-8 uppercase tracking-wider">Acceso Denegado</h2>
 
-                                <div class="bg-black/40 backdrop-blur-sm rounded-3xl px-12 py-10 border-2 border-red-500 mb-10">
+                                <div class="backdrop-blur-sm rounded-3xl px-12 py-10 mb-10" style="background: rgba(0,0,0,0.6); border: 3px solid #D12423;">
                                     <div class="mb-6 flex justify-center">
-                                        <div class="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center">
+                                        <div class="w-20 h-20 rounded-full flex items-center justify-center" style="background: #D12423;">
                                             <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
                                             </svg>
                                         </div>
                                     </div>
 
-                                    <p class="text-3xl text-red-200 mb-4 font-bold">${this.state.message}</p>
+                                    <p class="text-3xl text-white mb-4 font-bold">${this.state.message}</p>
 
                                     ${diasRestantes !== null && diasRestantes !== undefined && diasRestantes < 0 ? `
-                                        <div class="border-t-2 border-red-700/50 pt-6 mt-6">
-                                            <p class="text-lg text-red-300 mb-3 uppercase tracking-wide font-semibold">Membresía Vencida</p>
-                                            <p class="text-5xl font-black text-red-300">
+                                        <div class="pt-6 mt-6" style="border-top: 2px solid rgba(209, 36, 35, 0.5);">
+                                            <p class="text-lg mb-3 uppercase tracking-wide font-semibold" style="color: #D12423;">Membresía Vencida</p>
+                                            <p class="text-5xl font-black" style="color: #FFA500;">
                                                 ${Math.abs(diasRestantes)} ${Math.abs(diasRestantes) === 1 ? 'DÍA' : 'DÍAS'}
                                             </p>
-                                            <p class="text-red-200 text-lg mt-3">desde su vencimiento</p>
+                                            <p class="text-white text-lg mt-3">desde su vencimiento</p>
                                         </div>
                                     ` : ''}
 
-                                    <div class="mt-8 pt-6 border-t border-red-700/50">
-                                        <p class="text-xl text-red-200 font-semibold">Dirígete a recepción para asistencia</p>
+                                    <div class="mt-8 pt-6" style="border-top: 2px solid rgba(209, 36, 35, 0.5);">
+                                        <p class="text-xl text-white font-semibold">Dirígete a recepción para asistencia</p>
                                     </div>
                                 </div>
 
                                 <button onclick="app.reset(); app.startFingerprintDetection();"
-                                    class="px-12 py-5 bg-gray-900 hover:bg-gray-800 text-white rounded-xl text-xl font-bold transition-all duration-300 transform hover:scale-105 border-2 border-gray-700">
+                                    class="px-12 py-5 text-white rounded-xl text-xl font-bold transition-all duration-300 transform hover:scale-105" style="background: #D12423;">
                                     VOLVER AL INICIO
                                 </button>
                             </div>

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using VidaFit.Data;
 using VidaFitBackend.Models;
+using System.Text.Json;
 
 namespace VidaFit.Controllers.API
 {
@@ -16,7 +17,6 @@ namespace VidaFit.Controllers.API
             _context = context;
         }
 
-        // GET: api/VentasProductos
         [HttpGet]
         public async Task<ActionResult<IEnumerable<VentaProducto>>> GetVentasProductos()
         {
@@ -27,7 +27,6 @@ namespace VidaFit.Controllers.API
                 .ToListAsync();
         }
 
-        // GET: api/VentasProductos/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<VentaProducto>> GetVentaProducto(Guid id)
         {
@@ -42,7 +41,6 @@ namespace VidaFit.Controllers.API
             return venta;
         }
 
-        // GET: api/VentasProductos/cliente/{clienteId}
         [HttpGet("cliente/{clienteId}")]
         public async Task<ActionResult<IEnumerable<VentaProducto>>> GetVentasPorCliente(Guid clienteId)
         {
@@ -54,7 +52,7 @@ namespace VidaFit.Controllers.API
                 .ToListAsync();
         }
 
-        // DTO para crear ventas (sin necesidad de objetos completos)
+        // DTO para crear ventas con pago parcial
         public class CreateVentaDto
         {
             public Guid ClienteId { get; set; }
@@ -63,63 +61,147 @@ namespace VidaFit.Controllers.API
             public decimal PrecioUnitario { get; set; }
             public decimal Total { get; set; }
             public string EstadoPago { get; set; } = "pendiente";
+            public decimal? MontoPagado { get; set; } // NUEVO: para pago parcial
             public string? Notas { get; set; }
+            public Guid? UsuarioId { get; set; } // NUEVO: para registrar en caja
         }
 
-        // POST: api/VentasProductos
         [HttpPost]
-        public async Task<ActionResult<VentaProducto>> CreateVentaProducto([FromBody] CreateVentaDto ventaDto)
+        public async Task<IActionResult> CreateVentaProducto([FromBody] CreateVentaDto ventaDto)
         {
-            // Validar que el cliente existe
-            var clienteExiste = await _context.Clientes.AnyAsync(c => c.Id == ventaDto.ClienteId);
-            if (!clienteExiste)
-                return BadRequest("El cliente no existe");
-
-            // Validar que el producto existe
-            var producto = await _context.Productos.FindAsync(ventaDto.ProductoId);
-            if (producto == null)
-                return BadRequest("El producto no existe");
-
-            // Validar stock
-            if (producto.Stock < ventaDto.Cantidad)
-                return BadRequest($"Stock insuficiente. Disponible: {producto.Stock}");
-
-            // Crear la venta
-            var venta = new VentaProducto
+            try
             {
-                Id = Guid.NewGuid(),
-                ClienteId = ventaDto.ClienteId,
-                ProductoId = ventaDto.ProductoId,
-                Cantidad = ventaDto.Cantidad,
-                PrecioUnitario = ventaDto.PrecioUnitario,
-                Total = ventaDto.Total > 0 ? ventaDto.Total : ventaDto.Cantidad * ventaDto.PrecioUnitario,
-                EstadoPago = ventaDto.EstadoPago,
-                Notas = ventaDto.Notas,
-                FechaVenta = DateTime.UtcNow,
-                FechaPago = ventaDto.EstadoPago == "pagado" ? DateTime.UtcNow : null,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
+                // Validar cliente
+                var cliente = await _context.Clientes.FindAsync(ventaDto.ClienteId);
+                if (cliente == null)
+                    return Ok(new { success = false, message = "El cliente no existe" });
 
-            // Actualizar stock del producto
-            producto.Stock -= venta.Cantidad;
-            producto.UpdatedAt = DateTime.UtcNow;
+                // Validar producto
+                var producto = await _context.Productos.FindAsync(ventaDto.ProductoId);
+                if (producto == null)
+                    return Ok(new { success = false, message = "El producto no existe" });
 
-            _context.VentasProductos.Add(venta);
-            await _context.SaveChangesAsync();
+                // Validar stock
+                if (producto.Stock < ventaDto.Cantidad)
+                    return Ok(new { success = false, message = $"Stock insuficiente. Disponible: {producto.Stock}" });
 
-            // Cargar las relaciones para devolver el objeto completo
-            await _context.Entry(venta)
-                .Reference(v => v.Cliente)
-                .LoadAsync();
-            await _context.Entry(venta)
-                .Reference(v => v.Producto)
-                .LoadAsync();
+                // Calcular totales
+                decimal totalVenta = ventaDto.Cantidad * ventaDto.PrecioUnitario;
+                decimal montoPagado = ventaDto.MontoPagado ?? totalVenta;
 
-            return CreatedAtAction(nameof(GetVentaProducto), new { id = venta.Id }, venta);
+                // Validar que el monto pagado no sea mayor al total
+                if (montoPagado > totalVenta)
+                    return Ok(new { success = false, message = "El monto pagado no puede ser mayor al total de la venta" });
+
+                // Determinar estado de pago
+                string estadoPago;
+                if (montoPagado == 0)
+                    estadoPago = "pendiente";
+                else if (montoPagado < totalVenta)
+                    estadoPago = "parcial"; // NUEVO ESTADO
+                else
+                    estadoPago = "pagado";
+
+                // Crear la venta
+                var venta = new VentaProducto
+                {
+                    Id = Guid.NewGuid(),
+                    ClienteId = ventaDto.ClienteId,
+                    ProductoId = ventaDto.ProductoId,
+                    Cantidad = ventaDto.Cantidad,
+                    PrecioUnitario = ventaDto.PrecioUnitario,
+                    Total = totalVenta,
+                    EstadoPago = estadoPago,
+                    Notas = ventaDto.Notas,
+                    FechaVenta = DateTime.UtcNow,
+                    FechaPago = estadoPago == "pagado" ? DateTime.UtcNow : null,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                _context.VentasProductos.Add(venta);
+
+                // Actualizar stock
+                producto.Stock -= venta.Cantidad;
+                producto.UpdatedAt = DateTime.UtcNow;
+
+                // SI HAY DEUDA (pago parcial o pendiente), registrarla
+                decimal saldoPendiente = totalVenta - montoPagado;
+                Guid? deudaId = null;
+
+                if (saldoPendiente > 0)
+                {
+                    var deuda = new DeudaCliente
+                    {
+                        Id = Guid.NewGuid(),
+                        ClienteId = ventaDto.ClienteId,
+                        Concepto = $"Venta de {producto.Nombre} (x{ventaDto.Cantidad})",
+                        MontoTotal = saldoPendiente,
+                        MontoPagado = 0,
+                        Saldo = saldoPendiente,
+                        Estado = "pendiente",
+                        FechaCreacion = DateTime.UtcNow,
+                        FechaVencimiento = null,
+                        Notas = montoPagado > 0
+                            ? $"Abono inicial: ${montoPagado:N2} de ${totalVenta:N2}"
+                            : "Venta fiada - Sin pago inicial",
+                        CreatedAt = DateTime.UtcNow
+                    };
+
+                    _context.DeudasClientes.Add(deuda);
+                    deudaId = deuda.Id;
+                }
+
+                // Registrar ingreso en caja (solo si hubo pago)
+                if (ventaDto.UsuarioId.HasValue && montoPagado > 0)
+                {
+                    var movimientoCaja = new MovimientoCaja
+                    {
+                        Id = Guid.NewGuid(),
+                        Tipo = "ingreso",
+                        Categoria = "producto",
+                        Monto = montoPagado,
+                        Descripcion = $"Venta de {producto.Nombre} (x{ventaDto.Cantidad}) - {cliente.Nombre} {cliente.Apellido}" +
+                                    (saldoPendiente > 0 ? $" (Pago parcial, saldo: ${saldoPendiente:N2})" : ""),
+                        ReferenciaId = venta.Id,
+                        UsuarioId = ventaDto.UsuarioId.Value,
+                        MetodoPago = "efectivo", // Podrías agregar esto al DTO
+                        Fecha = DateTime.UtcNow,
+                        CreatedAt = DateTime.UtcNow
+                    };
+
+                    _context.MovimientosCaja.Add(movimientoCaja);
+                }
+
+                await _context.SaveChangesAsync();
+
+                // Cargar relaciones
+                await _context.Entry(venta).Reference(v => v.Cliente).LoadAsync();
+                await _context.Entry(venta).Reference(v => v.Producto).LoadAsync();
+
+                return Ok(new
+                {
+                    success = true,
+                    data = venta,
+                    deudaId = deudaId,
+                    saldoPendiente = saldoPendiente,
+                    message = saldoPendiente > 0
+                        ? $"Venta registrada. Saldo pendiente: ${saldoPendiente:N2}"
+                        : "Venta registrada exitosamente"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    success = false,
+                    message = "Error al crear venta",
+                    error = ex.Message,
+                    inner = ex.InnerException?.Message
+                });
+            }
         }
 
-        // PUT: api/VentasProductos/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateVentaProducto(Guid id, [FromBody] CreateVentaDto ventaDto)
         {
@@ -165,7 +247,6 @@ namespace VidaFit.Controllers.API
             return NoContent();
         }
 
-        // DELETE: api/VentasProductos/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteVentaProducto(Guid id)
         {
@@ -173,7 +254,7 @@ namespace VidaFit.Controllers.API
             if (venta == null)
                 return NotFound();
 
-            // Devolver el stock al producto
+            // Devolver stock
             var producto = await _context.Productos.FindAsync(venta.ProductoId);
             if (producto != null)
             {
@@ -186,7 +267,6 @@ namespace VidaFit.Controllers.API
             return NoContent();
         }
 
-        // POST: api/VentasProductos/{id}/marcar-pagado
         [HttpPost("{id}/marcar-pagado")]
         public async Task<IActionResult> MarcarComoPagado(Guid id)
         {
@@ -202,14 +282,13 @@ namespace VidaFit.Controllers.API
             return Ok(new { mensaje = "Venta marcada como pagada exitosamente" });
         }
 
-        // GET: api/VentasProductos/cuentas-pendientes
         [HttpGet("cuentas-pendientes")]
         public async Task<ActionResult<IEnumerable<object>>> GetCuentasPendientes()
         {
             var cuentasPendientes = await _context.VentasProductos
                 .Include(v => v.Cliente)
                 .Include(v => v.Producto)
-                .Where(v => v.EstadoPago == "pendiente")
+                .Where(v => v.EstadoPago == "pendiente" || v.EstadoPago == "parcial")
                 .GroupBy(v => v.ClienteId)
                 .Select(g => new
                 {

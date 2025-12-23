@@ -1,0 +1,7 @@
+C:\d\gymTauro\appsettings.Development.json
+C:\d\gymTauro\appsettings.json
+C:\d\gymTauro\VidaFit.pdb
+C:\d\gymTauro\dpfpdd.dll
+C:\d\gymTauro\dpfj.dll
+C:\d\gymTauro\aspnetcorev2_inprocess.dll
+C:\d\gymTauro\VidaFit.exe
