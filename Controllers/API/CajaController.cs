@@ -209,7 +209,6 @@ namespace VidaFit.Controllers.API
                     : DateTime.UtcNow.Date.AddDays(1).AddSeconds(-1);
 
                 var query = _context.MovimientosCaja
-                    .Include(m => m.Usuario)
                     .Where(m => m.Fecha >= inicio && m.Fecha <= fin);
 
                 if (!string.IsNullOrWhiteSpace(tipo))
@@ -234,7 +233,8 @@ namespace VidaFit.Controllers.API
                         m.MetodoPago,
                         m.Fecha,
                         m.ReferenciaId,
-                        usuario = m.Usuario.Nombre
+                        m.UsuarioId,
+                        usuario = m.Usuario != null ? m.Usuario.Nombre : "Sistema"
                     })
                     .ToListAsync();
 
@@ -268,7 +268,6 @@ namespace VidaFit.Controllers.API
                 var manana = hoy.AddDays(1);
 
                 var movimientos = await _context.MovimientosCaja
-                    .Include(m => m.Usuario)
                     .Where(m => m.Fecha >= hoy && m.Fecha < manana)
                     .OrderByDescending(m => m.Fecha)
                     .Select(m => new
@@ -280,7 +279,7 @@ namespace VidaFit.Controllers.API
                         m.Descripcion,
                         m.MetodoPago,
                         m.Fecha,
-                        usuario = m.Usuario.Nombre
+                        usuario = m.Usuario != null ? m.Usuario.Nombre : "Sistema"
                     })
                     .ToListAsync();
 

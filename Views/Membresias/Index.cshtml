@@ -85,6 +85,16 @@
 
         async function loadMembresias() {
             try {
+                // Primero, intentar actualizar los estados en el backend
+                try {
+                    await fetch(`${API_URL}/Membresias/actualizar-estados`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                } catch (e) {
+                    console.log('No se pudieron actualizar estados automáticamente (endpoint no disponible)');
+                }
+
                 const response = await fetch(`${API_URL}/Membresias`);
                 if (!response.ok) throw new Error('Error en la respuesta');
 
@@ -130,30 +140,75 @@
             const hoy = new Date();
             hoy.setHours(0, 0, 0, 0);
 
-            const activas = membresiasData.filter(m => (m.estado || m.Estado) === 'activa').length;
-            const vencidas = membresiasData.filter(m => (m.estado || m.Estado) === 'vencida').length;
+            // Contar activas (solo las que no están vencidas realmente)
+            let activasReales = 0;
+            let vencidasReales = 0;
+            let porVencer = 0;
 
-            const porVencer = membresiasData.filter(m => {
-                if ((m.estado || m.Estado) !== 'activa') return false;
+            membresiasData.forEach(m => {
+                const estado = (m.estado || m.Estado).toLowerCase();
                 const fechaVenc = new Date(m.fechaVencimiento || m.FechaVencimiento);
                 fechaVenc.setHours(0, 0, 0, 0);
                 const diasRestantes = Math.ceil((fechaVenc - hoy) / (1000 * 60 * 60 * 24));
-                return diasRestantes <= 7 && diasRestantes >= 0;
-            }).length;
 
-            document.getElementById('count-activas').textContent = activas;
+                // Si la fecha ya pasó, realmente está vencida (independiente del estado en BD)
+                if (fechaVenc < hoy) {
+                    vencidasReales++;
+                }
+                // Si está marcada como vencida o suspendida
+                else if (estado === 'vencida' || estado === 'suspendida') {
+                    vencidasReales++;
+                }
+                // Si está activa y no ha vencido
+                else if (estado === 'activa') {
+                    activasReales++;
+
+                    // Verificar si está por vencer (7 días o menos)
+                    if (diasRestantes <= 7 && diasRestantes >= 0) {
+                        porVencer++;
+                    }
+                }
+            });
+
+            document.getElementById('count-activas').textContent = activasReales;
             document.getElementById('count-por-vencer').textContent = porVencer;
-            document.getElementById('count-vencidas').textContent = vencidas;
+            document.getElementById('count-vencidas').textContent = vencidasReales;
             document.getElementById('count-total').textContent = membresiasData.length;
+
+            console.log(`📊 Estadísticas: Activas: ${activasReales}, Por vencer: ${porVencer}, Vencidas: ${vencidasReales}, Total: ${membresiasData.length}`);
         }
 
         function renderMembresias() {
             const container = document.getElementById('membresias-container');
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
 
             let filtradas = membresiasData;
 
+            // Filtrar por estado (con lógica mejorada para vencidas)
             if (filtroEstado !== 'todas') {
-                filtradas = filtradas.filter(m => (m.estado || m.Estado) === filtroEstado);
+                if (filtroEstado === 'vencida') {
+                    // Mostrar todas las que realmente están vencidas (por fecha O por estado)
+                    filtradas = filtradas.filter(m => {
+                        const fechaVenc = new Date(m.fechaVencimiento || m.FechaVencimiento);
+                        fechaVenc.setHours(0, 0, 0, 0);
+                        const estado = (m.estado || m.Estado).toLowerCase();
+
+                        return fechaVenc < hoy || estado === 'vencida' || estado === 'suspendida';
+                    });
+                } else if (filtroEstado === 'activa') {
+                    // Mostrar solo las activas que no han vencido
+                    filtradas = filtradas.filter(m => {
+                        const fechaVenc = new Date(m.fechaVencimiento || m.FechaVencimiento);
+                        fechaVenc.setHours(0, 0, 0, 0);
+                        const estado = (m.estado || m.Estado).toLowerCase();
+
+                        return estado === 'activa' && fechaVenc >= hoy;
+                    });
+                } else {
+                    // Para otros estados, usar filtro normal
+                    filtradas = filtradas.filter(m => (m.estado || m.Estado).toLowerCase() === filtroEstado);
+                }
             }
 
             if (filtroPlan) {

@@ -20,11 +20,32 @@ namespace VidaFit.Controllers.API
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Membresia>>> GetMembresias()
         {
+            // Actualizar estados automáticamente antes de devolver
+            await ActualizarEstadosVencidas();
+
             return await _context.Membresias
                 .Include(m => m.Cliente)
                 .Include(m => m.Plan)
                 .OrderByDescending(m => m.CreatedAt)
                 .ToListAsync();
+        }
+
+        private async Task ActualizarEstadosVencidas()
+        {
+            var hoy = DateTime.UtcNow.Date;
+            var membresiasVencidas = await _context.Membresias
+                .Where(m => m.Estado == "activa" && m.FechaVencimiento < hoy)
+                .ToListAsync();
+
+            if (membresiasVencidas.Any())
+            {
+                foreach (var membresia in membresiasVencidas)
+                {
+                    membresia.Estado = "vencida";
+                    membresia.UpdatedAt = DateTime.UtcNow;
+                }
+                await _context.SaveChangesAsync();
+            }
         }
 
         [HttpGet("{id}")]
