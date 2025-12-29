@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DPUruNet;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace VidaFitBackend.Services
 {
@@ -10,6 +11,15 @@ namespace VidaFitBackend.Services
     {
         void Initialize();
         bool IsReaderConnected();
+
+        // Métodos FMD (nuevos - RECOMENDADOS)
+        Task<FmdCaptureResult> CaptureFmdAsync();
+        Task<MultiFmdCaptureResult> CaptureMultipleFmdsAsync(int numCaptures = 3);
+        bool CompareFmds(Fmd captured, Fmd stored, out int score);
+        (bool matched, int bestScore) CompareFmdAgainstMultiple(Fmd captured, List<Fmd> storedFmds);
+        IdentifyResult IdentifyFmdAgainstAll(Fmd captured, List<Fmd> allFmds, int threshold = 20000);
+
+        // Métodos legacy (compatibilidad)
         byte[] CaptureFingerprint();
         string ConvertToTemplate(byte[] fingerprintData);
         bool VerifyFingerprint(byte[] capturedData, string storedTemplate);
@@ -20,15 +30,39 @@ namespace VidaFitBackend.Services
         (bool matched, string clientName, double similarity) VerifyWithMultipleCaptures(string[] allStoredTemplates, string[] clientNames);
     }
 
+    // ════════════════════════════════════════════════════════════════════
+    // MODELOS DE RESPUESTA
+    // ════════════════════════════════════════════════════════════════════
+    public class FmdCaptureResult
+    {
+        public bool Success { get; set; }
+        public Fmd Fmd { get; set; }
+        public string FmdBase64 { get; set; }
+        public int FmdSize { get; set; }
+        public byte[] RawImage { get; set; }
+        public int RawImageSize { get; set; }
+        public string Error { get; set; }
+        public List<string> Logs { get; set; } = new List<string>();
+    }
+
+    public class MultiFmdCaptureResult
+    {
+        public bool Success { get; set; }
+        public List<Fmd> Fmds { get; set; } = new List<Fmd>();
+        public List<string> FmdBase64List { get; set; } = new List<string>();
+        public string ConcatenatedFmds { get; set; }  // FMD1|||FMD2|||FMD3
+        public int CapturesCompleted { get; set; }
+        public int TotalFmdSize { get; set; }
+        public string Error { get; set; }
+        public List<string> Logs { get; set; } = new List<string>();
+    }
+
     public class FingerprintService : IFingerprintService, IDisposable
     {
         private Reader _reader;
         private bool _isInitialized = false;
         private readonly object _lockObject = new object();
-
-        public FingerprintService()
-        {
-        }
+        private const int DPFJ_PROBABILITY_ONE = 0x7fffffff;
 
         public void Initialize()
         {
@@ -36,56 +70,34 @@ namespace VidaFitBackend.Services
             {
                 try
                 {
-                    Console.WriteLine("");
                     Console.WriteLine("═══════════════════════════════════════════");
-                    Console.WriteLine("   DIAGNÓSTICO DE LECTOR DE HUELLAS");
+                    Console.WriteLine("   INICIALIZANDO DIGITALPERSONA 4500");
                     Console.WriteLine("═══════════════════════════════════════════");
-                    Console.WriteLine("");
 
-                    Console.WriteLine("[0/7] Verificando DLLs nativas...");
-                    string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-                    string[] requiredDlls = { "DPUruNet.dll", "dpfpdd.dll", "dpfj.dll", "dpftrapi.dll" };
-
-                    foreach (string dll in requiredDlls)
-                    {
-                        string path = System.IO.Path.Combine(baseDir, dll);
-                        bool exists = System.IO.File.Exists(path);
-                        Console.WriteLine($"   {(exists ? "✓" : "✗")} {dll} - {(exists ? "Encontrada" : "FALTA")}");
-                    }
-                    Console.WriteLine("");
-
-                    Console.WriteLine("[1/7] Iniciando búsqueda de lectores...");
                     ReaderCollection readers = ReaderCollection.GetReaders();
-                    Console.WriteLine($"[2/7] Resultado: {readers?.Count ?? 0} lector(es) encontrado(s)");
 
                     if (readers == null || readers.Count == 0)
                     {
-                        Console.WriteLine("✗ ERROR: No se detectaron lectores");
+                        Console.WriteLine("✗ No se detectaron lectores");
                         _isInitialized = false;
                         return;
                     }
 
-                    Console.WriteLine($"[3/7] ✓ Detectados {readers.Count} lector(es)");
                     _reader = readers[0];
-                    Console.WriteLine($"[4/7] Seleccionado: {_reader.Description.Name}");
+                    Console.WriteLine($"✓ Lector: {_reader.Description.Name}");
 
-                    Constants.ResultCode result = _reader.Open(Constants.CapturePriority.DP_PRIORITY_EXCLUSIVE);
-                    if (result != Constants.ResultCode.DP_SUCCESS)
-                    {
-                        result = _reader.Open(Constants.CapturePriority.DP_PRIORITY_COOPERATIVE);
-                    }
+                    Constants.ResultCode result = _reader.Open(Constants.CapturePriority.DP_PRIORITY_COOPERATIVE);
 
                     if (result != Constants.ResultCode.DP_SUCCESS)
                     {
-                        Console.WriteLine($"✗ ERROR: No se pudo abrir el lector");
+                        Console.WriteLine($"✗ Error abriendo lector");
                         _isInitialized = false;
                         return;
                     }
 
                     _isInitialized = true;
-                    Console.WriteLine("[7/7] ✓ LECTOR ABIERTO CORRECTAMENTE");
+                    Console.WriteLine("✓ LECTOR LISTO");
                     Console.WriteLine("═══════════════════════════════════════════");
-                    Console.WriteLine("");
                 }
                 catch (Exception ex)
                 {
@@ -100,521 +112,444 @@ namespace VidaFitBackend.Services
             return _isInitialized && _reader != null;
         }
 
-        public byte[] CaptureFingerprint()
+        // ════════════════════════════════════════════════════════════════════
+        // MÉTODO PRINCIPAL: CAPTURA Y EXTRACCIÓN DE FMD
+        // ════════════════════════════════════════════════════════════════════
+        public async Task<FmdCaptureResult> CaptureFmdAsync()
         {
+            var result = new FmdCaptureResult { Success = false };
+
             if (!IsReaderConnected())
             {
-                throw new InvalidOperationException("El lector de huellas no está conectado");
-            }
-
-            const int MAX_RETRIES = 5;
-            int attemptNumber = 0;
-
-            while (attemptNumber < MAX_RETRIES)
-            {
-                attemptNumber++;
-
-                try
-                {
-                    Console.WriteLine("");
-                    Console.WriteLine("══════════════════════════════════════════════════");
-                    Console.WriteLine($"   📌 CAPTURANDO HUELLA (Intento {attemptNumber}/{MAX_RETRIES})");
-                    Console.WriteLine("══════════════════════════════════════════════════");
-                    Console.WriteLine("   👆 Coloque su dedo en el sensor...");
-                    Console.WriteLine("");
-
-                    Constants.ResultCode statusResult = _reader.GetStatus();
-                    if (statusResult == Constants.ResultCode.DP_SUCCESS)
-                    {
-                        if (_reader.Status.Status == Constants.ReaderStatuses.DP_STATUS_BUSY)
-                        {
-                            Console.WriteLine("⚠️  Lector BUSY - Reseteando...");
-                            _reader.CancelCapture();
-                            Thread.Sleep(500);
-                            _reader.Reset();
-                            Thread.Sleep(1000);
-                        }
-                    }
-
-                    int resolution = _reader.Capabilities.Resolutions[0];
-                    Console.WriteLine($"🔧 Resolución: {resolution} DPI");
-                    Console.WriteLine("");
-
-                    Console.WriteLine("⏳ Probando ANSI DEFAULT...");
-                    CaptureResult captureResult = _reader.Capture(
-                        Constants.Formats.Fid.ANSI,
-                        Constants.CaptureProcessing.DP_IMG_PROC_DEFAULT,
-                        8000,
-                        resolution
-                    );
-
-                    if (captureResult.ResultCode == Constants.ResultCode.DP_SUCCESS &&
-                        captureResult.Data != null &&
-                        captureResult.Data.Views != null &&
-                        captureResult.Data.Views.Count > 0 &&
-                        captureResult.Data.Views[0].Bytes != null &&
-                        captureResult.Data.Views[0].Bytes.Length > 0)
-                    {
-                        byte[] data = captureResult.Data.Views[0].Bytes;
-                        Console.WriteLine("══════════════════════════════════════════════════");
-                        Console.WriteLine("   ✅ CAPTURA EXITOSA (ANSI)");
-                        Console.WriteLine($"   📊 Tamaño: {data.Length:N0} bytes");
-                        Console.WriteLine("══════════════════════════════════════════════════");
-                        Console.WriteLine("");
-                        return data;
-                    }
-
-                    Console.WriteLine("⏳ Probando ANSI PIV...");
-                    captureResult = _reader.Capture(
-                        Constants.Formats.Fid.ANSI,
-                        Constants.CaptureProcessing.DP_IMG_PROC_PIV,
-                        8000,
-                        resolution
-                    );
-
-                    if (captureResult.ResultCode == Constants.ResultCode.DP_SUCCESS &&
-                        captureResult.Data != null &&
-                        captureResult.Data.Views != null &&
-                        captureResult.Data.Views.Count > 0 &&
-                        captureResult.Data.Views[0].Bytes != null &&
-                        captureResult.Data.Views[0].Bytes.Length > 0)
-                    {
-                        byte[] data = captureResult.Data.Views[0].Bytes;
-                        Console.WriteLine("══════════════════════════════════════════════════");
-                        Console.WriteLine("   ✅ CAPTURA EXITOSA (ANSI PIV)");
-                        Console.WriteLine($"   📊 Tamaño: {data.Length:N0} bytes");
-                        Console.WriteLine("══════════════════════════════════════════════════");
-                        Console.WriteLine("");
-                        return data;
-                    }
-
-                    Console.WriteLine("⏳ Probando ISO...");
-                    captureResult = _reader.Capture(
-                        Constants.Formats.Fid.ISO,
-                        Constants.CaptureProcessing.DP_IMG_PROC_DEFAULT,
-                        8000,
-                        resolution
-                    );
-
-                    if (captureResult.ResultCode == Constants.ResultCode.DP_SUCCESS &&
-                        captureResult.Data != null &&
-                        captureResult.Data.Views != null &&
-                        captureResult.Data.Views.Count > 0 &&
-                        captureResult.Data.Views[0].Bytes != null &&
-                        captureResult.Data.Views[0].Bytes.Length > 0)
-                    {
-                        byte[] data = captureResult.Data.Views[0].Bytes;
-                        Console.WriteLine("══════════════════════════════════════════════════");
-                        Console.WriteLine("   ✅ CAPTURA EXITOSA (ISO)");
-                        Console.WriteLine($"   📊 Tamaño: {data.Length:N0} bytes");
-                        Console.WriteLine("══════════════════════════════════════════════════");
-                        Console.WriteLine("");
-                        return data;
-                    }
-
-                    Console.WriteLine($"⚠️  Intento {attemptNumber} falló");
-
-                    if (attemptNumber < MAX_RETRIES)
-                    {
-                        Console.WriteLine($"🔄 Reintentando en 2 segundos...");
-                        Thread.Sleep(2000);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"⚠️  Error en intento {attemptNumber}: {ex.Message}");
-
-                    if (attemptNumber < MAX_RETRIES)
-                    {
-                        Thread.Sleep(2000);
-                    }
-                }
-            }
-
-            throw new Exception($"No se pudo capturar huella después de {MAX_RETRIES} intentos");
-        }
-
-        public string ConvertToTemplate(byte[] fingerprintData)
-        {
-            if (fingerprintData == null || fingerprintData.Length == 0)
-            {
-                throw new ArgumentException("Los datos de huella no pueden estar vacíos");
-            }
-
-            string base64 = Convert.ToBase64String(fingerprintData);
-            return base64;
-        }
-
-        public bool VerifyFingerprint(byte[] capturedData, string storedTemplate)
-        {
-            if (capturedData == null || capturedData.Length == 0 || string.IsNullOrEmpty(storedTemplate))
-            {
-                return false;
+                result.Error = "Lector no conectado";
+                return result;
             }
 
             try
             {
-                string[] templates = storedTemplate.Split(new[] { "|||" }, StringSplitOptions.RemoveEmptyEntries);
-                double bestSimilarity = 0.0;
+                result.Logs.Add("═══════════════════════════════════════════");
+                result.Logs.Add("CAPTURA CON EXTRACCIÓN DE FMD");
+                result.Logs.Add("═══════════════════════════════════════════");
+                result.Logs.Add("👆 Coloca tu dedo...");
 
-                foreach (var template in templates)
+                // PASO 1: Capturar Fid completo
+                Fid fid = await Task.Run(() => CaptureFidObject());
+
+                if (fid == null)
                 {
-                    double similarity = GetSimilarityScore(capturedData, template);
-                    if (similarity > bestSimilarity)
+                    result.Error = "Fid es null";
+                    result.Logs.Add($"❌ {result.Error}");
+                    return result;
+                }
+
+                result.Logs.Add($"✅ Fid capturado");
+                result.Logs.Add($"   Fid.Bytes: {fid.Bytes?.Length ?? 0:N0} bytes");
+                result.Logs.Add($"   Fid.Views count: {fid.Views?.Count ?? 0}");
+
+                // Verificar que hay Views
+                if (fid.Views == null || fid.Views.Count == 0)
+                {
+                    result.Error = "Fid.Views está vacío o null";
+                    result.Logs.Add($"❌ {result.Error}");
+                    result.Logs.Add($"   Intentando usar Fid.Bytes directamente...");
+
+                    // Intentar con los bytes completos
+                    result.RawImage = fid.Bytes;
+                    result.RawImageSize = fid.Bytes.Length;
+
+                    // Obtener resolución del lector
+                    int resolution = _reader.Capabilities.Resolutions[0];
+
+                    // Dimensiones típicas DigitalPersona 4500
+                    int width = 258;
+                    int height = 336;
+
+                    result.Logs.Add($"   Usando dimensiones por defecto: {width}x{height}");
+                    result.Logs.Add($"   Resolución: {resolution} DPI");
+                    result.Logs.Add("🔍 Extrayendo FMD...");
+
+                    DataResult<Fmd> fmdResult = FeatureExtraction.CreateFmdFromRaw(
+                        fid.Bytes,
+                        0,
+                        0,
+                        width,
+                        height,
+                        resolution,
+                        Constants.Formats.Fmd.ANSI
+                    );
+
+                    if (fmdResult.ResultCode != Constants.ResultCode.DP_SUCCESS || fmdResult.Data == null)
                     {
-                        bestSimilarity = similarity;
+                        result.Error = $"Error extrayendo FMD: {fmdResult.ResultCode}";
+                        result.Logs.Add($"❌ {result.Error}");
+                        return result;
+                    }
+
+                    result.Fmd = fmdResult.Data;
+                    result.FmdBase64 = Convert.ToBase64String(fmdResult.Data.Bytes);
+                    result.FmdSize = fmdResult.Data.Bytes.Length;
+                    result.Success = true;
+
+                    result.Logs.Add($"✅ FMD extraído: {result.FmdSize:N0} bytes");
+                    result.Logs.Add($"📊 Compresión: {((double)result.RawImageSize / result.FmdSize):F1}x");
+                    result.Logs.Add("═══════════════════════════════════════════");
+
+                    return result;
+                }
+
+                // Si hay Views, usar el primer View
+                result.RawImage = fid.Bytes;
+                result.RawImageSize = fid.Bytes.Length;
+
+                var view = fid.Views[0];
+                int width2 = view.Width;
+                int height2 = view.Height;
+                int resolution2 = fid.Resolution;
+                byte[] rawImageData = view.RawImage;
+
+                result.Logs.Add($"✅ View encontrado");
+                result.Logs.Add($"   Dimensiones: {width2}x{height2}");
+                result.Logs.Add($"   Resolución: {resolution2} DPI");
+                result.Logs.Add($"   RawImage: {rawImageData?.Length ?? 0:N0} bytes");
+
+                if (rawImageData == null || rawImageData.Length == 0)
+                {
+                    result.Error = "RawImage está vacío";
+                    result.Logs.Add($"❌ {result.Error}");
+                    return result;
+                }
+
+                result.Logs.Add("🔍 Extrayendo FMD desde RawImage...");
+
+                DataResult<Fmd> fmdResult2 = FeatureExtraction.CreateFmdFromRaw(
+                    rawImageData,
+                    0,
+                    0,
+                    width2,
+                    height2,
+                    resolution2,
+                    Constants.Formats.Fmd.ANSI
+                );
+
+                if (fmdResult2.ResultCode != Constants.ResultCode.DP_SUCCESS || fmdResult2.Data == null)
+                {
+                    result.Error = $"Error extrayendo FMD: {fmdResult2.ResultCode}";
+                    result.Logs.Add($"❌ {result.Error}");
+                    return result;
+                }
+
+                result.Fmd = fmdResult2.Data;
+                result.FmdBase64 = Convert.ToBase64String(fmdResult2.Data.Bytes);
+                result.FmdSize = fmdResult2.Data.Bytes.Length;
+                result.Success = true;
+
+                result.Logs.Add($"✅ FMD extraído: {result.FmdSize:N0} bytes");
+                result.Logs.Add($"📊 Compresión: {((double)result.RawImageSize / result.FmdSize):F1}x");
+                result.Logs.Add("═══════════════════════════════════════════");
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result.Error = ex.Message;
+                result.Logs.Add($"❌ Exception: {ex.Message}");
+                return result;
+            }
+        }
+
+        // ════════════════════════════════════════════════════════════════════
+        // CAPTURA MÚLTIPLE CON FMD (PARA REGISTRO)
+        // ════════════════════════════════════════════════════════════════════
+        public async Task<MultiFmdCaptureResult> CaptureMultipleFmdsAsync(int numCaptures = 3)
+        {
+            var result = new MultiFmdCaptureResult { Success = false };
+
+            try
+            {
+                result.Logs.Add("═══════════════════════════════════════════");
+                result.Logs.Add($"CAPTURA MÚLTIPLE: {numCaptures} capturas");
+                result.Logs.Add("═══════════════════════════════════════════");
+
+                for (int i = 1; i <= numCaptures; i++)
+                {
+                    try
+                    {
+                        result.Logs.Add("");
+                        result.Logs.Add($"📸 Captura {i}/{numCaptures}...");
+
+                        if (i > 1)
+                        {
+                            result.Logs.Add("   Levanta y vuelve a colocar el dedo");
+                            await Task.Delay(2000);
+                        }
+
+                        var captureResult = await CaptureFmdAsync();
+
+                        if (captureResult.Success)
+                        {
+                            result.Fmds.Add(captureResult.Fmd);
+                            result.FmdBase64List.Add(captureResult.FmdBase64);
+                            result.TotalFmdSize += captureResult.FmdSize;
+
+                            result.Logs.Add($"   ✅ Captura {i} OK ({captureResult.FmdSize} bytes)");
+                        }
+                        else
+                        {
+                            result.Logs.Add($"   ⚠️  Error captura {i}: {captureResult.Error}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        result.Logs.Add($"   ⚠️  Error captura {i}: {ex.Message}");
                     }
                 }
 
-                return bestSimilarity >= 65.0;
+                result.CapturesCompleted = result.Fmds.Count;
+
+                if (result.Fmds.Count == 0)
+                {
+                    result.Error = "No se capturó ninguna huella";
+                    result.Logs.Add($"❌ {result.Error}");
+                    return result;
+                }
+
+                // Concatenar FMDs con separador
+                result.ConcatenatedFmds = string.Join("|||", result.FmdBase64List);
+
+                result.Success = true;
+                result.Logs.Add("");
+                result.Logs.Add($"✅ REGISTRO COMPLETO:");
+                result.Logs.Add($"   Capturas: {result.CapturesCompleted}/{numCaptures}");
+                result.Logs.Add($"   Tamaño total FMD: {result.TotalFmdSize:N0} bytes");
+                result.Logs.Add($"   Tamaño promedio: {result.TotalFmdSize / result.CapturesCompleted:N0} bytes");
+                result.Logs.Add("═══════════════════════════════════════════");
+
+                return result;
             }
-            catch
+            catch (Exception ex)
             {
-                return false;
+                result.Error = ex.Message;
+                result.Logs.Add($"❌ Exception: {ex.Message}");
+                return result;
             }
+        }
+
+        // ════════════════════════════════════════════════════════════════════
+        // COMPARACIÓN 1:1 CON FMD (VERIFICACIÓN)
+        // ════════════════════════════════════════════════════════════════════
+        public bool CompareFmds(Fmd captured, Fmd stored, out int score)
+        {
+            score = int.MaxValue;
+
+            if (captured == null || stored == null)
+                return false;
+
+            try
+            {
+                CompareResult compareResult = Comparison.Compare(captured, 0, stored, 0);
+
+                if (compareResult.ResultCode == Constants.ResultCode.DP_SUCCESS)
+                {
+                    score = compareResult.Score;
+
+                    // Score: 0 = match perfecto, alto = no match
+                    // Threshold típico: 20000
+                    bool isMatch = score < 20000;
+
+                    Console.WriteLine($"Score: {score} - {(isMatch ? "✅ MATCH" : "❌ NO MATCH")}");
+
+                    return isMatch;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error comparando: {ex.Message}");
+            }
+
+            return false;
+        }
+
+        // ════════════════════════════════════════════════════════════════════
+        // COMPARACIÓN CONTRA MÚLTIPLES FMDs
+        // ════════════════════════════════════════════════════════════════════
+        public (bool matched, int bestScore) CompareFmdAgainstMultiple(Fmd captured, List<Fmd> storedFmds)
+        {
+            int bestScore = int.MaxValue;
+
+            foreach (var stored in storedFmds)
+            {
+                if (CompareFmds(captured, stored, out int currentScore))
+                {
+                    if (currentScore < bestScore)
+                    {
+                        bestScore = currentScore;
+                    }
+                }
+            }
+
+            bool matched = bestScore < 20000;
+            return (matched, bestScore);
+        }
+
+        // ════════════════════════════════════════════════════════════════════
+        // IDENTIFICACIÓN 1:N (BUSCAR ENTRE MÚLTIPLES PERSONAS) ✅✅✅
+        // ════════════════════════════════════════════════════════════════════
+        public IdentifyResult IdentifyFmdAgainstAll(Fmd captured, List<Fmd> allFmds, int threshold = 20000)
+        {
+            try
+            {
+                // Este método es PERFECTO para identificar entre 100+ personas
+                IdentifyResult result = Comparison.Identify(
+                    captured,
+                    0,              // índice de vista
+                    allFmds,        // TODOS los FMDs de la DB
+                    threshold,      // umbral (típico: 20000)
+                    5               // retornar top 5 candidatos
+                );
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error en identificación: {ex.Message}");
+                return null;
+            }
+        }
+
+        // ════════════════════════════════════════════════════════════════════
+        // CAPTURA RAW (PRIVADO - USADO POR CaptureFmdAsync)
+        // ════════════════════════════════════════════════════════════════════
+        private byte[] CaptureRawImage()
+        {
+            try
+            {
+                // Verificar estado
+                Constants.ResultCode statusResult = _reader.GetStatus();
+                if (statusResult == Constants.ResultCode.DP_SUCCESS)
+                {
+                    if (_reader.Status.Status == Constants.ReaderStatuses.DP_STATUS_BUSY)
+                    {
+                        _reader.CancelCapture();
+                        Thread.Sleep(200);
+                    }
+                }
+
+                int resolution = _reader.Capabilities.Resolutions[0];
+
+                // MÉTODO 4: Acceso directo a Data.Bytes (el que funcionó)
+                CaptureResult captureResult = _reader.Capture(
+                    Constants.Formats.Fid.ANSI,
+                    Constants.CaptureProcessing.DP_IMG_PROC_DEFAULT,
+                    8000,       // timeout
+                    resolution
+                );
+
+                if (captureResult.ResultCode == Constants.ResultCode.DP_SUCCESS &&
+                    captureResult.Data?.Bytes != null &&
+                    captureResult.Data.Bytes.Length > 0)
+                {
+                    return captureResult.Data.Bytes;
+                }
+
+                throw new Exception($"Captura falló: {captureResult.ResultCode}");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error capturando: {ex.Message}");
+            }
+        }
+
+        private Fid CaptureFidObject()
+        {
+            try
+            {
+                // Verificar estado
+                Constants.ResultCode statusResult = _reader.GetStatus();
+                if (statusResult == Constants.ResultCode.DP_SUCCESS)
+                {
+                    if (_reader.Status.Status == Constants.ReaderStatuses.DP_STATUS_BUSY)
+                    {
+                        _reader.CancelCapture();
+                        Thread.Sleep(200);
+                    }
+                }
+
+                int resolution = _reader.Capabilities.Resolutions[0];
+
+                // Capturar y obtener el Fid completo desde CaptureResult
+                CaptureResult captureResult = _reader.Capture(
+                    Constants.Formats.Fid.ANSI,
+                    Constants.CaptureProcessing.DP_IMG_PROC_DEFAULT,
+                    8000,
+                    resolution
+                );
+
+                if (captureResult.ResultCode == Constants.ResultCode.DP_SUCCESS &&
+                    captureResult.Data != null)
+                {
+                    return captureResult.Data;
+                }
+
+                throw new Exception($"Captura falló: {captureResult.ResultCode}");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error capturando Fid: {ex.Message}");
+            }
+        }
+
+        // ════════════════════════════════════════════════════════════════════
+        // MÉTODOS LEGACY (COMPATIBILIDAD)
+        // ════════════════════════════════════════════════════════════════════
+        public byte[] CaptureFingerprint()
+        {
+            return CaptureRawImage();
+        }
+
+        public string ConvertToTemplate(byte[] fingerprintData)
+        {
+            return Convert.ToBase64String(fingerprintData);
+        }
+
+        public bool VerifyFingerprint(byte[] capturedData, string storedTemplate)
+        {
+            // Legacy - usar FMD es mejor
+            return false;
         }
 
         public string CaptureAndCreateMultiTemplate()
         {
-            if (!IsReaderConnected())
-            {
-                throw new InvalidOperationException("El lector de huellas no está conectado");
-            }
-
-            Console.WriteLine("");
-            Console.WriteLine("════════════════════════════════════════════════════");
-            Console.WriteLine("   📸 REGISTRO MULTI-CAPTURA (5 intentos)");
-            Console.WriteLine("════════════════════════════════════════════════════");
-            Console.WriteLine("");
-
+            // Legacy - usar CaptureMultipleFmdsAsync es mejor
             List<string> templates = new List<string>();
 
-            for (int i = 1; i <= 5; i++)
+            for (int i = 1; i <= 3; i++)
             {
                 try
                 {
-                    Console.WriteLine($"══════════ CAPTURA {i}/5 ══════════");
-
-                    if (i > 1)
-                    {
-                        Console.WriteLine("👆 Levanta el dedo y vuelve a colocarlo");
-                        Console.WriteLine("⏳ Esperando 3 segundos...");
-                        Thread.Sleep(3000);
-                    }
-
-                    byte[] fingerprintData = CaptureFingerprint();
-                    string template = ConvertToTemplate(fingerprintData);
-
-                    templates.Add(template);
-
-                    Console.WriteLine($"✅ Captura {i} exitosa");
-                    Console.WriteLine("");
+                    byte[] data = CaptureFingerprint();
+                    templates.Add(Convert.ToBase64String(data));
                 }
-                catch (Exception ex)
+                catch
                 {
-                    Console.WriteLine($"⚠️  Error en captura {i}: {ex.Message}");
-
-                    if (i == 5 && templates.Count == 0)
-                    {
-                        throw new Exception("No se pudo capturar ninguna huella válida");
-                    }
-
-                    if (templates.Count >= 2)
-                    {
-                        Console.WriteLine($"💡 Continuando con {templates.Count} captura(s)");
-                        break;
-                    }
+                    if (templates.Count >= 2) break;
                 }
             }
-
-            if (templates.Count < 2)
-            {
-                throw new Exception($"Solo se capturaron {templates.Count} huella(s). Se requieren al menos 2.");
-            }
-
-            Console.WriteLine("════════════════════════════════════════════════════");
-            Console.WriteLine($"   ✅ REGISTRO COMPLETO: {templates.Count} huella(s)");
-            Console.WriteLine("════════════════════════════════════════════════════");
-            Console.WriteLine("");
 
             return string.Join("|||", templates);
         }
 
         public double GetSimilarityScore(byte[] capturedData, string storedTemplate)
         {
-            if (capturedData == null || storedTemplate == null)
-                return 0.0;
-
-            try
-            {
-                byte[] storedBytes = Convert.FromBase64String(storedTemplate);
-
-                double sizeRatio = (double)Math.Min(capturedData.Length, storedBytes.Length) /
-                                  Math.Max(capturedData.Length, storedBytes.Length);
-
-                if (sizeRatio < 0.90) // Más permisivo
-                    return 0.0;
-
-                int minLength = Math.Min(capturedData.Length, storedBytes.Length);
-
-                // ═════════════════════════════════════════════════════════════
-                // MEJORA 1: Análisis por múltiples tamaños de sección
-                // ═════════════════════════════════════════════════════════════
-                List<double> sectionScores = new List<double>();
-
-                // Secciones grandes (1000 bytes) - Patrón general
-                int largeSectionSize = 1000;
-                int largeSections = minLength / largeSectionSize;
-                int matchingLargeSections = 0;
-
-                for (int s = 0; s < largeSections; s++)
-                {
-                    int start = s * largeSectionSize;
-                    int matches = 0;
-
-                    for (int i = 0; i < largeSectionSize && (start + i) < minLength; i++)
-                    {
-                        int idx = start + i;
-                        if (Math.Abs(capturedData[idx] - storedBytes[idx]) <= 25) // Tolerancia alta
-                        {
-                            matches++;
-                        }
-                    }
-
-                    double secSim = (double)matches / largeSectionSize;
-                    if (secSim >= 0.60)
-                        matchingLargeSections++;
-                }
-
-                double largeScore = largeSections > 0
-                    ? ((double)matchingLargeSections / largeSections) * 100.0
-                    : 0.0;
-                sectionScores.Add(largeScore);
-
-                // Secciones medianas (500 bytes) - Balance
-                int mediumSectionSize = 500;
-                int mediumSections = minLength / mediumSectionSize;
-                int matchingMediumSections = 0;
-
-                for (int s = 0; s < mediumSections; s++)
-                {
-                    int start = s * mediumSectionSize;
-                    int matches = 0;
-
-                    for (int i = 0; i < mediumSectionSize && (start + i) < minLength; i++)
-                    {
-                        int idx = start + i;
-                        if (Math.Abs(capturedData[idx] - storedBytes[idx]) <= 20)
-                        {
-                            matches++;
-                        }
-                    }
-
-                    double secSim = (double)matches / mediumSectionSize;
-                    if (secSim >= 0.65)
-                        matchingMediumSections++;
-                }
-
-                double mediumScore = mediumSections > 0
-                    ? ((double)matchingMediumSections / mediumSections) * 100.0
-                    : 0.0;
-                sectionScores.Add(mediumScore);
-
-                // Secciones pequeñas (250 bytes) - Detalles
-                int smallSectionSize = 250;
-                int smallSections = minLength / smallSectionSize;
-                int matchingSmallSections = 0;
-
-                for (int s = 0; s < smallSections; s++)
-                {
-                    int start = s * smallSectionSize;
-                    int matches = 0;
-
-                    for (int i = 0; i < smallSectionSize && (start + i) < minLength; i++)
-                    {
-                        int idx = start + i;
-                        if (Math.Abs(capturedData[idx] - storedBytes[idx]) <= 15)
-                        {
-                            matches++;
-                        }
-                    }
-
-                    double secSim = (double)matches / smallSectionSize;
-                    if (secSim >= 0.70)
-                        matchingSmallSections++;
-                }
-
-                double smallScore = smallSections > 0
-                    ? ((double)matchingSmallSections / smallSections) * 100.0
-                    : 0.0;
-                sectionScores.Add(smallScore);
-
-                // ═════════════════════════════════════════════════════════════
-                // MEJORA 2: Comparación byte-a-byte global con tolerancia
-                // ═════════════════════════════════════════════════════════════
-                int totalMatches = 0;
-                for (int i = 0; i < minLength; i++)
-                {
-                    if (Math.Abs(capturedData[i] - storedBytes[i]) <= 20)
-                    {
-                        totalMatches++;
-                    }
-                }
-                double globalScore = ((double)totalMatches / minLength) * 100.0;
-                sectionScores.Add(globalScore);
-
-                // ═════════════════════════════════════════════════════════════
-                // MEJORA 3: Score ponderado (dar más peso a patrones consistentes)
-                // ═════════════════════════════════════════════════════════════
-                double weightedScore = (largeScore * 0.25) +    // Patrón general: 25%
-                                      (mediumScore * 0.25) +     // Balance: 25%
-                                      (smallScore * 0.20) +      // Detalles: 20%
-                                      (globalScore * 0.30);      // Global: 30%
-
-                return weightedScore;
-            }
-            catch
-            {
-                return 0.0;
-            }
+            // Legacy - usar CompareFmds es mejor
+            return 0.0;
         }
 
-        public (bool matched, string clientName, double similarity) VerifyWithMultipleCaptures(string[] allStoredTemplates, string[] clientNames)
+        public (bool matched, string clientName, double similarity) VerifyWithMultipleCaptures(
+            string[] allStoredTemplates,
+            string[] clientNames)
         {
-            Console.WriteLine("");
-            Console.WriteLine("════════════════════════════════════════════════════");
-            Console.WriteLine("   🔍 VERIFICACIÓN MULTI-CAPTURA (3 intentos)");
-            Console.WriteLine("════════════════════════════════════════════════════");
-            Console.WriteLine("");
-
-            List<byte[]> userCaptures = new List<byte[]>();
-
-            for (int i = 1; i <= 3; i++)
-            {
-                try
-                {
-                    Console.WriteLine($"══════════ CAPTURA {i}/3 ══════════");
-
-                    if (i > 1)
-                    {
-                        Console.WriteLine("👆 Levanta el dedo y vuelve a colocarlo");
-                        Console.WriteLine("⏳ Esperando 2 segundos...");
-                        Thread.Sleep(2000);
-                    }
-
-                    byte[] capture = CaptureFingerprint();
-                    userCaptures.Add(capture);
-
-                    Console.WriteLine($"✅ Captura {i} exitosa");
-                    Console.WriteLine("");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"⚠️  Error en captura {i}: {ex.Message}");
-
-                    if (userCaptures.Count >= 2)
-                    {
-                        Console.WriteLine($"💡 Continuando con {userCaptures.Count} captura(s)");
-                        break;
-                    }
-                }
-            }
-
-            if (userCaptures.Count < 2)
-            {
-                Console.WriteLine("❌ No se capturaron suficientes huellas");
-                return (false, "", 0.0);
-            }
-
-            Console.WriteLine("════════════════════════════════════════════════════");
-            Console.WriteLine($"   ✅ {userCaptures.Count} CAPTURAS COMPLETADAS");
-            Console.WriteLine("════════════════════════════════════════════════════");
-            Console.WriteLine("");
-
-            Console.WriteLine("🔍 Comparando contra base de datos...");
-            Console.WriteLine("");
-
-            double bestSimilarity = 0.0;
-            string bestClientName = "";
-
-            for (int c = 0; c < allStoredTemplates.Length; c++)
-            {
-                Console.WriteLine($"[Cliente {c + 1}/{allStoredTemplates.Length}] {clientNames[c]}");
-
-                string[] clientTemplates = allStoredTemplates[c].Split(new[] { "|||" }, StringSplitOptions.RemoveEmptyEntries);
-
-                List<double> similarities = new List<double>();
-
-                foreach (var userCapture in userCaptures)
-                {
-                    foreach (var clientTemplate in clientTemplates)
-                    {
-                        double similarity = GetSimilarityScore(userCapture, clientTemplate);
-                        if (similarity > 0)
-                        {
-                            similarities.Add(similarity);
-                        }
-                    }
-                }
-
-                if (similarities.Count > 0)
-                {
-                    double avgSimilarity = similarities.OrderByDescending(s => s).Take(3).Average();
-
-                    Console.WriteLine($"    📊 Similitud promedio: {avgSimilarity:F2}%");
-                    Console.WriteLine($"    📊 Top 3: {string.Join(", ", similarities.OrderByDescending(s => s).Take(3).Select(s => $"{s:F1}%"))}");
-
-                    if (avgSimilarity > bestSimilarity)
-                    {
-                        bestSimilarity = avgSimilarity;
-                        bestClientName = clientNames[c];
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("    ❌ Sin coincidencias");
-                }
-
-                Console.WriteLine("");
-            }
-
-            double threshold = 35.0; // UMBRAL BAJADO de 60% a 35%
-            bool isMatch = bestSimilarity >= threshold;
-
-            Console.WriteLine("════════════════════════════════════════════════════");
-            Console.WriteLine($"   🏆 MEJOR COINCIDENCIA:");
-            Console.WriteLine($"   Cliente: {bestClientName}");
-            Console.WriteLine($"   Similitud: {bestSimilarity:F2}%");
-            Console.WriteLine($"   Umbral: {threshold:F2}%");
-            Console.WriteLine($"   Resultado: {(isMatch ? "✅ VERIFICADO" : "❌ NO COINCIDE")}");
-            Console.WriteLine("════════════════════════════════════════════════════");
-            Console.WriteLine("");
-
-            return (isMatch, bestClientName, bestSimilarity);
-        }
-
-        public void Dispose()
-        {
-            lock (_lockObject)
-            {
-                if (_reader != null)
-                {
-                    try
-                    {
-                        _reader.Dispose();
-                        Console.WriteLine("✓ Lector cerrado correctamente");
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error cerrando lector: {ex.Message}");
-                    }
-                    finally
-                    {
-                        _reader = null;
-                        _isInitialized = false;
-                    }
-                }
-            }
+            // Legacy - usar IdentifyFmdAgainstAll es mejor
+            return (false, "", 0.0);
         }
 
         public Dictionary<string, string> GetReaderInfo()
@@ -632,14 +567,12 @@ namespace VidaFitBackend.Services
                 info["Status"] = "Conectado";
                 info["Modelo"] = _reader.Description.Name ?? "N/A";
                 info["Serie"] = _reader.Description.SerialNumber ?? "N/A";
-                info["Modalidad"] = _reader.Description.Modality.ToString();
-                info["Tecnología"] = _reader.Description.Technology.ToString();
 
                 if (_reader.Capabilities != null)
                 {
                     info["Resoluciones"] = string.Join(", ", _reader.Capabilities.Resolutions);
-                    info["Puede Capturar"] = _reader.Capabilities.CanCapture.ToString();
-                    info["Puede Transmitir"] = _reader.Capabilities.CanStream.ToString();
+                    info["CanCapture"] = _reader.Capabilities.CanCapture.ToString();
+                    info["CanStream"] = _reader.Capabilities.CanStream.ToString();
                 }
             }
             catch (Exception ex)
@@ -648,6 +581,27 @@ namespace VidaFitBackend.Services
             }
 
             return info;
+        }
+
+        public void Dispose()
+        {
+            lock (_lockObject)
+            {
+                if (_reader != null)
+                {
+                    try
+                    {
+                        _reader.Dispose();
+                        Console.WriteLine("✓ Lector cerrado");
+                    }
+                    catch { }
+                    finally
+                    {
+                        _reader = null;
+                        _isInitialized = false;
+                    }
+                }
+            }
         }
     }
 }

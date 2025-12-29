@@ -71,9 +71,14 @@ builder.Services.AddAuthentication(x =>
 });
 
 // Servicios personalizados
+builder.Services.AddSingleton<IFingerprintServiceTest, FingerprintServiceTest>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddSingleton<IFingerprintService, FingerprintService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+
+// ✅✅✅ AGREGAR ESTA LÍNEA - Servicio de prueba de huellas ✅✅✅
+builder.Services.AddSingleton<IFingerprintServiceTest, FingerprintServiceTest>();
+// ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅
 
 // Sesiones para el panel admin
 builder.Services.AddSession(options =>
@@ -103,6 +108,11 @@ var app = builder.Build();
 var fingerprintService = app.Services.GetRequiredService<IFingerprintService>();
 fingerprintService.Initialize();
 
+// ✅✅✅ AGREGAR ESTAS 2 LÍNEAS - Inicializar servicio de prueba ✅✅✅
+var fingerprintTestService = app.Services.GetRequiredService<IFingerprintServiceTest>();
+fingerprintTestService.Initialize(fingerprintService);
+// ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅
+
 // Mostrar banner DESPUÉS de la inicialización
 Console.WriteLine("═══════════════════════════════════════════════════════");
 Console.WriteLine("   ██╗   ██╗██╗██████╗  █████╗     ███████╗██╗████████╗");
@@ -118,11 +128,13 @@ Console.WriteLine("════════════════════�
 Console.WriteLine($"   ✓ Servidor iniciado en: http://localhost:5000");
 Console.WriteLine($"   ✓ Base de datos: PostgreSQL - Conectada");
 Console.WriteLine($"   {(fingerprintService.IsReaderConnected() ? "✓" : "✗")} Lector de huellas: {(fingerprintService.IsReaderConnected() ? "Conectado ✓" : "No detectado ✗")}");
+Console.WriteLine($"   {(fingerprintTestService.IsReaderConnected() ? "✓" : "✗")} Lector de prueba: {(fingerprintTestService.IsReaderConnected() ? "Listo ✓" : "No detectado ✗")}");
 Console.WriteLine("═══════════════════════════════════════════════════════");
 Console.WriteLine("   📱 Kiosko de Check-in: http://localhost:5000/kiosko");
 Console.WriteLine("   🎛️  Panel Admin: http://localhost:5000/admin");
 Console.WriteLine("   📊 API REST: http://localhost:5000/api");
 Console.WriteLine("   📚 Swagger: http://localhost:5000/swagger");
+Console.WriteLine("   🧪 Prueba Huellas: http://localhost:5000/swagger (busca HuellaPrueba)");
 Console.WriteLine("═══════════════════════════════════════════════════════");
 Console.WriteLine("");
 Console.WriteLine("   🚀 El navegador se abrirá automáticamente...");
