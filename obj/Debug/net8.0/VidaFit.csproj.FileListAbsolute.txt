@@ -858,3 +858,12 @@ C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\obj\Debug\net8.0\refint\Vid
 C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\obj\Debug\net8.0\VidaFit.pdb
 C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\obj\Debug\net8.0\VidaFit.genruntimeconfig.cache
 C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\obj\Debug\net8.0\ref\VidaFit.dll
+C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\bin\Debug\net8.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\bin\Debug\net8.0\System.Drawing.Common.dll
+C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\bin\Debug\net8.0\System.Private.Windows.Core.dll
+C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\bin\Debug\net8.0\System.Private.Windows.GdiPlus.dll
+C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\bin\Debug\net8.0\runtimes\win\lib\net8.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\bin\Debug\net8.0\DPCtlUruNet.dll
+C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\bin\Debug\net8.0\DPFPApi.dll
+C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\bin\Debug\net8.0\dpHMatch.dll
+C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\bin\Debug\net8.0\dpIdent.dll

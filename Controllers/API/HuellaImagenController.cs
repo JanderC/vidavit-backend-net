@@ -1,22 +1,23 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using VidaFitBackend.Services;
-using DPUruNet;
 
 namespace VidaFit.Controllers.API
 {
     /// <summary>
-    /// Controlador de PRUEBA para el lector de huellas DigitalPersona 4500
-    /// USA MÉTODO CORRECTO: CreateFmdFromFid
+    /// Controlador de huellas basado en IMÁGENES
+    /// Simple, confiable y funciona igual que el SDK de ejemplo
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
-    public class HuellaPruebaController : ControllerBase
+    public class HuellaImagenController : ControllerBase
     {
-        private readonly IFingerprintServiceTest _fingerprintService;
-        private static Dictionary<string, PersonaPrueba> _memoriaPrueba = new();
+        private readonly IFingerprintImageService _fingerprintService;
+
+        // Base de datos en memoria: Nombre -> Lista de imágenes Base64
+        private static Dictionary<string, PersonaImagen> _memoriaPrueba = new();
         private static List<string> _logsPrueba = new();
 
-        public HuellaPruebaController(IFingerprintServiceTest fingerprintService)
+        public HuellaImagenController(IFingerprintImageService fingerprintService)
         {
             _fingerprintService = fingerprintService;
         }
@@ -37,74 +38,22 @@ namespace VidaFit.Controllers.API
                 reader = readerInfo,
                 personsInMemory = _memoriaPrueba.Count,
                 mensaje = connected
-                    ? "✅ Lector listo con método correcto (CreateFmdFromFid)"
+                    ? "✅ Lector listo - Modo IMÁGENES (como SDK de ejemplo)"
                     : "❌ Lector no disponible"
             });
         }
 
         // ════════════════════════════════════════════════════════════════════
-        // 2. DIAGNÓSTICO COMPLETO
-        // ════════════════════════════════════════════════════════════════════
-        [HttpPost("diagnostico")]
-        public async Task<IActionResult> Diagnostico()
-        {
-            Log("═══════════════════════════════════════════");
-            Log("🔍 DIAGNÓSTICO CON MÉTODO CORRECTO");
-            Log("═══════════════════════════════════════════");
-
-            var diagnostico = await _fingerprintService.DiagnosticarCaptura();
-
-            var exitosos = diagnostico.Resultados.Where(r => r.Exitoso).ToList();
-
-            if (exitosos.Any())
-            {
-                Log($"✅ FUNCIONANDO CORRECTAMENTE");
-                Log($"   Método: {exitosos[0].Metodo}");
-                Log($"   FMD: {exitosos[0].TamanoFmd:N0} bytes");
-            }
-            else
-            {
-                Log($"❌ FALLÓ - Revisa los detalles");
-            }
-
-            return Ok(new
-            {
-                success = true,
-                lectorConectado = diagnostico.LectorConectado,
-                infoLector = diagnostico.InfoLector,
-                resultados = diagnostico.Resultados.Select(r => new
-                {
-                    metodo = r.Metodo,
-                    formato = r.Formato,
-                    exitoso = r.Exitoso,
-                    tamanoFid = r.TamanoFid,
-                    tamanoFmd = r.TamanoFmd,
-                    error = r.Error,
-                    detallesCount = r.Detalles.Count,
-                    ultimosDetalles = r.Detalles.TakeLast(10).ToList()
-                }).ToList(),
-                resumen = new
-                {
-                    funciona = exitosos.Any(),
-                    mensaje = exitosos.Any()
-                        ? "✅ Todo OK - Puedes registrar y verificar huellas"
-                        : "❌ Problema detectado - Revisa los logs"
-                },
-                logs = GetLogs()
-            });
-        }
-
-        // ════════════════════════════════════════════════════════════════════
-        // 3. CAPTURA SIMPLE
+        // 2. CAPTURAR UNA IMAGEN
         // ════════════════════════════════════════════════════════════════════
         [HttpPost("capturar")]
         public async Task<IActionResult> Capturar()
         {
             Log("═══════════════════════════════════════════");
-            Log("CAPTURA DE HUELLA");
+            Log("📸 CAPTURA DE IMAGEN");
             Log("═══════════════════════════════════════════");
 
-            var result = await _fingerprintService.CaptureFmdAsync();
+            var result = await _fingerprintService.CaptureImageAsync();
 
             if (!result.Success)
             {
@@ -113,40 +62,37 @@ namespace VidaFit.Controllers.API
                 {
                     success = false,
                     error = result.Error,
-                    logs = result.Logs.Concat(GetLogs()).ToList(),
-                    ayuda = result.Error.Contains("TOO_SMALL")
-                        ? "Cubre COMPLETAMENTE el sensor con tu dedo y presiona firmemente"
-                        : "Revisa los logs para más detalles"
+                    logs = result.Logs.Concat(GetLogs()).ToList()
                 });
             }
 
-            Log($"✅ Captura exitosa");
-            Log($"   FMD: {result.FmdSize:N0} bytes");
-            Log($"   RAW: {result.RawImageSize:N0} bytes");
+            Log($"✅ Imagen capturada");
+            Log($"   Dimensiones: {result.ImageWidth}x{result.ImageHeight}");
+            Log($"   Tamaño: {result.ImageSize:N0} bytes");
 
             return Ok(new
             {
                 success = true,
-                mensaje = "Huella capturada correctamente",
+                mensaje = "✅ Imagen capturada correctamente",
                 data = new
                 {
-                    fmdSize = result.FmdSize,
-                    rawSize = result.RawImageSize,
-                    compresion = $"{((double)result.RawImageSize / result.FmdSize):F1}x",
-                    formato = result.Formato
+                    imageBase64 = result.ImageBase64,
+                    width = result.ImageWidth,
+                    height = result.ImageHeight,
+                    size = result.ImageSize
                 },
                 logs = result.Logs.Concat(GetLogs()).ToList()
             });
         }
 
         // ════════════════════════════════════════════════════════════════════
-        // 4. REGISTRAR PERSONA (3 CAPTURAS)
+        // 3. REGISTRAR PERSONA (3 IMÁGENES)
         // ════════════════════════════════════════════════════════════════════
         [HttpPost("registrar")]
-        public async Task<IActionResult> Registrar([FromBody] RegistrarHuellaRequest request)
+        public async Task<IActionResult> Registrar([FromBody] RegistrarRequest request)
         {
             Log("═══════════════════════════════════════════");
-            Log($"REGISTRO: {request.Nombre}");
+            Log($"📝 REGISTRO: {request.Nombre}");
             Log("═══════════════════════════════════════════");
 
             if (string.IsNullOrWhiteSpace(request.Nombre))
@@ -154,7 +100,9 @@ namespace VidaFit.Controllers.API
                 return Ok(new { success = false, error = "El nombre es requerido" });
             }
 
-            if (_memoriaPrueba.ContainsKey(request.Nombre.ToLower()))
+            string nombreKey = request.Nombre.ToLower().Trim();
+
+            if (_memoriaPrueba.ContainsKey(nombreKey))
             {
                 Log($"⚠️ {request.Nombre} ya está registrado");
                 return Ok(new
@@ -164,7 +112,10 @@ namespace VidaFit.Controllers.API
                 });
             }
 
-            var result = await _fingerprintService.CaptureMultipleFmdsAsync(3);
+            Log("📸 Capturando 3 imágenes de tu huella...");
+            Log("👆 Usa el MISMO dedo en las 3 capturas");
+
+            var result = await _fingerprintService.CaptureMultipleImagesAsync(3);
 
             if (!result.Success)
             {
@@ -178,44 +129,49 @@ namespace VidaFit.Controllers.API
                 });
             }
 
-            _memoriaPrueba[request.Nombre.ToLower()] = new PersonaPrueba
+            _memoriaPrueba[nombreKey] = new PersonaImagen
             {
                 Nombre = request.Nombre,
                 FechaRegistro = DateTime.UtcNow,
-                Fmds = result.Fmds,
-                TamanoTotal = result.TotalFmdSize
+                ImagenesBase64 = result.ImagesBase64,
+                NumImagenes = result.ImagesBase64.Count
             };
 
             Log($"✅ {request.Nombre} registrado exitosamente");
-            Log($"   Capturas: {result.CapturesCompleted}");
-            Log($"   Tamaño total: {result.TotalFmdSize:N0} bytes");
+            Log($"   Imágenes: {result.CapturesCompleted}");
 
             return Ok(new
             {
                 success = true,
-                mensaje = $"✅ {request.Nombre} registrado con {result.CapturesCompleted} huellas",
+                mensaje = $"✅ {request.Nombre} registrado con {result.CapturesCompleted} imágenes de huella",
                 data = new
                 {
                     nombre = request.Nombre,
                     capturas = result.CapturesCompleted,
-                    tamanoTotal = result.TotalFmdSize,
-                    promedioBytes = result.TotalFmdSize / result.CapturesCompleted
+                    primeraImagenBase64 = result.ImagesBase64.FirstOrDefault() // Para preview
                 },
                 logs = result.Logs.Concat(GetLogs()).ToList()
             });
         }
 
         // ════════════════════════════════════════════════════════════════════
-        // 5. VERIFICAR (1:1) - Verificar si es una persona específica
+        // 4. VERIFICAR (1:1) - Comparar con una persona específica
         // ════════════════════════════════════════════════════════════════════
         [HttpPost("verificar")]
-        public async Task<IActionResult> Verificar([FromBody] VerificarHuellaRequest request)
+        public async Task<IActionResult> Verificar([FromBody] VerificarRequest request)
         {
             Log("═══════════════════════════════════════════");
-            Log($"VERIFICACIÓN 1:1 contra: {request.Nombre}");
+            Log($"🔍 VERIFICACIÓN: {request.Nombre}");
             Log("═══════════════════════════════════════════");
 
-            if (!_memoriaPrueba.ContainsKey(request.Nombre.ToLower()))
+            if (string.IsNullOrWhiteSpace(request.Nombre))
+            {
+                return Ok(new { success = false, error = "El nombre es requerido" });
+            }
+
+            string nombreKey = request.Nombre.ToLower().Trim();
+
+            if (!_memoriaPrueba.ContainsKey(nombreKey))
             {
                 return Ok(new
                 {
@@ -224,8 +180,8 @@ namespace VidaFit.Controllers.API
                 });
             }
 
-            Log("📸 Capturando huella para verificar...");
-            var captureResult = await _fingerprintService.CaptureFmdAsync();
+            Log($"📸 Capturando huella para verificar...");
+            var captureResult = await _fingerprintService.CaptureImageAsync();
 
             if (!captureResult.Success)
             {
@@ -237,21 +193,24 @@ namespace VidaFit.Controllers.API
                 });
             }
 
-            var persona = _memoriaPrueba[request.Nombre.ToLower()];
-            var (matched, bestScore) = _fingerprintService.CompareFmdAgainstMultiple(
-                captureResult.Fmd,
-                persona.Fmds
+            var persona = _memoriaPrueba[nombreKey];
+
+            Log($"🔍 Comparando con {persona.NumImagenes} imágenes de {persona.Nombre}...");
+
+            var (matched, bestSimilarity) = _fingerprintService.CompareAgainstMultiple(
+                captureResult.ImageBase64,
+                persona.ImagenesBase64
             );
 
             if (matched)
             {
                 Log($"✅ ES {persona.Nombre}");
-                Log($"   Score: {bestScore:N0} (umbral: 20,000)");
+                Log($"   Similitud: {bestSimilarity:F2}% (umbral: 70%)");
             }
             else
             {
                 Log($"❌ NO ES {persona.Nombre}");
-                Log($"   Score: {bestScore:N0} (umbral: 20,000)");
+                Log($"   Similitud: {bestSimilarity:F2}% (umbral: 70%)");
             }
 
             return Ok(new
@@ -259,37 +218,43 @@ namespace VidaFit.Controllers.API
                 success = true,
                 matched,
                 persona = persona.Nombre,
-                score = bestScore,
-                umbral = 20000,
+                similarity = Math.Round(bestSimilarity, 2),
+                threshold = 70.0,
+                capturedImageBase64 = captureResult.ImageBase64, // Para mostrar en UI
                 mensaje = matched
                     ? $"✅ Verificado: ES {persona.Nombre}"
                     : $"❌ NO es {persona.Nombre}",
-                interpretacion = bestScore < 10000 ? "Coincidencia excelente" :
-                                 bestScore < 20000 ? "Coincidencia buena" :
-                                 bestScore < 30000 ? "Coincidencia dudosa" : "No coincide",
+                interpretacion = bestSimilarity >= 90 ? "Coincidencia excelente" :
+                                bestSimilarity >= 80 ? "Coincidencia muy buena" :
+                                bestSimilarity >= 70 ? "Coincidencia aceptable" :
+                                bestSimilarity >= 60 ? "Coincidencia dudosa" : "No coincide",
                 logs = captureResult.Logs.Concat(GetLogs()).ToList()
             });
         }
 
         // ════════════════════════════════════════════════════════════════════
-        // 6. IDENTIFICAR (1:N) - Buscar entre TODAS las personas
+        // 5. IDENTIFICAR (1:N) - Buscar entre TODAS las personas
         // ════════════════════════════════════════════════════════════════════
         [HttpPost("identificar")]
         public async Task<IActionResult> Identificar()
         {
             Log("═══════════════════════════════════════════");
-            Log("IDENTIFICACIÓN 1:N (BUSCAR ENTRE TODOS)");
+            Log("🔍 IDENTIFICACIÓN 1:N (BUSCAR ENTRE TODOS)");
             Log("═══════════════════════════════════════════");
 
             if (_memoriaPrueba.Count == 0)
             {
-                return Ok(new { success = false, error = "No hay personas registradas. Usa /registrar primero." });
+                return Ok(new
+                {
+                    success = false,
+                    error = "No hay personas registradas. Usa /registrar primero."
+                });
             }
 
             Log($"📋 Personas registradas: {_memoriaPrueba.Count}");
             Log("📸 Capturando huella...");
 
-            var captureResult = await _fingerprintService.CaptureFmdAsync();
+            var captureResult = await _fingerprintService.CaptureImageAsync();
 
             if (!captureResult.Success)
             {
@@ -301,45 +266,43 @@ namespace VidaFit.Controllers.API
                 });
             }
 
-            // Construir lista de todos los FMDs
-            var allFmds = new List<Fmd>();
-            var indexToPersonMap = new Dictionary<int, string>();
-            int currentIndex = 0;
+            Log($"🔍 Buscando entre {_memoriaPrueba.Count} personas...");
+
+            string? personaEncontrada = null;
+            double mejorSimilitud = 0;
 
             foreach (var persona in _memoriaPrueba.Values)
             {
-                foreach (var fmd in persona.Fmds)
+                var (matched, similarity) = _fingerprintService.CompareAgainstMultiple(
+                    captureResult.ImageBase64,
+                    persona.ImagenesBase64
+                );
+
+                Log($"   {persona.Nombre}: {similarity:F2}%");
+
+                if (similarity > mejorSimilitud)
                 {
-                    allFmds.Add(fmd);
-                    indexToPersonMap[currentIndex] = persona.Nombre;
-                    currentIndex++;
+                    mejorSimilitud = similarity;
+                    if (matched)
+                    {
+                        personaEncontrada = persona.Nombre;
+                    }
                 }
             }
 
-            Log($"🔍 Buscando en {allFmds.Count} huellas registradas...");
-
-            var identifyResult = _fingerprintService.IdentifyFmdAgainstAll(
-                captureResult.Fmd,
-                allFmds,
-                20000
-            );
-
-            if (identifyResult != null && identifyResult.ResultCode == Constants.ResultCode.DP_SUCCESS)
+            if (personaEncontrada != null)
             {
-                int[][] indexes = identifyResult.Indexes;
-                int matchIndex = indexes[0][0];
-                string personaEncontrada = indexToPersonMap[matchIndex];
-
                 Log($"✅ IDENTIFICADO: {personaEncontrada}");
-                Log($"   Índice FMD: {matchIndex}");
+                Log($"   Similitud: {mejorSimilitud:F2}%");
 
                 return Ok(new
                 {
                     success = true,
                     matched = true,
                     persona = personaEncontrada,
-                    matchIndex = matchIndex,
-                    totalBuscados = allFmds.Count,
+                    similarity = Math.Round(mejorSimilitud, 2),
+                    capturedImageBase64 = captureResult.ImageBase64, // Para mostrar en UI
+                    totalBuscados = _memoriaPrueba.Count,
                     mensaje = $"✅ Identificado como {personaEncontrada}",
                     logs = captureResult.Logs.Concat(GetLogs()).ToList()
                 });
@@ -347,17 +310,49 @@ namespace VidaFit.Controllers.API
             else
             {
                 Log($"❌ NO IDENTIFICADO");
-                Log($"   No hay coincidencias en la base de datos");
+                Log($"   Mejor similitud: {mejorSimilitud:F2}% (umbral: 70%)");
 
                 return Ok(new
                 {
                     success = true,
                     matched = false,
+                    bestSimilarity = Math.Round(mejorSimilitud, 2),
+                    capturedImageBase64 = captureResult.ImageBase64, // Para mostrar en UI
                     mensaje = "❌ No se encontró coincidencia con ninguna persona registrada",
-                    totalBuscados = allFmds.Count,
+                    totalBuscados = _memoriaPrueba.Count,
                     logs = captureResult.Logs.Concat(GetLogs()).ToList()
                 });
             }
+        }
+
+        // ════════════════════════════════════════════════════════════════════
+        // 6. VER IMAGEN DE UNA PERSONA REGISTRADA
+        // ════════════════════════════════════════════════════════════════════
+        [HttpGet("ver-imagen/{nombre}")]
+        public IActionResult VerImagen(string nombre)
+        {
+            string nombreKey = nombre.ToLower().Trim();
+
+            if (!_memoriaPrueba.ContainsKey(nombreKey))
+            {
+                return Ok(new
+                {
+                    success = false,
+                    error = $"{nombre} no está registrado"
+                });
+            }
+
+            var persona = _memoriaPrueba[nombreKey];
+
+            return Ok(new
+            {
+                success = true,
+                persona = persona.Nombre,
+                numImagenes = persona.NumImagenes,
+                primeraImagen = persona.ImagenesBase64.FirstOrDefault(),
+                todasLasImagenes = persona.ImagenesBase64,
+                fechaRegistro = persona.FechaRegistro
+            });
         }
 
         // ════════════════════════════════════════════════════════════════════
@@ -370,8 +365,7 @@ namespace VidaFit.Controllers.API
             {
                 nombre = p.Nombre,
                 fechaRegistro = p.FechaRegistro,
-                numHuellas = p.Fmds.Count,
-                tamanoTotal = p.TamanoTotal
+                numImagenes = p.NumImagenes
             }).OrderBy(p => p.nombre).ToList();
 
             return Ok(new
@@ -402,6 +396,16 @@ namespace VidaFit.Controllers.API
             });
         }
 
+        [HttpGet("logs")]
+        public IActionResult GetLogsEndpoint()
+        {
+            return Ok(new
+            {
+                success = true,
+                logs = GetLogs(100)
+            });
+        }
+
         private static void Log(string mensaje)
         {
             var logMensaje = $"[{DateTime.Now:HH:mm:ss}] {mensaje}";
@@ -423,20 +427,20 @@ namespace VidaFit.Controllers.API
     // ════════════════════════════════════════════════════════════════════
     // MODELOS
     // ════════════════════════════════════════════════════════════════════
-    public class PersonaPrueba
+    public class PersonaImagen
     {
         public string Nombre { get; set; } = string.Empty;
         public DateTime FechaRegistro { get; set; }
-        public List<Fmd> Fmds { get; set; } = new();
-        public int TamanoTotal { get; set; }
+        public List<string> ImagenesBase64 { get; set; } = new();
+        public int NumImagenes { get; set; }
     }
 
-    public class RegistrarHuellaRequest
+    public class RegistrarRequest
     {
         public string Nombre { get; set; } = string.Empty;
     }
 
-    public class VerificarHuellaRequest
+    public class VerificarRequest
     {
         public string Nombre { get; set; } = string.Empty;
     }

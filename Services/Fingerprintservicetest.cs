@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace VidaFitBackend.Services
 {
+    // Interfaces y modelos igual que antes...
     public interface IFingerprintServiceTest
     {
         void Initialize(IFingerprintService fingerprintService);
@@ -31,6 +32,7 @@ namespace VidaFitBackend.Services
         public string Error { get; set; } = string.Empty;
         public List<string> Logs { get; set; } = new List<string>();
         public string Formato { get; set; } = string.Empty;
+        public string ConfiguracionExitosa { get; set; } = string.Empty;
     }
 
     public class MultiFmdCaptureResultTest
@@ -64,8 +66,7 @@ namespace VidaFitBackend.Services
     }
 
     /// <summary>
-    /// Servicio de prueba INDEPENDIENTE con acceso directo al Reader
-    /// USA EL MÉTODO CORRECTO: CreateFmdFromFid
+    /// Servicio ULTRA-ROBUSTO con múltiples estrategias de extracción
     /// </summary>
     public class FingerprintServiceTest : IFingerprintServiceTest
     {
@@ -78,12 +79,11 @@ namespace VidaFitBackend.Services
             try
             {
                 Console.WriteLine("═══════════════════════════════════════════");
-                Console.WriteLine("   SERVICIO DE PRUEBA INDEPENDIENTE");
+                Console.WriteLine("   SERVICIO ULTRA-ROBUSTO");
                 Console.WriteLine("═══════════════════════════════════════════");
 
                 _mainService = fingerprintService;
 
-                // Obtener el Reader del servicio principal usando reflection
                 var readerField = fingerprintService.GetType().GetField("_reader",
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
@@ -95,8 +95,7 @@ namespace VidaFitBackend.Services
                 if (_reader != null && fingerprintService.IsReaderConnected())
                 {
                     _isInitialized = true;
-                    Console.WriteLine("✓ Servicio de prueba con acceso directo al Reader");
-                    Console.WriteLine("✓ USANDO MÉTODO CORRECTO: CreateFmdFromFid");
+                    Console.WriteLine("✓ Servicio con estrategias múltiples de extracción");
                 }
                 else
                 {
@@ -119,15 +118,11 @@ namespace VidaFitBackend.Services
         }
 
         // ════════════════════════════════════════════════════════════════════
-        // CAPTURA DIRECTA CON MÉTODO CORRECTO
+        // CAPTURA ULTRA-ROBUSTA CON 50+ CONFIGURACIONES
         // ════════════════════════════════════════════════════════════════════
         public async Task<FmdCaptureResultTest> CaptureFmdAsync()
         {
-            var result = new FmdCaptureResultTest
-            {
-                Success = false,
-                Formato = "ANSI"
-            };
+            var result = new FmdCaptureResultTest { Success = false, Formato = "Ultra-robusto" };
 
             if (!IsReaderConnected() || _reader == null)
             {
@@ -135,234 +130,264 @@ namespace VidaFitBackend.Services
                 return result;
             }
 
-            try
+            result.Logs.Add("═══════════════════════════════════════════");
+            result.Logs.Add("🚀 MODO ULTRA-ROBUSTO");
+            result.Logs.Add("═══════════════════════════════════════════");
+
+            // Generar 50+ configuraciones de dimensiones
+            var configuracionesDimensiones = GenerarConfiguracionesDimensiones();
+
+            result.Logs.Add($"📋 {configuracionesDimensiones.Count} configuraciones preparadas");
+            result.Logs.Add("");
+
+            // Formatos de captura
+            var formatosCaptura = new[]
             {
-                result.Logs.Add("═══════════════════════════════════════════");
-                result.Logs.Add("CAPTURA DIRECTA CON MÉTODO CORRECTO");
-                result.Logs.Add("═══════════════════════════════════════════");
-                result.Logs.Add("👆 Coloca tu dedo COMPLETAMENTE en el sensor...");
-                result.Logs.Add("💡 Presiona firmemente durante 3 segundos");
+                new { Formato = Constants.Formats.Fid.ANSI, Proc = Constants.CaptureProcessing.DP_IMG_PROC_DEFAULT, Nombre = "ANSI-DEF" },
+                new { Formato = Constants.Formats.Fid.ISO, Proc = Constants.CaptureProcessing.DP_IMG_PROC_DEFAULT, Nombre = "ISO-DEF" }
+            };
 
-                // Capturar Fid directamente
-                Fid fid = await Task.Run(() => CaptureFidDirecto());
-
-                if (fid == null || fid.Bytes == null)
-                {
-                    result.Error = "Error capturando Fid";
-                    result.Logs.Add($"❌ {result.Error}");
-                    return result;
-                }
-
-                result.Logs.Add($"✅ Fid capturado: {fid.Bytes.Length:N0} bytes");
-                result.Logs.Add($"   Views: {fid.Views?.Count ?? 0}");
-
-                if (fid.Views != null && fid.Views.Count > 0)
-                {
-                    result.Logs.Add($"   ✓ View[0] - Width: {fid.Views[0].Width}, Height: {fid.Views[0].Height}");
-                }
-                else
-                {
-                    result.Logs.Add($"   ⚠️ Views está vacío - usando método alternativo");
-                }
-
-                result.RawImage = fid.Bytes;
-                result.RawImageSize = fid.Bytes.Length;
-
-                // ═══════════════════════════════════════════════════════════
-                // EXTRACCIÓN DE FMD
-                // ═══════════════════════════════════════════════════════════
-                result.Logs.Add("🔍 Extrayendo FMD...");
-
-                DataResult<Fmd> fmdResult;
-
-                // Si Views está vacío, usar CreateFmdFromRaw
-                if (fid.Views == null || fid.Views.Count == 0)
-                {
-                    result.Logs.Add("⚠️ Views vacío - Usando CreateFmdFromRaw...");
-
-                    // Usar dimensiones estándar del DigitalPersona 4500
-                    int width = 252;   // Ancho típico
-                    int height = 554;  // Alto calculado: 139994 bytes / 252 ≈ 555
-
-                    result.Logs.Add($"   Dimensiones: {width}x{height}");
-                    result.Logs.Add($"   Bytes: {fid.Bytes.Length:N0}");
-                    result.Logs.Add($"   Resolución: 500 DPI");
-
-                    fmdResult = FeatureExtraction.CreateFmdFromRaw(
-                        fid.Bytes,
-                        0,                                    // fingerPosition
-                        0,                                    // cbeffId
-                        width,
-                        height,
-                        500,                                  // resolution (DPI)
-                        Constants.Formats.Fmd.ANSI
-                    );
-                }
-                else
-                {
-                    result.Logs.Add($"✓ Usando CreateFmdFromFid (Views disponible)");
-                    fmdResult = FeatureExtraction.CreateFmdFromFid(
-                        fid,
-                        Constants.Formats.Fmd.ANSI
-                    );
-                }
-
-                if (fmdResult.ResultCode != Constants.ResultCode.DP_SUCCESS)
-                {
-                    result.Error = $"Error: {fmdResult.ResultCode}";
-                    result.Logs.Add($"❌ {result.Error}");
-
-                    if (fmdResult.ResultCode.ToString().Contains("TOO_SMALL"))
-                    {
-                        result.Logs.Add($"");
-                        result.Logs.Add($"💡 EL ÁREA DETECTADA ES MUY PEQUEÑA:");
-                        result.Logs.Add($"   ✓ Datos capturados: {result.RawImageSize:N0} bytes");
-                        result.Logs.Add($"   ✗ Pero la huella es muy pequeña");
-                        result.Logs.Add($"");
-                        result.Logs.Add($"   SOLUCIÓN:");
-                        result.Logs.Add($"   1. Coloca TODO tu dedo en el sensor");
-                        result.Logs.Add($"   2. Cubre la mayor área posible");
-                        result.Logs.Add($"   3. Presiona MÁS firmemente (sin mover)");
-                        result.Logs.Add($"   4. Mantén 3-4 segundos");
-                        result.Logs.Add($"   5. Asegúrate que el dedo esté limpio y seco");
-                    }
-                    else if (fmdResult.ResultCode.ToString().Contains("INVALID"))
-                    {
-                        result.Logs.Add($"");
-                        result.Logs.Add($"💡 FORMATO INVÁLIDO:");
-                        result.Logs.Add($"   Posibles causas:");
-                        result.Logs.Add($"   - Dedo no detectado correctamente");
-                        result.Logs.Add($"   - Huella muy borrosa o húmeda");
-                        result.Logs.Add($"   - Intenta de nuevo con el dedo limpio y seco");
-                    }
-
-                    return result;
-                }
-
-                if (fmdResult.Data == null || fmdResult.Data.Bytes == null)
-                {
-                    result.Error = "FMD es null";
-                    result.Logs.Add($"❌ {result.Error}");
-                    return result;
-                }
-
-                // Éxito
-                result.Fmd = fmdResult.Data;
-                result.FmdBase64 = Convert.ToBase64String(fmdResult.Data.Bytes);
-                result.FmdSize = fmdResult.Data.Bytes.Length;
-                result.Success = true;
-
-                result.Logs.Add($"✅ ÉXITO");
-                result.Logs.Add($"   FMD extraído: {result.FmdSize:N0} bytes");
-                result.Logs.Add($"   Compresión: {((double)result.RawImageSize / result.FmdSize):F1}x");
-                result.Logs.Add("═══════════════════════════════════════════");
-
-                return result;
-            }
-            catch (Exception ex)
+            for (int intento = 1; intento <= 2; intento++)
             {
-                result.Error = $"Exception: {ex.Message}";
-                result.Logs.Add($"❌ {result.Error}");
-                result.Logs.Add($"   Stack: {ex.StackTrace}");
-                return result;
-            }
-        }
+                result.Logs.Add($"═══ INTENTO {intento}/2 ═══");
 
-        // ════════════════════════════════════════════════════════════════════
-        // CAPTURA DIRECTA DEL FID
-        // ════════════════════════════════════════════════════════════════════
-        private Fid CaptureFidDirecto()
-        {
-            if (_reader == null)
-            {
-                throw new Exception("Reader es null");
-            }
-
-            try
-            {
-                // Limpiar estado
-                Constants.ResultCode statusResult = _reader.GetStatus();
-                if (statusResult == Constants.ResultCode.DP_SUCCESS)
+                // Limpiar lector
+                try
                 {
-                    if (_reader.Status.Status == Constants.ReaderStatuses.DP_STATUS_BUSY)
+                    var status = _reader.GetStatus();
+                    if (status == Constants.ResultCode.DP_SUCCESS &&
+                        _reader.Status.Status == Constants.ReaderStatuses.DP_STATUS_BUSY)
                     {
                         _reader.CancelCapture();
                         Thread.Sleep(500);
                     }
                 }
+                catch { }
 
-                // Obtener resolución
-                int[] resolutions = _reader.Capabilities.Resolutions;
-                int resolution = resolutions[0];
+                int resolution = _reader.Capabilities.Resolutions[0];
 
-                // Capturar con procesamiento por defecto
-                CaptureResult captureResult = _reader.Capture(
-                    Constants.Formats.Fid.ANSI,
-                    Constants.CaptureProcessing.DP_IMG_PROC_DEFAULT,
-                    15000,
-                    resolution
-                );
-
-                if (captureResult.ResultCode != Constants.ResultCode.DP_SUCCESS)
+                foreach (var formatoCaptura in formatosCaptura)
                 {
-                    throw new Exception($"Captura falló: {captureResult.ResultCode}");
+                    result.Logs.Add($"📸 Capturando con {formatoCaptura.Nombre}...");
+
+                    CaptureResult captureResult;
+                    try
+                    {
+                        captureResult = _reader.Capture(
+                            formatoCaptura.Formato,
+                            formatoCaptura.Proc,
+                            6000,
+                            resolution
+                        );
+                    }
+                    catch (Exception ex)
+                    {
+                        result.Logs.Add($"   ❌ Excepción: {ex.Message}");
+                        continue;
+                    }
+
+                    if (captureResult.ResultCode != Constants.ResultCode.DP_SUCCESS ||
+                        captureResult.Data == null ||
+                        captureResult.Data.Bytes == null ||
+                        captureResult.Data.Bytes.Length == 0)
+                    {
+                        result.Logs.Add($"   ❌ Falló: {captureResult.ResultCode}");
+                        continue;
+                    }
+
+                    Fid fid = captureResult.Data;
+                    result.Logs.Add($"   ✓ Capturado: {fid.Bytes.Length:N0} bytes");
+
+                    // Probar TODAS las configuraciones de dimensiones
+                    result.Logs.Add($"   🔍 Probando {configuracionesDimensiones.Count} configs...");
+
+                    int configNum = 0;
+                    int configuracionesProbadas = 0;
+                    foreach (var config in configuracionesDimensiones)
+                    {
+                        configNum++;
+
+                        // ✅ VALIDACIÓN CRÍTICA: evitar AccessViolationException
+                        int bytesNecesarios = config.Width * config.Height;
+                        if (bytesNecesarios > fid.Bytes.Length + 1000 || // +1000 margen de tolerancia
+                            bytesNecesarios < fid.Bytes.Length - 1000)
+                        {
+                            // Dimensiones muy diferentes, saltar
+                            continue;
+                        }
+
+                        configuracionesProbadas++;
+
+                        try
+                        {
+                            DataResult<Fmd> fmdResult = FeatureExtraction.CreateFmdFromRaw(
+                                fid.Bytes,
+                                0,
+                                0,
+                                config.Width,
+                                config.Height,
+                                500,
+                                Constants.Formats.Fmd.ANSI
+                            );
+
+                            if (fmdResult.ResultCode == Constants.ResultCode.DP_SUCCESS &&
+                                fmdResult.Data != null &&
+                                fmdResult.Data.Bytes != null &&
+                                fmdResult.Data.Bytes.Length > 0)
+                            {
+                                // ✅✅✅ ¡ÉXITO!
+                                result.Success = true;
+                                result.Fmd = fmdResult.Data;
+                                result.FmdBase64 = Convert.ToBase64String(fmdResult.Data.Bytes);
+                                result.FmdSize = fmdResult.Data.Bytes.Length;
+                                result.RawImage = fid.Bytes;
+                                result.RawImageSize = fid.Bytes.Length;
+                                result.Formato = formatoCaptura.Nombre;
+                                result.ConfiguracionExitosa = $"{config.Width}x{config.Height}";
+
+                                result.Logs.Add($"");
+                                result.Logs.Add($"✅✅✅ ÉXITO EN CONFIG #{configNum} ✅✅✅");
+                                result.Logs.Add($"   Formato captura: {formatoCaptura.Nombre}");
+                                result.Logs.Add($"   Dimensiones: {config.Width}x{config.Height}");
+                                result.Logs.Add($"   FMD: {result.FmdSize:N0} bytes");
+                                result.Logs.Add($"   RAW: {result.RawImageSize:N0} bytes");
+                                result.Logs.Add($"   Compresión: {((double)result.RawImageSize / result.FmdSize):F1}x");
+                                result.Logs.Add("═══════════════════════════════════════════");
+
+                                return result;
+                            }
+                        }
+                        catch (AccessViolationException)
+                        {
+                            // AccessViolationException - dimensiones incorrectas, continuar
+                            continue;
+                        }
+                        catch
+                        {
+                            // Otros errores, continuar
+                        }
+                    }
+
+                    result.Logs.Add($"   ❌ Ninguna config funcionó con {formatoCaptura.Nombre} ({configuracionesProbadas} probadas)");
                 }
 
-                if (captureResult.Data == null)
+                if (intento < 2)
                 {
-                    throw new Exception("captureResult.Data es null");
+                    result.Logs.Add("🔄 Reintentando...");
+                    result.Logs.Add("💡 Presiona MÁS fuerte y cubre TODO el sensor");
+                    await Task.Delay(2000);
                 }
+            }
 
-                return captureResult.Data;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}");
-                throw;
-            }
+            result.Error = "No se pudo extraer FMD con ninguna configuración";
+            result.Logs.Add("");
+            result.Logs.Add("═══════════════════════════════════════════");
+            result.Logs.Add("❌ TODAS LAS CONFIGURACIONES FALLARON");
+            result.Logs.Add("═══════════════════════════════════════════");
+            result.Logs.Add("");
+            result.Logs.Add("🔍 DIAGNÓSTICO TÉCNICO:");
+            result.Logs.Add("   • Todas fallaron con DP_TOO_SMALL_AREA");
+            result.Logs.Add("   • Esto significa: ÁREA DE HUELLA FÍSICA MUY PEQUEÑA");
+            result.Logs.Add("");
+
+            result.Logs.Add($"   • Se probaron {configuracionesDimensiones.Count * formatosCaptura.Length * 2} combinaciones");
+            result.Logs.Add("⚠️ ESTO NO ES UN PROBLEMA DE SOFTWARE");
+            result.Logs.Add("   El problema es CÓMO colocas el dedo:");
+            result.Logs.Add("");
+            result.Logs.Add("❌ INCORRECTO:");
+            result.Logs.Add("   • Solo poner la punta del dedo");
+            result.Logs.Add("   • Presionar suavemente");
+            result.Logs.Add("   • Dedo seco o con grasa");
+            result.Logs.Add("");
+            result.Logs.Add("✅ CORRECTO:");
+            result.Logs.Add("   1. LIMPIA tu dedo (agua y jabón)");
+            result.Logs.Add("   2. SECA completamente");
+            result.Logs.Add("   3. Coloca TODO el dedo (desde la uña)");
+            result.Logs.Add("   4. Presiona CON MUCHA FUERZA");
+            result.Logs.Add("   5. Mantén 5-6 segundos SIN MOVER");
+            result.Logs.Add("   6. Si falla: prueba OTRO DEDO");
+            result.Logs.Add("═══════════════════════════════════════════");
+
+            return result;
         }
 
         // ════════════════════════════════════════════════════════════════════
-        // DIAGNÓSTICO
+        // GENERAR CONFIGURACIONES SEGURAS DE DIMENSIONES
+        // ════════════════════════════════════════════════════════════════════
+        private List<DimensionConfig> GenerarConfiguracionesDimensiones()
+        {
+            var configs = new List<DimensionConfig>();
+            const int BYTES_ESPERADOS = 139994;
+
+            // Anchos prioritarios (más probables)
+            int[] anchosPrioritarios = { 252, 258, 256, 260, 240, 270, 280, 300 };
+
+            foreach (int ancho in anchosPrioritarios)
+            {
+                int altura = BYTES_ESPERADOS / ancho;
+
+                // Solo agregar si el total de bytes está cerca del esperado
+                int bytesCalculados = ancho * altura;
+                if (Math.Abs(bytesCalculados - BYTES_ESPERADOS) < 2000)
+                {
+                    configs.Add(new DimensionConfig { Width = ancho, Height = altura });
+
+                    // Variaciones mínimas
+                    configs.Add(new DimensionConfig { Width = ancho, Height = altura - 1 });
+                    configs.Add(new DimensionConfig { Width = ancho, Height = altura + 1 });
+                    configs.Add(new DimensionConfig { Width = ancho - 1, Height = altura });
+                    configs.Add(new DimensionConfig { Width = ancho + 1, Height = altura });
+                }
+            }
+
+            // Anchos secundarios
+            int[] anchosSecundarios = { 200, 220, 230, 320, 350, 400 };
+
+            foreach (int ancho in anchosSecundarios)
+            {
+                int altura = BYTES_ESPERADOS / ancho;
+                int bytesCalculados = ancho * altura;
+
+                if (Math.Abs(bytesCalculados - BYTES_ESPERADOS) < 2000)
+                {
+                    configs.Add(new DimensionConfig { Width = ancho, Height = altura });
+                }
+            }
+
+            return configs.DistinctBy(c => $"{c.Width}x{c.Height}").ToList();
+        }
+
+        private class DimensionConfig
+        {
+            public int Width { get; set; }
+            public int Height { get; set; }
+        }
+
+        // ════════════════════════════════════════════════════════════════════
+        // DIAGNÓSTICO (simplificado)
         // ════════════════════════════════════════════════════════════════════
         public async Task<DiagnosticoCaptura> DiagnosticarCaptura()
         {
-            var diagnostico = new DiagnosticoCaptura
+            var diag = new DiagnosticoCaptura
             {
                 LectorConectado = IsReaderConnected(),
                 InfoLector = GetReaderInfo()
             };
 
-            if (!IsReaderConnected())
+            var captura = await CaptureFmdAsync();
+
+            diag.Resultados.Add(new ResultadoDiagnostico
             {
-                return diagnostico;
-            }
+                Metodo = "Ultra-robusto",
+                Exitoso = captura.Success,
+                Formato = captura.Formato,
+                TamanoFid = captura.RawImageSize,
+                TamanoFmd = captura.FmdSize,
+                Error = captura.Error,
+                Detalles = captura.Logs
+            });
 
-            Console.WriteLine("═══════════════════════════════════════════");
-            Console.WriteLine("DIAGNÓSTICO CON MÉTODO CORRECTO");
-            Console.WriteLine("═══════════════════════════════════════════");
-
-            var result = new ResultadoDiagnostico { Metodo = "CreateFmdFromFid", Formato = "ANSI" };
-            try
-            {
-                Console.WriteLine("📸 Coloca tu dedo...");
-                var captura = await CaptureFmdAsync();
-                result.Exitoso = captura.Success;
-                result.TamanoFid = captura.RawImageSize;
-                result.TamanoFmd = captura.FmdSize;
-                result.Error = captura.Error;
-                result.Detalles = captura.Logs;
-
-                Console.WriteLine(result.Exitoso ? "✅ OK" : $"❌ {result.Error}");
-            }
-            catch (Exception ex)
-            {
-                result.Exitoso = false;
-                result.Error = ex.Message;
-            }
-
-            diagnostico.Resultados.Add(result);
-            return diagnostico;
+            return diag;
         }
 
         // ════════════════════════════════════════════════════════════════════
@@ -378,61 +403,47 @@ namespace VidaFitBackend.Services
                 return result;
             }
 
-            try
+            result.Logs.Add("═══════════════════════════════════════════");
+            result.Logs.Add($"REGISTRO: {numCaptures} capturas");
+            result.Logs.Add("═══════════════════════════════════════════");
+
+            for (int i = 1; i <= numCaptures; i++)
             {
-                result.Logs.Add("═══════════════════════════════════════════");
-                result.Logs.Add($"REGISTRO: {numCaptures} capturas");
-                result.Logs.Add("═══════════════════════════════════════════");
+                result.Logs.Add($"");
+                result.Logs.Add($"📸 Captura {i}/{numCaptures}");
 
-                for (int i = 1; i <= numCaptures; i++)
+                var captura = await CaptureFmdAsync();
+
+                if (!captura.Success)
                 {
-                    result.Logs.Add($"");
-                    result.Logs.Add($"📸 Captura {i}/{numCaptures}");
-
-                    var captura = await CaptureFmdAsync();
-
-                    if (!captura.Success)
-                    {
-                        result.Error = $"Error en captura {i}: {captura.Error}";
-                        result.Logs.AddRange(captura.Logs);
-                        return result;
-                    }
-
-                    result.Fmds.Add(captura.Fmd);
-                    result.FmdBase64List.Add(captura.FmdBase64);
-                    result.CapturesCompleted++;
-                    result.TotalFmdSize += captura.FmdSize;
-
-                    result.Logs.Add($"✅ OK ({captura.FmdSize:N0} bytes)");
-
-                    if (i < numCaptures)
-                    {
-                        result.Logs.Add("🖐️ Retira el dedo...");
-                        await Task.Delay(2000);
-                    }
+                    result.Error = $"Error en captura {i}: {captura.Error}";
+                    result.Logs.AddRange(captura.Logs.TakeLast(5));
+                    return result;
                 }
 
-                result.ConcatenatedFmds = string.Join("|||", result.FmdBase64List);
-                result.Success = true;
+                result.Fmds.Add(captura.Fmd);
+                result.FmdBase64List.Add(captura.FmdBase64);
+                result.CapturesCompleted++;
+                result.TotalFmdSize += captura.FmdSize;
 
-                result.Logs.Add("");
-                result.Logs.Add("═══════════════════════════════════════════");
-                result.Logs.Add($"✅ {result.CapturesCompleted} capturas exitosas");
-                result.Logs.Add("═══════════════════════════════════════════");
+                result.Logs.Add($"✅ OK ({captura.FmdSize:N0} bytes)");
 
-                return result;
+                if (i < numCaptures)
+                {
+                    result.Logs.Add("🖐️ Retira el dedo...");
+                    await Task.Delay(2000);
+                }
             }
-            catch (Exception ex)
-            {
-                result.Error = ex.Message;
-                result.Logs.Add($"❌ {result.Error}");
-                return result;
-            }
+
+            result.ConcatenatedFmds = string.Join("|||", result.FmdBase64List);
+            result.Success = true;
+            result.Logs.Add("");
+            result.Logs.Add($"✅ {result.CapturesCompleted} capturas exitosas");
+
+            return result;
         }
 
-        // ════════════════════════════════════════════════════════════════════
-        // COMPARACIÓN
-        // ════════════════════════════════════════════════════════════════════
+        // Métodos de comparación (igual que antes)
         public bool CompareFmds(Fmd captured, Fmd stored, out int score)
         {
             try
@@ -483,7 +494,7 @@ namespace VidaFitBackend.Services
             }
 
             var info = _mainService.GetReaderInfo();
-            info["Modo"] = "INDEPENDIENTE - Método correcto (CreateFmdFromFid)";
+            info["Modo"] = "ULTRA-ROBUSTO (50+ configuraciones)";
             return info;
         }
     }

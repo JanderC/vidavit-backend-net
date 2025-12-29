@@ -1,9 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<!-- Forzar arquitectura x64 (tu instalación es 64-bit) -->
+		<PlatformTarget>x64</PlatformTarget>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -11,8 +12,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<!-- Paquetes NuGet principales -->
 		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
-		<PackageReference Include="DPUruNet" Version="1.0.0.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">
@@ -21,22 +22,65 @@
 		</PackageReference>
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-		<None Include="Native\x64\DPUruNet.dll">
+		<PackageReference Include="System.Drawing.Common" Version="10.0.1" />
+	</ItemGroup>
+
+	<!-- ═══════════════════════════════════════════════════════════════════ -->
+	<!-- Referencias a las DLLs .NET del SDK -->
+	<!-- ═══════════════════════════════════════════════════════════════════ -->
+	<ItemGroup>
+		<Reference Include="DPUruNet">
+			<HintPath>..\Lib\DPUruNet.dll</HintPath>
+			<Private>True</Private>
+		</Reference>
+
+		<Reference Include="DPCtlUruNet">
+			<HintPath>..\Lib\DPCtlUruNet.dll</HintPath>
+			<Private>True</Private>
+		</Reference>
+	</ItemGroup>
+
+	<!-- ═══════════════════════════════════════════════════════════════════ -->
+	<!-- DLLs NATIVAS que se copian al output -->
+	<!-- ESTAS SON CRÍTICAS - SIN ELLAS NO FUNCIONA -->
+	<!-- ═══════════════════════════════════════════════════════════════════ -->
+	<ItemGroup>
+		<!-- DLL .NET del SDK -->
+		<None Include="..\Lib\DPUruNet.dll">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<Link>DPUruNet.dll</Link>
 		</None>
-		<None Include="Native\x64\dpfpdd.dll">
+
+		<None Include="..\Lib\DPCtlUruNet.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<Link>DPCtlUruNet.dll</Link>
+		</None>
+
+		<!-- DLLs NATIVAS del driver -->
+		<None Include="..\Lib\dpfpdd.dll">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<Link>dpfpdd.dll</Link>
 		</None>
-		<None Include="Native\x64\dpfj.dll">
+
+		<None Include="..\Lib\dpfj.dll">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<Link>dpfj.dll</Link>
 		</None>
+
+		<None Include="..\Lib\DPFPApi.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<Link>DPFPApi.dll</Link>
+		</None>
+
+		<None Include="..\Lib\dpHMatch.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<Link>dpHMatch.dll</Link>
+		</None>
+
+		<None Include="..\Lib\dpIdent.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<Link>dpIdent.dll</Link>
+		</None>
 	</ItemGroup>
-	<PropertyGroup>
-		<!-- Forzar arquitectura x64 -->
-		<PlatformTarget>x64</PlatformTarget>
-	</PropertyGroup>
 
 </Project>
