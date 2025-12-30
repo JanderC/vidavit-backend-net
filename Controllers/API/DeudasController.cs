@@ -264,8 +264,8 @@ namespace VidaFit.Controllers.API
                     deuda.Estado = "vencida";
                 }
 
-                // Registrar ingreso en caja SOLO si hay usuarioId
-                if (usuarioId.HasValue)
+                // Registrar ingreso en caja SIEMPRE
+                // SIEMPRE registrar en caja
                 {
                     var movimientoCaja = new MovimientoCaja
                     {
@@ -275,7 +275,7 @@ namespace VidaFit.Controllers.API
                         Monto = monto,
                         Descripcion = $"Abono deuda - {deuda.Cliente.Nombre} {deuda.Cliente.Apellido} - {deuda.Concepto}",
                         ReferenciaId = deuda.Id,
-                        UsuarioId = usuarioId.Value,
+                        UsuarioId = usuarioId ?? Guid.Parse("00000000-0000-0000-0000-000000000000"),
                         MetodoPago = metodoPago,
                         Fecha = DateTime.UtcNow,
                         CreatedAt = DateTime.UtcNow

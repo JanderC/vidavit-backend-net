@@ -18,7 +18,8 @@
 
         <!-- CLIENTE -->
         <div class="mb-6 p-6 bg-blue-50 rounded-2xl border-2 border-blue-300">
-            <label class="block text-sm font-black text-gray-900 mb-3 uppercase tracking-wide">Cliente *</label>
+            <label class="block text-sm font-black text-gray-900 mb-3 uppercase tracking-wide">Cliente (Opcional)</label>
+            <p class="text-xs text-gray-600 mb-3 font-semibold">Deja vacío para venta rápida sin cliente</p>
 
             <div class="mb-3">
                 <input type="text" id="buscarClienteInput" placeholder="Buscar por nombre, apellido o cédula..."
@@ -38,7 +39,7 @@
                     </div>
                     <button type="button" id="btnCambiarCliente"
                             class="px-6 py-3 bg-gray-200 text-gray-900 rounded-xl hover:bg-gray-300 font-black uppercase tracking-wide">
-                        Cambiar
+                        Quitar
                     </button>
                 </div>
             </div>
@@ -183,25 +184,35 @@
                 return;
             }
 
-            const coincidencias = clientes.filter(c =>
-                c.nombre.toLowerCase().includes(termino) ||
-                c.apellido.toLowerCase().includes(termino) ||
-                c.cedula.includes(termino)
-            ).slice(0, 5);
+            const coincidencias = clientes.filter(c => {
+                const nombre = (c.Nombre || c.nombre || '').toLowerCase();
+                const apellido = (c.Apellido || c.apellido || '').toLowerCase();
+                const cedula = c.Cedula || c.cedula || '';
+
+                return nombre.includes(termino) ||
+                       apellido.includes(termino) ||
+                       cedula.includes(termino);
+            }).slice(0, 5);
 
             if (coincidencias.length > 0) {
-                resultados.innerHTML = coincidencias.map(c => `
+                resultados.innerHTML = coincidencias.map(c => {
+                    const nombre = c.Nombre || c.nombre;
+                    const apellido = c.Apellido || c.apellido;
+                    const cedula = c.Cedula || c.cedula;
+
+                    return `
                     <div onclick='seleccionarCliente(${JSON.stringify(c).replace(/'/g, "&apos;")})'
                          class="flex items-center gap-3 p-4 hover:bg-blue-50 cursor-pointer border-b last:border-b-0">
                         <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
                             <i data-lucide="user" class="w-5 h-5 text-gray-600"></i>
                         </div>
                         <div>
-                            <p class="font-black text-gray-900">${c.nombre} ${c.apellido}</p>
-                            <p class="text-sm text-gray-600">Cédula: ${c.cedula}</p>
+                            <p class="font-black text-gray-900">${nombre} ${apellido}</p>
+                            <p class="text-sm text-gray-600">Cédula: ${cedula}</p>
                         </div>
                     </div>
-                `).join('');
+                    `;
+                }).join('');
                 resultados.classList.remove('hidden');
                 lucide.createIcons();
             } else {
@@ -211,11 +222,24 @@
         });
 
         function seleccionarCliente(cliente) {
-            clienteSeleccionado = cliente;
+            // Normalizar propiedades
+            const id = cliente.Id || cliente.id;
+            const nombre = cliente.Nombre || cliente.nombre;
+            const apellido = cliente.Apellido || cliente.apellido;
+            const cedula = cliente.Cedula || cliente.cedula;
+
+            clienteSeleccionado = {
+                id,
+                nombre,
+                apellido,
+                cedula,
+                ...cliente
+            };
+
             document.getElementById('buscarClienteInput').value = '';
             document.getElementById('resultadosBusqueda').classList.add('hidden');
-            document.getElementById('clienteNombre').textContent = `${cliente.nombre} ${cliente.apellido}`;
-            document.getElementById('clienteCedula').textContent = `Cédula: ${cliente.cedula}`;
+            document.getElementById('clienteNombre').textContent = `${nombre} ${apellido}`;
+            document.getElementById('clienteCedula').textContent = `Cédula: ${cedula}`;
             document.getElementById('clienteInfo').classList.remove('hidden');
         }
 
@@ -227,36 +251,54 @@
         // Buscar productos
         document.getElementById('buscarProducto').addEventListener('input', function(e) {
             const termino = e.target.value.toLowerCase();
-            const filtrados = productos.filter(p =>
-                p.nombre.toLowerCase().includes(termino) && p.activo
-            );
+            const filtrados = productos.filter(p => {
+                const nombre = (p.Nombre || p.nombre || '').toLowerCase();
+                const descripcion = (p.Descripcion || p.descripcion || '').toLowerCase();
+                const activo = p.Activo !== undefined ? p.Activo : p.activo;
+                return (nombre.includes(termino) || descripcion.includes(termino)) && activo;
+            });
             renderProductos(filtrados);
         });
 
         function renderProductos(lista) {
             const grid = document.getElementById('productosGrid');
-            grid.innerHTML = lista.map(p => `
-                <div class="bg-white border-2 border-gray-200 rounded-xl p-4 hover:shadow-lg transition-all ${p.stock === 0 ? 'opacity-50' : ''}">
+            grid.innerHTML = lista.map(p => {
+                // Normalizar propiedades (soportar tanto camelCase como PascalCase)
+                const precio = p.Precio !== undefined ? p.Precio : (p.precio || 0);
+                const stock = p.Stock !== undefined ? p.Stock : (p.stock || 0);
+                const nombre = p.Nombre || p.nombre || 'Sin nombre';
+                const imagenBase64 = p.ImagenBase64 || p.imagenBase64 || null;
+
+                return `
+                <div class="bg-white border-2 border-gray-200 rounded-xl p-4 hover:shadow-lg transition-all ${stock === 0 ? 'opacity-50' : ''}">
                     <div class="aspect-square bg-gray-200 rounded-lg mb-3 overflow-hidden flex items-center justify-center">
-                        ${p.imagenBase64 ? `<img src="${p.imagenBase64}" class="w-full h-full object-cover">` : `<i data-lucide="package" class="w-12 h-12 text-gray-400"></i>`}
+                        ${imagenBase64 ? `<img src="${imagenBase64}" class="w-full h-full object-cover">` : `<i data-lucide="package" class="w-12 h-12 text-gray-400"></i>`}
                     </div>
-                    <h4 class="font-black text-sm text-gray-900 mb-1">${p.nombre}</h4>
-                    <p class="text-xs text-gray-600 mb-2">Stock: ${p.stock}</p>
-                    <p class="text-lg font-black text-emerald-600 mb-3">$${p.precio.toFixed(2)}</p>
+                    <h4 class="font-black text-sm text-gray-900 mb-1">${nombre}</h4>
+                    <p class="text-xs text-gray-600 mb-2">Stock: ${stock}</p>
+                    <p class="text-lg font-black text-emerald-600 mb-3">$${precio.toFixed(2)}</p>
                     <button onclick='agregarAlCarrito(${JSON.stringify(p).replace(/'/g, "&apos;")})'
-                            ${p.stock === 0 ? 'disabled' : ''}
+                            ${stock === 0 ? 'disabled' : ''}
                             class="w-full px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-sm disabled:bg-gray-300 disabled:cursor-not-allowed">
-                        ${p.stock === 0 ? 'Sin Stock' : 'Agregar'}
+                        ${stock === 0 ? 'Sin Stock' : 'Agregar'}
                     </button>
                 </div>
-            `).join('');
+                `;
+            }).join('');
             lucide.createIcons();
         }
 
+
         function agregarAlCarrito(producto) {
-            const existente = carrito.find(item => item.producto.id === producto.id);
+            // Normalizar propiedades
+            const precio = producto.Precio !== undefined ? producto.Precio : (producto.precio || 0);
+            const stock = producto.Stock !== undefined ? producto.Stock : (producto.stock || 0);
+            const id = producto.Id || producto.id;
+            const nombre = producto.Nombre || producto.nombre;
+
+            const existente = carrito.find(item => item.producto.id === id);
             if (existente) {
-                if (existente.cantidad < producto.stock) {
+                if (existente.cantidad < stock) {
                     existente.cantidad++;
                     existente.total = existente.cantidad * existente.precioUnitario;
                 } else {
@@ -264,10 +306,10 @@
                 }
             } else {
                 carrito.push({
-                    producto: producto,
+                    producto: { ...producto, id, precio, stock, nombre },
                     cantidad: 1,
-                    precioUnitario: producto.precio,
-                    total: producto.precio
+                    precioUnitario: precio,
+                    total: precio
                 });
             }
             renderCarrito();
@@ -364,10 +406,6 @@
 
         // Registrar venta
         document.getElementById('btnRegistrarVenta').addEventListener('click', async function() {
-            if (!clienteSeleccionado) {
-                mostrarError('Debe seleccionar un cliente');
-                return;
-            }
 
             if (carrito.length === 0) {
                 mostrarError('Debe agregar productos al carrito');
@@ -401,7 +439,7 @@
             try {
                 for (const item of carrito) {
                     const venta = {
-                        clienteId: clienteSeleccionado.id,
+                        clienteId: clienteSeleccionado ? clienteSeleccionado.id : null,
                         productoId: item.producto.id,
                         cantidad: item.cantidad,
                         precioUnitario: item.precioUnitario,
@@ -425,6 +463,7 @@
                 }
 
                 alert('✓ Venta registrada exitosamente');
+                inicio()
                 limpiar();
                 await cargarDatos();
             } catch (error) {
@@ -447,6 +486,10 @@
             document.querySelector('input[name="tipoPago"][value="pagado"]').checked = true;
             renderCarrito();
             renderProductos(productos);
+        }
+
+        function inicio() {
+            window.location.href = '/productos';
         }
 
         function mostrarError(mensaje) {

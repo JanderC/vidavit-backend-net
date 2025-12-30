@@ -13,7 +13,7 @@ namespace VidaFitBackend.Models
 
         [Column("cliente_id")]
         [Required]
-        public Guid ClienteId { get; set; }
+        public Guid? ClienteId { get; set; }
 
         [Column("producto_id")]
         [Required]
@@ -51,7 +51,7 @@ namespace VidaFitBackend.Models
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
         [ForeignKey("ClienteId")]
-        public Cliente Cliente { get; set; }
+        public Cliente? Cliente { get; set; }
 
         [ForeignKey("ProductoId")]
         public Producto Producto { get; set; }

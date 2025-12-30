@@ -164,8 +164,8 @@ namespace VidaFit.Controllers.API
                     deudaId = deuda.Id;
                 }
 
-                // Registrar ingreso en caja (solo el monto pagado)
-                if (usuarioId.HasValue && montoPagado > 0)
+                // Registrar ingreso en caja SIEMPRE que haya pago (aunque sea parcial)
+                if (montoPagado > 0)
                 {
                     var movimientoCaja = new MovimientoCaja
                     {
@@ -176,7 +176,7 @@ namespace VidaFit.Controllers.API
                         Descripcion = $"Venta membresía {plan.Nombre} - {cliente.Nombre} {cliente.Apellido}" +
                                     (saldoPendiente > 0 ? $" (Pago parcial, saldo: ${saldoPendiente:N2})" : ""),
                         ReferenciaId = membresia.Id,
-                        UsuarioId = usuarioId.Value,
+                        UsuarioId = usuarioId ?? Guid.Parse("00000000-0000-0000-0000-000000000000"),
                         MetodoPago = metodoPago,
                         Fecha = DateTime.UtcNow,
                         CreatedAt = DateTime.UtcNow
@@ -192,7 +192,6 @@ namespace VidaFit.Controllers.API
                     success = true,
                     data = membresia,
                     deudaId = deudaId,
-                    saldoPendiente = saldoPendiente,
                     message = saldoPendiente > 0
                         ? $"Membresía creada. Saldo pendiente: ${saldoPendiente:N2}"
                         : "Membresía creada exitosamente"
@@ -204,106 +203,139 @@ namespace VidaFit.Controllers.API
                 {
                     success = false,
                     message = "Error al crear membresía",
+                    error = ex.Message
+                });
+            }
+        }
+
+        [HttpPost("renovar/{id}")]
+        public async Task<IActionResult> RenovarMembresia(Guid id, [FromBody] JsonElement data)
+        {
+            try
+            {
+                var membresia = await _context.Membresias
+                    .Include(m => m.Cliente)
+                    .Include(m => m.Plan)
+                    .FirstOrDefaultAsync(m => m.Id == id);
+
+                if (membresia == null)
+                    return Ok(new { success = false, message = "Membresía no encontrada" });
+
+                var montoPagado = data.GetProperty("montoPagado").GetDecimal();
+                var metodoPago = data.GetProperty("metodoPago").GetString();
+                var notas = data.TryGetProperty("notas", out var notasEl) && !string.IsNullOrWhiteSpace(notasEl.GetString())
+                    ? notasEl.GetString()
+                    : null;
+
+                Guid? usuarioId = null;
+                if (data.TryGetProperty("usuarioId", out var userEl) && !string.IsNullOrWhiteSpace(userEl.GetString()))
+                {
+                    usuarioId = Guid.Parse(userEl.GetString());
+                }
+
+                // Determinar el plan a usar (nuevo o actual)
+                Guid planId = membresia.PlanId;
+                if (data.TryGetProperty("planId", out var planEl) && !string.IsNullOrWhiteSpace(planEl.GetString()))
+                {
+                    planId = Guid.Parse(planEl.GetString());
+                }
+
+                var plan = await _context.Planes.FindAsync(planId);
+                if (plan == null || !plan.Activo)
+                    return Ok(new { success = false, message = "Plan no válido" });
+
+                if (montoPagado <= 0)
+                    return Ok(new { success = false, message = "El monto debe ser mayor a 0" });
+
+                // Validar que pague el precio completo del plan
+                if (montoPagado != plan.Precio)
+                    return Ok(new { success = false, message = $"Debe pagar el precio completo del plan: ${plan.Precio:N2}" });
+
+                // Renovar membresía
+                var duracion = plan.DuracionDias > 0 ? plan.DuracionDias : 30;
+                bool cambioDePlan = planId != membresia.PlanId;
+
+                membresia.PlanId = planId;
+                membresia.FechaInicio = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
+                membresia.FechaVencimiento = DateTime.SpecifyKind(DateTime.UtcNow.Date.AddDays(duracion), DateTimeKind.Utc);
+                membresia.Estado = "activa";
+                membresia.MontoPagado = montoPagado;
+                membresia.MetodoPago = metodoPago;
+                membresia.Notas = cambioDePlan ? $"Renovación con cambio a {plan.Nombre}" : (notas ?? "Renovación");
+                membresia.UpdatedAt = DateTime.UtcNow;
+
+                // Registrar pago
+                var pago = new Pago
+                {
+                    Id = Guid.NewGuid(),
+                    ClienteId = membresia.ClienteId,
+                    MembresiaId = membresia.Id,
+                    Monto = montoPagado,
+                    FechaPago = DateTime.UtcNow,
+                    MetodoPago = metodoPago,
+                    ReciboNumero = null,
+                    Notas = "Renovación",
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                _context.Pagos.Add(pago);
+
+                // Registrar movimiento de caja SIEMPRE
+                var movimientoCaja = new MovimientoCaja
+                {
+                    Id = Guid.NewGuid(),
+                    Tipo = "ingreso",
+                    Categoria = "renovacion",
+                    Monto = montoPagado,
+                    Descripcion = $"Renovación {plan.Nombre} - {membresia.Cliente.Nombre} {membresia.Cliente.Apellido}",
+                    ReferenciaId = membresia.Id,
+                    UsuarioId = usuarioId ?? Guid.Parse("00000000-0000-0000-0000-000000000000"),
+                    MetodoPago = metodoPago,
+                    Fecha = DateTime.UtcNow,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                _context.MovimientosCaja.Add(movimientoCaja);
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    success = true,
+                    data = membresia,
+                    message = $"Membresía renovada por {duracion} días"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    success = false,
+                    message = "Error al renovar membresía",
                     error = ex.Message,
                     inner = ex.InnerException?.Message
                 });
             }
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateMembresia(Guid id, [FromBody] Membresia membresia)
-        {
-            if (id != membresia.Id)
-                return BadRequest();
-
-            var dbMembresia = await _context.Membresias.FindAsync(id);
-            if (dbMembresia == null)
-                return NotFound();
-
-            dbMembresia.ClienteId = membresia.ClienteId;
-            dbMembresia.PlanId = membresia.PlanId;
-            dbMembresia.FechaInicio = membresia.FechaInicio;
-            dbMembresia.FechaVencimiento = membresia.FechaVencimiento;
-            dbMembresia.Estado = membresia.Estado;
-            dbMembresia.MontoPagado = membresia.MontoPagado;
-            dbMembresia.MetodoPago = membresia.MetodoPago;
-            dbMembresia.Notas = membresia.Notas;
-            dbMembresia.UpdatedAt = DateTime.UtcNow;
-
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
-
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMembresia(Guid id)
         {
-            var membresia = await _context.Membresias.FindAsync(id);
-            if (membresia == null)
-                return NotFound();
+            try
+            {
+                var membresia = await _context.Membresias.FindAsync(id);
+                if (membresia == null)
+                    return NotFound();
 
-            _context.Membresias.Remove(membresia);
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
+                _context.Membresias.Remove(membresia);
+                await _context.SaveChangesAsync();
 
-        [HttpGet("cliente/{clienteId}")]
-        public async Task<ActionResult<IEnumerable<object>>> GetMembresiasPorCliente(Guid clienteId)
-        {
-            var membresias = await _context.Membresias
-                .Include(m => m.Plan)
-                .Where(m => m.ClienteId == clienteId)
-                .OrderByDescending(m => m.FechaInicio)
-                .Select(m => new
-                {
-                    Id = m.Id,
-                    PlanId = m.PlanId,
-                    PlanNombre = m.Plan.Nombre,
-                    PlanPrecio = m.Plan.Precio,
-                    FechaInicio = m.FechaInicio,
-                    FechaVencimiento = m.FechaVencimiento,
-                    Estado = m.Estado,
-                    MontoPagado = m.MontoPagado,
-                    MetodoPago = m.MetodoPago,
-                    SaldoPendiente = m.Plan.Precio - m.MontoPagado
-                })
-                .ToListAsync();
-
-            return Ok(membresias);
-        }
-
-        [HttpGet("activas")]
-        public async Task<ActionResult<IEnumerable<Membresia>>> GetMembresiasActivas()
-        {
-            return await _context.Membresias
-                .Include(m => m.Cliente)
-                .Include(m => m.Plan)
-                .Where(m => m.Estado == "activa")
-                .OrderByDescending(m => m.FechaInicio)
-                .ToListAsync();
-        }
-
-        [HttpGet("vencidas")]
-        public async Task<ActionResult<IEnumerable<Membresia>>> GetMembresiasVencidas()
-        {
-            return await _context.Membresias
-                .Include(m => m.Cliente)
-                .Include(m => m.Plan)
-                .Where(m => m.Estado == "vencida")
-                .OrderByDescending(m => m.FechaVencimiento)
-                .ToListAsync();
-        }
-
-        [HttpGet("por-vencer")]
-        public async Task<ActionResult<IEnumerable<Membresia>>> GetMembresiasPorVencer([FromQuery] int dias = 7)
-        {
-            var fechaLimite = DateTime.UtcNow.AddDays(dias);
-
-            return await _context.Membresias
-                .Include(m => m.Cliente)
-                .Include(m => m.Plan)
-                .Where(m => m.Estado == "activa" && m.FechaVencimiento <= fechaLimite)
-                .OrderBy(m => m.FechaVencimiento)
-                .ToListAsync();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Error al eliminar membresía", error = ex.Message });
+            }
         }
     }
 }

@@ -32,6 +32,16 @@
         </a>
     </div>
 
+    <!-- Barra de búsqueda -->
+    <div class="bg-white rounded-2xl shadow-lg p-5 mb-4 border-2 border-gray-200">
+        <div class="flex items-center gap-3">
+            <i data-lucide="search" class="w-5 h-5 text-gray-500"></i>
+            <input type="text" id="searchInput" placeholder="Buscar por nombre de cliente..."
+                   class="flex-1 px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-red-600 focus:outline-none font-bold"
+                   onkeyup="filtrarMembresias()">
+        </div>
+    </div>
+
     <div class="bg-white rounded-2xl shadow-lg p-5 mb-4 border-2 border-gray-200">
         <div class="flex items-center gap-3 flex-wrap">
             <span class="text-sm font-black text-gray-900 uppercase tracking-wide">Filtrar por plan:</span>
@@ -73,28 +83,98 @@
             </div>
         </div>
     </div>
+
+    <!-- Paginación -->
+    <div id="pagination" class="flex items-center justify-between px-6 py-4 border-t-2 border-gray-200">
+        <div class="text-sm text-gray-600 font-bold">
+            Mostrando <span id="showing-start">0</span> - <span id="showing-end">0</span> de <span id="showing-total">0</span>
+        </div>
+        <div class="flex gap-2" id="pagination-buttons">
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Renovación -->
+<div id="modalRenovar" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4">
+        <div class="bg-gradient-to-r from-red-600 to-red-800 text-white p-6 rounded-t-2xl">
+            <div class="flex items-center justify-between">
+                <h3 class="text-2xl font-black uppercase tracking-wide">Renovar Membresía</h3>
+                <button onclick="cerrarModalRenovar()" class="text-white hover:text-gray-200">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="p-6">
+            <div class="mb-4">
+                <p class="text-sm text-gray-600 font-bold uppercase mb-1">Cliente</p>
+                <p class="text-lg font-black text-gray-900" id="modal-cliente">-</p>
+            </div>
+
+            <div class="mb-4">
+                <label class="text-sm text-gray-600 font-bold uppercase block mb-2">Plan</label>
+                <select id="select-plan" onchange="cambiarPlan()" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-red-600 focus:outline-none font-bold">
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <p class="text-sm text-gray-600 font-bold uppercase mb-1">Precio del Plan</p>
+                <p class="text-2xl font-black text-red-600" id="modal-precio">$0.00</p>
+            </div>
+
+            <div id="deuda-info" class="hidden mb-4 p-4 bg-amber-50 border-2 border-amber-500 rounded-xl">
+                <p class="text-sm text-amber-800 font-bold uppercase mb-1">Deuda Pendiente</p>
+                <p class="text-2xl font-black text-amber-600" id="modal-deuda">$0.00</p>
+                <p class="text-xs text-amber-700 mt-1">El pago se aplicará primero a la deuda existente</p>
+            </div>
+
+            <div class="mb-4">
+                <label class="text-sm text-gray-600 font-bold uppercase block mb-2">Monto a Pagar</label>
+                <input type="number" id="input-monto" step="0.01" min="0.01"
+                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-red-600 focus:outline-none font-bold text-lg">
+            </div>
+
+            <div class="mb-6">
+                <label class="text-sm text-gray-600 font-bold uppercase block mb-2">Método de Pago</label>
+                <select id="input-metodo" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-red-600 focus:outline-none font-bold">
+                    <option value="efectivo">Efectivo</option>
+                    <option value="tarjeta">Tarjeta</option>
+                    <option value="transferencia">Transferencia</option>
+                </select>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="cerrarModalRenovar()"
+                        class="flex-1 px-6 py-3 bg-gray-200 text-gray-900 rounded-xl hover:bg-gray-300 font-black uppercase tracking-wide transition-all">
+                    Cancelar
+                </button>
+                <button onclick="confirmarRenovacion()"
+                        class="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-800 text-white rounded-xl hover:from-emerald-700 hover:to-emerald-900 font-black uppercase tracking-wide transition-all">
+                    Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
     <script>
         const API_URL = '/api';
         let membresiasData = [];
+        let membresiasFiltradas = [];
         let planesData = [];
         let filtroEstado = 'todas';
         let filtroPlan = null;
+        let membresiaSeleccionada = null;
+        let deudaPendiente = null;
+
+        // Paginación
+        let paginaActual = 1;
+        let itemsPorPagina = 10;
 
         async function loadMembresias() {
             try {
-                // Primero, intentar actualizar los estados en el backend
-                try {
-                    await fetch(`${API_URL}/Membresias/actualizar-estados`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' }
-                    });
-                } catch (e) {
-                    console.log('No se pudieron actualizar estados automáticamente (endpoint no disponible)');
-                }
-
                 const response = await fetch(`${API_URL}/Membresias`);
                 if (!response.ok) throw new Error('Error en la respuesta');
 
@@ -102,7 +182,7 @@
                 console.log('Membresías cargadas:', membresiasData.length);
 
                 calcularEstadisticas();
-                renderMembresias();
+                filtrarMembresias();
             } catch (error) {
                 console.error('Error:', error);
                 document.getElementById('membresias-container').innerHTML = `
@@ -140,7 +220,6 @@
             const hoy = new Date();
             hoy.setHours(0, 0, 0, 0);
 
-            // Contar activas (solo las que no están vencidas realmente)
             let activasReales = 0;
             let vencidasReales = 0;
             let porVencer = 0;
@@ -149,24 +228,14 @@
                 const estado = (m.estado || m.Estado).toLowerCase();
                 const fechaVenc = new Date(m.fechaVencimiento || m.FechaVencimiento);
                 fechaVenc.setHours(0, 0, 0, 0);
-                const diasRestantes = Math.ceil((fechaVenc - hoy) / (1000 * 60 * 60 * 24));
 
-                // Si la fecha ya pasó, realmente está vencida (independiente del estado en BD)
-                if (fechaVenc < hoy) {
-                    vencidasReales++;
-                }
-                // Si está marcada como vencida o suspendida
-                else if (estado === 'vencida' || estado === 'suspendida') {
-                    vencidasReales++;
-                }
-                // Si está activa y no ha vencido
-                else if (estado === 'activa') {
+                if (estado === 'activa' && fechaVenc >= hoy) {
                     activasReales++;
-
-                    // Verificar si está por vencer (7 días o menos)
-                    if (diasRestantes <= 7 && diasRestantes >= 0) {
-                        porVencer++;
-                    }
+                    const diffTime = fechaVenc - hoy;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    if (diffDays <= 7) porVencer++;
+                } else if (estado === 'vencida' || (estado === 'activa' && fechaVenc < hoy)) {
+                    vencidasReales++;
                 }
             });
 
@@ -174,104 +243,109 @@
             document.getElementById('count-por-vencer').textContent = porVencer;
             document.getElementById('count-vencidas').textContent = vencidasReales;
             document.getElementById('count-total').textContent = membresiasData.length;
-
-            console.log(`📊 Estadísticas: Activas: ${activasReales}, Por vencer: ${porVencer}, Vencidas: ${vencidasReales}, Total: ${membresiasData.length}`);
         }
 
-        function renderMembresias() {
-            const container = document.getElementById('membresias-container');
+        function filtrarMembresias() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const hoy = new Date();
             hoy.setHours(0, 0, 0, 0);
 
-            let filtradas = membresiasData;
+            membresiasFiltradas = membresiasData.filter(m => {
+                const estado = (m.estado || m.Estado).toLowerCase();
+                const fechaVenc = new Date(m.fechaVencimiento || m.FechaVencimiento);
+                fechaVenc.setHours(0, 0, 0, 0);
 
-            // Filtrar por estado (con lógica mejorada para vencidas)
-            if (filtroEstado !== 'todas') {
-                if (filtroEstado === 'vencida') {
-                    // Mostrar todas las que realmente están vencidas (por fecha O por estado)
-                    filtradas = filtradas.filter(m => {
-                        const fechaVenc = new Date(m.fechaVencimiento || m.FechaVencimiento);
-                        fechaVenc.setHours(0, 0, 0, 0);
-                        const estado = (m.estado || m.Estado).toLowerCase();
-
-                        return fechaVenc < hoy || estado === 'vencida' || estado === 'suspendida';
-                    });
-                } else if (filtroEstado === 'activa') {
-                    // Mostrar solo las activas que no han vencido
-                    filtradas = filtradas.filter(m => {
-                        const fechaVenc = new Date(m.fechaVencimiento || m.FechaVencimiento);
-                        fechaVenc.setHours(0, 0, 0, 0);
-                        const estado = (m.estado || m.Estado).toLowerCase();
-
-                        return estado === 'activa' && fechaVenc >= hoy;
-                    });
-                } else {
-                    // Para otros estados, usar filtro normal
-                    filtradas = filtradas.filter(m => (m.estado || m.Estado).toLowerCase() === filtroEstado);
+                // Filtro por estado
+                let pasaEstado = filtroEstado === 'todas';
+                if (!pasaEstado) {
+                    if (filtroEstado === 'activa') {
+                        pasaEstado = estado === 'activa' && fechaVenc >= hoy;
+                    } else if (filtroEstado === 'vencida') {
+                        pasaEstado = estado === 'vencida' || (estado === 'activa' && fechaVenc < hoy);
+                    } else {
+                        pasaEstado = estado === filtroEstado;
+                    }
                 }
-            }
 
-            if (filtroPlan) {
-                filtradas = filtradas.filter(m => (m.planId || m.PlanId) == filtroPlan);
-            }
+                // Filtro por plan
+                const pasaPlan = !filtroPlan || (m.planId || m.PlanId) === filtroPlan;
 
-            if (filtradas.length === 0) {
-                container.innerHTML = `
+                // Filtro por búsqueda
+                const cliente = m.cliente || m.Cliente;
+                const nombreCompleto = cliente ?
+                    `${cliente.nombre || cliente.Nombre} ${cliente.apellido || cliente.Apellido}`.toLowerCase() : '';
+                const pasaBusqueda = !searchTerm || nombreCompleto.includes(searchTerm);
+
+                return pasaEstado && pasaPlan && pasaBusqueda;
+            });
+
+            paginaActual = 1;
+            renderMembresias();
+        }
+
+        function renderMembresias() {
+            const inicio = (paginaActual - 1) * itemsPorPagina;
+            const fin = inicio + itemsPorPagina;
+            const membresiasPaginadas = membresiasFiltradas.slice(inicio, fin);
+
+            if (membresiasPaginadas.length === 0) {
+                document.getElementById('membresias-container').innerHTML = `
                     <div class="text-center py-12 text-gray-500">
-                        <i data-lucide="inbox" class="w-16 h-16 mx-auto mb-4 text-gray-400"></i>
-                        <p class="text-lg font-bold">No hay membresías con los filtros seleccionados</p>
+                        <i data-lucide="inbox" class="w-16 h-16 mx-auto mb-4"></i>
+                        <p class="font-black text-xl uppercase tracking-wide">No se encontraron membresías</p>
                     </div>
                 `;
                 lucide.createIcons();
                 return;
             }
 
-            container.innerHTML = `
-                <div class="space-y-4">
-                    ${filtradas.map(m => renderMembresia(m)).join('')}
-                </div>
-            `;
+            const html = membresiasPaginadas.map(m => renderMembresiaCard(m)).join('');
+            document.getElementById('membresias-container').innerHTML = `<div class="space-y-4">${html}</div>`;
 
+            renderPaginacion();
             lucide.createIcons();
         }
 
-        function renderMembresia(m) {
+        function renderMembresiaCard(m) {
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+
             const fechaInicio = new Date(m.fechaInicio || m.FechaInicio);
             const fechaVenc = new Date(m.fechaVencimiento || m.FechaVencimiento);
-            const estado = m.estado || m.Estado;
+            fechaVenc.setHours(0, 0, 0, 0);
 
             const fechaInicioStr = fechaInicio.toLocaleDateString('es-ES');
             const fechaVencStr = fechaVenc.toLocaleDateString('es-ES');
 
-            const hoy = new Date();
-            hoy.setHours(0, 0, 0, 0);
-            fechaVenc.setHours(0, 0, 0, 0);
+            const diffTime = fechaVenc - hoy;
+            const diasRestantes = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-            const diasRestantes = Math.ceil((fechaVenc - hoy) / (1000 * 60 * 60 * 24));
-
+            const estado = (m.estado || m.Estado).toLowerCase();
             let estadoBadge = '';
             let diasTexto = '';
+            let mostrarRenovar = false;
 
-            if (estado === 'activa') {
-                if (diasRestantes < 0) {
-                    estadoBadge = '<span class="px-4 py-2 bg-red-100 text-red-800 font-black rounded-full uppercase text-xs tracking-wide">Vencida (actualizar)</span>';
-                    diasTexto = `<span class="text-red-600 font-black">Vencida hace ${Math.abs(diasRestantes)} días</span>`;
-                } else if (diasRestantes === 0) {
-                    estadoBadge = '<span class="px-4 py-2 bg-red-100 text-red-800 font-black rounded-full animate-pulse uppercase text-xs tracking-wide">Vence HOY</span>';
+            if (estado === 'activa' && fechaVenc >= hoy) {
+                if (diasRestantes === 0) {
+                    estadoBadge = '<span class="px-4 py-2 bg-red-100 text-red-800 font-black rounded-full uppercase text-xs tracking-wide animate-pulse">Vence HOY</span>';
                     diasTexto = '<span class="text-red-600 font-black animate-pulse">¡Vence HOY!</span>';
+                    mostrarRenovar = true;
                 } else if (diasRestantes <= 3) {
                     estadoBadge = '<span class="px-4 py-2 bg-red-100 text-red-800 font-black rounded-full uppercase text-xs tracking-wide">Vence pronto</span>';
                     diasTexto = `<span class="text-red-600 font-black">${diasRestantes} ${diasRestantes === 1 ? 'día' : 'días'}</span>`;
+                    mostrarRenovar = true;
                 } else if (diasRestantes <= 7) {
                     estadoBadge = '<span class="px-4 py-2 bg-amber-100 text-amber-800 font-black rounded-full uppercase text-xs tracking-wide">Por vencer</span>';
                     diasTexto = `<span class="text-amber-600 font-black">${diasRestantes} días</span>`;
+                    mostrarRenovar = true;
                 } else {
                     estadoBadge = '<span class="px-4 py-2 bg-emerald-100 text-emerald-800 font-black rounded-full uppercase text-xs tracking-wide">Activa</span>';
                     diasTexto = `<span class="text-emerald-600 font-black">${diasRestantes} días</span>`;
                 }
-            } else if (estado === 'vencida') {
+            } else if (estado === 'vencida' || (estado === 'activa' && fechaVenc < hoy)) {
                 estadoBadge = '<span class="px-4 py-2 bg-red-100 text-red-800 font-black rounded-full uppercase text-xs tracking-wide">Vencida</span>';
                 diasTexto = '<span class="text-red-600 font-black">Vencida</span>';
+                mostrarRenovar = true;
             } else if (estado === 'suspendida') {
                 estadoBadge = '<span class="px-4 py-2 bg-gray-100 text-gray-800 font-black rounded-full uppercase text-xs tracking-wide">Suspendida</span>';
                 diasTexto = '<span class="text-gray-600 font-bold">-</span>';
@@ -286,6 +360,7 @@
             const planNombre = plan ? (plan.nombre || plan.Nombre) : 'Plan no disponible';
             const planTipo = plan ? (plan.tipo || plan.Tipo) : '';
             const planColor = plan ? (plan.color || plan.Color || '#E31E24') : '#E31E24';
+            const planPrecio = plan ? (plan.precio || plan.Precio) : 0;
 
             return `
                 <div class="p-6 border-l-4 rounded-2xl hover:shadow-xl transition-all bg-gray-50 border-2 border-gray-200" style="border-left-color: ${planColor}">
@@ -320,6 +395,13 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-2 ml-4">
+                            ${mostrarRenovar ? `
+                            <button onclick="abrirModalRenovar('${m.id || m.Id}', '${clienteNombre}', '${planNombre}', ${planPrecio})"
+                                    class="px-4 py-2 bg-gradient-to-r from-emerald-600 to-emerald-800 text-white rounded-xl hover:from-emerald-700 hover:to-emerald-900 transition-all font-black uppercase text-xs tracking-wide">
+                                <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-1"></i>
+                                Renovar
+                            </button>
+                            ` : ''}
                             <button onclick="verDetalles('${m.id || m.Id}')"
                                     class="p-3 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
                                     title="Ver detalles">
@@ -336,6 +418,51 @@
             `;
         }
 
+        function renderPaginacion() {
+            const totalPaginas = Math.ceil(membresiasFiltradas.length / itemsPorPagina);
+            const inicio = (paginaActual - 1) * itemsPorPagina + 1;
+            const fin = Math.min(inicio + itemsPorPagina - 1, membresiasFiltradas.length);
+
+            document.getElementById('showing-start').textContent = inicio;
+            document.getElementById('showing-end').textContent = fin;
+            document.getElementById('showing-total').textContent = membresiasFiltradas.length;
+
+            let buttonsHtml = '';
+
+            if (paginaActual > 1) {
+                buttonsHtml += `<button onclick="cambiarPagina(${paginaActual - 1})"
+                    class="px-4 py-2 bg-gray-200 text-gray-900 rounded-xl hover:bg-gray-300 font-bold">
+                    Anterior
+                </button>`;
+            }
+
+            for (let i = 1; i <= totalPaginas; i++) {
+                if (i === 1 || i === totalPaginas || (i >= paginaActual - 2 && i <= paginaActual + 2)) {
+                    buttonsHtml += `<button onclick="cambiarPagina(${i})"
+                        class="px-4 py-2 ${i === paginaActual ? 'bg-gradient-to-r from-red-600 to-red-800 text-white' : 'bg-gray-200 text-gray-900'} rounded-xl hover:bg-gray-300 font-bold">
+                        ${i}
+                    </button>`;
+                } else if (i === paginaActual - 3 || i === paginaActual + 3) {
+                    buttonsHtml += `<span class="px-2">...</span>`;
+                }
+            }
+
+            if (paginaActual < totalPaginas) {
+                buttonsHtml += `<button onclick="cambiarPagina(${paginaActual + 1})"
+                    class="px-4 py-2 bg-gray-200 text-gray-900 rounded-xl hover:bg-gray-300 font-bold">
+                    Siguiente
+                </button>`;
+            }
+
+            document.getElementById('pagination-buttons').innerHTML = buttonsHtml;
+        }
+
+        function cambiarPagina(pagina) {
+            paginaActual = pagina;
+            renderMembresias();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function filterByEstado(estado) {
             filtroEstado = estado;
 
@@ -349,7 +476,7 @@
                 }
             });
 
-            renderMembresias();
+            filtrarMembresias();
         }
 
         function filterByPlan(planId) {
@@ -365,7 +492,126 @@
                 }
             });
 
-            renderMembresias();
+            filtrarMembresias();
+        }
+
+        async function abrirModalRenovar(id, clienteNombre, planNombre, precioPlan) {
+            membresiaSeleccionada = { id, clienteNombre, planNombre, precioPlan };
+
+            // Cargar planes en el selector
+            const selectPlan = document.getElementById('select-plan');
+            selectPlan.innerHTML = planesData.map(p => {
+                const planId = p.id || p.Id;
+                const nombre = p.nombre || p.Nombre;
+                const precio = p.precio || p.Precio;
+                const selected = nombre === planNombre ? 'selected' : '';
+                return `<option value="${planId}" data-precio="${precio}" ${selected}>${nombre} - $${precio}</option>`;
+            }).join('');
+
+            // Verificar si hay deuda pendiente
+            try {
+                const membresia = membresiasData.find(m => (m.id || m.Id) === id);
+                const response = await fetch(`${API_URL}/DeudasClientes/cliente/${membresia.clienteId || membresia.ClienteId}`);
+                const deudas = await response.json();
+
+                deudaPendiente = deudas.find(d => (d.estado || d.Estado) === 'pendiente');
+
+                if (deudaPendiente) {
+                    const saldoDeuda = deudaPendiente.saldo || deudaPendiente.Saldo;
+                    document.getElementById('deuda-info').classList.remove('hidden');
+                    document.getElementById('modal-deuda').textContent = `$${saldoDeuda.toFixed(2)}`;
+
+                    // Sugerir monto que cubra deuda + plan
+                    const planActual = planesData.find(p => (p.id || p.Id) === selectPlan.value);
+                    const precioActual = planActual ? (planActual.precio || planActual.Precio) : precioPlan;
+                    const montoSugerido = saldoDeuda + precioActual;
+                    document.getElementById('input-monto').value = montoSugerido.toFixed(2);
+                } else {
+                    document.getElementById('deuda-info').classList.add('hidden');
+                    document.getElementById('input-monto').value = precioPlan.toFixed(2);
+                }
+            } catch (error) {
+                console.error('Error verificando deudas:', error);
+                deudaPendiente = null;
+                document.getElementById('deuda-info').classList.add('hidden');
+                document.getElementById('input-monto').value = precioPlan.toFixed(2);
+            }
+
+            document.getElementById('modal-cliente').textContent = clienteNombre;
+            const planSeleccionado = selectPlan.options[selectPlan.selectedIndex];
+            document.getElementById('modal-precio').textContent = `$${parseFloat(planSeleccionado.dataset.precio).toFixed(2)}`;
+
+            document.getElementById('modalRenovar').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function cambiarPlan() {
+            const selectPlan = document.getElementById('select-plan');
+            const planSeleccionado = selectPlan.options[selectPlan.selectedIndex];
+            const nuevoPrecio = parseFloat(planSeleccionado.dataset.precio);
+
+            document.getElementById('modal-precio').textContent = `$${nuevoPrecio.toFixed(2)}`;
+
+            // Actualizar monto sugerido considerando deuda
+            if (deudaPendiente) {
+                const saldoDeuda = deudaPendiente.saldo || deudaPendiente.Saldo;
+                const montoSugerido = saldoDeuda + nuevoPrecio;
+                document.getElementById('input-monto').value = montoSugerido.toFixed(2);
+            } else {
+                document.getElementById('input-monto').value = nuevoPrecio.toFixed(2);
+            }
+        }
+
+        function cerrarModalRenovar() {
+            document.getElementById('modalRenovar').classList.add('hidden');
+            membresiaSeleccionada = null;
+            deudaPendiente = null;
+        }
+
+        async function confirmarRenovacion() {
+            const monto = parseFloat(document.getElementById('input-monto').value);
+            const metodo = document.getElementById('input-metodo').value;
+            const planId = document.getElementById('select-plan').value;
+
+            if (isNaN(monto) || monto <= 0) {
+                alert('❌ Monto inválido');
+                return;
+            }
+
+            try {
+                const body = {
+                    montoPagado: monto,
+                    metodoPago: metodo,
+                    notas: '',
+                    usuarioId: null
+                };
+
+                // Solo enviar planId si cambió de plan
+                const membresia = membresiasData.find(m => (m.id || m.Id) === membresiaSeleccionada.id);
+                const planActual = membresia.planId || membresia.PlanId;
+                if (planId !== planActual) {
+                    body.planId = planId;
+                }
+
+                const response = await fetch(`${API_URL}/Membresias/renovar/${membresiaSeleccionada.id}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(`✅ ${result.message}`);
+                    cerrarModalRenovar();
+                    loadMembresias();
+                } else {
+                    alert(`❌ Error: ${result.message}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error al renovar la membresía');
+            }
         }
 
         function verDetalles(id) {
@@ -398,8 +644,6 @@
                 alert('❌ Error al eliminar la membresía');
             }
         }
-
-        window.eliminarMembresia = eliminarMembresia;
 
         window.addEventListener('load', function() {
             loadPlanes();

@@ -21,21 +21,23 @@ namespace VidaFit.Controllers.API
         /// Obtener balance de caja en un rango de fechas
         /// </summary>
         [HttpGet("balance")]
-        public async Task<IActionResult> GetBalance([FromQuery] DateTime? desde, [FromQuery] DateTime? hasta)
+        public async Task<IActionResult> GetBalance([FromQuery] string desde = null, [FromQuery] string hasta = null)
         {
             try
             {
-                var inicio = desde.HasValue
-                    ? DateTime.SpecifyKind(desde.Value.Date, DateTimeKind.Utc)
-                    : DateTime.UtcNow.Date;
+                var todosMovimientos = await _context.MovimientosCaja.ToListAsync();
 
-                var fin = hasta.HasValue
-                    ? DateTime.SpecifyKind(hasta.Value.Date.AddDays(1).AddSeconds(-1), DateTimeKind.Utc)
-                    : DateTime.UtcNow.Date.AddDays(1).AddSeconds(-1);
+                var movimientos = todosMovimientos;
 
-                var movimientos = await _context.MovimientosCaja
-                    .Where(m => m.Fecha >= inicio && m.Fecha <= fin)
-                    .ToListAsync();
+                if (!string.IsNullOrWhiteSpace(desde) && DateTime.TryParse(desde, out DateTime fechaDesde))
+                {
+                    movimientos = movimientos.Where(m => m.Fecha.Date >= fechaDesde.Date).ToList();
+                }
+
+                if (!string.IsNullOrWhiteSpace(hasta) && DateTime.TryParse(hasta, out DateTime fechaHasta))
+                {
+                    movimientos = movimientos.Where(m => m.Fecha.Date <= fechaHasta.Date).ToList();
+                }
 
                 var ingresos = movimientos.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto);
                 var egresos = movimientos.Where(m => m.Tipo == "egreso").Sum(m => m.Monto);
@@ -57,8 +59,8 @@ namespace VidaFit.Controllers.API
                 return Ok(new
                 {
                     success = true,
-                    desde = inicio,
-                    hasta = fin,
+                    desde = desde,
+                    hasta = hasta,
                     ingresos,
                     egresos,
                     balance,
@@ -193,24 +195,16 @@ namespace VidaFit.Controllers.API
         /// </summary>
         [HttpGet("movimientos")]
         public async Task<IActionResult> GetMovimientos(
-            [FromQuery] DateTime? desde,
-            [FromQuery] DateTime? hasta,
+            [FromQuery] string desde = null,
+            [FromQuery] string hasta = null,
             [FromQuery] string tipo = null,
             [FromQuery] string categoria = null)
         {
             try
             {
-                var inicio = desde.HasValue
-                    ? DateTime.SpecifyKind(desde.Value.Date, DateTimeKind.Utc)
-                    : DateTime.UtcNow.Date.AddDays(-30);
+                var query = _context.MovimientosCaja.AsQueryable();
 
-                var fin = hasta.HasValue
-                    ? DateTime.SpecifyKind(hasta.Value.Date.AddDays(1).AddSeconds(-1), DateTimeKind.Utc)
-                    : DateTime.UtcNow.Date.AddDays(1).AddSeconds(-1);
-
-                var query = _context.MovimientosCaja
-                    .Where(m => m.Fecha >= inicio && m.Fecha <= fin);
-
+                // Aplicar filtros
                 if (!string.IsNullOrWhiteSpace(tipo))
                 {
                     query = query.Where(m => m.Tipo == tipo);
@@ -221,28 +215,77 @@ namespace VidaFit.Controllers.API
                     query = query.Where(m => m.Categoria == categoria);
                 }
 
-                var movimientos = await query
-                    .OrderByDescending(m => m.Fecha)
-                    .Select(m => new
+                // Traer todos los datos
+                var todosMovimientos = await query.OrderByDescending(m => m.Fecha).ToListAsync();
+
+                // Si no hay filtros de fecha, devolver todo
+                if (string.IsNullOrWhiteSpace(desde) && string.IsNullOrWhiteSpace(hasta))
+                {
+                    var todosDto = todosMovimientos.Select(m => new
                     {
-                        m.Id,
-                        m.Tipo,
-                        m.Categoria,
-                        m.Monto,
-                        m.Descripcion,
-                        m.MetodoPago,
-                        m.Fecha,
-                        m.ReferenciaId,
-                        m.UsuarioId,
-                        usuario = m.Usuario != null ? m.Usuario.Nombre : "Sistema"
-                    })
-                    .ToListAsync();
+                        Id = m.Id,
+                        Tipo = m.Tipo,
+                        Categoria = m.Categoria,
+                        Monto = m.Monto,
+                        Descripcion = m.Descripcion,
+                        MetodoPago = m.MetodoPago,
+                        Fecha = m.Fecha,
+                        ReferenciaId = m.ReferenciaId,
+                        UsuarioId = m.UsuarioId,
+                        usuario = "Sistema"
+                    }).ToList();
+
+                    return Ok(new
+                    {
+                        success = true,
+                        total = todosDto.Count,
+                        data = todosDto
+                    });
+                }
+
+                // Filtrar por fechas
+                var movimientosFiltrados = todosMovimientos;
+
+                if (!string.IsNullOrWhiteSpace(desde))
+                {
+                    if (DateTime.TryParse(desde, out DateTime fechaDesde))
+                    {
+                        movimientosFiltrados = movimientosFiltrados
+                            .Where(m => m.Fecha >= fechaDesde)
+                            .ToList();
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(hasta))
+                {
+                    if (DateTime.TryParse(hasta, out DateTime fechaHasta))
+                    {
+                        var hastaFin = fechaHasta.AddDays(1).AddSeconds(-1);
+                        movimientosFiltrados = movimientosFiltrados
+                            .Where(m => m.Fecha <= hastaFin)
+                            .ToList();
+                    }
+                }
+
+                var movimientosDto = movimientosFiltrados.Select(m => new
+                {
+                    Id = m.Id,
+                    Tipo = m.Tipo,
+                    Categoria = m.Categoria,
+                    Monto = m.Monto,
+                    Descripcion = m.Descripcion,
+                    MetodoPago = m.MetodoPago,
+                    Fecha = m.Fecha,
+                    ReferenciaId = m.ReferenciaId,
+                    UsuarioId = m.UsuarioId,
+                    usuario = "Sistema"
+                }).ToList();
 
                 return Ok(new
                 {
                     success = true,
-                    total = movimientos.Count,
-                    data = movimientos
+                    total = movimientosDto.Count,
+                    data = movimientosDto
                 });
             }
             catch (Exception ex)
@@ -251,7 +294,8 @@ namespace VidaFit.Controllers.API
                 {
                     success = false,
                     message = "Error al obtener movimientos",
-                    error = ex.Message
+                    error = ex.Message,
+                    stack = ex.StackTrace
                 });
             }
         }
@@ -264,27 +308,33 @@ namespace VidaFit.Controllers.API
         {
             try
             {
-                var hoy = DateTime.UtcNow.Date;
-                var manana = hoy.AddDays(1);
-
-                var movimientos = await _context.MovimientosCaja
-                    .Where(m => m.Fecha >= hoy && m.Fecha < manana)
+                // Traer TODOS los movimientos sin filtro y sin JOIN con usuario
+                var todosMovimientos = await _context.MovimientosCaja
                     .OrderByDescending(m => m.Fecha)
-                    .Select(m => new
-                    {
-                        m.Id,
-                        m.Tipo,
-                        m.Categoria,
-                        m.Monto,
-                        m.Descripcion,
-                        m.MetodoPago,
-                        m.Fecha,
-                        usuario = m.Usuario != null ? m.Usuario.Nombre : "Sistema"
-                    })
                     .ToListAsync();
+
+                // Filtrar en C# por fecha de hoy
+                var hoy = DateTime.Today;
+                var movimientos = todosMovimientos
+                    .Where(m => m.Fecha.Year == hoy.Year &&
+                                m.Fecha.Month == hoy.Month &&
+                                m.Fecha.Day == hoy.Day)
+                    .ToList();
 
                 var ingresos = movimientos.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto);
                 var egresos = movimientos.Where(m => m.Tipo == "egreso").Sum(m => m.Monto);
+
+                var movimientosDto = movimientos.Select(m => new
+                {
+                    Id = m.Id,
+                    Tipo = m.Tipo,
+                    Categoria = m.Categoria,
+                    Monto = m.Monto,
+                    Descripcion = m.Descripcion,
+                    MetodoPago = m.MetodoPago,
+                    Fecha = m.Fecha,
+                    usuario = "Sistema"
+                }).ToList();
 
                 return Ok(new
                 {
@@ -292,7 +342,7 @@ namespace VidaFit.Controllers.API
                     ingresos,
                     egresos,
                     balance = ingresos - egresos,
-                    movimientos
+                    movimientos = movimientosDto
                 });
             }
             catch (Exception ex)
@@ -301,7 +351,8 @@ namespace VidaFit.Controllers.API
                 {
                     success = false,
                     message = "Error al obtener movimientos de hoy",
-                    error = ex.Message
+                    error = ex.Message,
+                    stack = ex.StackTrace
                 });
             }
         }
@@ -345,30 +396,31 @@ namespace VidaFit.Controllers.API
             try
             {
                 DateTime inicio;
-                DateTime fin = DateTime.UtcNow;
+                DateTime fin = DateTime.Now;
 
                 switch (periodo.ToLower())
                 {
                     case "dia":
-                        inicio = DateTime.UtcNow.Date;
+                        inicio = DateTime.Today;
                         break;
                     case "semana":
-                        inicio = DateTime.UtcNow.Date.AddDays(-7);
+                        inicio = DateTime.Today.AddDays(-7);
                         break;
                     case "mes":
-                        inicio = DateTime.UtcNow.Date.AddMonths(-1);
+                        inicio = DateTime.Today.AddMonths(-1);
                         break;
                     case "año":
-                        inicio = DateTime.UtcNow.Date.AddYears(-1);
+                        inicio = DateTime.Today.AddYears(-1);
                         break;
                     default:
-                        inicio = DateTime.UtcNow.Date.AddMonths(-1);
+                        inicio = DateTime.Today.AddMonths(-1);
                         break;
                 }
 
-                var movimientos = await _context.MovimientosCaja
-                    .Where(m => m.Fecha >= inicio && m.Fecha <= fin)
-                    .ToListAsync();
+                var todosMovimientos = await _context.MovimientosCaja.ToListAsync();
+                var movimientos = todosMovimientos
+                    .Where(m => m.Fecha.Date >= inicio.Date && m.Fecha.Date <= fin.Date)
+                    .ToList();
 
                 var totalIngresos = movimientos.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto);
                 var totalEgresos = movimientos.Where(m => m.Tipo == "egreso").Sum(m => m.Monto);

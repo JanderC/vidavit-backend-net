@@ -52,11 +52,35 @@ namespace VidaFit.Controllers.WEB
         [HttpGet("asistencia")]
         public async Task<IActionResult> Asistencia(DateTime? desde, DateTime? hasta)
         {
-            var fechaInicio = desde ?? DateTime.UtcNow.AddDays(-30).Date;
-            var fechaFin = hasta ?? DateTime.UtcNow.Date;
+            // Convertir fechas a UTC para PostgreSQL
+            var fechaInicio = (desde ?? DateTime.UtcNow.AddDays(-30));
+            var fechaFin = (hasta ?? DateTime.UtcNow);
+
+            // Asegurar que las fechas sean UTC
+            if (fechaInicio.Kind == DateTimeKind.Unspecified)
+            {
+                fechaInicio = DateTime.SpecifyKind(fechaInicio, DateTimeKind.Utc);
+            }
+            else if (fechaInicio.Kind == DateTimeKind.Local)
+            {
+                fechaInicio = fechaInicio.ToUniversalTime();
+            }
+
+            if (fechaFin.Kind == DateTimeKind.Unspecified)
+            {
+                fechaFin = DateTime.SpecifyKind(fechaFin, DateTimeKind.Utc);
+            }
+            else if (fechaFin.Kind == DateTimeKind.Local)
+            {
+                fechaFin = fechaFin.ToUniversalTime();
+            }
+
+            // Establecer inicio del día (00:00:00) y fin del día (23:59:59)
+            fechaInicio = new DateTime(fechaInicio.Year, fechaInicio.Month, fechaInicio.Day, 0, 0, 0, DateTimeKind.Utc);
+            fechaFin = new DateTime(fechaFin.Year, fechaFin.Month, fechaFin.Day, 23, 59, 59, DateTimeKind.Utc);
 
             var asistencia = await _context.CheckIns
-                .Where(c => c.FechaHora.Date >= fechaInicio && c.FechaHora.Date <= fechaFin)
+                .Where(c => c.FechaHora >= fechaInicio && c.FechaHora <= fechaFin)
                 .GroupBy(c => c.FechaHora.Date)
                 .Select(g => new AsistenciaReporte
                 {
@@ -75,14 +99,38 @@ namespace VidaFit.Controllers.WEB
         [HttpGet("ingresos-membresias")]
         public async Task<IActionResult> IngresosMembresias(DateTime? desde, DateTime? hasta)
         {
-            var fechaInicio = desde ?? DateTime.UtcNow.AddMonths(-1).Date;
-            var fechaFin = hasta ?? DateTime.UtcNow.Date;
+            // Convertir fechas a UTC para PostgreSQL
+            var fechaInicio = (desde ?? DateTime.UtcNow.AddMonths(-1));
+            var fechaFin = (hasta ?? DateTime.UtcNow);
+
+            // Asegurar que las fechas sean UTC
+            if (fechaInicio.Kind == DateTimeKind.Unspecified)
+            {
+                fechaInicio = DateTime.SpecifyKind(fechaInicio, DateTimeKind.Utc);
+            }
+            else if (fechaInicio.Kind == DateTimeKind.Local)
+            {
+                fechaInicio = fechaInicio.ToUniversalTime();
+            }
+
+            if (fechaFin.Kind == DateTimeKind.Unspecified)
+            {
+                fechaFin = DateTime.SpecifyKind(fechaFin, DateTimeKind.Utc);
+            }
+            else if (fechaFin.Kind == DateTimeKind.Local)
+            {
+                fechaFin = fechaFin.ToUniversalTime();
+            }
+
+            // Establecer inicio del día (00:00:00) y fin del día (23:59:59)
+            fechaInicio = new DateTime(fechaInicio.Year, fechaInicio.Month, fechaInicio.Day, 0, 0, 0, DateTimeKind.Utc);
+            fechaFin = new DateTime(fechaFin.Year, fechaFin.Month, fechaFin.Day, 23, 59, 59, DateTimeKind.Utc);
 
             // PASO 1: Cargar TODOS los datos con Include
             var pagos = await _context.Pagos
                 .Include(p => p.Membresia)
                     .ThenInclude(m => m.Plan)
-                .Where(p => p.FechaPago.Date >= fechaInicio && p.FechaPago.Date <= fechaFin)
+                .Where(p => p.FechaPago >= fechaInicio && p.FechaPago <= fechaFin)
                 .ToListAsync();
 
             // PASO 2: Agrupar EN MEMORIA y crear objetos fuertemente tipados
@@ -106,24 +154,55 @@ namespace VidaFit.Controllers.WEB
         [HttpGet("productos-mas-vendidos")]
         public async Task<IActionResult> ProductosMasVendidos(DateTime? desde, DateTime? hasta)
         {
-            var fechaInicio = desde ?? DateTime.UtcNow.AddMonths(-1).Date;
-            var fechaFin = hasta ?? DateTime.UtcNow.Date;
+            // Convertir fechas a UTC para PostgreSQL
+            var fechaInicio = (desde ?? DateTime.UtcNow.AddMonths(-1));
+            var fechaFin = (hasta ?? DateTime.UtcNow);
 
-            // PASO 1: Cargar TODO con Include
+            // Asegurar que las fechas sean UTC y establecer hora inicio/fin del día
+            if (fechaInicio.Kind == DateTimeKind.Unspecified)
+            {
+                fechaInicio = DateTime.SpecifyKind(fechaInicio, DateTimeKind.Utc);
+            }
+            else if (fechaInicio.Kind == DateTimeKind.Local)
+            {
+                fechaInicio = fechaInicio.ToUniversalTime();
+            }
+
+            if (fechaFin.Kind == DateTimeKind.Unspecified)
+            {
+                fechaFin = DateTime.SpecifyKind(fechaFin, DateTimeKind.Utc);
+            }
+            else if (fechaFin.Kind == DateTimeKind.Local)
+            {
+                fechaFin = fechaFin.ToUniversalTime();
+            }
+
+            // Establecer inicio del día (00:00:00) y fin del día (23:59:59)
+            fechaInicio = new DateTime(fechaInicio.Year, fechaInicio.Month, fechaInicio.Day, 0, 0, 0, DateTimeKind.Utc);
+            fechaFin = new DateTime(fechaFin.Year, fechaFin.Month, fechaFin.Day, 23, 59, 59, DateTimeKind.Utc);
+
+            // PASO 1: Cargar datos usando Select para evitar cargar entidades completas con ClienteId NULL
+            // Esto evita el error cuando ClienteId es NULL porque no intentamos materializar la entidad Cliente
             var ventas = await _context.VentasProductos
-                .Include(v => v.Producto)
-                .Where(v => v.FechaVenta.Date >= fechaInicio
-                         && v.FechaVenta.Date <= fechaFin
+                .Where(v => v.FechaVenta >= fechaInicio
+                         && v.FechaVenta <= fechaFin
                          && v.EstadoPago == "pagado")
+                .Select(v => new
+                {
+                    v.ProductoId,
+                    ProductoNombre = v.Producto.Nombre,
+                    v.Cantidad,
+                    v.Total
+                })
                 .ToListAsync();
 
             // PASO 2: Agrupar EN MEMORIA y crear objetos fuertemente tipados
             var productos = ventas
-                .GroupBy(v => new { ProductoId = v.ProductoId, Nombre = v.Producto.Nombre })
+                .GroupBy(v => new { v.ProductoId, v.ProductoNombre })
                 .Select(g => new ProductoVendidoReporte
                 {
                     ProductoId = g.Key.ProductoId,
-                    Nombre = g.Key.Nombre,
+                    Nombre = g.Key.ProductoNombre,
                     Cantidad = g.Sum(v => v.Cantidad),
                     Total = g.Sum(v => v.Total)
                 })
@@ -140,11 +219,12 @@ namespace VidaFit.Controllers.WEB
         [HttpGet("cuentas-pendientes")]
         public async Task<IActionResult> CuentasPendientes()
         {
-            // PASO 1: Cargar TODO con Include
+            // PASO 1: Cargar TODO con Include, pero filtrar solo registros con ClienteId NO NULL
+            // Esto previene el error de intentar cargar Cliente cuando ClienteId es NULL
             var ventasPendientes = await _context.VentasProductos
                 .Include(v => v.Cliente)
                 .Include(v => v.Producto)
-                .Where(v => v.EstadoPago == "pendiente")
+                .Where(v => v.EstadoPago == "pendiente" && v.ClienteId != null)
                 .ToListAsync();
 
             // PASO 2: Agrupar EN MEMORIA y crear objetos fuertemente tipados
@@ -166,10 +246,24 @@ namespace VidaFit.Controllers.WEB
         [HttpGet("clientes-inactivos")]
         public async Task<IActionResult> ClientesInactivos(int dias = 30)
         {
-            var fechaLimite = DateTime.UtcNow.AddDays(-dias).Date;
+            // Convertir fecha a UTC para PostgreSQL
+            var fechaLimite = DateTime.UtcNow.AddDays(-dias);
+
+            // Asegurar que la fecha sea UTC
+            if (fechaLimite.Kind == DateTimeKind.Unspecified)
+            {
+                fechaLimite = DateTime.SpecifyKind(fechaLimite, DateTimeKind.Utc);
+            }
+            else if (fechaLimite.Kind == DateTimeKind.Local)
+            {
+                fechaLimite = fechaLimite.ToUniversalTime();
+            }
+
+            // Establecer inicio del día (00:00:00)
+            fechaLimite = new DateTime(fechaLimite.Year, fechaLimite.Month, fechaLimite.Day, 0, 0, 0, DateTimeKind.Utc);
 
             var inactivos = await _context.Clientes
-                .Where(c => !c.CheckIns.Any(ci => ci.FechaHora.Date >= fechaLimite) && c.Activo)
+                .Where(c => !c.CheckIns.Any(ci => ci.FechaHora >= fechaLimite) && c.Activo)
                 .ToListAsync();
 
             ViewBag.Dias = dias;

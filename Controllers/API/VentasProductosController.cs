@@ -55,7 +55,7 @@ namespace VidaFit.Controllers.API
         // DTO para crear ventas con pago parcial
         public class CreateVentaDto
         {
-            public Guid ClienteId { get; set; }
+            public Guid? ClienteId { get; set; }
             public Guid ProductoId { get; set; }
             public int Cantidad { get; set; }
             public decimal PrecioUnitario { get; set; }
@@ -71,10 +71,14 @@ namespace VidaFit.Controllers.API
         {
             try
             {
-                // Validar cliente
-                var cliente = await _context.Clientes.FindAsync(ventaDto.ClienteId);
-                if (cliente == null)
-                    return Ok(new { success = false, message = "El cliente no existe" });
+                // Validar cliente (OPCIONAL - puede ser null para ventas rápidas)
+                Cliente? cliente = null;
+                if (ventaDto.ClienteId.HasValue)
+                {
+                    cliente = await _context.Clientes.FindAsync(ventaDto.ClienteId.Value);
+                    if (cliente == null)
+                        return Ok(new { success = false, message = "El cliente especificado no existe" });
+                }
 
                 // Validar producto
                 var producto = await _context.Productos.FindAsync(ventaDto.ProductoId);
@@ -106,7 +110,7 @@ namespace VidaFit.Controllers.API
                 var venta = new VentaProducto
                 {
                     Id = Guid.NewGuid(),
-                    ClienteId = ventaDto.ClienteId,
+                    ClienteId = ventaDto.ClienteId, // NULL si no hay cliente
                     ProductoId = ventaDto.ProductoId,
                     Cantidad = ventaDto.Cantidad,
                     PrecioUnitario = ventaDto.PrecioUnitario,
@@ -134,7 +138,7 @@ namespace VidaFit.Controllers.API
                     var deuda = new DeudaCliente
                     {
                         Id = Guid.NewGuid(),
-                        ClienteId = ventaDto.ClienteId,
+                        ClienteId = ventaDto.ClienteId ?? Guid.Empty,
                         Concepto = $"Venta de {producto.Nombre} (x{ventaDto.Cantidad})",
                         MontoTotal = saldoPendiente,
                         MontoPagado = 0,
@@ -153,7 +157,7 @@ namespace VidaFit.Controllers.API
                 }
 
                 // Registrar ingreso en caja (solo si hubo pago)
-                if (ventaDto.UsuarioId.HasValue && montoPagado > 0)
+                if (montoPagado > 0)
                 {
                     var movimientoCaja = new MovimientoCaja
                     {
@@ -161,10 +165,12 @@ namespace VidaFit.Controllers.API
                         Tipo = "ingreso",
                         Categoria = "producto",
                         Monto = montoPagado,
-                        Descripcion = $"Venta de {producto.Nombre} (x{ventaDto.Cantidad}) - {cliente.Nombre} {cliente.Apellido}" +
+                        Descripcion = cliente != null
+                            ? $"Venta de {producto.Nombre} (x{ventaDto.Cantidad}) - {cliente.Nombre} {cliente.Apellido}"
+                            : $"Venta de {producto.Nombre} (x{ventaDto.Cantidad}) - Venta rápida" +
                                     (saldoPendiente > 0 ? $" (Pago parcial, saldo: ${saldoPendiente:N2})" : ""),
                         ReferenciaId = venta.Id,
-                        UsuarioId = ventaDto.UsuarioId.Value,
+                        UsuarioId = ventaDto.UsuarioId ?? Guid.Parse("00000000-0000-0000-0000-000000000000"),
                         MetodoPago = "efectivo", // Podrías agregar esto al DTO
                         Fecha = DateTime.UtcNow,
                         CreatedAt = DateTime.UtcNow
@@ -225,7 +231,7 @@ namespace VidaFit.Controllers.API
                 return BadRequest($"Stock insuficiente. Disponible: {productoNuevo.Stock}");
 
             // Actualizar venta
-            dbVenta.ClienteId = ventaDto.ClienteId;
+            dbVenta.ClienteId = ventaDto.ClienteId; // NULL si no hay cliente
             dbVenta.ProductoId = ventaDto.ProductoId;
             dbVenta.Cantidad = ventaDto.Cantidad;
             dbVenta.PrecioUnitario = ventaDto.PrecioUnitario;
