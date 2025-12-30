@@ -207,5 +207,77 @@ namespace VidaFit.Controllers.API
                 .OrderBy(m => m.FechaVencimiento)
                 .ToListAsync();
         }
+
+        [HttpPost("renovar/{id}")]
+        public async Task<IActionResult> RenovarMembresia(Guid id, [FromBody] JsonElement data)
+        {
+            try
+            {
+                // Buscar la membresía a renovar
+                var membresiaActual = await _context.Membresias
+                    .Include(m => m.Plan)
+                    .FirstOrDefaultAsync(m => m.Id == id);
+
+                if (membresiaActual == null)
+                {
+                    return Ok(new { success = false, message = "Membresía no encontrada" });
+                }
+
+                // Extraer datos del JSON
+                var planId = data.TryGetProperty("planId", out var planEl)
+                    ? Guid.Parse(planEl.GetString())
+                    : membresiaActual.PlanId;
+
+                var montoPagado = data.GetProperty("montoPagado").GetDecimal();
+                var metodoPago = data.GetProperty("metodoPago").GetString();
+                var notas = data.TryGetProperty("notas", out var notasEl) && !string.IsNullOrWhiteSpace(notasEl.GetString())
+                    ? notasEl.GetString()
+                    : null;
+
+                // Validar plan
+                var plan = await _context.Planes.FindAsync(planId);
+                if (plan == null || !plan.Activo)
+                {
+                    return Ok(new { success = false, message = "Plan no válido" });
+                }
+
+                // Calcular nueva fecha de inicio y vencimiento
+                var fechaInicio = DateTime.UtcNow.Date;
+                var fechaVencimiento = fechaInicio.AddDays(plan.DuracionDias);
+
+                // Actualizar la membresía existente
+                membresiaActual.PlanId = planId;
+                membresiaActual.FechaInicio = DateTime.SpecifyKind(fechaInicio, DateTimeKind.Utc);
+                membresiaActual.FechaVencimiento = DateTime.SpecifyKind(fechaVencimiento, DateTimeKind.Utc);
+                membresiaActual.Estado = "activa";
+                membresiaActual.MontoPagado = montoPagado;
+                membresiaActual.MetodoPago = metodoPago;
+                membresiaActual.Notas = notas;
+                membresiaActual.UpdatedAt = DateTime.UtcNow;
+
+                // Registrar pago de renovación
+                var pago = new Pago
+                {
+                    Id = Guid.NewGuid(),
+                    ClienteId = membresiaActual.ClienteId,
+                    MembresiaId = membresiaActual.Id,
+                    Monto = montoPagado,
+                    FechaPago = DateTime.UtcNow,
+                    MetodoPago = metodoPago,
+                    ReciboNumero = null,
+                    Notas = "Renovación de membresía",
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                _context.Pagos.Add(pago);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { success = true, data = membresiaActual, message = "Membresía renovada exitosamente" });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new { success = false, message = "Error al renovar membresía", error = ex.Message, inner = ex.InnerException?.Message });
+            }
+        }
     }
 }

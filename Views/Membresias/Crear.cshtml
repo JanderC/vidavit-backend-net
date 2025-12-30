@@ -1,4 +1,5 @@
 @{
+    Layout = "_AdminLayout";
     ViewData["Title"] = "Crear Membresía";
 }
 
@@ -269,13 +270,24 @@
         }
 
         async function seleccionarClienteDesdeResultado(cliente) {
-            // Verificar si tiene membresía activa
+            // Verificar si tiene membresía activa o vencida
             try {
                 const response = await fetch(`/api/Membresias/cliente/${cliente.id}`);
                 const membresias = await response.json();
-                const tieneActiva = membresias.some(m => (m.Estado || m.estado) === 'activa');
+                const membresiaActiva = membresias.find(m => (m.Estado || m.estado) === 'activa');
+                const membresiaVencida = membresias.find(m => (m.Estado || m.estado) === 'vencida');
 
-                if (tieneActiva) {
+                if (membresiaVencida && !membresiaActiva) {
+                    const confirmar = confirm(
+                        `💡 ${cliente.nombre} ${cliente.apellido} tiene una membresía vencida.\n\n` +
+                        `¿Desea RENOVAR la membresía existente en lugar de crear una nueva?\n\n` +
+                        `Haga clic en "Aceptar" para ir a renovar, o "Cancelar" para crear una nueva.`
+                    );
+                    if (confirmar) {
+                        window.location.href = '/membresias';
+                        return;
+                    }
+                } else if (membresiaActiva) {
                     const confirmar = confirm(
                         `⚠️ ${cliente.nombre} ${cliente.apellido} ya tiene una membresía activa.\n\n` +
                         `¿Desea crear una nueva membresía de todas formas?`
