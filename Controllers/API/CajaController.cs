@@ -250,8 +250,10 @@ namespace VidaFit.Controllers.API
                 {
                     if (DateTime.TryParse(desde, out DateTime fechaDesde))
                     {
+                        // Convertir fecha local a UTC para comparar
+                        var desdeUtc = DateTime.SpecifyKind(fechaDesde.Date, DateTimeKind.Utc);
                         movimientosFiltrados = movimientosFiltrados
-                            .Where(m => m.Fecha >= fechaDesde)
+                            .Where(m => m.Fecha.Date >= desdeUtc.Date)
                             .ToList();
                     }
                 }
@@ -260,9 +262,10 @@ namespace VidaFit.Controllers.API
                 {
                     if (DateTime.TryParse(hasta, out DateTime fechaHasta))
                     {
-                        var hastaFin = fechaHasta.AddDays(1).AddSeconds(-1);
+                        // Convertir fecha local a UTC y agregar hasta fin de día
+                        var hastaUtc = DateTime.SpecifyKind(fechaHasta.Date.AddDays(1).AddSeconds(-1), DateTimeKind.Utc);
                         movimientosFiltrados = movimientosFiltrados
-                            .Where(m => m.Fecha <= hastaFin)
+                            .Where(m => m.Fecha <= hastaUtc)
                             .ToList();
                     }
                 }
@@ -353,6 +356,54 @@ namespace VidaFit.Controllers.API
                     message = "Error al obtener movimientos de hoy",
                     error = ex.Message,
                     stack = ex.StackTrace
+                });
+            }
+        }
+
+        /// <summary>
+        /// Obtener saldo del día anterior (efectivo en caja de cierre)
+        /// </summary>
+        [HttpGet("saldo-anterior")]
+        public async Task<IActionResult> GetSaldoAnterior()
+        {
+            try
+            {
+                // Obtener fecha de ayer en UTC
+                var hoyUtc = DateTime.UtcNow.Date;
+                var ayerUtc = hoyUtc.AddDays(-1);
+
+                // Obtener todos los movimientos hasta ayer (inclusive) en UTC
+                var movimientosHastaAyer = await _context.MovimientosCaja
+                    .Where(m => m.Fecha.Date <= ayerUtc.Date)
+                    .ToListAsync();
+
+                // Calcular solo movimientos en efectivo
+                var ingresosEfectivo = movimientosHastaAyer
+                    .Where(m => m.Tipo == "ingreso" && m.MetodoPago == "efectivo")
+                    .Sum(m => m.Monto);
+
+                var egresosEfectivo = movimientosHastaAyer
+                    .Where(m => m.Tipo == "egreso" && m.MetodoPago == "efectivo")
+                    .Sum(m => m.Monto);
+
+                var saldoAnterior = ingresosEfectivo - egresosEfectivo;
+
+                return Ok(new
+                {
+                    success = true,
+                    fecha = ayerUtc,
+                    saldoAnterior = saldoAnterior,
+                    ingresosEfectivo = ingresosEfectivo,
+                    egresosEfectivo = egresosEfectivo
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Error al obtener saldo anterior",
+                    error = ex.Message
                 });
             }
         }

@@ -55,6 +55,13 @@ namespace VidaFit.Controllers.API
                     });
                 }
 
+                // Verificar deudas pendientes
+                var deudasPendientes = await _context.DeudasClientes
+                    .Where(d => d.ClienteId == cliente.Id && d.Estado != "pagada")
+                    .ToListAsync();
+
+                var totalDeuda = deudasPendientes.Sum(d => d.Saldo);
+
                 // Verificar membresía
                 var membresiaActiva = cliente.Membresias
                     .Where(m => m.Estado == "activa")
@@ -86,7 +93,6 @@ namespace VidaFit.Controllers.API
                 }
 
                 // Registrar check-in
-                // Registrar check-in
                 var checkIn = new CheckIn
                 {
                     ClienteId = cliente.Id,
@@ -99,7 +105,7 @@ namespace VidaFit.Controllers.API
                 _context.CheckIns.Add(checkIn);
                 await _context.SaveChangesAsync();
 
-                // RETORNO SIMPLIFICADO igual que fingerprint
+                // RETORNO con información de deuda
                 return Ok(new
                 {
                     success = tieneAcceso,
@@ -119,6 +125,12 @@ namespace VidaFit.Controllers.API
                         diasVencidos = membresiaActiva.FechaVencimiento < DateTime.UtcNow
                             ? (DateTime.UtcNow.Date - membresiaActiva.FechaVencimiento).Days
                             : (int?)null
+                    } : null,
+                    deuda = totalDeuda > 0 ? new
+                    {
+                        tieneDeuda = true,
+                        montoTotal = totalDeuda,
+                        cantidadDeudas = deudasPendientes.Count
                     } : null
                 });
             }

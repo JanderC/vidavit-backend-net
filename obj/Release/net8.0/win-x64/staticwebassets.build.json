@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "XkArzX+Jd1A2rl1oWFd/4N9+AkyafV1ADJaZfGWaSUM=",
+  "Hash": "1apsL8K93CUrEGc7M74PXfDG/FkGsgTdZcwPHMEXXg4=",
   "Source": "VidaFit",
   "BasePath": "_content/VidaFit",
   "Mode": "Default",
@@ -1528,7 +1528,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 19 Dec 2025 14:32:16 GMT"
+          "Value": "Tue, 30 Dec 2025 13:28:45 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -1565,7 +1565,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 19 Dec 2025 14:32:16 GMT"
+          "Value": "Tue, 30 Dec 2025 13:28:45 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -6366,7 +6366,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 19 Dec 2025 21:27:53 GMT"
+          "Value": "Tue, 30 Dec 2025 13:28:44 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -6411,7 +6411,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 19 Dec 2025 21:27:53 GMT"
+          "Value": "Tue, 30 Dec 2025 13:28:44 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -6456,7 +6456,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 19 Dec 2025 21:27:53 GMT"
+          "Value": "Tue, 30 Dec 2025 13:28:44 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -6493,7 +6493,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 19 Dec 2025 21:27:53 GMT"
+          "Value": "Tue, 30 Dec 2025 13:28:44 GMT"
         },
         {
           "Name": "Cache-Control",

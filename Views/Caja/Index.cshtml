@@ -6,7 +6,7 @@
 
 <div class="space-y-6">
     <!-- RESUMEN GENERAL DE CAJA -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
         <div class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-emerald-600">
             <div class="flex items-center justify-between">
                 <div>
@@ -15,6 +15,19 @@
                 </div>
                 <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
                     <i data-lucide="wallet" class="w-6 h-6 text-emerald-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-purple-600">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 font-black uppercase tracking-wide mb-1">Saldo Ayer</p>
+                    <p class="text-3xl font-black text-purple-600" id="saldo-anterior">$0.00</p>
+                    <p class="text-xs text-gray-500 font-semibold mt-1" id="fecha-saldo-anterior"></p>
+                </div>
+                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                    <i data-lucide="history" class="w-6 h-6 text-purple-600"></i>
                 </div>
             </div>
         </div>
@@ -360,20 +373,43 @@
         // ========================================
         async function cargarResumen() {
             try {
-                // Cargar balance de hoy
-                const response = await fetch(`${API_URL}/Caja/hoy`);
-                const data = await response.json();
+                // 1. Cargar saldo del día anterior
+                const responseSaldoAnterior = await fetch(`${API_URL}/Caja/saldo-anterior`);
+                const saldoAnteriorData = await responseSaldoAnterior.json();
 
-                if (data.success) {
-                    document.getElementById('ingresos-hoy').textContent = `$${data.ingresos.toFixed(2)}`;
-                    document.getElementById('egresos-hoy').textContent = `$${data.egresos.toFixed(2)}`;
-                    efectivoCaja = data.balance;
-                    document.getElementById('efectivo-caja').textContent = `$${efectivoCaja.toFixed(2)}`;
+                let saldoAnterior = 0;
+                if (saldoAnteriorData.success) {
+                    saldoAnterior = saldoAnteriorData.saldoAnterior;
+                    document.getElementById('saldo-anterior').textContent = `$${saldoAnterior.toFixed(2)}`;
+
+                    const fechaAyer = new Date(saldoAnteriorData.fecha);
+                    document.getElementById('fecha-saldo-anterior').textContent =
+                        fechaAyer.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
                 }
 
-                // Cargar deudas pendientes
-                const deudasResp = await fetch(`${API_URL}/Deudas?estado=pendiente`);
-                const deudasData = await deudasResp.json();
+                // 2. Cargar movimientos de hoy
+                const responseHoy = await fetch(`${API_URL}/Caja/hoy`);
+                const hoyData = await responseHoy.json();
+
+                if (hoyData.success) {
+                    document.getElementById('ingresos-hoy').textContent = `$${hoyData.ingresos.toFixed(2)}`;
+                    document.getElementById('egresos-hoy').textContent = `$${hoyData.egresos.toFixed(2)}`;
+
+                    // Calcular efectivo en caja: solo movimientos en efectivo de hoy
+                    const efectivoHoy = hoyData.movimientos
+                        .filter(m => m.MetodoPago === 'efectivo')
+                        .reduce((acc, m) => {
+                            return m.Tipo === 'ingreso' ? acc + m.Monto : acc - m.Monto;
+                        }, 0);
+
+                    // Efectivo en caja = saldo anterior + efectivo de hoy
+                    const efectivoTotal = saldoAnterior + efectivoHoy;
+                    document.getElementById('efectivo-caja').textContent = `$${efectivoTotal.toFixed(2)}`;
+                }
+
+                // 3. Cargar deudas pendientes
+                const responseDeudas = await fetch(`${API_URL}/Deudas?estado=pendiente`);
+                const deudasData = await responseDeudas.json();
 
                 if (deudasData.success) {
                     document.getElementById('deudas-pendientes').textContent = `$${deudasData.totalSaldoPendiente.toFixed(2)}`;
@@ -509,6 +545,14 @@
                             <div class="bg-gray-50 rounded-xl p-4 mb-4 border-2 border-gray-200">
                                 <p class="text-sm text-gray-600 font-bold uppercase mb-1">Concepto</p>
                                 <p class="text-base text-gray-900 font-black">${deuda.Concepto}</p>
+                            </div>
+
+                            <div class="bg-blue-50 rounded-xl p-3 mb-4 border-2 border-blue-200">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="calendar" class="w-4 h-4 text-blue-600"></i>
+                                    <p class="text-xs text-blue-700 font-bold uppercase">Fecha de Origen</p>
+                                </div>
+                                <p class="text-base text-blue-900 font-black mt-1">${new Date(deuda.FechaCreacion).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                             </div>
 
                             <div class="grid grid-cols-3 gap-4 mb-4">

@@ -751,3 +751,7 @@ C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\obj\Release\net8.0\win-x64\
 C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\obj\Release\net8.0\win-x64\VidaFit.pdb
 C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\obj\Release\net8.0\win-x64\VidaFit.genruntimeconfig.cache
 C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\obj\Release\net8.0\win-x64\ref\VidaFit.dll
+C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\bin\Release\net8.0\win-x64\publish\web.config
+C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\bin\Release\net8.0\win-x64\publish\appsettings.Development.json
+C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\bin\Release\net8.0\win-x64\publish\appsettings.json
+C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\bin\Release\net8.0\win-x64\publish\VidaFit.staticwebassets.endpoints.json

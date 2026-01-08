@@ -1,0 +1,11 @@
+C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\publish\publish\web.config
+C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\publish\appsettings.Development.json
+C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\publish\appsettings.json
+C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\publish\publish\appsettings.Development.json
+C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\publish\publish\appsettings.json
+C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\publish\publish\VidaFit.staticwebassets.endpoints.json
+C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\publish\VidaFit.pdb
+C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\publish\dpfpdd.dll
+C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\publish\dpfj.dll
+C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\publish\aspnetcorev2_inprocess.dll
+C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\publish\VidaFit.exe
