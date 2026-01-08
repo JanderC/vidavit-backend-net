@@ -7,7 +7,7 @@
 <div id="dashboard-app">
     <div class="flex items-center justify-center h-64">
         <div class="text-center">
-            <div class="animate-spin w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+            <div class="animate-spin w-12 h-12 border-4 border-yellow-500 border-t-transparent rounded-full mx-auto mb-4"></div>
             <p class="text-gray-600">Cargando estadísticas...</p>
         </div>
     </div>
@@ -44,10 +44,10 @@
                         <h3 class="text-xl font-bold text-gray-800 mb-5 uppercase tracking-wide">Acciones Rápidas</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
                             <a href="/clientes/crear" class="bg-gradient-to-br from-gray-800 to-black text-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 p-6 group relative overflow-hidden">
-                                <div class="absolute inset-0 bg-red-600 opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                                <div class="absolute inset-0 bg-yellow-500 opacity-0 group-hover:opacity-10 transition-opacity"></div>
                                 <div class="relative z-10">
                                     <div class="flex items-center justify-between mb-4">
-                                        <div class="bg-red-600 rounded-xl p-3 group-hover:scale-110 transition-transform shadow-lg">
+                                        <div class="bg-yellow-500 rounded-xl p-3 group-hover:scale-110 transition-transform shadow-lg">
                                             <i data-lucide="user-plus" class="w-7 h-7"></i>
                                         </div>
                                         <i data-lucide="arrow-right" class="w-5 h-5 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all"></i>
@@ -104,17 +104,26 @@
                     <div class="mb-8">
                         <h3 class="text-xl font-bold text-gray-800 mb-5 uppercase tracking-wide">Estadísticas de Hoy</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                            <div class="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg p-6 border-l-4 border-red-600 hover:shadow-xl transition-all transform hover:-translate-y-1">
+                            <div class="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg p-6 border-l-4 border-yellow-500 hover:shadow-xl transition-all transform hover:-translate-y-1">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <p class="text-gray-600 text-xs font-bold uppercase tracking-wider mb-1">Total Clientes</p>
-                                        <p class="text-4xl font-black text-gray-900 mt-2">${resumen.totalClientes}</p>
-                                        <p class="text-xs text-gray-500 mt-2 font-semibold">
-                                            ${resumen.clientesConMembresia} activos
-                                        </p>
+                                        <p class="text-gray-600 text-sm font-bold uppercase tracking-wide mb-1">Ingresos Hoy</p>
+                                        <h3 class="text-3xl font-black text-gray-900">$${resumen.ingresosHoy.toLocaleString()}</h3>
                                     </div>
-                                    <div class="bg-red-100 rounded-full p-4">
-                                        <i data-lucide="users" class="w-8 h-8 text-red-600"></i>
+                                    <div class="w-14 h-14 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg">
+                                        <i data-lucide="dollar-sign" class="w-7 h-7 text-white"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg p-6 border-l-4 border-blue-700 hover:shadow-xl transition-all transform hover:-translate-y-1">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-gray-600 text-sm font-bold uppercase tracking-wide mb-1">Check-ins Hoy</p>
+                                        <h3 class="text-3xl font-black text-gray-900">${resumen.checkInsHoy}</h3>
+                                    </div>
+                                    <div class="w-14 h-14 bg-gradient-to-br from-blue-700 to-blue-800 rounded-xl flex items-center justify-center shadow-lg">
+                                        <i data-lucide="user-check" class="w-7 h-7 text-white"></i>
                                     </div>
                                 </div>
                             </div>
@@ -122,61 +131,40 @@
                             <div class="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg p-6 border-l-4 border-emerald-600 hover:shadow-xl transition-all transform hover:-translate-y-1">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <p class="text-gray-600 text-xs font-bold uppercase tracking-wider mb-1">Check-ins Hoy</p>
-                                        <p class="text-4xl font-black text-gray-900 mt-2">${resumen.checkInsHoy}</p>
-                                        <p class="text-xs text-emerald-600 mt-2 font-semibold">
-                                            Último: ${resumen.ultimoCheckIn ? new Date(resumen.ultimoCheckIn).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : 'N/A'}
-                                        </p>
+                                        <p class="text-gray-600 text-sm font-bold uppercase tracking-wide mb-1">Ventas Hoy</p>
+                                        <h3 class="text-3xl font-black text-gray-900">${resumen.ventasHoy}</h3>
                                     </div>
-                                    <div class="bg-emerald-100 rounded-full p-4">
-                                        <i data-lucide="fingerprint" class="w-8 h-8 text-emerald-600"></i>
+                                    <div class="w-14 h-14 bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-xl flex items-center justify-center shadow-lg">
+                                        <i data-lucide="shopping-bag" class="w-7 h-7 text-white"></i>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg p-6 border-l-4 border-amber-600 hover:shadow-xl transition-all transform hover:-translate-y-1">
+                            <div class="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg p-6 border-l-4 border-purple-600 hover:shadow-xl transition-all transform hover:-translate-y-1">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <p class="text-gray-600 text-xs font-bold uppercase tracking-wider mb-1">Ventas Hoy</p>
-                                        <p class="text-4xl font-black text-gray-900 mt-2">$${resumen.ventasHoy?.toFixed(2) || '0.00'}</p>
-                                        <p class="text-xs text-gray-500 mt-2 font-semibold">
-                                            ${resumen.totalVentasHoy || 0} transacciones
-                                        </p>
+                                        <p class="text-gray-600 text-sm font-bold uppercase tracking-wide mb-1">Clientes Activos</p>
+                                        <h3 class="text-3xl font-black text-gray-900">${resumen.clientesActivos}</h3>
                                     </div>
-                                    <div class="bg-amber-100 rounded-full p-4">
-                                        <i data-lucide="dollar-sign" class="w-8 h-8 text-amber-600"></i>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg p-6 border-l-4 border-blue-600 hover:shadow-xl transition-all transform hover:-translate-y-1">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-gray-600 text-xs font-bold uppercase tracking-wider mb-1">Stock Bajo</p>
-                                        <p class="text-4xl font-black text-gray-900 mt-2">${resumen.productosStockBajo || 0}</p>
-                                        <p class="text-xs text-gray-500 mt-2 font-semibold">
-                                            Requieren atención
-                                        </p>
-                                    </div>
-                                    <div class="bg-blue-100 rounded-full p-4">
-                                        <i data-lucide="package" class="w-8 h-8 text-blue-600"></i>
+                                    <div class="w-14 h-14 bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl flex items-center justify-center shadow-lg">
+                                        <i data-lucide="users" class="w-7 h-7 text-white"></i>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                         <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-gray-100">
-                            <div class="bg-gradient-to-r from-red-600 to-orange-600 px-6 py-5">
+                            <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-6 py-5">
                                 <h3 class="text-white font-black flex items-center gap-3 text-lg uppercase tracking-wide">
-                                    <i data-lucide="bell" class="w-6 h-6"></i>
-                                    Alertas Importantes
+                                    <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+                                    Alertas de Membresías
                                 </h3>
                             </div>
                             <div class="p-6">
                                 ${alertas.membresiasProximasVencer > 0 || alertas.membresiasVencidas > 0 ? `
-                                    <div class="space-y-5">
+                                    <div class="space-y-6">
                                         ${alertas.membresiasProximasVencer > 0 ? `
                                             <div>
                                                 <div class="flex items-center justify-between mb-3">
@@ -188,7 +176,7 @@
                                                         <div class="flex items-center justify-between p-3 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border border-orange-200 text-sm hover:shadow-md transition-shadow">
                                                             <span class="font-bold text-gray-800">${m.clienteNombre}</span>
                                                             <span class="px-3 py-1 rounded-full text-xs font-black ${
-                                                                m.diasRestantes <= 3 ? 'bg-red-600 text-white' : 'bg-orange-500 text-white'
+                                                                m.diasRestantes <= 3 ? 'bg-yellow-500 text-black' : 'bg-orange-500 text-white'
                                                             }">
                                                                 ${m.diasRestantes}d
                                                             </span>
@@ -202,13 +190,13 @@
                                             <div class="pt-5 border-t-2 border-gray-200">
                                                 <div class="flex items-center justify-between mb-3">
                                                     <h4 class="font-bold text-gray-800 uppercase text-sm tracking-wide">Vencidas (${alertas.membresiasVencidas})</h4>
-                                                    <a href="/membresias" class="text-xs text-red-600 hover:text-red-800 font-bold uppercase">Ver todas →</a>
+                                                    <a href="/membresias" class="text-xs text-yellow-600 hover:text-yellow-800 font-bold uppercase">Ver todas →</a>
                                                 </div>
                                                 <div class="space-y-2 max-h-32 overflow-y-auto">
                                                     ${alertas.detalleVencidas.slice(0, 3).map(m => `
                                                         <div class="flex items-center justify-between p-3 bg-gradient-to-r from-red-50 to-pink-50 rounded-xl border border-red-200 text-sm hover:shadow-md transition-shadow">
                                                             <span class="font-bold text-gray-800">${m.clienteNombre}</span>
-                                                            <span class="px-3 py-1 bg-red-600 text-white rounded-full text-xs font-black">
+                                                            <span class="px-3 py-1 bg-yellow-500 text-black rounded-full text-xs font-black">
                                                                 -${m.diasVencido}d
                                                             </span>
                                                         </div>

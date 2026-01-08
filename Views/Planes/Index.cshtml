@@ -1,215 +1,195 @@
-﻿@model List<VidaFitBackend.Models.Plan>
-@{
+﻿@{
+    ViewData["Title"] = "Crear Plan";
     Layout = "_AdminLayout";
-    ViewData["Title"] = "Gestión de Planes";
 }
 
-<div class="max-w-7xl mx-auto space-y-6">
-    <!-- Header -->
-    <div class="bg-white rounded-xl shadow-md p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <h2 class="text-2xl font-bold text-gray-800">📋 Gestión de Planes de Membresía</h2>
-                <p class="text-sm text-gray-600 mt-1">Administra los planes disponibles para tus clientes</p>
-            </div>
-            <div class="flex gap-3">
-                <a href="/membresias" class="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-bold rounded-lg transition">
-                    <i data-lucide="arrow-left" class="w-5 h-5 inline mr-2"></i>
-                    Volver a Membresías
-                </a>
-                <a href="/membresias/planes/crear" class="px-6 py-3 bg-vida-primary hover:bg-vida-accent text-vida-dark font-bold rounded-lg transition">
-                    <i data-lucide="plus" class="w-5 h-5 inline mr-2"></i>
-                    Crear Plan
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Estadísticas -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        @{
-            var totalPlanes = Model.Count;
-            var planesActivos = Model.Count(p => p.Activo);
-            var precioPromedio = Model.Where(p => p.Activo).Any() ? Model.Where(p => p.Activo).Average(p => p.Precio) : 0;
-            var duracionPromedio = Model.Where(p => p.Activo).Any() ? Model.Where(p => p.Activo).Average(p => p.DuracionDias) : 0;
-        }
-
-        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
-            <p class="text-sm text-gray-600 mb-1">Total Planes</p>
-            <p class="text-3xl font-bold text-gray-800">@totalPlanes</p>
+<div class="max-w-4xl mx-auto p-6">
+    <div class="bg-white rounded-xl shadow-lg p-8">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-gray-800">📋 Crear Nuevo Plan</h2>
+            <a href="/membresias/planes" class="text-gray-600 hover:text-gray-800">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </a>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
-            <p class="text-sm text-gray-600 mb-1">Planes Activos</p>
-            <p class="text-3xl font-bold text-green-600">@planesActivos</p>
-        </div>
+        <form id="planForm" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Plan *</label>
+                    <input type="text" name="nombre" required
+                           placeholder="Ej: Plan Mensual, Plan Trimestral, etc."
+                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-700 focus:border-blue-700">
+                </div>
 
-        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-vida-primary">
-            <p class="text-sm text-gray-600 mb-1">Precio Promedio</p>
-            <p class="text-3xl font-bold text-gray-800">$@precioPromedio.ToString("N0")</p>
-        </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Plan *</label>
+                    <select name="tipo" required
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-700 focus:border-blue-700 bg-white">
+                        <option value="">Seleccione un tipo...</option>
+                        <option value="diario">Diario</option>
+                        <option value="semanal">Semanal</option>
+                        <option value="mensual">Mensual</option>
+                        <option value="trimestral">Trimestral</option>
+                        <option value="semestral">Semestral</option>
+                        <option value="anual">Anual</option>
+                        <option value="personalizado">Personalizado</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                </div>
 
-        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-purple-500">
-            <p class="text-sm text-gray-600 mb-1">Duración Promedio</p>
-            <p class="text-3xl font-bold text-gray-800">@duracionPromedio.ToString("N0") días</p>
-        </div>
-    </div>
-
-    <!-- Grid de Planes -->
-    <div class="bg-white rounded-xl shadow-md p-6">
-        <h3 class="text-lg font-bold text-gray-800 mb-4">Listado de Planes</h3>
-
-        @if (Model.Count == 0)
-        {
-            <div class="text-center py-12">
-                <i data-lucide="inbox" class="w-16 h-16 mx-auto mb-4 text-gray-400"></i>
-                <p class="text-gray-500 text-lg">No hay planes registrados</p>
-                <a href="/membresias/planes/crear" class="inline-block mt-4 px-6 py-2 bg-vida-primary text-vida-dark font-bold rounded-lg hover:bg-vida-accent transition">
-                    Crear primer plan
-                </a>
-            </div>
-        }
-        else
-        {
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                @foreach (var plan in Model)
-                {
-                    <div class="border-2 rounded-xl overflow-hidden hover:shadow-xl transition-all @(!plan.Activo ? "opacity-50" : "")"
-                         style="border-color: @plan.Color">
-                        <!-- Header del plan con color -->
-                        <div class="p-6 text-white relative overflow-hidden" style="background-color: @plan.Color">
-                            <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
-                            <div class="absolute bottom-0 left-0 w-24 h-24 bg-white opacity-10 rounded-full -ml-12 -mb-12"></div>
-
-                            <div class="relative z-10">
-                                <div class="flex items-center justify-between mb-4">
-                                    <span class="px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm font-bold">
-                                        @plan.Tipo
-                                    </span>
-                                    @if (!plan.Activo)
-                                    {
-                                        <span class="px-3 py-1 bg-red-500 rounded-full text-xs font-bold">
-                                            INACTIVO
-                                        </span>
-                                    }
-                                </div>
-                                <h4 class="text-2xl font-bold mb-2">@plan.Nombre</h4>
-                                <div class="flex items-baseline gap-1">
-                                    <span class="text-4xl font-bold">$@plan.Precio.ToString("N0")</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Cuerpo del plan -->
-                        <div class="p-6 bg-white">
-                            <div class="space-y-4 mb-6">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background-color: @(plan.Color)20">
-                                        <i data-lucide="calendar" class="w-5 h-5" style="color: @plan.Color"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm text-gray-600">Duración</p>
-                                        <p class="font-bold text-gray-800">@plan.DuracionDias días</p>
-                                    </div>
-                                </div>
-
-                                @if (!string.IsNullOrEmpty(plan.Descripcion))
-                                {
-                                    <div class="pt-3 border-t border-gray-200">
-                                        <p class="text-sm text-gray-600 leading-relaxed">@plan.Descripcion</p>
-                                    </div>
-                                }
-                            </div>
-
-                            <!-- Acciones -->
-                            <div class="flex gap-2">
-                                <a href="/membresias/planes/editar/@plan.Id"
-                                   class="flex-1 bg-blue-600 text-white text-center py-2 rounded-lg hover:bg-blue-700 transition text-sm font-bold">
-                                    <i data-lucide="edit" class="w-4 h-4 inline mr-1"></i>
-                                    Editar
-                                </a>
-                                <button onclick="toggleActivoPlan('@plan.Id', @(plan.Activo ? "false" : "true"), '@plan.Nombre')"
-                                        class="flex-1 @(plan.Activo ? "bg-orange-600 hover:bg-orange-700" : "bg-green-600 hover:bg-green-700") text-white py-2 rounded-lg transition text-sm font-bold">
-                                    <i data-lucide="@(plan.Activo ? "toggle-right" : "toggle-left")" class="w-4 h-4 inline mr-1"></i>
-                                    @(plan.Activo ? "Desactivar" : "Activar")
-                                </button>
-                                <button onclick="eliminarPlan('@plan.Id', '@plan.Nombre')"
-                                        class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm font-bold">
-                                    <i data-lucide="trash-2" class="w-4 h-4 inline"></i>
-                                </button>
-                            </div>
-                        </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Color del Plan *</label>
+                    <div class="flex gap-2">
+                        <input type="color" name="color" value="#F4C430" id="colorPicker"
+                               class="h-12 w-20 border-2 border-gray-300 rounded-lg cursor-pointer">
+                        <input type="text" id="colorValue" value="#F4C430" readonly
+                               class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-50 font-mono text-sm">
                     </div>
-                }
+                    <p class="text-xs text-gray-500 mt-1">El color se usa para identificar visualmente el plan</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Duración (días) *</label>
+                    <input type="number" name="duracionDias" required min="1" value="30"
+                           placeholder="30"
+                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-700 focus:border-blue-700">
+                    <p class="text-xs text-gray-500 mt-1">Duración del plan en días</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Precio *</label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-3.5 text-gray-600 font-bold">$</span>
+                        <input type="number" name="precio" required min="0" step="0.01" value="0"
+                               placeholder="0.00"
+                               class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-700 focus:border-blue-700">
+                    </div>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Descripción (Opcional)</label>
+                    <textarea name="descripcion" rows="3"
+                              placeholder="Describe los beneficios y características de este plan..."
+                              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-700 focus:border-blue-700 resize-none"></textarea>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" name="activo" checked
+                               class="w-5 h-5 text-blue-700 rounded focus:ring-2 focus:ring-blue-700">
+                        <span class="text-sm font-medium text-gray-700">Plan activo (visible para asignar a clientes)</span>
+                    </label>
+                </div>
             </div>
-        }
+
+            <div id="planPreview" class="border-2 rounded-xl overflow-hidden transition-all" style="border-color: #F4C430">
+                <div class="p-6 text-white" style="background-color: #F4C430">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm font-bold" id="previewTipo">
+                            mensual
+                        </span>
+                    </div>
+                    <h4 class="text-2xl font-bold mb-2" id="previewNombre">Nombre del Plan</h4>
+                    <div class="flex items-baseline gap-1">
+                        <span class="text-4xl font-bold">$<span id="previewPrecio">0</span></span>
+                    </div>
+                </div>
+                <div class="p-6 bg-white">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i data-lucide="calendar" class="w-5 h-5 text-gray-600"></i>
+                        <span class="font-bold text-gray-800"><span id="previewDuracion">30</span> días</span>
+                    </div>
+                    <p class="text-sm text-gray-600" id="previewDescripcion">Sin descripción</p>
+                </div>
+            </div>
+
+            <div class="flex gap-4">
+                <button type="submit"
+                        class="flex-1 bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 px-6 rounded-lg transition flex items-center justify-center gap-2">
+                    <i data-lucide="check" class="w-5 h-5"></i>
+                    Crear Plan
+                </button>
+                <a href="/membresias/planes"
+                   class="flex-1 bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-lg hover:bg-gray-400 transition text-center flex items-center justify-center gap-2">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                    Cancelar
+                </a>
+            </div>
+        </form>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        // Eliminar plan
-        async function eliminarPlan(id, nombre) {
-            const confirmar = confirm(
-                `⚠️ ¿Está seguro de eliminar el plan?\n\n` +
-                `Plan: ${nombre}\n\n` +
-                `Esta acción no se puede deshacer.\n` +
-                `Si el plan tiene membresías asociadas, no se podrá eliminar.`
-            );
+        const colorPicker = document.querySelector('input[name="color"]');
+        const colorValue = document.getElementById('colorValue');
+        const previewContainer = document.getElementById('planPreview');
+        const previewHeader = previewContainer.querySelector('div[style*="background-color"]');
 
-            if (!confirmar) return;
+        function updatePreview() {
+            const nombre = document.querySelector('input[name="nombre"]').value || 'Nombre del Plan';
+            const tipo = document.querySelector('select[name="tipo"]').value || 'mensual';
+            const duracion = document.querySelector('input[name="duracionDias"]').value || '30';
+            const precio = document.querySelector('input[name="precio"]').value || '0';
+            const descripcion = document.querySelector('textarea[name="descripcion"]').value || 'Sin descripción';
+            const color = colorPicker.value;
+
+            document.getElementById('previewNombre').textContent = nombre;
+            document.getElementById('previewTipo').textContent = tipo;
+            document.getElementById('previewDuracion').textContent = duracion;
+            document.getElementById('previewPrecio').textContent = parseFloat(precio).toFixed(0);
+            document.getElementById('previewDescripcion').textContent = descripcion;
+
+            previewContainer.style.borderColor = color;
+            previewHeader.style.backgroundColor = color;
+        }
+
+        colorPicker.addEventListener('input', function() {
+            colorValue.value = this.value;
+            updatePreview();
+        });
+
+        document.querySelector('input[name="nombre"]').addEventListener('input', updatePreview);
+        document.querySelector('select[name="tipo"]').addEventListener('change', updatePreview);
+        document.querySelector('input[name="duracionDias"]').addEventListener('input', updatePreview);
+        document.querySelector('input[name="precio"]').addEventListener('input', updatePreview);
+        document.querySelector('textarea[name="descripcion"]').addEventListener('input', updatePreview);
+
+        document.getElementById('planForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(e.target);
+            const data = {
+                nombre: formData.get('nombre'),
+                tipo: formData.get('tipo'),
+                duracionDias: parseInt(formData.get('duracionDias')),
+                precio: parseFloat(formData.get('precio')),
+                color: formData.get('color'),
+                descripcion: formData.get('descripcion'),
+                activo: formData.get('activo') === 'on'
+            };
 
             try {
-                const response = await fetch(`/api/Planes/${id}`, {
-                    method: 'DELETE'
+                const response = await fetch('/api/Planes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
                 });
 
                 if (response.ok) {
-                    alert(`✅ Plan "${nombre}" eliminado exitosamente`);
-                    window.location.reload();
+                    alert('✅ Plan creado exitosamente');
+                    window.location.href = '/membresias/planes';
                 } else {
-                    const error = await response.json();
-                    alert(`❌ Error: ${error.mensaje || 'No se pudo eliminar el plan'}`);
+                    const error = await response.text();
+                    alert('❌ Error al crear plan: ' + error);
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('❌ Error al eliminar el plan: ' + error.message);
+                alert('❌ Error al crear plan: ' + error.message);
             }
-        }
+        });
 
-        // Toggle Activo/Inactivo
-        async function toggleActivoPlan(id, nuevoEstado, nombre) {
-            const accion = nuevoEstado === 'true' ? 'activar' : 'desactivar';
-            const confirmar = confirm(
-                `¿Está seguro de ${accion} el plan?\n\n` +
-                `Plan: ${nombre}`
-            );
-
-            if (!confirmar) return;
-
-            try {
-                const response = await fetch(`/api/Planes/${id}/toggle-activo`, {
-                    method: 'PATCH'
-                });
-
-                if (response.ok) {
-                    alert(`✅ Plan "${nombre}" ${accion === 'activar' ? 'activado' : 'desactivado'} exitosamente`);
-                    window.location.reload();
-                } else {
-                    const error = await response.json();
-                    alert(`❌ Error: ${error.mensaje || 'No se pudo actualizar el plan'}`);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al actualizar el plan: ' + error.message);
-            }
-        }
-
-        // Exponer funciones globalmente
-        window.eliminarPlan = eliminarPlan;
-        window.toggleActivoPlan = toggleActivoPlan;
-
-        // Inicializar iconos
         lucide.createIcons();
+        updatePreview();
     </script>
 }

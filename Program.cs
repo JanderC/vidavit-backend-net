@@ -90,7 +90,7 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new()
     {
-        Title = "TAURO GYM API",
+        Title = "POWER ZONE FIT API",
         Version = "v1",
         Description = "Sistema de Gestión de Gimnasio con Check-in Biométrico"
     });
@@ -106,15 +106,15 @@ fingerprintService.Initialize();
 
 // Mostrar banner DESPUÉS de la inicialización
 Console.WriteLine("═══════════════════════════════════════════════════════");
-Console.WriteLine("   ████████╗ █████╗ ██╗   ██╗██████╗  ██████╗          ");
-Console.WriteLine("   ╚══██╔══╝██╔══██╗██║   ██║██╔══██╗██╔═══██╗         ");
-Console.WriteLine("      ██║   ███████║██║   ██║██████╔╝██║   ██║         ");
-Console.WriteLine("      ██║   ██╔══██║██║   ██║██╔══██╗██║   ██║         ");
-Console.WriteLine("      ██║   ██║  ██║╚██████╔╝██║  ██║╚██████╔╝         ");
-Console.WriteLine("      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝ ╚═════╝          ");
-Console.WriteLine("                    GYM SYSTEM                          ");
+Console.WriteLine("   ██████╗  ██████╗ ██╗    ██╗███████╗██████╗         ");
+Console.WriteLine("   ██╔══██╗██╔═══██╗██║    ██║██╔════╝██╔══██╗        ");
+Console.WriteLine("   ██████╔╝██║   ██║██║ █╗ ██║█████╗  ██████╔╝        ");
+Console.WriteLine("   ██╔═══╝ ██║   ██║██║███╗██║██╔══╝  ██╔══██╗        ");
+Console.WriteLine("   ██║     ╚██████╔╝╚███╔███╔╝███████╗██║  ██║        ");
+Console.WriteLine("   ╚═╝      ╚═════╝  ╚══╝╚══╝ ╚══════╝╚═╝  ╚═╝        ");
+Console.WriteLine("              ZONE FIT - GYM SYSTEM                    ");
 Console.WriteLine("═══════════════════════════════════════════════════════");
-Console.WriteLine("   Sistema de Gestión de Gimnasio TAURO GYM");
+Console.WriteLine("   Sistema de Gestión de Gimnasio POWER ZONE FIT");
 Console.WriteLine("   Versión 1.0 - Sistema Integrado");
 Console.WriteLine("═══════════════════════════════════════════════════════");
 Console.WriteLine($"   ✓ Servidor iniciado en: http://localhost:5000");
@@ -133,7 +133,7 @@ Console.WriteLine("════════════════════�
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "TAURO GYM API v1"));
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "POWER ZONE FIT API v1"));
 }
 
 // Archivos estáticos (CSS, JS, imágenes)

@@ -1,4 +1,4 @@
-﻿@model VidaFitBackend.Models.Cliente
+@model VidaFitBackend.Models.Cliente
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = $"{Model.Nombre} {Model.Apellido}";
@@ -30,7 +30,7 @@
                 @if (!string.IsNullOrEmpty(Model.FotoBase64))
                 {
                     <img src="data:image/jpeg;base64,@Model.FotoBase64"
-                         class="w-40 h-40 rounded-2xl object-cover border-4 border-red-600 shadow-xl" alt="@Model.Nombre">
+                         class="w-40 h-40 rounded-2xl object-cover border-4 border-blue-700 shadow-xl" alt="@Model.Nombre">
                 }
                 else
                 {
@@ -80,7 +80,7 @@
                 <div class="mt-6 flex gap-3">
                     @if (Model.Activo)
                     {
-                        <span class="px-4 py-2 bg-emerald-100 text-emerald-800 font-black rounded-full uppercase tracking-wide text-xs inline-flex items-center gap-2">
+                        <span class="px-4 py-2 bg-yellow-100 text-yellow-800 font-black rounded-full uppercase tracking-wide text-xs inline-flex items-center gap-2">
                             <i data-lucide="check-circle" class="w-4 h-4"></i> Activo
                         </span>
                     }
@@ -93,7 +93,7 @@
 
                     @if (!string.IsNullOrEmpty(Model.HuellaTemplate))
                     {
-                        <span class="px-4 py-2 bg-purple-100 text-purple-800 font-black rounded-full uppercase tracking-wide text-xs inline-flex items-center gap-2">
+                        <span class="px-4 py-2 bg-gray-100 text-gray-800 font-black rounded-full uppercase tracking-wide text-xs inline-flex items-center gap-2">
                             <i data-lucide="fingerprint" class="w-4 h-4"></i> Con Huella
                         </span>
                     }
@@ -106,11 +106,11 @@
     <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
         <div class="flex items-center justify-between mb-6">
             <h3 class="text-2xl font-black text-gray-900 flex items-center gap-3 uppercase tracking-wide">
-                <i data-lucide="credit-card" class="w-6 h-6 text-red-600"></i>
+                <i data-lucide="credit-card" class="w-6 h-6 text-blue-700"></i>
                 Membresías
             </h3>
             <button onclick="window.location.href='/membresias/crear?clienteId=@Model.Id'"
-                    class="px-6 py-3 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all inline-flex items-center gap-2 shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
+                    class="px-6 py-3 bg-gradient-to-r from-blue-700 to-blue-900 hover:from-blue-800 hover:to-blue-950 text-white font-black rounded-xl transition-all inline-flex items-center gap-2 shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
                 <i data-lucide="plus" class="w-5 h-5"></i>
                 Nueva Membresía
             </button>
@@ -127,7 +127,7 @@
     <!-- Historial de Check-ins -->
     <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
         <h3 class="text-2xl font-black text-gray-900 mb-6 flex items-center gap-3 uppercase tracking-wide">
-            <i data-lucide="history" class="w-6 h-6 text-red-600"></i>
+            <i data-lucide="history" class="w-6 h-6 text-blue-700"></i>
             Historial de Check-ins
         </h3>
 
@@ -182,7 +182,7 @@
                                 estadoClass = 'bg-amber-100 text-amber-800';
                                 estadoIcon = 'alert-triangle';
                             } else {
-                                estadoClass = 'bg-emerald-100 text-emerald-800';
+                                estadoClass = 'bg-yellow-100 text-yellow-800';
                                 estadoIcon = 'check-circle';
                             }
                         } else if (estado === 'vencida') {
@@ -191,7 +191,7 @@
                         }
 
                         return `
-                            <div class="p-6 border-2 border-gray-200 rounded-2xl hover:border-red-600 transition-all shadow-lg hover:shadow-xl">
+                            <div class="p-6 border-2 border-gray-200 rounded-2xl hover:border-blue-700 transition-all shadow-lg hover:shadow-xl">
                                 <div class="flex items-center justify-between">
                                     <div class="flex-1">
                                         <div class="flex items-center gap-3 mb-3">
@@ -205,10 +205,10 @@
                                             <span>Inicio: ${fechaInicio.toLocaleDateString('es-ES')}</span>
                                             <span class="mx-2">•</span>
                                             <span>Vence: ${fechaVenc.toLocaleDateString('es-ES')}</span>
-                                            ${estado === 'activa' ? `<span class="mx-2">•</span><span class="font-black text-red-600">${diasRestantes} días restantes</span>` : ''}
+                                            ${estado === 'activa' ? `<span class="mx-2">•</span><span class="font-black text-blue-700">${diasRestantes} días restantes</span>` : ''}
                                         </div>
                                         <div class="text-sm text-gray-700 mt-2">
-                                            Monto: <span class="font-black text-emerald-600 text-lg">$${montoPagado.toFixed(2)}</span>
+                                            Monto: <span class="font-black text-yellow-600 text-lg">$${montoPagado.toFixed(2)}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -246,11 +246,11 @@
                         const metodo = ci.Metodo || ci.metodo;
                         const nota = ci.Nota || ci.nota;
 
-                        const iconClass = exitoso ? 'text-emerald-500' : 'text-red-500';
+                        const iconClass = exitoso ? 'text-yellow-500' : 'text-red-500';
                         const icon = exitoso ? 'check-circle' : 'x-circle';
 
                         return `
-                            <div class="flex items-center justify-between p-4 border-2 border-gray-200 rounded-xl hover:bg-gray-50 hover:border-red-600 transition-all">
+                            <div class="flex items-center justify-between p-4 border-2 border-gray-200 rounded-xl hover:bg-gray-50 hover:border-blue-700 transition-all">
                                 <div class="flex items-center gap-4">
                                     <i data-lucide="${icon}" class="w-6 h-6 ${iconClass}"></i>
                                     <div>

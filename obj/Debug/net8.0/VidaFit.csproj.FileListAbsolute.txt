@@ -428,12 +428,8 @@ C:\Users\usuario\source\repos\VidaFit\VidaFit\obj\Debug\net8.0\refint\VidaFit.dl
 C:\Users\usuario\source\repos\VidaFit\VidaFit\obj\Debug\net8.0\VidaFit.pdb
 C:\Users\usuario\source\repos\VidaFit\VidaFit\obj\Debug\net8.0\VidaFit.genruntimeconfig.cache
 C:\Users\usuario\source\repos\VidaFit\VidaFit\obj\Debug\net8.0\ref\VidaFit.dll
-C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\bin\Debug\net8.0\publish\web.config
 C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\bin\Debug\net8.0\appsettings.Development.json
 C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\bin\Debug\net8.0\appsettings.json
-C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\bin\Debug\net8.0\publish\appsettings.Development.json
-C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\bin\Debug\net8.0\publish\appsettings.json
-C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\bin\Debug\net8.0\publish\VidaFit.staticwebassets.endpoints.json
 C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\bin\Debug\net8.0\VidaFit.staticwebassets.runtime.json
 C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\bin\Debug\net8.0\VidaFit.staticwebassets.endpoints.json
 C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\bin\Debug\net8.0\DPUruNet.dll
@@ -862,7 +858,3 @@ C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\obj\Debug\net8.0\refint\Vid
 C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\obj\Debug\net8.0\VidaFit.pdb
 C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\obj\Debug\net8.0\VidaFit.genruntimeconfig.cache
 C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\obj\Debug\net8.0\ref\VidaFit.dll
-C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\bin\Debug\net8.0\publish\publish\web.config
-C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\bin\Debug\net8.0\publish\publish\appsettings.Development.json
-C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\bin\Debug\net8.0\publish\publish\appsettings.json
-C:\Users\usuario\source\repos\vidafit-prueba\VidaFit\bin\Debug\net8.0\publish\publish\VidaFit.staticwebassets.endpoints.json

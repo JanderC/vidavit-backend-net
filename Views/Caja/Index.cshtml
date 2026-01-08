@@ -7,39 +7,39 @@
 <div class="space-y-6">
     <!-- RESUMEN GENERAL DE CAJA -->
     <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <div class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-emerald-600">
+        <div class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-yellow-500">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600 font-black uppercase tracking-wide mb-1">Efectivo en Caja</p>
-                    <p class="text-3xl font-black text-emerald-600" id="efectivo-caja">$0.00</p>
+                    <p class="text-3xl font-black text-yellow-500" id="efectivo-caja">$0.00</p>
                 </div>
-                <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
-                    <i data-lucide="wallet" class="w-6 h-6 text-emerald-600"></i>
+                <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                    <i data-lucide="wallet" class="w-6 h-6 text-yellow-500"></i>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-purple-600">
+        <div class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-gray-600">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600 font-black uppercase tracking-wide mb-1">Saldo Ayer</p>
-                    <p class="text-3xl font-black text-purple-600" id="saldo-anterior">$0.00</p>
+                    <p class="text-3xl font-black text-gray-600" id="saldo-anterior">$0.00</p>
                     <p class="text-xs text-gray-500 font-semibold mt-1" id="fecha-saldo-anterior"></p>
                 </div>
-                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                    <i data-lucide="history" class="w-6 h-6 text-purple-600"></i>
+                <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                    <i data-lucide="history" class="w-6 h-6 text-gray-600"></i>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-blue-600">
+        <div class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-blue-700">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600 font-black uppercase tracking-wide mb-1">Ingresos Hoy</p>
-                    <p class="text-3xl font-black text-blue-600" id="ingresos-hoy">$0.00</p>
+                    <p class="text-3xl font-black text-blue-700" id="ingresos-hoy">$0.00</p>
                 </div>
                 <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                    <i data-lucide="trending-up" class="w-6 h-6 text-blue-600"></i>
+                    <i data-lucide="trending-up" class="w-6 h-6 text-blue-700"></i>
                 </div>
             </div>
         </div>
@@ -73,7 +73,7 @@
     <div class="bg-white rounded-2xl shadow-xl border-2 border-gray-200 overflow-hidden">
         <div class="flex border-b-2 border-gray-200">
             <button onclick="cambiarTab('movimientos')" id="tab-movimientos"
-                    class="tab-btn flex-1 px-6 py-4 font-black uppercase tracking-wide transition-all border-b-4 border-red-600 bg-red-50 text-red-600">
+                    class="tab-btn flex-1 px-6 py-4 font-black uppercase tracking-wide transition-all border-b-4 border-blue-700 bg-blue-50 text-blue-700">
                 <i data-lucide="list" class="w-5 h-5 inline-block mr-2"></i>
                 Movimientos
             </button>
@@ -97,17 +97,17 @@
                 <div class="flex-1 min-w-[200px]">
                     <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Fecha Desde</label>
                     <input type="date" id="fecha-desde"
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-700 focus:border-blue-700 font-semibold">
                 </div>
                 <div class="flex-1 min-w-[200px]">
                     <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Fecha Hasta</label>
                     <input type="date" id="fecha-hasta"
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-700 focus:border-blue-700 font-semibold">
                 </div>
                 <div class="flex-1 min-w-[200px]">
                     <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Categoría</label>
                     <select id="filtro-categoria"
-                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-700 focus:border-blue-700 font-semibold">
                         <option value="">Todas</option>
                         <option value="membresia">Membresías</option>
                         <option value="renovacion">Renovaciones</option>
@@ -117,7 +117,7 @@
                     </select>
                 </div>
                 <button onclick="cargarMovimientos()"
-                        class="px-8 py-3 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
+                        class="px-8 py-3 bg-gradient-to-r from-blue-700 to-blue-900 hover:from-blue-800 hover:to-blue-950 text-white font-black rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
                     <i data-lucide="filter" class="w-4 h-4 inline-block mr-2"></i>
                     Filtrar
                 </button>
@@ -156,654 +156,656 @@
     <div id="content-deudas" class="tab-content hidden">
         <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200 mb-4">
             <input type="text" id="buscar-deuda" placeholder="Buscar cliente..."
-                   class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
+                   class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-700 focus:border-blue-700 font-semibold"
                    onkeyup="filtrarDeudas()">
         </div>
 
         <div id="lista-deudas" class="space-y-4">
-            <div class="text-center py-12 text-gray-500 font-bold">
-                Cargando deudas...
+            <div class="bg-white rounded-2xl shadow-xl p-8 text-center border-2 border-gray-200">
+                <p class="text-gray-500 font-bold">Cargando deudas...</p>
             </div>
         </div>
     </div>
 
     <!-- TAB: REGISTRAR MOVIMIENTO -->
     <div id="content-registrar" class="tab-content hidden">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- INGRESAR EFECTIVO -->
-            <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-emerald-200">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
-                        <i data-lucide="plus-circle" class="w-6 h-6 text-emerald-600"></i>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- REGISTRAR INGRESO -->
+            <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-blue-700">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                        <i data-lucide="trending-up" class="w-6 h-6 text-blue-700"></i>
                     </div>
-                    <h3 class="text-2xl font-black text-emerald-600 uppercase tracking-wide">Registrar Ingreso</h3>
+                    <h3 class="text-2xl font-black uppercase tracking-wide text-blue-700">Registrar Ingreso</h3>
                 </div>
 
-                <form onsubmit="registrarIngreso(event)">
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Monto</label>
-                            <input type="number" step="0.01" id="ingreso-monto" required
-                                   class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 font-semibold">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Categoría</label>
-                            <select id="ingreso-categoria" required
-                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 font-semibold">
-                                <option value="">Seleccionar...</option>
-                                <option value="otro">Ingreso Manual</option>
-                                <option value="donacion">Donación</option>
-                                <option value="extra">Extra</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Método de Pago</label>
-                            <select id="ingreso-metodo" required
-                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 font-semibold">
-                                <option value="efectivo">Efectivo</option>
-                                <option value="tarjeta">Tarjeta</option>
-                                <option value="transferencia">Transferencia</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Descripción</label>
-                            <textarea id="ingreso-descripcion" rows="3" required
-                                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 font-semibold"></textarea>
-                        </div>
-                        <button type="submit"
-                                class="w-full px-6 py-4 bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900 text-white font-black rounded-xl transition-all shadow-xl uppercase tracking-wide transform hover:scale-105">
-                            <i data-lucide="check-circle" class="w-5 h-5 inline-block mr-2"></i>
-                            Registrar Ingreso
-                        </button>
+                <form onsubmit="registrarIngreso(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Monto</label>
+                        <input type="number" id="ingreso-monto" step="0.01" required
+                               class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-700 focus:border-blue-700 font-semibold"
+                               placeholder="0.00">
                     </div>
+
+                    <div>
+                        <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Categoría</label>
+                        <select id="ingreso-categoria" required
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-700 focus:border-blue-700 font-semibold">
+                            <option value="">Seleccionar</option>
+                            <option value="membresia">Membresía</option>
+                            <option value="renovacion">Renovación</option>
+                            <option value="producto">Producto</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Método de Pago</label>
+                        <select id="ingreso-metodo" required
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-700 focus:border-blue-700 font-semibold">
+                            <option value="efectivo">Efectivo</option>
+                            <option value="transferencia">Transferencia</option>
+                            <option value="tarjeta">Tarjeta</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Descripción</label>
+                        <textarea id="ingreso-descripcion" rows="3" required
+                                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-700 focus:border-blue-700 font-semibold"
+                                  placeholder="Detalle del ingreso..."></textarea>
+                    </div>
+
+                    <button type="submit"
+                            class="w-full px-6 py-4 bg-gradient-to-r from-blue-700 to-blue-900 hover:from-blue-800 hover:to-blue-950 text-white font-black rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
+                        <i data-lucide="check-circle" class="w-5 h-5 inline-block mr-2"></i>
+                        Registrar Ingreso
+                    </button>
                 </form>
             </div>
 
             <!-- REGISTRAR EGRESO -->
-            <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-red-200">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                        <i data-lucide="minus-circle" class="w-6 h-6 text-red-600"></i>
+            <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-red-600">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                        <i data-lucide="trending-down" class="w-6 h-6 text-red-600"></i>
                     </div>
-                    <h3 class="text-2xl font-black text-red-600 uppercase tracking-wide">Registrar Egreso</h3>
+                    <h3 class="text-2xl font-black uppercase tracking-wide text-red-600">Registrar Egreso</h3>
                 </div>
 
-                <form onsubmit="registrarEgreso(event)">
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Monto</label>
-                            <input type="number" step="0.01" id="egreso-monto" required
-                                   class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Categoría</label>
-                            <select id="egreso-categoria" required
-                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
-                                <option value="">Seleccionar...</option>
-                                <option value="compra">Compras</option>
-                                <option value="servicio">Servicios</option>
-                                <option value="mantenimiento">Mantenimiento</option>
-                                <option value="otro">Otro</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Método de Pago</label>
-                            <select id="egreso-metodo" required
-                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
-                                <option value="efectivo">Efectivo</option>
-                                <option value="tarjeta">Tarjeta</option>
-                                <option value="transferencia">Transferencia</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Descripción</label>
-                            <textarea id="egreso-descripcion" rows="3" required
-                                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"></textarea>
-                        </div>
-                        <button type="submit"
-                                class="w-full px-6 py-4 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all shadow-xl uppercase tracking-wide transform hover:scale-105">
-                            <i data-lucide="x-circle" class="w-5 h-5 inline-block mr-2"></i>
-                            Registrar Egreso
-                        </button>
+                <form onsubmit="registrarEgreso(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Monto</label>
+                        <input type="number" id="egreso-monto" step="0.01" required
+                               class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
+                               placeholder="0.00">
                     </div>
+
+                    <div>
+                        <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Categoría</label>
+                        <select id="egreso-categoria" required
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                            <option value="">Seleccionar</option>
+                            <option value="servicios">Servicios</option>
+                            <option value="mantenimiento">Mantenimiento</option>
+                            <option value="equipamiento">Equipamiento</option>
+                            <option value="nomina">Nómina</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Método de Pago</label>
+                        <select id="egreso-metodo" required
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                            <option value="efectivo">Efectivo</option>
+                            <option value="transferencia">Transferencia</option>
+                            <option value="tarjeta">Tarjeta</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Descripción</label>
+                        <textarea id="egreso-descripcion" rows="3" required
+                                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
+                                  placeholder="Detalle del egreso..."></textarea>
+                    </div>
+
+                    <button type="submit"
+                            class="w-full px-6 py-4 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
+                        <i data-lucide="check-circle" class="w-5 h-5 inline-block mr-2"></i>
+                        Registrar Egreso
+                    </button>
                 </form>
             </div>
         </div>
     </div>
 </div>
 
-<!-- MODAL PARA ABONAR DEUDA -->
-<div id="modalAbonarDeuda" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4">
-        <div class="bg-gradient-to-r from-emerald-600 to-emerald-800 text-white p-6 rounded-t-2xl">
-            <div class="flex items-center justify-between">
-                <h3 class="text-2xl font-black uppercase tracking-wide">Abonar a Deuda</h3>
-                <button onclick="cerrarModalAbonar()" class="text-white hover:text-gray-200">
-                    <i data-lucide="x" class="w-6 h-6"></i>
-                </button>
+<!-- MODAL ABONAR DEUDA -->
+<div id="modal-abonar" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50" onclick="if(event.target === this) cerrarModalAbonar()">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 border-2 border-blue-700" onclick="event.stopPropagation()">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-2xl font-black uppercase tracking-wide text-blue-700">Abonar a Deuda</h3>
+            <button onclick="cerrarModalAbonar()" class="text-gray-500 hover:text-gray-700">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+
+        <div class="space-y-4 mb-6">
+            <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                <p class="text-sm font-bold text-gray-600 mb-1">Cliente</p>
+                <p class="text-lg font-black text-gray-900" id="modal-cliente"></p>
+            </div>
+
+            <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                <p class="text-sm font-bold text-gray-600 mb-1">Saldo Pendiente</p>
+                <p class="text-2xl font-black text-blue-700" id="modal-saldo"></p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Monto a Abonar</label>
+                <input type="number" id="modal-monto-abono" step="0.01" min="0"
+                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-700 focus:border-blue-700 font-semibold"
+                       placeholder="0.00">
+            </div>
+
+            <div>
+                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Método de Pago</label>
+                <select id="modal-metodo-pago"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-700 focus:border-blue-700 font-semibold">
+                    <option value="efectivo">Efectivo</option>
+                    <option value="transferencia">Transferencia</option>
+                    <option value="tarjeta">Tarjeta</option>
+                </select>
             </div>
         </div>
 
-        <div class="p-6">
-            <div class="mb-4">
-                <p class="text-sm text-gray-600 font-bold uppercase mb-1">Cliente</p>
-                <p class="text-lg font-black text-gray-900" id="modal-cliente-nombre">-</p>
-            </div>
-
-            <div class="mb-4">
-                <p class="text-sm text-gray-600 font-bold uppercase mb-1">Concepto</p>
-                <p class="text-lg font-black text-gray-900" id="modal-concepto">-</p>
-            </div>
-
-            <div class="mb-4">
-                <p class="text-sm text-gray-600 font-bold uppercase mb-1">Saldo Pendiente</p>
-                <p class="text-2xl font-black text-red-600" id="modal-saldo">$0.00</p>
-            </div>
-
-            <div class="mb-4">
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Monto a Abonar</label>
-                <input type="number" step="0.01" id="input-monto-abono"
-                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-emerald-600 focus:outline-none font-bold text-lg">
-            </div>
-
-            <div class="mb-6">
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Método de Pago</label>
-                <select id="input-metodo-abono"
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-emerald-600 focus:outline-none font-bold">
-                    <option value="efectivo">Efectivo</option>
-                    <option value="tarjeta">Tarjeta</option>
-                    <option value="transferencia">Transferencia</option>
-                </select>
-            </div>
-
-            <div class="flex gap-3">
-                <button onclick="cerrarModalAbonar()"
-                        class="flex-1 px-6 py-3 bg-gray-200 text-gray-900 rounded-xl hover:bg-gray-300 font-black uppercase tracking-wide transition-all">
-                    Cancelar
-                </button>
-                <button onclick="confirmarAbono()"
-                        class="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-800 text-white rounded-xl hover:from-emerald-700 hover:to-emerald-900 font-black uppercase tracking-wide transition-all">
-                    Confirmar
-                </button>
-            </div>
+        <div class="flex gap-3">
+            <button onclick="cerrarModalAbonar()"
+                    class="flex-1 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-black rounded-xl transition-all uppercase tracking-wide">
+                Cancelar
+            </button>
+            <button onclick="confirmarAbono()"
+                    class="flex-1 px-6 py-3 bg-gradient-to-r from-blue-700 to-blue-900 hover:from-blue-800 hover:to-blue-950 text-white font-black rounded-xl transition-all shadow-xl uppercase tracking-wide">
+                <i data-lucide="check" class="w-4 h-4 inline-block mr-2"></i>
+                Confirmar
+            </button>
         </div>
     </div>
 </div>
 
 @section Scripts {
-    <script>
-        const API_URL = '/api';
-        let deudasData = [];
-        let deudaSeleccionada = null;
-        let efectivoCaja = 0;
+        <script src="https://unpkg.com/lucide@latest"></script>
+        <script>
+            const API_URL = '@Url.Content("~/api")';
+            let deudasData = [];
+            let deudaSeleccionada = null;
 
-        // Configurar fechas por defecto (hoy)
-        document.getElementById('fecha-desde').valueAsDate = new Date();
-        document.getElementById('fecha-hasta').valueAsDate = new Date();
+            // ========================================
+            // TABS
+            // ========================================
+            function cambiarTab(tab) {
+                // Ocultar todos los tabs
+                document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.classList.remove('border-blue-700', 'bg-blue-50', 'text-blue-700');
+                });
 
-        // ========================================
-        // FUNCIONES DE TABS
-        // ========================================
-        function cambiarTab(tab) {
-            // Ocultar todos los contenidos
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('border-red-600', 'bg-red-50', 'text-red-600');
-                btn.classList.add('hover:bg-gray-50');
-            });
+                // Mostrar tab seleccionado
+                document.getElementById(`content-${tab}`).classList.remove('hidden');
+                const activeBtn = document.getElementById(`tab-${tab}`);
+                activeBtn.classList.add('border-blue-700', 'bg-blue-50', 'text-blue-700');
 
-            // Mostrar contenido seleccionado
-            document.getElementById(`content-${tab}`).classList.remove('hidden');
-            const tabBtn = document.getElementById(`tab-${tab}`);
-            tabBtn.classList.add('border-red-600', 'bg-red-50', 'text-red-600');
-            tabBtn.classList.remove('hover:bg-gray-50');
+                // Cargar datos según el tab
+                if (tab === 'movimientos') {
+                    cargarMovimientos();
+                } else if (tab === 'deudas') {
+                    cargarDeudas();
+                }
 
-            // Cargar datos según el tab
-            if (tab === 'movimientos') {
-                cargarMovimientos();
-            } else if (tab === 'deudas') {
-                cargarDeudas();
+                lucide.createIcons();
             }
 
-            lucide.createIcons();
-        }
+            // ========================================
+            // RESUMEN GENERAL
+            // ========================================
+            async function cargarResumen() {
+                try {
+                    const response = await fetch(`${API_URL}/Caja/resumen`);
+                    const data = await response.json();
 
-        // ========================================
-        // CARGAR RESUMEN GENERAL
-        // ========================================
-        async function cargarResumen() {
-            try {
-                // 1. Cargar saldo del día anterior
-                const responseSaldoAnterior = await fetch(`${API_URL}/Caja/saldo-anterior`);
-                const saldoAnteriorData = await responseSaldoAnterior.json();
+                    if (data.success) {
+                        document.getElementById('efectivo-caja').textContent = `$${data.data.efectivoEnCaja.toFixed(2)}`;
+                        document.getElementById('saldo-anterior').textContent = `$${data.data.saldoAnterior.toFixed(2)}`;
+                        document.getElementById('ingresos-hoy').textContent = `$${data.data.ingresosHoy.toFixed(2)}`;
+                        document.getElementById('egresos-hoy').textContent = `$${data.data.egresosHoy.toFixed(2)}`;
+                        document.getElementById('deudas-pendientes').textContent = `$${data.data.deudasPendientes.toFixed(2)}`;
 
-                let saldoAnterior = 0;
-                if (saldoAnteriorData.success) {
-                    saldoAnterior = saldoAnteriorData.saldoAnterior;
-                    document.getElementById('saldo-anterior').textContent = `$${saldoAnterior.toFixed(2)}`;
-
-                    const fechaAyer = new Date(saldoAnteriorData.fecha);
-                    document.getElementById('fecha-saldo-anterior').textContent =
-                        fechaAyer.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+                        const fechaSaldo = document.getElementById('fecha-saldo-anterior');
+                        if (data.data.fechaSaldoAnterior) {
+                            const fecha = new Date(data.data.fechaSaldoAnterior);
+                            fechaSaldo.textContent = fecha.toLocaleDateString('es-MX');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error al cargar resumen:', error);
                 }
-
-                // 2. Cargar movimientos de hoy
-                const responseHoy = await fetch(`${API_URL}/Caja/hoy`);
-                const hoyData = await responseHoy.json();
-
-                if (hoyData.success) {
-                    document.getElementById('ingresos-hoy').textContent = `$${hoyData.ingresos.toFixed(2)}`;
-                    document.getElementById('egresos-hoy').textContent = `$${hoyData.egresos.toFixed(2)}`;
-
-                    // Calcular efectivo en caja: solo movimientos en efectivo de hoy
-                    const efectivoHoy = hoyData.movimientos
-                        .filter(m => m.MetodoPago === 'efectivo')
-                        .reduce((acc, m) => {
-                            return m.Tipo === 'ingreso' ? acc + m.Monto : acc - m.Monto;
-                        }, 0);
-
-                    // Efectivo en caja = saldo anterior + efectivo de hoy
-                    const efectivoTotal = saldoAnterior + efectivoHoy;
-                    document.getElementById('efectivo-caja').textContent = `$${efectivoTotal.toFixed(2)}`;
-                }
-
-                // 3. Cargar deudas pendientes
-                const responseDeudas = await fetch(`${API_URL}/Deudas?estado=pendiente`);
-                const deudasData = await responseDeudas.json();
-
-                if (deudasData.success) {
-                    document.getElementById('deudas-pendientes').textContent = `$${deudasData.totalSaldoPendiente.toFixed(2)}`;
-                }
-            } catch (error) {
-                console.error('Error cargando resumen:', error);
             }
-        }
 
-        // ========================================
-        // MOVIMIENTOS
-        // ========================================
-        async function cargarMovimientos() {
-            try {
-                const desde = document.getElementById('fecha-desde').value;
-                const hasta = document.getElementById('fecha-hasta').value;
-                const categoria = document.getElementById('filtro-categoria').value;
+            // ========================================
+            // MOVIMIENTOS
+            // ========================================
+            async function cargarMovimientos() {
+                const fechaDesde = document.getElementById('fecha-desde')?.value || '';
+                const fechaHasta = document.getElementById('fecha-hasta')?.value || '';
+                const categoria = document.getElementById('filtro-categoria')?.value || '';
 
-                let url = `${API_URL}/Caja/movimientos?`;
-                if (desde) url += `desde=${desde}&`;
-                if (hasta) url += `hasta=${hasta}&`;
-                if (categoria) url += `categoria=${categoria}`;
+                try {
+                    let url = `${API_URL}/Caja/movimientos?`;
+                    if (fechaDesde) url += `fechaDesde=${fechaDesde}&`;
+                    if (fechaHasta) url += `fechaHasta=${fechaHasta}&`;
+                    if (categoria) url += `categoria=${categoria}`;
 
-                const response = await fetch(url);
-                const data = await response.json();
+                    const response = await fetch(url);
+                    const data = await response.json();
 
-                const tbody = document.getElementById('tabla-movimientos');
+                    const tbody = document.getElementById('tabla-movimientos');
 
-                if (!data.success || data.data.length === 0) {
-                    tbody.innerHTML = `
+                    if (data.success && data.data.length > 0) {
+                        tbody.innerHTML = data.data.map(mov => {
+                            const fecha = new Date(mov.Fecha).toLocaleDateString('es-MX', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            });
+
+                            const tipoClass = mov.TipoMovimiento === 'ingreso' ? 'text-blue-700 bg-blue-50' : 'text-red-600 bg-red-50';
+                            const signo = mov.TipoMovimiento === 'ingreso' ? '+' : '-';
+                            const montoClass = mov.TipoMovimiento === 'ingreso' ? 'text-blue-700' : 'text-red-600';
+
+                            return `
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 text-sm font-semibold text-gray-700">${fecha}</td>
+                                    <td class="px-6 py-4">
+                                        <span class="px-3 py-1 rounded-full text-xs font-black uppercase ${tipoClass}">
+                                            ${mov.TipoMovimiento}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm font-semibold text-gray-700">${mov.Categoria || '-'}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-600">${mov.Descripcion || '-'}</td>
+                                    <td class="px-6 py-4 text-sm font-semibold text-gray-700">${mov.MetodoPago || '-'}</td>
+                                    <td class="px-6 py-4 text-right text-lg font-black ${montoClass}">
+                                        ${signo}$${mov.Monto.toFixed(2)}
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('');
+                    } else {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="6" class="px-6 py-12 text-center text-gray-500 font-bold">
+                                    No se encontraron movimientos
+                                </td>
+                            </tr>
+                        `;
+                    }
+                } catch (error) {
+                    console.error('Error al cargar movimientos:', error);
+                    document.getElementById('tabla-movimientos').innerHTML = `
                         <tr>
-                            <td colspan="6" class="px-6 py-12 text-center text-gray-500 font-bold">
-                                No hay movimientos en este período
+                            <td colspan="6" class="px-6 py-12 text-center text-red-600 font-bold">
+                                Error al cargar movimientos
                             </td>
                         </tr>
                     `;
+                }
+            }
+
+            // ========================================
+            // DEUDAS
+            // ========================================
+            async function cargarDeudas() {
+                try {
+                    const response = await fetch(`${API_URL}/Deudas/pendientes`);
+                    const data = await response.json();
+
+                    const container = document.getElementById('lista-deudas');
+
+                    if (data.success && data.data.length > 0) {
+                        deudasData = data.data;
+
+                        container.innerHTML = data.data.map(deuda => {
+                            const diasVencidos = calcularDiasVencidos(deuda.FechaVencimiento);
+                            const vencidoClass = diasVencidos > 0 ? 'border-red-500 bg-red-50' : 'border-amber-500 bg-amber-50';
+                            const vencidoText = diasVencidos > 0 ? `Vencida (${diasVencidos} días)` : 'Pendiente';
+
+                            return `
+                                <div class="bg-white rounded-2xl shadow-xl p-6 border-2 ${vencidoClass}">
+                                    <div class="flex flex-wrap justify-between items-start gap-4 mb-4">
+                                        <div class="flex-1">
+                                            <h4 class="text-xl font-black text-gray-900 mb-1">${deuda.NombreCliente}</h4>
+                                            <p class="text-sm text-gray-600 font-semibold">${deuda.Concepto}</p>
+                                            <p class="text-xs text-gray-500 mt-1">Vence: ${new Date(deuda.FechaVencimiento).toLocaleDateString('es-MX')}</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-sm font-bold text-gray-600 mb-1">Saldo</p>
+                                            <p class="text-3xl font-black text-blue-700">$${deuda.Saldo.toFixed(2)}</p>
+                                            <p class="text-xs text-gray-500 mt-1">Total: $${deuda.MontoTotal.toFixed(2)}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center justify-between">
+                                        <span class="px-3 py-1 rounded-full text-xs font-black uppercase ${vencidoClass} border">
+                                            ${vencidoText}
+                                        </span>
+                                        <div class="flex gap-2">
+                                            <button onclick="abrirModalAbonar(${deuda.Id})"
+                                                    class="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-lg transition-all text-sm uppercase">
+                                                <i data-lucide="plus" class="w-4 h-4 inline-block"></i>
+                                                Abonar
+                                            </button>
+                                            <button onclick="pagarCompleto(${deuda.Id})"
+                                                    class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-lg transition-all text-sm uppercase">
+                                                <i data-lucide="check" class="w-4 h-4 inline-block"></i>
+                                                Pagar Todo
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+
+                        lucide.createIcons();
+                    } else {
+                        container.innerHTML = `
+                            <div class="bg-white rounded-2xl shadow-xl p-8 text-center border-2 border-gray-200">
+                                <p class="text-gray-500 font-bold">No hay deudas pendientes</p>
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    console.error('Error al cargar deudas:', error);
+                    document.getElementById('lista-deudas').innerHTML = `
+                        <div class="bg-white rounded-2xl shadow-xl p-8 text-center border-2 border-red-500">
+                            <p class="text-red-600 font-bold">Error al cargar deudas</p>
+                        </div>
+                    `;
+                }
+            }
+
+            function filtrarDeudas() {
+                const busqueda = document.getElementById('buscar-deuda').value.toLowerCase();
+
+                if (!busqueda) {
+                    cargarDeudas();
                     return;
                 }
 
-                tbody.innerHTML = data.data.map(mov => `
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">
-                            ${new Date(mov.Fecha).toLocaleDateString('es-ES')}
-                            <br><span class="text-xs text-gray-500">${new Date(mov.Fecha).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'})}</span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-3 py-1 rounded-full text-xs font-black uppercase ${
-                                mov.Tipo === 'ingreso'
-                                    ? 'bg-emerald-100 text-emerald-800'
-                                    : 'bg-red-100 text-red-800'
-                            }">
-                                ${mov.Tipo}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-700 font-bold capitalize">
-                            ${mov.Categoria.replace(/_/g, ' ')}
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-900 font-semibold">
-                            ${mov.Descripcion}
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-700 font-bold capitalize">
-                            ${mov.MetodoPago}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right">
-                            <span class="text-lg font-black ${mov.Tipo === 'ingreso' ? 'text-emerald-600' : 'text-red-600'}">
-                                ${mov.Tipo === 'ingreso' ? '+' : '-'}$${mov.Monto.toFixed(2)}
-                            </span>
-                        </td>
-                    </tr>
-                `).join('');
+                const deudasFiltradas = deudasData.filter(deuda =>
+                    deuda.NombreCliente.toLowerCase().includes(busqueda)
+                );
+
+                const container = document.getElementById('lista-deudas');
+
+                if (deudasFiltradas.length > 0) {
+                    container.innerHTML = deudasFiltradas.map(deuda => {
+                        const diasVencidos = calcularDiasVencidos(deuda.FechaVencimiento);
+                        const vencidoClass = diasVencidos > 0 ? 'border-red-500 bg-red-50' : 'border-amber-500 bg-amber-50';
+                        const vencidoText = diasVencidos > 0 ? `Vencida (${diasVencidos} días)` : 'Pendiente';
+
+                        return `
+                            <div class="bg-white rounded-2xl shadow-xl p-6 border-2 ${vencidoClass}">
+                                <div class="flex flex-wrap justify-between items-start gap-4 mb-4">
+                                    <div class="flex-1">
+                                        <h4 class="text-xl font-black text-gray-900 mb-1">${deuda.NombreCliente}</h4>
+                                        <p class="text-sm text-gray-600 font-semibold">${deuda.Concepto}</p>
+                                        <p class="text-xs text-gray-500 mt-1">Vence: ${new Date(deuda.FechaVencimiento).toLocaleDateString('es-MX')}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-bold text-gray-600 mb-1">Saldo</p>
+                                        <p class="text-3xl font-black text-blue-700">$${deuda.Saldo.toFixed(2)}</p>
+                                        <p class="text-xs text-gray-500 mt-1">Total: $${deuda.MontoTotal.toFixed(2)}</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between">
+                                    <span class="px-3 py-1 rounded-full text-xs font-black uppercase ${vencidoClass} border">
+                                        ${vencidoText}
+                                    </span>
+                                    <div class="flex gap-2">
+                                        <button onclick="abrirModalAbonar(${deuda.Id})"
+                                                class="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-lg transition-all text-sm uppercase">
+                                            <i data-lucide="plus" class="w-4 h-4 inline-block"></i>
+                                            Abonar
+                                        </button>
+                                        <button onclick="pagarCompleto(${deuda.Id})"
+                                                class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-lg transition-all text-sm uppercase">
+                                            <i data-lucide="check" class="w-4 h-4 inline-block"></i>
+                                            Pagar Todo
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    lucide.createIcons();
+                } else {
+                    container.innerHTML = `
+                        <div class="bg-white rounded-2xl shadow-xl p-8 text-center border-2 border-gray-200">
+                            <p class="text-gray-500 font-bold">No se encontraron resultados</p>
+                        </div>
+                    `;
+                }
+            }
+
+            function calcularDiasVencidos(fechaVencimiento) {
+                const hoy = new Date();
+                const vencimiento = new Date(fechaVencimiento);
+                const diferencia = hoy - vencimiento;
+                return Math.max(0, Math.floor(diferencia / (1000 * 60 * 60 * 24)));
+            }
+
+            function abrirModalAbonar(deudaId) {
+                const deuda = deudasData.find(d => d.Id === deudaId);
+                if (!deuda) return;
+
+                deudaSeleccionada = deuda;
+
+                document.getElementById('modal-cliente').textContent = deuda.NombreCliente;
+                document.getElementById('modal-saldo').textContent = `$${deuda.Saldo.toFixed(2)}`;
+                document.getElementById('modal-monto-abono').value = '';
+                document.getElementById('modal-metodo-pago').value = 'efectivo';
+
+                document.getElementById('modal-abonar').classList.remove('hidden');
+                document.getElementById('modal-abonar').classList.add('flex');
 
                 lucide.createIcons();
-            } catch (error) {
-                console.error('Error cargando movimientos:', error);
-                alert('Error al cargar movimientos');
             }
-        }
 
-        // ========================================
-        // DEUDAS
-        // ========================================
-        async function cargarDeudas() {
-            try {
-                const response = await fetch(`${API_URL}/Deudas?estado=pendiente`);
-                const data = await response.json();
+            function cerrarModalAbonar() {
+                document.getElementById('modal-abonar').classList.add('hidden');
+                document.getElementById('modal-abonar').classList.remove('flex');
+                deudaSeleccionada = null;
+            }
 
-                if (!data.success) {
-                    document.getElementById('lista-deudas').innerHTML = `
-                        <div class="text-center py-12 text-red-500 font-bold">
-                            Error al cargar deudas
-                        </div>
-                    `;
+            async function confirmarAbono() {
+                if (!deudaSeleccionada) return;
+
+                const monto = parseFloat(document.getElementById('modal-monto-abono').value);
+                const metodo = document.getElementById('modal-metodo-pago').value;
+
+                if (!monto || monto <= 0) {
+                    alert('❌ Ingresa un monto válido');
                     return;
                 }
 
-                deudasData = data.data;
-
-                if (deudasData.length === 0) {
-                    document.getElementById('lista-deudas').innerHTML = `
-                        <div class="bg-white rounded-2xl shadow-xl p-12 text-center border-2 border-gray-200">
-                            <i data-lucide="check-circle" class="w-16 h-16 mx-auto text-emerald-600 mb-4"></i>
-                            <p class="text-xl font-black text-gray-900 uppercase">No hay deudas pendientes</p>
-                            <p class="text-gray-600 mt-2 font-semibold">Todos los clientes están al día</p>
-                        </div>
-                    `;
-                    lucide.createIcons();
+                if (monto > deudaSeleccionada.Saldo) {
+                    alert('❌ El monto no puede ser mayor al saldo pendiente');
                     return;
                 }
 
-                renderDeudas(deudasData);
-            } catch (error) {
-                console.error('Error cargando deudas:', error);
-            }
-        }
+                try {
+                    const response = await fetch(`${API_URL}/Deudas/abonar`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            deudaId: deudaSeleccionada.Id,
+                            monto: monto,
+                            metodoPago: metodo,
+                            usuarioId: null,
+                            notas: `Abono a deuda - ${deudaSeleccionada.Concepto}`
+                        })
+                    });
 
-        function renderDeudas(deudas) {
-            const container = document.getElementById('lista-deudas');
+                    const result = await response.json();
 
-            container.innerHTML = deudas.map(deuda => `
-                <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200 hover:shadow-2xl transition-shadow">
-                    <div class="flex justify-between items-start">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-3 mb-2">
-                                <h3 class="text-2xl font-black text-gray-900 uppercase tracking-wide">
-                                    ${deuda.clienteNombre}
-                                </h3>
-                                <span class="px-3 py-1 rounded-full text-xs font-black uppercase bg-amber-100 text-amber-800">
-                                    Pendiente
-                                </span>
-                            </div>
-                            <p class="text-sm text-gray-600 font-bold mb-3">Cédula: ${deuda.clienteCedula}</p>
-
-                            <div class="bg-gray-50 rounded-xl p-4 mb-4 border-2 border-gray-200">
-                                <p class="text-sm text-gray-600 font-bold uppercase mb-1">Concepto</p>
-                                <p class="text-base text-gray-900 font-black">${deuda.Concepto}</p>
-                            </div>
-
-                            <div class="bg-blue-50 rounded-xl p-3 mb-4 border-2 border-blue-200">
-                                <div class="flex items-center gap-2">
-                                    <i data-lucide="calendar" class="w-4 h-4 text-blue-600"></i>
-                                    <p class="text-xs text-blue-700 font-bold uppercase">Fecha de Origen</p>
-                                </div>
-                                <p class="text-base text-blue-900 font-black mt-1">${new Date(deuda.FechaCreacion).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                            </div>
-
-                            <div class="grid grid-cols-3 gap-4 mb-4">
-                                <div>
-                                    <p class="text-xs text-gray-600 font-bold uppercase mb-1">Total</p>
-                                    <p class="text-lg font-black text-gray-900">$${deuda.MontoTotal.toFixed(2)}</p>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-gray-600 font-bold uppercase mb-1">Pagado</p>
-                                    <p class="text-lg font-black text-emerald-600">$${deuda.MontoPagado.toFixed(2)}</p>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-gray-600 font-bold uppercase mb-1">Saldo</p>
-                                    <p class="text-2xl font-black text-red-600">$${deuda.Saldo.toFixed(2)}</p>
-                                </div>
-                            </div>
-
-                            ${deuda.cantidadAbonos > 0 ? `
-                                <p class="text-xs text-gray-500 font-semibold mb-3">
-                                    <i data-lucide="history" class="w-3 h-3 inline-block"></i>
-                                    ${deuda.cantidadAbonos} abono(s) registrado(s)
-                                </p>
-                            ` : ''}
-
-                            ${deuda.Notas ? `
-                                <p class="text-sm text-gray-600 italic mb-3">${deuda.Notas}</p>
-                            ` : ''}
-                        </div>
-
-                        <div class="ml-6 flex flex-col gap-2">
-                            <button onclick="abrirModalAbonar('${deuda.Id}')"
-                                    class="px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900 text-white font-black rounded-xl transition-all shadow-lg uppercase tracking-wide transform hover:scale-105">
-                                <i data-lucide="dollar-sign" class="w-5 h-5 inline-block mr-2"></i>
-                                Abonar
-                            </button>
-                            <button onclick="pagarCompleto('${deuda.Id}')"
-                                    class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-black rounded-xl transition-all shadow-lg uppercase tracking-wide transform hover:scale-105">
-                                <i data-lucide="check-circle" class="w-5 h-5 inline-block mr-2"></i>
-                                Pagar Todo
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-
-            lucide.createIcons();
-        }
-
-        function filtrarDeudas() {
-            const query = document.getElementById('buscar-deuda').value.toLowerCase();
-            const filtradas = deudasData.filter(d =>
-                d.clienteNombre.toLowerCase().includes(query) ||
-                d.clienteCedula.includes(query) ||
-                d.Concepto.toLowerCase().includes(query)
-            );
-            renderDeudas(filtradas);
-        }
-
-        // ========================================
-        // MODAL ABONAR DEUDA
-        // ========================================
-        function abrirModalAbonar(deudaId) {
-            const deuda = deudasData.find(d => d.Id === deudaId);
-            if (!deuda) return;
-
-            deudaSeleccionada = deuda;
-            document.getElementById('modal-cliente-nombre').textContent = deuda.clienteNombre;
-            document.getElementById('modal-concepto').textContent = deuda.Concepto;
-            document.getElementById('modal-saldo').textContent = `$${deuda.Saldo.toFixed(2)}`;
-            document.getElementById('input-monto-abono').value = deuda.Saldo.toFixed(2);
-            document.getElementById('modalAbonarDeuda').classList.remove('hidden');
-            lucide.createIcons();
-        }
-
-        function cerrarModalAbonar() {
-            document.getElementById('modalAbonarDeuda').classList.add('hidden');
-            deudaSeleccionada = null;
-        }
-
-        async function confirmarAbono() {
-            const monto = parseFloat(document.getElementById('input-monto-abono').value);
-            const metodo = document.getElementById('input-metodo-abono').value;
-
-            if (isNaN(monto) || monto <= 0) {
-                alert('❌ Monto inválido');
-                return;
-            }
-
-            if (monto > deudaSeleccionada.Saldo) {
-                alert('❌ El monto no puede ser mayor al saldo pendiente');
-                return;
-            }
-
-            try {
-                const response = await fetch(`${API_URL}/Deudas/abonar`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        deudaId: deudaSeleccionada.Id,
-                        monto: monto,
-                        metodoPago: metodo,
-                        usuarioId: null,
-                        notas: `Abono a deuda - ${deudaSeleccionada.Concepto}`
-                    })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    alert(`✅ ${result.message}`);
-                    cerrarModalAbonar();
-                    cargarDeudas();
-                    cargarResumen();
-                } else {
-                    alert(`❌ Error: ${result.message}`);
+                    if (result.success) {
+                        alert(`✅ ${result.message}`);
+                        cerrarModalAbonar();
+                        cargarDeudas();
+                        cargarResumen();
+                    } else {
+                        alert(`❌ Error: ${result.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('❌ Error al registrar abono');
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al registrar abono');
             }
-        }
 
-        async function pagarCompleto(deudaId) {
-            const deuda = deudasData.find(d => d.Id === deudaId);
-            if (!deuda) return;
+            async function pagarCompleto(deudaId) {
+                const deuda = deudasData.find(d => d.Id === deudaId);
+                if (!deuda) return;
 
-            if (!confirm(`¿Pagar completamente $${deuda.Saldo.toFixed(2)}?`)) return;
+                if (!confirm(`¿Pagar completamente $${deuda.Saldo.toFixed(2)}?`)) return;
 
-            try {
-                const response = await fetch(`${API_URL}/Deudas/abonar`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        deudaId: deuda.Id,
-                        monto: deuda.Saldo,
-                        metodoPago: 'efectivo',
-                        usuarioId: null,
-                        notas: 'Pago completo de deuda'
-                    })
-                });
+                try {
+                    const response = await fetch(`${API_URL}/Deudas/abonar`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            deudaId: deuda.Id,
+                            monto: deuda.Saldo,
+                            metodoPago: 'efectivo',
+                            usuarioId: null,
+                            notas: 'Pago completo de deuda'
+                        })
+                    });
 
-                const result = await response.json();
+                    const result = await response.json();
 
-                if (result.success) {
-                    alert('✅ Deuda pagada completamente');
-                    cargarDeudas();
-                    cargarResumen();
-                } else {
-                    alert(`❌ Error: ${result.message}`);
+                    if (result.success) {
+                        alert('✅ Deuda pagada completamente');
+                        cargarDeudas();
+                        cargarResumen();
+                    } else {
+                        alert(`❌ Error: ${result.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('❌ Error al pagar deuda');
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al pagar deuda');
             }
-        }
 
-        // ========================================
-        // REGISTRAR MOVIMIENTOS
-        // ========================================
-        async function registrarIngreso(event) {
-            event.preventDefault();
+            // ========================================
+            // REGISTRAR MOVIMIENTOS
+            // ========================================
+            async function registrarIngreso(event) {
+                event.preventDefault();
 
-            const monto = parseFloat(document.getElementById('ingreso-monto').value);
-            const categoria = document.getElementById('ingreso-categoria').value;
-            const metodo = document.getElementById('ingreso-metodo').value;
-            const descripcion = document.getElementById('ingreso-descripcion').value;
+                const monto = parseFloat(document.getElementById('ingreso-monto').value);
+                const categoria = document.getElementById('ingreso-categoria').value;
+                const metodo = document.getElementById('ingreso-metodo').value;
+                const descripcion = document.getElementById('ingreso-descripcion').value;
 
-            try {
-                const response = await fetch(`${API_URL}/Caja/ingreso`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        categoria: categoria,
-                        monto: monto,
-                        descripcion: descripcion,
-                        metodoPago: metodo,
-                        usuarioId: '00000000-0000-0000-0000-000000000000'
-                    })
-                });
+                try {
+                    const response = await fetch(`${API_URL}/Caja/ingreso`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            categoria: categoria,
+                            monto: monto,
+                            descripcion: descripcion,
+                            metodoPago: metodo,
+                            usuarioId: '00000000-0000-0000-0000-000000000000'
+                        })
+                    });
 
-                const result = await response.json();
+                    const result = await response.json();
 
-                if (result.success) {
-                    alert('✅ Ingreso registrado exitosamente');
-                    event.target.reset();
-                    cargarResumen();
-                    cambiarTab('movimientos');
-                } else {
-                    alert(`❌ Error: ${result.message}`);
+                    if (result.success) {
+                        alert('✅ Ingreso registrado exitosamente');
+                        event.target.reset();
+                        cargarResumen();
+                        cambiarTab('movimientos');
+                    } else {
+                        alert(`❌ Error: ${result.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('❌ Error al registrar ingreso');
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al registrar ingreso');
             }
-        }
 
-        async function registrarEgreso(event) {
-            event.preventDefault();
+            async function registrarEgreso(event) {
+                event.preventDefault();
 
-            const monto = parseFloat(document.getElementById('egreso-monto').value);
-            const categoria = document.getElementById('egreso-categoria').value;
-            const metodo = document.getElementById('egreso-metodo').value;
-            const descripcion = document.getElementById('egreso-descripcion').value;
+                const monto = parseFloat(document.getElementById('egreso-monto').value);
+                const categoria = document.getElementById('egreso-categoria').value;
+                const metodo = document.getElementById('egreso-metodo').value;
+                const descripcion = document.getElementById('egreso-descripcion').value;
 
-            try {
-                const response = await fetch(`${API_URL}/Caja/egreso`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        categoria: categoria,
-                        monto: monto,
-                        descripcion: descripcion,
-                        metodoPago: metodo,
-                        usuarioId: '00000000-0000-0000-0000-000000000000'
-                    })
-                });
+                try {
+                    const response = await fetch(`${API_URL}/Caja/egreso`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            categoria: categoria,
+                            monto: monto,
+                            descripcion: descripcion,
+                            metodoPago: metodo,
+                            usuarioId: '00000000-0000-0000-0000-000000000000'
+                        })
+                    });
 
-                const result = await response.json();
+                    const result = await response.json();
 
-                if (result.success) {
-                    alert('✅ Egreso registrado exitosamente');
-                    event.target.reset();
-                    cargarResumen();
-                    cambiarTab('movimientos');
-                } else {
-                    alert(`❌ Error: ${result.message}`);
+                    if (result.success) {
+                        alert('✅ Egreso registrado exitosamente');
+                        event.target.reset();
+                        cargarResumen();
+                        cambiarTab('movimientos');
+                    } else {
+                        alert(`❌ Error: ${result.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('❌ Error al registrar egreso');
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al registrar egreso');
             }
-        }
 
-        // ========================================
-        // INICIALIZACIÓN
-        // ========================================
-        window.addEventListener('load', function() {
-            cargarResumen();
-            cargarMovimientos();
-            lucide.createIcons();
-        });
+            // ========================================
+            // INICIALIZACIÓN
+            // ========================================
+            window.addEventListener('load', function() {
+                cargarResumen();
+                cargarMovimientos();
+                lucide.createIcons();
+            });
 
-        // Asignar funciones globales
-        window.cambiarTab = cambiarTab;
-        window.cargarMovimientos = cargarMovimientos;
-        window.filtrarDeudas = filtrarDeudas;
-        window.abrirModalAbonar = abrirModalAbonar;
-        window.cerrarModalAbonar = cerrarModalAbonar;
-        window.confirmarAbono = confirmarAbono;
-        window.pagarCompleto = pagarCompleto;
-        window.registrarIngreso = registrarIngreso;
-        window.registrarEgreso = registrarEgreso;
-    </script>
+            // Asignar funciones globales
+            window.cambiarTab = cambiarTab;
+            window.cargarMovimientos = cargarMovimientos;
+            window.filtrarDeudas = filtrarDeudas;
+            window.abrirModalAbonar = abrirModalAbonar;
+            window.cerrarModalAbonar = cerrarModalAbonar;
+            window.confirmarAbono = confirmarAbono;
+            window.pagarCompleto = pagarCompleto;
+            window.registrarIngreso = registrarIngreso;
+            window.registrarEgreso = registrarEgreso;
+        </script>
 }

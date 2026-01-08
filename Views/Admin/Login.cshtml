@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Login - Tauro GYM Admin";
+    ViewData["Title"] = "Login - Power Zone Training Admin";
 }
 
 <!DOCTYPE html>
@@ -7,7 +7,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Iniciar Sesión - TAURO GYM</title>
+    <title>Iniciar Sesión - POWER ZONE TRAINING</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -16,10 +16,11 @@
             theme: {
                 extend: {
                     colors: {
-                        'tauro-red': '#E31E24',
-                        'tauro-dark': '#000000',
-                        'tauro-gray': '#1a1a1a',
-                        'tauro-accent': '#C41E23'
+                        'powerzone-yellow': '#FFD700',
+                        'powerzone-blue': '#1E40AF',
+                        'powerzone-dark': '#000000',
+                        'powerzone-gray': '#6B7280',
+                        'powerzone-accent': '#F59E0B'
                     }
                 }
             }
@@ -42,8 +43,8 @@
 
         .grid-pattern {
             background-image:
-                linear-gradient(rgba(227, 30, 36, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(227, 30, 36, 0.05) 1px, transparent 1px);
+                linear-gradient(rgba(255, 215, 0, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 215, 0, 0.05) 1px, transparent 1px);
             background-size: 50px 50px;
         }
     </style>
@@ -53,30 +54,33 @@
         <div class="absolute inset-0 grid-pattern"></div>
 
         <div class="absolute inset-0 opacity-20">
-            <div class="absolute top-0 left-1/4 w-96 h-96 bg-red-600 rounded-full blur-3xl animate-pulse"></div>
-            <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-red-800 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+            <div class="absolute top-0 left-1/4 w-96 h-96 bg-yellow-500 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-700 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
         </div>
 
         <div class="w-full max-w-md relative z-10">
             <div class="text-center mb-10">
                 <div class="mb-8 flex justify-center">
-                    <div class="logo-container inline-block px-10 py-5 bg-gradient-to-r from-red-600 to-red-800 rounded-2xl transform hover:scale-105 transition-transform duration-300">
-                        <h1 class="text-6xl font-black text-white tracking-widest">
-                            TAURO GYM
+                    <div class="logo-container inline-block px-10 py-5 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-2xl transform hover:scale-105 transition-transform duration-300">
+                        <h1 class="text-5xl font-black text-black tracking-widest">
+                            POWER ZONE
                         </h1>
+                        <p class="text-xl font-black text-gray-800 tracking-widest -mt-1">
+                            TRAINING
+                        </p>
                     </div>
                 </div>
-                <div class="inline-block px-6 py-2 bg-gray-900 border border-red-600 rounded-full">
-                    <p class="text-red-500 uppercase tracking-widest text-sm font-bold">Panel Administrativo</p>
+                <div class="inline-block px-6 py-2 bg-gray-900 border border-yellow-500 rounded-full">
+                    <p class="text-yellow-500 uppercase tracking-widest text-sm font-bold">Panel Administrativo</p>
                 </div>
             </div>
 
-            <div class="bg-gradient-to-br from-gray-900 to-black backdrop-blur-lg rounded-3xl border-2 border-red-600 shadow-2xl p-8 relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-40 h-40 bg-red-600 rounded-full blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"></div>
+            <div class="bg-gradient-to-br from-gray-900 to-black backdrop-blur-lg rounded-3xl border-2 border-yellow-500 shadow-2xl p-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-40 h-40 bg-yellow-500 rounded-full blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"></div>
 
                 <div class="text-center mb-8 relative z-10">
-                    <div class="w-24 h-24 bg-gradient-to-br from-red-600 to-red-800 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-2xl transform hover:rotate-3 transition-transform">
-                        <i data-lucide="shield-check" class="w-12 h-12 text-white"></i>
+                    <div class="w-24 h-24 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-2xl transform hover:rotate-3 transition-transform">
+                        <i data-lucide="shield-check" class="w-12 h-12 text-black"></i>
                     </div>
                     <h2 class="text-4xl font-black text-white uppercase tracking-wider">Iniciar Sesión</h2>
                     <p class="text-gray-400 text-sm mt-2 font-semibold uppercase tracking-wide">Acceso al Sistema</p>
@@ -84,9 +88,9 @@
 
                 @if (ViewBag.Error != null)
                 {
-                    <div class="bg-red-900/40 border-2 border-red-500 rounded-xl p-4 mb-6 flex items-center gap-3 backdrop-blur-sm">
-                        <i data-lucide="alert-circle" class="w-6 h-6 text-red-400"></i>
-                        <p class="text-red-300 text-sm font-semibold">@ViewBag.Error</p>
+                    <div class="bg-yellow-900/40 border-2 border-yellow-500 rounded-xl p-4 mb-6 flex items-center gap-3 backdrop-blur-sm">
+                        <i data-lucide="alert-circle" class="w-6 h-6 text-yellow-400"></i>
+                        <p class="text-yellow-300 text-sm font-semibold">@ViewBag.Error</p>
                     </div>
                 }
 
@@ -98,8 +102,8 @@
                             <i data-lucide="mail" class="w-4 h-4 inline mr-2"></i>
                             Correo Electrónico
                         </label>
-                        <input type="email" name="email" required placeholder="admin@taurogym.com"
-                               class="w-full px-5 py-4 bg-black/60 border-2 border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-red-600 transition-all font-semibold" />
+                        <input type="email" name="email" required placeholder="admin@powerzonetraining.com"
+                               class="w-full px-5 py-4 bg-black/60 border-2 border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-yellow-500 transition-all font-semibold" />
                     </div>
 
                     <div>
@@ -108,11 +112,11 @@
                             Contraseña
                         </label>
                         <input type="password" name="password" required placeholder="••••••••"
-                               class="w-full px-5 py-4 bg-black/60 border-2 border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-red-600 transition-all font-semibold" />
+                               class="w-full px-5 py-4 bg-black/60 border-2 border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-yellow-500 transition-all font-semibold" />
                     </div>
 
                     <button type="submit"
-                            class="w-full py-5 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black text-lg rounded-xl transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-red-600/50 flex items-center justify-center gap-3 uppercase tracking-wider">
+                            class="w-full py-5 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-black font-black text-lg rounded-xl transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-yellow-500/50 flex items-center justify-center gap-3 uppercase tracking-wider">
                         <i data-lucide="log-in" class="w-6 h-6"></i>
                         <span>Ingresar al Sistema</span>
                     </button>
@@ -123,18 +127,18 @@
                     <div class="bg-black/70 rounded-xl p-4 font-mono text-xs text-center border-2 border-gray-800">
                         <div class="flex items-center justify-center gap-2 mb-2">
                             <span class="text-gray-400">Email:</span>
-                            <span class="text-red-500 font-bold">admin@taurogym.com</span>
+                            <span class="text-yellow-500 font-bold">admin@powerzonetraining.com</span>
                         </div>
                         <div class="flex items-center justify-center gap-2">
                             <span class="text-gray-400">Password:</span>
-                            <span class="text-red-500 font-bold">admin123</span>
+                            <span class="text-yellow-500 font-bold">admin123</span>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="text-center mt-8">
-                <a href="/kiosko" class="text-gray-400 hover:text-red-500 transition-colors inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wide group">
+                <a href="/kiosko" class="text-gray-400 hover:text-yellow-500 transition-colors inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wide group">
                     <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i>
                     Volver al Kiosko
                 </a>
@@ -143,7 +147,7 @@
             <div class="mt-10 text-center">
                 <div class="inline-block px-6 py-2 bg-gray-900 border border-gray-800 rounded-full">
                     <p class="text-gray-600 text-xs font-bold uppercase tracking-wider">
-                        TAURO GYM © 2024
+                        POWER ZONE TRAINING © 2024
                     </p>
                 </div>
             </div>

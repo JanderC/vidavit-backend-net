@@ -13,11 +13,11 @@
             theme: {
                 extend: {
                     colors: {
-                        'tauro-red': '#E31E24',
+                        'tauro-blue': '#2B5FAA',
                         'tauro-dark': '#000000',
                         'tauro-gray': '#1a1a1a',
-                        'tauro-light-red': '#FF4448',
-                        'tauro-accent': '#C41E23'
+                        'tauro-light-blue': '#4A7BC8',
+                        'tauro-accent': '#1E4A8A'
                     }
                 }
             }
@@ -49,12 +49,12 @@
         }
 
         ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #E31E24 0%, #C41E23 100%);
+            background: linear-gradient(180deg, #2B5FAA 0%, #1E4A8A 100%);
             border-radius: 5px;
         }
 
             ::-webkit-scrollbar-thumb:hover {
-                background: linear-gradient(180deg, #FF4448 0%, #E31E24 100%);
+                background: linear-gradient(180deg, #4A7BC8 0%, #2B5FAA 100%);
             }
 
         .nav-item {
@@ -69,7 +69,7 @@
                 top: 0;
                 height: 100%;
                 width: 4px;
-                background: linear-gradient(180deg, #E31E24 0%, #FF4448 100%);
+                background: linear-gradient(180deg, #2B5FAA 0%, #4A7BC8 100%);
                 transform: scaleY(0);
                 transition: transform 0.3s ease;
             }
@@ -83,7 +83,7 @@
             }
 
             .nav-item:hover {
-                background: rgba(227, 30, 36, 0.1);
+                background: rgba(43, 95, 170, 0.1);
             }
 
 
@@ -95,10 +95,10 @@
     @RenderSection("Styles", required: false)
 </head>
 <body class="bg-gray-50">
-    <aside class="fixed left-0 top-0 h-screen w-64 bg-gradient-to-b from-black via-tauro-gray to-black text-white shadow-2xl z-50 border-r-2 border-red-600">
-        <div class="p-6 border-b-2 border-red-600">
+    <aside class="fixed left-0 top-0 h-screen w-64 bg-gradient-to-b from-black via-tauro-gray to-black text-white shadow-2xl z-50 border-r-2 border-blue-700">
+        <div class="p-6 border-b-2 border-blue-700">
             <div class="flex flex-col items-center gap-3">
-                <div class="logo-container inline-block px-6 py-3 bg-gradient-to-r from-red-600 to-red-800 rounded-xl">
+                <div class="logo-container inline-block px-6 py-3 bg-gradient-to-r from-blue-700 to-blue-900 rounded-xl">
                     <h1 class="text-3xl font-black text-white tracking-widest">TAURO GYM</h1>
                 </div>
                 <p class="text-xs text-gray-400 uppercase tracking-widest font-bold">Panel Administrativo</p>
@@ -174,7 +174,7 @@
 
         <div class="absolute bottom-0 left-0 right-0 p-4 border-t-2 border-gray-800 bg-gradient-to-t from-black to-transparent">
             <div class="flex items-center gap-3 mb-3">
-                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center text-white font-black text-lg shadow-lg">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-700 to-blue-900 flex items-center justify-center text-white font-black text-lg shadow-lg">
                     A
                 </div>
                 <div class="flex-1">
@@ -184,7 +184,7 @@
             </div>
             <form action="/admin/logout" method="post" class="w-full">
                 @Html.AntiForgeryToken()
-                <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 rounded-xl transition-all font-bold shadow-xl hover:shadow-2xl transform hover:scale-105">
+                <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-700 to-blue-900 hover:from-red-700 hover:to-red-900 rounded-xl transition-all font-bold shadow-xl hover:shadow-2xl transform hover:scale-105">
                     <i data-lucide="log-out" class="w-5 h-5"></i>
                     Cerrar Sesión
                 </button>
@@ -193,11 +193,11 @@
     </aside>
 
     <main class="ml-64 min-h-screen">
-        <header class="bg-gradient-to-r from-white to-gray-100 shadow-lg border-b-4 border-red-600 sticky top-0 z-40">
+        <header class="bg-gradient-to-r from-white to-gray-100 shadow-lg border-b-4 border-blue-700 sticky top-0 z-40">
             <div class="px-8 py-5">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h2 class="text-4xl font-black bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent uppercase tracking-wide">
+                        <h2 class="text-4xl font-black bg-gradient-to-r from-blue-700 to-blue-900 bg-clip-text text-transparent uppercase tracking-wide">
                             @ViewData["Title"]
                         </h2>
                         @if (ViewData["Subtitle"] != null)

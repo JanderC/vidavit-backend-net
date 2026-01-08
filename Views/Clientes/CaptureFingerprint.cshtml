@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Capturar Huella";
     ViewData["Subtitle"] = $"Registrar huella de {ViewBag.ClienteNombre}";
@@ -35,19 +35,19 @@
         <div id="capture-area" class="hidden text-center py-12">
             <div class="mb-8 flex justify-center">
                 <div class="relative">
-                    <div class="absolute inset-0 bg-red-600 rounded-full blur-3xl opacity-30 animate-pulse"></div>
-                    <div class="relative bg-gradient-to-br from-red-600 to-red-800 p-12 rounded-full shadow-2xl">
+                    <div class="absolute inset-0 bg-blue-700 rounded-full blur-3xl opacity-30 animate-pulse"></div>
+                    <div class="relative bg-gradient-to-br from-blue-700 to-blue-900 p-12 rounded-full shadow-2xl">
                         <i data-lucide="fingerprint" class="w-32 h-32 text-white" stroke-width="1.5"></i>
                     </div>
                 </div>
             </div>
 
             <h3 class="text-3xl font-black text-gray-800 mb-3 uppercase tracking-wide">Coloca tu dedo en el sensor</h3>
-            <p class="text-gray-600 mb-2">Cliente: <span class="font-black text-red-600">@ViewBag.ClienteNombre</span></p>
+            <p class="text-gray-600 mb-2">Cliente: <span class="font-black text-blue-700">@ViewBag.ClienteNombre</span></p>
             <p class="text-sm text-gray-500 mb-10 font-semibold">El lector está listo para capturar tu huella</p>
 
             <button id="btn-capture" onclick="captureFingerprint()"
-                    class="px-10 py-4 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all shadow-2xl hover:shadow-3xl inline-flex items-center gap-3 text-xl uppercase tracking-wide transform hover:scale-105">
+                    class="px-10 py-4 bg-gradient-to-r from-blue-700 to-blue-900 hover:from-blue-800 hover:to-blue-950 text-white font-black rounded-xl transition-all shadow-2xl hover:shadow-3xl inline-flex items-center gap-3 text-xl uppercase tracking-wide transform hover:scale-105">
                 <i data-lucide="scan" class="w-6 h-6"></i>
                 Iniciar Captura
             </button>
@@ -56,8 +56,8 @@
         <div id="loading-area" class="hidden text-center py-12">
             <div class="mb-8 flex justify-center">
                 <div class="relative">
-                    <div class="absolute inset-0 bg-blue-600 rounded-full blur-3xl opacity-50 animate-pulse"></div>
-                    <div class="relative bg-gradient-to-br from-blue-600 to-cyan-600 p-12 rounded-full">
+                    <div class="absolute inset-0 bg-blue-700 rounded-full blur-3xl opacity-50 animate-pulse"></div>
+                    <div class="relative bg-gradient-to-br from-blue-700 to-cyan-600 p-12 rounded-full">
                         <i data-lucide="fingerprint" class="w-28 h-28 text-white animate-pulse" stroke-width="1.5"></i>
                     </div>
                 </div>
@@ -67,7 +67,7 @@
             <p class="text-gray-600 mb-8 font-bold text-lg" id="loading-message">No muevas el dedo</p>
 
             <div class="max-w-md mx-auto bg-gray-200 rounded-full h-4 mb-3 shadow-inner">
-                <div id="progress-bar" class="bg-gradient-to-r from-blue-600 to-cyan-600 h-4 rounded-full transition-all duration-300" style="width: 0%"></div>
+                <div id="progress-bar" class="bg-gradient-to-r from-blue-700 to-cyan-600 h-4 rounded-full transition-all duration-300" style="width: 0%"></div>
             </div>
             <p class="text-sm text-gray-500 font-bold" id="progress-text">Captura 0 de 3</p>
         </div>
@@ -84,7 +84,7 @@
                     Volver a Clientes
                 </button>
                 <button id="btn-retry" onclick="location.reload()"
-                        class="hidden px-8 py-3 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all inline-flex items-center gap-2 uppercase tracking-wide">
+                        class="hidden px-8 py-3 bg-gradient-to-r from-blue-700 to-blue-900 hover:from-blue-800 hover:to-blue-950 text-white font-black rounded-xl transition-all inline-flex items-center gap-2 uppercase tracking-wide">
                     <i data-lucide="refresh-cw" class="w-5 h-5"></i>
                     Intentar Nuevamente
                 </button>
@@ -116,8 +116,8 @@
                 const statusMessage = document.getElementById('status-message');
 
                 if (data.connected) {
-                    statusDiv.className = 'mb-6 p-5 rounded-xl border-2 border-emerald-500 bg-emerald-50';
-                    statusIcon.className = 'w-14 h-14 rounded-full flex items-center justify-center bg-emerald-500';
+                    statusDiv.className = 'mb-6 p-5 rounded-xl border-2 border-yellow-500 bg-yellow-50';
+                    statusIcon.className = 'w-14 h-14 rounded-full flex items-center justify-center bg-yellow-500';
                     statusIcon.innerHTML = '<i data-lucide="check-circle" class="w-7 h-7 text-white"></i>';
                     statusTitle.textContent = '✓ Lector Conectado';
                     statusMessage.textContent = 'U.are.U 4500 detectado y listo';
@@ -167,14 +167,14 @@
                 if (data.success) {
                     resultIcon.innerHTML = `
                         <div class="relative">
-                            <div class="absolute inset-0 bg-emerald-500 rounded-full blur-3xl opacity-30"></div>
-                            <div class="relative w-40 h-40 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-full flex items-center justify-center shadow-2xl">
+                            <div class="absolute inset-0 bg-yellow-500 rounded-full blur-3xl opacity-30"></div>
+                            <div class="relative w-40 h-40 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-full flex items-center justify-center shadow-2xl">
                                 <i data-lucide="check" class="w-24 h-24 text-white" stroke-width="2"></i>
                             </div>
                         </div>
                     `;
                     resultTitle.textContent = '¡HUELLA CAPTURADA!';
-                    resultTitle.className = 'text-4xl font-black mb-4 text-emerald-700 uppercase tracking-wide';
+                    resultTitle.className = 'text-4xl font-black mb-4 text-yellow-600 uppercase tracking-wide';
                     resultMessage.textContent = 'La huella digital se registró correctamente. El cliente ya puede usar el sistema de check-in biométrico.';
                 } else {
                     resultIcon.innerHTML = `
