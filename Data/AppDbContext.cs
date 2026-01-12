@@ -29,6 +29,7 @@ namespace VidaFit.Data
         public DbSet<PagoEmpleado> PagosEmpleados { get; set; }
         public DbSet<DeudaCliente> DeudasClientes { get; set; }
         public DbSet<AbonoDeuda> AbonosDeuda { get; set; }
+        public DbSet<CierreCaja> CierresCaja { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -193,7 +194,6 @@ namespace VidaFit.Data
                 entity.ToTable("pagos_empleados");
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Monto).HasColumnType("decimal(10,2)");
-                entity.Property(e => e.Periodo).HasMaxLength(50);
 
                 // Relación
                 entity.HasOne(p => p.Empleado)
@@ -243,6 +243,32 @@ namespace VidaFit.Data
                 // Índices
                 entity.HasIndex(a => a.DeudaId);
                 entity.HasIndex(a => a.FechaAbono);
+            });
+
+            modelBuilder.Entity<CierreCaja>(entity =>
+            {
+                entity.ToTable("cierres_caja");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.EfectivoInicial).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.IngresosEfectivo).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.EgresosEfectivo).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.EfectivoFinal).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.IngresosTransferencia).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.EgresosTransferencia).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.TotalIngresos).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.TotalEgresos).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.BalanceGeneral).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.TipoCierre).IsRequired().HasMaxLength(20);
+
+                // Relación con Usuario
+                entity.HasOne(c => c.Usuario)
+                    .WithMany()
+                    .HasForeignKey(c => c.UsuarioId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                // Índices
+                entity.HasIndex(c => c.FechaCierre);
+                entity.HasIndex(c => c.TipoCierre);
             });
 
             // ==================== CONFIGURACIÓN DE CONVERSIÓN DE NOMBRES ====================
@@ -324,6 +350,20 @@ namespace VidaFit.Data
                         "Saldo" => "saldo",
                         "DeudaId" => "deuda_id",
                         "FechaAbono" => "fecha_abono",
+                        // Propiedades para CierreCaja
+                        "FechaCierre" => "fecha_cierre",
+                        "TipoCierre" => "tipo_cierre",
+                        "EfectivoInicial" => "efectivo_inicial",
+                        "IngresosEfectivo" => "ingresos_efectivo",
+                        "EgresosEfectivo" => "egresos_efectivo",
+                        "EfectivoFinal" => "efectivo_final",
+                        "IngresosTransferencia" => "ingresos_transferencia",
+                        "EgresosTransferencia" => "egresos_transferencia",
+                        "TotalIngresos" => "total_ingresos",
+                        "TotalEgresos" => "total_egresos",
+                        "BalanceGeneral" => "balance_general",
+                        "CantidadMovimientos" => "cantidad_movimientos",
+                        "Observaciones" => "observaciones",
                         _ => property.Name.ToLower()
                     };
 
