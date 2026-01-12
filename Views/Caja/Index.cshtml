@@ -1,7 +1,7 @@
 ﻿@{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Gestión de Caja";
-    ViewData["Subtitle"] = "Control financiero completo - TAURO GYM";
+    ViewData["Subtitle"] = "Control financiero completo - POWER ZONE FIT TRAINER";
 }
 
 <div class="space-y-6">
@@ -73,7 +73,7 @@
     <div class="bg-white rounded-2xl shadow-xl border-2 border-gray-200 overflow-hidden">
         <div class="flex border-b-2 border-gray-200">
             <button onclick="cambiarTab('movimientos')" id="tab-movimientos"
-                    class="tab-btn flex-1 px-6 py-4 font-black uppercase tracking-wide transition-all border-b-4 border-red-600 bg-red-50 text-red-600">
+                    class="tab-btn flex-1 px-6 py-4 font-black uppercase tracking-wide transition-all border-b-4 border-blue-600 bg-blue-50 text-blue-600">
                 <i data-lucide="list" class="w-5 h-5 inline-block mr-2"></i>
                 Movimientos
             </button>
@@ -97,17 +97,17 @@
                 <div class="flex-1 min-w-[200px]">
                     <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Fecha Desde</label>
                     <input type="date" id="fecha-desde"
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 font-semibold">
                 </div>
                 <div class="flex-1 min-w-[200px]">
                     <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Fecha Hasta</label>
                     <input type="date" id="fecha-hasta"
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 font-semibold">
                 </div>
                 <div class="flex-1 min-w-[200px]">
                     <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Categoría</label>
                     <select id="filtro-categoria"
-                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 font-semibold">
                         <option value="">Todas</option>
                         <option value="membresia">Membresías</option>
                         <option value="renovacion">Renovaciones</option>
@@ -117,7 +117,7 @@
                     </select>
                 </div>
                 <button onclick="cargarMovimientos()"
-                        class="px-8 py-3 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
+                        class="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-black rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
                     <i data-lucide="filter" class="w-4 h-4 inline-block mr-2"></i>
                     Filtrar
                 </button>
@@ -156,7 +156,7 @@
     <div id="content-deudas" class="tab-content hidden">
         <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200 mb-4">
             <input type="text" id="buscar-deuda" placeholder="Buscar cliente..."
-                   class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
+                   class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 font-semibold"
                    onkeyup="filtrarDeudas()">
         </div>
 
@@ -348,14 +348,14 @@
             // Ocultar todos los contenidos
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('border-red-600', 'bg-red-50', 'text-red-600');
+                btn.classList.remove('border-blue-600', 'bg-blue-50', 'text-blue-600');
                 btn.classList.add('hover:bg-gray-50');
             });
 
             // Mostrar contenido seleccionado
             document.getElementById(`content-${tab}`).classList.remove('hidden');
             const tabBtn = document.getElementById(`tab-${tab}`);
-            tabBtn.classList.add('border-red-600', 'bg-red-50', 'text-red-600');
+            tabBtn.classList.add('border-blue-600', 'bg-blue-50', 'text-blue-600');
             tabBtn.classList.remove('hover:bg-gray-50');
 
             // Cargar datos según el tab

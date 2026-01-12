@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "682jreKTBly6m0MBxrRo3sgFEKdBe4aB4t/icAzx9cs=",
+  "Hash": "Yf29rwRFQ1ZG6w+EL9GR++/6PRL80aD4eUWVFTFRZcg=",
   "Source": "VidaFit",
   "BasePath": "_content/VidaFit",
   "Mode": "Default",
@@ -99,6 +99,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\favicon.ico"
+    },
+    {
+      "Identity": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\images\\powerzone-logo.png",
+      "SourceId": "VidaFit",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\",
+      "BasePath": "_content/VidaFit",
+      "RelativePath": "images/powerzone-logo#[.{fingerprint}]?.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "eekz4lh4kf",
+      "Integrity": "BlqIdnxEFb9brV9DSXZwDoePCHAwtgxBsCTdCEUdsS4=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\powerzone-logo.png"
     },
     {
       "Identity": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\images\\tauro-gym-logo.png",
@@ -1502,6 +1523,88 @@
         {
           "Name": "integrity",
           "Value": "sha256-Jtxf9L+5ITKRc1gIRl4VbUpGkRNfOBXjYTdhJD4facM="
+        }
+      ]
+    },
+    {
+      "Route": "images/powerzone-logo.eekz4lh4kf.png",
+      "AssetFile": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\images\\powerzone-logo.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "632840"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"BlqIdnxEFb9brV9DSXZwDoePCHAwtgxBsCTdCEUdsS4=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 10 Jan 2026 14:43:03 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "eekz4lh4kf"
+        },
+        {
+          "Name": "label",
+          "Value": "images/powerzone-logo.png"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-BlqIdnxEFb9brV9DSXZwDoePCHAwtgxBsCTdCEUdsS4="
+        }
+      ]
+    },
+    {
+      "Route": "images/powerzone-logo.png",
+      "AssetFile": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\images\\powerzone-logo.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "632840"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"BlqIdnxEFb9brV9DSXZwDoePCHAwtgxBsCTdCEUdsS4=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 10 Jan 2026 14:43:03 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-BlqIdnxEFb9brV9DSXZwDoePCHAwtgxBsCTdCEUdsS4="
         }
       ]
     },

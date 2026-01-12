@@ -2,11 +2,11 @@
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Ventas de Productos";
-    
+
     var clienteNombre = ViewBag.ClienteNombre as string;
     var clienteId = ViewBag.ClienteId as Guid?;
     var estadoFiltro = ViewBag.EstadoFiltro as string ?? "todos";
-    
+
     if (!string.IsNullOrEmpty(clienteNombre))
     {
         ViewData["Subtitle"] = $"Ventas de {clienteNombre}";
@@ -50,15 +50,15 @@
                 <h3 class="text-lg font-semibold text-gray-800">Filtrar por estado:</h3>
             </div>
             <div class="flex gap-2">
-                <a href="?clienteId=@clienteId&estado=todos" 
+                <a href="?clienteId=@clienteId&estado=todos"
                    class="px-4 py-2 rounded-lg font-medium transition-colors @(estadoFiltro == "todos" ? "bg-vida-primary text-vida-dark" : "bg-gray-100 text-gray-700 hover:bg-gray-200")">
                     Todos
                 </a>
-                <a href="?clienteId=@clienteId&estado=pendiente" 
-                   class="px-4 py-2 rounded-lg font-medium transition-colors @(estadoFiltro == "pendiente" ? "bg-red-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200")">
+                <a href="?clienteId=@clienteId&estado=pendiente"
+                   class="px-4 py-2 rounded-lg font-medium transition-colors @(estadoFiltro == "pendiente" ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200")">
                     Pendientes
                 </a>
-                <a href="?clienteId=@clienteId&estado=pagado" 
+                <a href="?clienteId=@clienteId&estado=pagado"
                    class="px-4 py-2 rounded-lg font-medium transition-colors @(estadoFiltro == "pagado" ? "bg-green-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200")">
                     Pagados
                 </a>
@@ -82,14 +82,14 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-lg shadow p-6 border-l-4 border-red-500">
+            <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
                 <div class="flex items-center justify-between mb-3">
                     <div>
                         <p class="text-sm text-gray-600 mb-1">Total Pendiente</p>
                         <p class="text-3xl font-bold text-gray-800">$@totalPendiente.ToString("N2")</p>
                     </div>
-                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                        <i data-lucide="alert-circle" class="w-6 h-6 text-red-600"></i>
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i data-lucide="alert-circle" class="w-6 h-6 text-blue-600"></i>
                     </div>
                 </div>
             </div>
@@ -135,7 +135,7 @@
                     <tbody class="bg-white divide-y divide-gray-200">
                         @foreach (var venta in Model)
                         {
-                            var estadoColor = venta.EstadoPago == "pagado" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800";
+                            var estadoColor = venta.EstadoPago == "pagado" ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800";
                             var estadoTexto = venta.EstadoPago == "pagado" ? "Pagado" : "Pendiente";
 
                             <tr class="hover:bg-gray-50 transition-colors">
@@ -176,7 +176,7 @@
                                         {
                                             <form method="post" action="/ventas-productos/marcar-pagado/@venta.Id" class="inline">
                                                 @Html.AntiForgeryToken()
-                                                <button type="submit" 
+                                                <button type="submit"
                                                         onclick="return confirm('¿Marcar esta venta como pagada?')"
                                                         class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                                                         title="Marcar como pagado">

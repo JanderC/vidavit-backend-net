@@ -41,7 +41,6 @@
           "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.0",
           "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation": "8.0.0",
           "Microsoft.EntityFrameworkCore.Design": "8.0.0",
-          "Microsoft.NET.ILLink.Tasks": "8.0.12",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "8.0.0",
           "Swashbuckle.AspNetCore": "6.5.0",
           "Microsoft.AspNetCore.Antiforgery": "8.0.0.0",
@@ -2084,7 +2083,6 @@
           "lib/net8.0/Microsoft.IdentityModel.Tokens.dll": {}
         }
       },
-      "Microsoft.NET.ILLink.Tasks/8.0.12": {},
       "Microsoft.OpenApi/1.2.3": {
         "compile": {
           "lib/netstandard2.0/Microsoft.OpenApi.dll": {}
@@ -2214,7 +2212,6 @@
           "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.0",
           "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation": "8.0.0",
           "Microsoft.EntityFrameworkCore.Design": "8.0.0",
-          "Microsoft.NET.ILLink.Tasks": "8.0.12",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "8.0.0",
           "Swashbuckle.AspNetCore": "6.5.0",
           "Microsoft.AspNetCore.Antiforgery": "8.0.0.0",
@@ -3199,6 +3196,50 @@
             "assemblyVersion": "2.1.0.0",
             "fileVersion": "8.0.1224.60305"
           }
+        },
+        "native": {
+          "Microsoft.DiaSymReader.Native.amd64.dll": {
+            "fileVersion": "14.42.34436.0"
+          },
+          "System.IO.Compression.Native.dll": {
+            "fileVersion": "8.0.1224.60305"
+          },
+          "clretwrc.dll": {
+            "fileVersion": "8.0.1224.60305"
+          },
+          "clrgc.dll": {
+            "fileVersion": "8.0.1224.60305"
+          },
+          "clrjit.dll": {
+            "fileVersion": "8.0.1224.60305"
+          },
+          "coreclr.dll": {
+            "fileVersion": "8.0.1224.60305"
+          },
+          "createdump.exe": {
+            "fileVersion": "8.0.1224.60305"
+          },
+          "hostfxr.dll": {
+            "fileVersion": "8.0.1224.60305"
+          },
+          "hostpolicy.dll": {
+            "fileVersion": "8.0.1224.60305"
+          },
+          "mscordaccore.dll": {
+            "fileVersion": "8.0.1224.60305"
+          },
+          "mscordaccore_amd64_amd64_8.0.1224.60305.dll": {
+            "fileVersion": "8.0.1224.60305"
+          },
+          "mscordbi.dll": {
+            "fileVersion": "8.0.1224.60305"
+          },
+          "mscorrc.dll": {
+            "fileVersion": "8.0.1224.60305"
+          },
+          "msquic.dll": {
+            "fileVersion": "2.3.5.0"
+          }
         }
       },
       "runtimepack.Microsoft.AspNetCore.App.Runtime.win-x64/8.0.12": {
@@ -4138,7 +4179,6 @@
           }
         }
       },
-      "Microsoft.NET.ILLink.Tasks/8.0.12": {},
       "Microsoft.OpenApi/1.2.3": {
         "runtime": {
           "lib/netstandard2.0/Microsoft.OpenApi.dll": {
@@ -4549,13 +4589,6 @@
       "sha512": "sha512-wB+LlbDjhnJ98DULjmFepqf9eEMh/sDs6S6hFh68iNRHmwollwhxk+nbSSfpA5+j+FbRyNskoaY4JsY1iCOKCg==",
       "path": "microsoft.identitymodel.tokens/7.0.3",
       "hashPath": "microsoft.identitymodel.tokens.7.0.3.nupkg.sha512"
-    },
-    "Microsoft.NET.ILLink.Tasks/8.0.12": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-FV4HnQ3JI15PHnJ5PGTbz+rYvrih42oLi/7UMIshNwCwUZhTq13UzrggtXk4ygrcMcN+4jsS6hhshx2p/Zd0ig==",
-      "path": "microsoft.net.illink.tasks/8.0.12",
-      "hashPath": "microsoft.net.illink.tasks.8.0.12.nupkg.sha512"
     },
     "Microsoft.OpenApi/1.2.3": {
       "type": "package",

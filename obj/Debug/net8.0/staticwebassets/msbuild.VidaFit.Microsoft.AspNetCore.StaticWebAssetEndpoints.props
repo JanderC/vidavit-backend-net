@@ -24,6 +24,18 @@
       <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-Jtxf9L\u002B5ITKRc1gIRl4VbUpGkRNfOBXjYTdhJD4facM="}]]]></EndpointProperties>
       <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=3600, must-revalidate"},{"Name":"Content-Length","Value":"5430"},{"Name":"Content-Type","Value":"image/x-icon"},{"Name":"ETag","Value":"\u0022Jtxf9L\u002B5ITKRc1gIRl4VbUpGkRNfOBXjYTdhJD4facM=\u0022"},{"Name":"Last-Modified","Value":"Thu, 18 Dec 2025 23:09:04 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/VidaFit/images/powerzone-logo.eekz4lh4kf.png">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\powerzone-logo.png'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"eekz4lh4kf"},{"Name":"integrity","Value":"sha256-BlqIdnxEFb9brV9DSXZwDoePCHAwtgxBsCTdCEUdsS4="},{"Name":"label","Value":"_content/VidaFit/images/powerzone-logo.png"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"632840"},{"Name":"Content-Type","Value":"image/png"},{"Name":"ETag","Value":"\u0022BlqIdnxEFb9brV9DSXZwDoePCHAwtgxBsCTdCEUdsS4=\u0022"},{"Name":"Last-Modified","Value":"Sat, 10 Jan 2026 14:43:03 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/VidaFit/images/powerzone-logo.png">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\powerzone-logo.png'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-BlqIdnxEFb9brV9DSXZwDoePCHAwtgxBsCTdCEUdsS4="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=3600, must-revalidate"},{"Name":"Content-Length","Value":"632840"},{"Name":"Content-Type","Value":"image/png"},{"Name":"ETag","Value":"\u0022BlqIdnxEFb9brV9DSXZwDoePCHAwtgxBsCTdCEUdsS4=\u0022"},{"Name":"Last-Modified","Value":"Sat, 10 Jan 2026 14:43:03 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/VidaFit/images/tauro-gym-logo.png">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\tauro-gym-logo.png'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>

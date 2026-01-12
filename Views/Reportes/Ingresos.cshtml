@@ -1,7 +1,7 @@
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Reporte de Ingresos";
-    ViewData["Subtitle"] = "Análisis financiero completo - TAURO GYM";
+    ViewData["Subtitle"] = "Análisis financiero completo - POWER ZONE FIT TRAINER";
 }
 
 <div class="space-y-6">
@@ -58,7 +58,7 @@
     <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
         <div class="flex items-center justify-between mb-6">
             <h3 class="text-2xl font-black text-gray-900 uppercase tracking-wide">Ingresos Mensuales</h3>
-            <select id="meses-periodo" onchange="loadData()" class="px-4 py-2 border-2 border-gray-300 rounded-xl text-sm font-semibold bg-white focus:ring-2 focus:ring-red-600">
+            <select id="meses-periodo" onchange="loadData()" class="px-4 py-2 border-2 border-gray-300 rounded-xl text-sm font-semibold bg-white focus:ring-2 focus:ring-blue-600">
                 <option value="6">Últimos 6 meses</option>
                 <option value="12">Últimos 12 meses</option>
             </select>
@@ -293,16 +293,16 @@
             const porcP = total > 0 ? (ingresosP / total * 100) : 0;
 
             document.getElementById('resumen-tipo').innerHTML = `
-                <div class="p-4 bg-red-50 rounded-xl border-2 border-red-200">
+                <div class="p-4 bg-blue-50 rounded-xl border-2 border-blue-200">
                     <div class="flex items-center justify-between mb-2">
                         <div class="flex items-center gap-2">
-                            <i data-lucide="credit-card" class="w-5 h-5 text-red-600"></i>
+                            <i data-lucide="credit-card" class="w-5 h-5 text-blue-600"></i>
                             <span class="font-black text-gray-900 uppercase text-sm tracking-wide">Membresías</span>
                         </div>
-                        <span class="font-black text-red-600 text-lg">$${ingresosM.toFixed(2)}</span>
+                        <span class="font-black text-blue-600 text-lg">$${ingresosM.toFixed(2)}</span>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-2">
-                        <div class="bg-gradient-to-r from-red-600 to-red-800 h-2 rounded-full" style="width: ${porcM}%"></div>
+                        <div class="bg-gradient-to-r from-blue-600 to-blue-800 h-2 rounded-full" style="width: ${porcM}%"></div>
                     </div>
                     <p class="text-xs text-gray-600 mt-2 font-bold">${porcM.toFixed(1)}% del total</p>
                 </div>
@@ -340,7 +340,7 @@
                 const cliente = v.cliente || v.Cliente || {};
 
                 return `
-                    <div class="p-3 bg-gray-50 rounded-xl border-2 border-gray-200 hover:border-red-600 transition-all">
+                    <div class="p-3 bg-gray-50 rounded-xl border-2 border-gray-200 hover:border-blue-600 transition-all">
                         <div class="flex items-center justify-between">
                             <div class="flex-1">
                                 <p class="font-black text-gray-900 text-sm">${producto.nombre || producto.Nombre || 'Producto'}</p>

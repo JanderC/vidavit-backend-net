@@ -3,7 +3,7 @@
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Productos Más Vendidos";
-    ViewData["Subtitle"] = "Top productos con mayor demanda - TAURO GYM";
+    ViewData["Subtitle"] = "Top productos con mayor demanda - POWER ZONE FIT TRAINER";
 
     decimal totalIngresos = 0;
     int totalUnidades = 0;
@@ -24,15 +24,15 @@
             <div class="flex-1 min-w-[200px]">
                 <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Fecha Desde</label>
                 <input type="date" id="fecha-desde" value="@ViewBag.FechaInicio.ToString("yyyy-MM-dd")"
-                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 font-semibold">
             </div>
             <div class="flex-1 min-w-[200px]">
                 <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Fecha Hasta</label>
                 <input type="date" id="fecha-hasta" value="@ViewBag.FechaFin.ToString("yyyy-MM-dd")"
-                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 font-semibold">
             </div>
             <button onclick="filtrarPorFecha()"
-                    class="px-8 py-3 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
+                    class="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-black rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
                 <i data-lucide="filter" class="w-4 h-4 inline-block mr-2"></i>
                 Filtrar
             </button>
@@ -141,7 +141,7 @@
                         @foreach (var producto in Model)
                         {
                             var porcentaje = totalIngresos > 0 ? (producto.Total / totalIngresos * 100) : 0;
-                            var badgeColor = posicion <= 3 ? "bg-gradient-to-r from-red-600 to-red-800 text-white" : "bg-gray-200 text-gray-900";
+                            var badgeColor = posicion <= 3 ? "bg-gradient-to-r from-blue-600 to-blue-800 text-white" : "bg-gray-200 text-gray-900";
 
                             <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
@@ -168,7 +168,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                     <div class="flex items-center justify-center gap-2">
                                         <div class="w-24 bg-gray-200 rounded-full h-3">
-                                            <div class="bg-gradient-to-r from-red-600 to-red-800 h-3 rounded-full" style="width: @porcentaje.ToString("F1")%"></div>
+                                            <div class="bg-gradient-to-r from-blue-600 to-blue-800 h-3 rounded-full" style="width: @porcentaje.ToString("F1")%"></div>
                                         </div>
                                         <span class="text-xs font-black text-gray-900">@porcentaje.ToString("F1")%</span>
                                     </div>

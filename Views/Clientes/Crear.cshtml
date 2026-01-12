@@ -1,14 +1,14 @@
 @model VidaFitBackend.Models.Cliente
 @{
     ViewData["Title"] = "Crear Cliente";
-    ViewData["Subtitle"] = "Registrar nuevo miembro en TAURO GYM";
+    ViewData["Subtitle"] = "Registrar nuevo miembro en POWER ZONE FIT TRAINER";
     Layout = "_AdminLayout";
 }
 
 <div class="max-w-4xl mx-auto">
     <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
         <div class="flex items-center gap-4 mb-8 pb-6 border-b-2 border-gray-200">
-            <div class="bg-gradient-to-br from-red-600 to-red-800 rounded-xl p-4">
+            <div class="bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl p-4">
                 <i data-lucide="user-plus" class="w-8 h-8 text-white"></i>
             </div>
             <div>
@@ -20,9 +20,9 @@
         <form asp-action="Crear" method="post" enctype="multipart/form-data" class="space-y-6">
             @Html.AntiForgeryToken()
 
-            <div class="bg-red-50 border-l-4 border-red-600 rounded-xl p-5">
+            <div class="bg-blue-50 border-l-4 border-blue-600 rounded-xl p-5">
                 <div class="flex items-start gap-3">
-                    <i data-lucide="alert-circle" class="w-6 h-6 text-red-600 mt-0.5"></i>
+                    <i data-lucide="alert-circle" class="w-6 h-6 text-blue-600 mt-0.5"></i>
                     <div>
                         <h4 class="font-black text-red-900 mb-1 uppercase tracking-wide">Campos Obligatorios</h4>
                         <p class="text-sm text-red-900 font-semibold">
@@ -36,35 +36,35 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label asp-for="Nombre" class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
-                        Nombre <span class="text-red-600">*</span>
+                        Nombre <span class="text-blue-600">*</span>
                     </label>
                     <input asp-for="Nombre"
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
+                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 font-semibold"
                            placeholder="Ingrese el nombre"
                            required />
-                    <span asp-validation-for="Nombre" class="text-red-600 text-sm font-bold"></span>
+                    <span asp-validation-for="Nombre" class="text-blue-600 text-sm font-bold"></span>
                 </div>
 
                 <div>
                     <label asp-for="Apellido" class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
-                        Apellido <span class="text-red-600">*</span>
+                        Apellido <span class="text-blue-600">*</span>
                     </label>
                     <input asp-for="Apellido"
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
+                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 font-semibold"
                            placeholder="Ingrese el apellido"
                            required />
-                    <span asp-validation-for="Apellido" class="text-red-600 text-sm font-bold"></span>
+                    <span asp-validation-for="Apellido" class="text-blue-600 text-sm font-bold"></span>
                 </div>
 
                 <div>
                     <label asp-for="Cedula" class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
-                        Cédula <span class="text-red-600">*</span>
+                        Cédula <span class="text-blue-600">*</span>
                     </label>
                     <input asp-for="Cedula"
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
+                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 font-semibold"
                            placeholder="Ej: 001-1234567-8"
                            required />
-                    <span asp-validation-for="Cedula" class="text-red-600 text-sm font-bold"></span>
+                    <span asp-validation-for="Cedula" class="text-blue-600 text-sm font-bold"></span>
                 </div>
 
                 <div>
@@ -73,9 +73,9 @@
                     </label>
                     <input asp-for="Telefono"
                            type="tel"
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
+                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 font-semibold"
                            placeholder="Ej: 809-555-1234" />
-                    <span asp-validation-for="Telefono" class="text-red-600 text-sm font-bold"></span>
+                    <span asp-validation-for="Telefono" class="text-blue-600 text-sm font-bold"></span>
                 </div>
 
                 <div>
@@ -84,9 +84,9 @@
                     </label>
                     <input asp-for="Email"
                            type="email"
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
+                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 font-semibold"
                            placeholder="cliente@ejemplo.com" />
-                    <span asp-validation-for="Email" class="text-red-600 text-sm font-bold"></span>
+                    <span asp-validation-for="Email" class="text-blue-600 text-sm font-bold"></span>
                 </div>
 
                 <div>
@@ -95,8 +95,8 @@
                     </label>
                     <input asp-for="FechaNacimiento"
                            type="date"
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold" />
-                    <span asp-validation-for="FechaNacimiento" class="text-red-600 text-sm font-bold"></span>
+                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 font-semibold" />
+                    <span asp-validation-for="FechaNacimiento" class="text-blue-600 text-sm font-bold"></span>
                 </div>
             </div>
 
@@ -106,9 +106,9 @@
                 </label>
                 <textarea asp-for="Direccion"
                           rows="2"
-                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
+                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 font-semibold"
                           placeholder="Calle, número, sector, ciudad"></textarea>
-                <span asp-validation-for="Direccion" class="text-red-600 text-sm font-bold"></span>
+                <span asp-validation-for="Direccion" class="text-blue-600 text-sm font-bold"></span>
             </div>
 
             <div>
@@ -123,7 +123,7 @@
                         <input type="file"
                                id="fotoInput"
                                accept="image/*"
-                               class="w-full px-4 py-2 border-2 border-gray-300 rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-gradient-to-r file:from-red-600 file:to-red-800 file:text-white file:font-bold hover:file:from-red-700 hover:file:to-red-900" />
+                               class="w-full px-4 py-2 border-2 border-gray-300 rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-gradient-to-r file:from-blue-600 file:to-blue-800 file:text-white file:font-bold hover:file:from-blue-700 hover:file:to-blue-900" />
                         <p class="text-xs text-gray-500 mt-2 font-semibold">Formatos: JPG, PNG (máx. 5MB)</p>
                     </div>
                 </div>
@@ -144,7 +144,7 @@
 
             <div class="flex gap-4 pt-6 border-t-2 border-gray-200">
                 <button type="submit"
-                        class="flex-1 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black py-4 px-6 rounded-xl transition-all shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 uppercase tracking-wide transform hover:scale-105">
+                        class="flex-1 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-black py-4 px-6 rounded-xl transition-all shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 uppercase tracking-wide transform hover:scale-105">
                     <i data-lucide="save" class="w-5 h-5"></i>
                     Crear Cliente y Continuar
                 </button>

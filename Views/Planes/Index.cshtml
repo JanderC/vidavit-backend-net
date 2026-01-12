@@ -88,7 +88,7 @@
                                     </span>
                                     @if (!plan.Activo)
                                     {
-                                        <span class="px-3 py-1 bg-red-500 rounded-full text-xs font-bold">
+                                        <span class="px-3 py-1 bg-blue-500 rounded-full text-xs font-bold">
                                             INACTIVO
                                         </span>
                                     }
@@ -134,7 +134,7 @@
                                     @(plan.Activo ? "Desactivar" : "Activar")
                                 </button>
                                 <button onclick="eliminarPlan('@plan.Id', '@plan.Nombre')"
-                                        class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm font-bold">
+                                        class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm font-bold">
                                     <i data-lucide="trash-2" class="w-4 h-4 inline"></i>
                                 </button>
                             </div>

@@ -35,19 +35,19 @@
         <div id="capture-area" class="hidden text-center py-12">
             <div class="mb-8 flex justify-center">
                 <div class="relative">
-                    <div class="absolute inset-0 bg-red-600 rounded-full blur-3xl opacity-30 animate-pulse"></div>
-                    <div class="relative bg-gradient-to-br from-red-600 to-red-800 p-12 rounded-full shadow-2xl">
-                        <i data-lucide="fingerprint" class="w-32 h-32 text-white" stroke-width="1.5"></i>
+                    <div class="absolute inset-0 bg-blue-600 rounded-full blur-3xl opacity-30 animate-pulse"></div>
+                    <div class="relative bg-gradient-to-br from-blue-600 to-blue-800 p-12 rounded-full shadow-2xl">
+                        <i data-lucide="fingerprint" class="w-32 h-32 text-yellow-400" stroke-width="1.5"></i>
                     </div>
                 </div>
             </div>
 
             <h3 class="text-3xl font-black text-gray-800 mb-3 uppercase tracking-wide">Coloca tu dedo en el sensor</h3>
-            <p class="text-gray-600 mb-2">Cliente: <span class="font-black text-red-600">@ViewBag.ClienteNombre</span></p>
+            <p class="text-gray-600 mb-2">Cliente: <span class="font-black text-blue-600">@ViewBag.ClienteNombre</span></p>
             <p class="text-sm text-gray-500 mb-10 font-semibold">El lector está listo para capturar tu huella</p>
 
             <button id="btn-capture" onclick="captureFingerprint()"
-                    class="px-10 py-4 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all shadow-2xl hover:shadow-3xl inline-flex items-center gap-3 text-xl uppercase tracking-wide transform hover:scale-105">
+                    class="px-10 py-4 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-black rounded-xl transition-all shadow-2xl hover:shadow-3xl inline-flex items-center gap-3 text-xl uppercase tracking-wide transform hover:scale-105">
                 <i data-lucide="scan" class="w-6 h-6"></i>
                 Iniciar Captura
             </button>
@@ -84,7 +84,7 @@
                     Volver a Clientes
                 </button>
                 <button id="btn-retry" onclick="location.reload()"
-                        class="hidden px-8 py-3 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all inline-flex items-center gap-2 uppercase tracking-wide">
+                        class="hidden px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-black rounded-xl transition-all inline-flex items-center gap-2 uppercase tracking-wide">
                     <i data-lucide="refresh-cw" class="w-5 h-5"></i>
                     Intentar Nuevamente
                 </button>
