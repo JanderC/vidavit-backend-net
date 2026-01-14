@@ -8,12 +8,12 @@ namespace VidaFit.Services
 {
     /// <summary>
     /// Servicio que ejecuta el cierre automático de caja a medianoche
+    /// MODIFICADO: Ahora cierra solo movimientos pendientes y deja la caja en cero
     /// </summary>
     public class CierreCajaAutomaticoService : BackgroundService
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<CierreCajaAutomaticoService> _logger;
-        private Timer? _timer;
 
         public CierreCajaAutomaticoService(
             IServiceProvider serviceProvider,
@@ -33,7 +33,7 @@ namespace VidaFit.Services
                 var proximaMedianoche = ahora.Date.AddDays(1);
                 var tiempoHastaMedianoche = proximaMedianoche - ahora;
 
-                _logger.LogInformation($"Próximo cierre automático en: {tiempoHastaMedianoche.TotalHours:F2} horas");
+                _logger.LogInformation($"Próximo cierre automático en: {tiempoHastaMedianoche.TotalHours:F2} horas ({proximaMedianoche})");
 
                 try
                 {
@@ -65,34 +65,39 @@ namespace VidaFit.Services
                 {
                     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
+                    _logger.LogInformation("========================================");
                     _logger.LogInformation("Iniciando cierre automático de caja...");
+                    _logger.LogInformation($"Fecha/Hora: {DateTime.UtcNow}");
 
-                    // Obtener el último cierre
+                    // Obtener el último cierre para saber desde cuándo contar
                     var ultimoCierre = await context.CierresCaja
                         .OrderByDescending(c => c.FechaCierre)
                         .FirstOrDefaultAsync();
 
-                    decimal saldoAnterior = 0; // Siempre empezar desde 0
-
-                    // Obtener movimientos DESPUÉS del último cierre
                     DateTime fechaDesde;
                     if (ultimoCierre != null)
                     {
                         fechaDesde = DateTime.SpecifyKind(ultimoCierre.FechaCierre, DateTimeKind.Utc);
+                        _logger.LogInformation($"Último cierre: {fechaDesde}");
                     }
                     else
                     {
                         fechaDesde = new DateTime(1900, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                        _logger.LogInformation("No hay cierres previos - primer cierre del sistema");
                     }
 
+                    // Obtener movimientos PENDIENTES (después del último cierre)
                     var movimientos = await context.MovimientosCaja
                         .Where(m => m.Fecha > fechaDesde)
                         .ToListAsync();
 
-                    // Si no hay movimientos, no hacer cierre
+                    _logger.LogInformation($"Movimientos pendientes encontrados: {movimientos.Count}");
+
+                    // Si no hay movimientos pendientes, no hacer cierre
                     if (movimientos.Count == 0)
                     {
-                        _logger.LogInformation("No hay movimientos para cerrar hoy");
+                        _logger.LogInformation("No hay movimientos pendientes para cerrar");
+                        _logger.LogInformation("========================================");
                         return;
                     }
 
@@ -116,8 +121,17 @@ namespace VidaFit.Services
                     var totalIngresos = movimientos.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto);
                     var totalEgresos = movimientos.Where(m => m.Tipo == "egreso").Sum(m => m.Monto);
 
-                    var efectivoFinal = saldoAnterior + ingresosEfectivo - egresosEfectivo;
+                    // IMPORTANTE: La caja siempre empieza en 0 después de cada cierre
+                    var efectivoInicial = 0;
+                    var efectivoFinal = ingresosEfectivo - egresosEfectivo;
                     var balanceGeneral = totalIngresos - totalEgresos;
+
+                    _logger.LogInformation("--- Resumen del cierre ---");
+                    _logger.LogInformation($"Total ingresos: ${totalIngresos:F2}");
+                    _logger.LogInformation($"Total egresos: ${totalEgresos:F2}");
+                    _logger.LogInformation($"Balance general: ${balanceGeneral:F2}");
+                    _logger.LogInformation($"Efectivo final: ${efectivoFinal:F2}");
+                    _logger.LogInformation($"Transferencias netas: ${(ingresosTransferencia - egresosTransferencia):F2}");
 
                     // Obtener el primer usuario activo del sistema
                     var usuarioId = await context.Usuarios
@@ -138,7 +152,7 @@ namespace VidaFit.Services
                         Id = Guid.NewGuid(),
                         FechaCierre = DateTime.UtcNow,
                         TipoCierre = "automatico",
-                        EfectivoInicial = saldoAnterior,
+                        EfectivoInicial = efectivoInicial,
                         IngresosEfectivo = ingresosEfectivo,
                         EgresosEfectivo = egresosEfectivo,
                         EfectivoFinal = efectivoFinal,
@@ -148,7 +162,7 @@ namespace VidaFit.Services
                         TotalEgresos = totalEgresos,
                         BalanceGeneral = balanceGeneral,
                         CantidadMovimientos = movimientos.Count,
-                        Observaciones = "Cierre automático generado por el sistema",
+                        Observaciones = $"Cierre automático - Período: {fechaDesde:dd/MM/yyyy HH:mm} - {DateTime.UtcNow:dd/MM/yyyy HH:mm}",
                         UsuarioId = usuarioId,
                         CreatedAt = DateTime.UtcNow
                     };
@@ -156,12 +170,16 @@ namespace VidaFit.Services
                     context.CierresCaja.Add(cierre);
                     await context.SaveChangesAsync();
 
-                    _logger.LogInformation($"Cierre automático completado. Efectivo final: ${efectivoFinal:F2}, Balance: ${balanceGeneral:F2}");
+                    _logger.LogInformation("✅ Cierre automático completado exitosamente");
+                    _logger.LogInformation($"ID del cierre: {cierre.Id}");
+                    _logger.LogInformation("========================================");
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al ejecutar cierre automático de caja");
+                _logger.LogError(ex, "❌ Error al ejecutar cierre automático de caja");
+                _logger.LogError($"Mensaje: {ex.Message}");
+                _logger.LogError($"StackTrace: {ex.StackTrace}");
                 throw;
             }
         }
@@ -169,7 +187,6 @@ namespace VidaFit.Services
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Deteniendo servicio de cierre automático de caja");
-            _timer?.Dispose();
             await base.StopAsync(cancellationToken);
         }
     }

@@ -23,12 +23,12 @@
         <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl shadow-xl p-6 border-l-4 border-purple-600 transform hover:scale-105 transition-all">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-purple-700 font-black uppercase tracking-wide mb-1">Saldo Cierre Anterior</p>
-                    <p class="text-3xl font-black text-purple-600" id="saldo-anterior">$0.00</p>
-                    <p class="text-xs text-purple-600 font-semibold mt-1" id="fecha-saldo-anterior"></p>
+                    <p class="text-sm text-purple-700 font-black uppercase tracking-wide mb-1">Transferencias Hoy</p>
+                    <p class="text-3xl font-black text-purple-600" id="transferencias-hoy">$0.00</p>
+                    <p class="text-xs text-purple-600 font-semibold mt-1" id="detalle-transferencias">Ingresos del día</p>
                 </div>
                 <div class="w-12 h-12 bg-purple-200 rounded-full flex items-center justify-center">
-                    <i data-lucide="history" class="w-6 h-6 text-purple-600"></i>
+                    <i data-lucide="credit-card" class="w-6 h-6 text-purple-600"></i>
                 </div>
             </div>
         </div>
@@ -500,658 +500,628 @@
 
 @section Scripts {
     <script>
-                const API_URL = '/api';
+        const API_URL = '/api';
 
-                // ========================================
-                // GESTIÓN DE TABS
-                // ========================================
-                function cambiarTab(tab) {
-                    // Ocultar todos los contenidos
-                    document.querySelectorAll('.tab-content').forEach(content => {
-                        content.classList.add('hidden');
-                    });
+        // ========================================
+        // GESTIÓN DE TABS
+        // ========================================
+        function cambiarTab(tab) {
+            // Ocultar todos los contenidos
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
 
-                    // Quitar estilos activos de todos los tabs
-                    document.querySelectorAll('.tab-btn').forEach(btn => {
-                        btn.classList.remove('border-b-4', 'border-red-600', 'bg-red-50', 'text-red-600');
-                    });
+            // Quitar estilos activos de todos los tabs
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-b-4', 'border-red-600', 'bg-red-50', 'text-red-600');
+            });
 
-                    // Mostrar contenido seleccionado
-                    document.getElementById(`content-${tab}`).classList.remove('hidden');
+            // Mostrar contenido seleccionado
+            document.getElementById(`content-${tab}`).classList.remove('hidden');
 
-                    // Activar tab seleccionado
-                    const activeTab = document.getElementById(`tab-${tab}`);
-                    activeTab.classList.add('border-b-4', 'border-red-600', 'bg-red-50', 'text-red-600');
+            // Activar tab seleccionado
+            const activeTab = document.getElementById(`tab-${tab}`);
+            activeTab.classList.add('border-b-4', 'border-red-600', 'bg-red-50', 'text-red-600');
 
-                    // Cargar datos específicos del tab
-                    if (tab === 'semanal') {
-                        cargarResumenSemanal();
-                    } else if (tab === 'cierres') {
-                        cargarHistorialCierres();
-                    } else if (tab === 'deudas') {
-                        cargarDeudas();
-                    }
+            // Cargar datos específicos del tab
+            if (tab === 'semanal') {
+                cargarResumenSemanal();
+            } else if (tab === 'cierres') {
+                cargarHistorialCierres();
+            } else if (tab === 'deudas') {
+                cargarDeudas();
+            }
 
+            lucide.createIcons();
+        }
+
+        // ========================================
+        // CARGAR RESUMEN PRINCIPAL
+        // ========================================
+        async function cargarResumen() {
+            try {
+                // Usar el endpoint dashboard que devuelve toda la info
+                const response = await fetch(`${API_URL}/Caja/dashboard`);
+                const data = await response.json();
+
+                if (data.success) {
+                    // Actualizar tarjetas principales
+                    document.getElementById('efectivo-caja').textContent = `$${data.cajaActual.efectivo.balance.toFixed(2)}`;
+                    document.getElementById('transferencias-hoy').textContent = `$${data.cajaActual.transferencia.ingresos.toFixed(2)}`;
+                    document.getElementById('ingresos-hoy').textContent = `$${data.hoy.ingresos.toFixed(2)}`;
+                    document.getElementById('egresos-hoy').textContent = `$${data.hoy.egresos.toFixed(2)}`;
+                    document.getElementById('balance-total').textContent = `$${data.cajaActual.balance.toFixed(2)}`;
+
+                    // Detalles
+                    document.getElementById('detalle-ingresos').textContent =
+                        `Efectivo: $${data.cajaActual.efectivo.ingresos.toFixed(2)} | Transf: $${data.cajaActual.transferencia.ingresos.toFixed(2)}`;
+                    document.getElementById('detalle-egresos').textContent =
+                        `Efectivo: $${data.cajaActual.efectivo.egresos.toFixed(2)} | Transf: $${data.cajaActual.transferencia.egresos.toFixed(2)}`;
+
+                    // Detalle de transferencias
+                    const egresosTransf = data.cajaActual.transferencia.egresos;
+                    document.getElementById('detalle-transferencias').textContent =
+                        egresosTransf > 0
+                        ? `Egresos: $${egresosTransf.toFixed(2)}`
+                        : 'Ingresos del día';
+                }
+
+                // Cargar deudas pendientes
+                const responseDeudas = await fetch(`${API_URL}/Deudas?estado=pendiente`);
+                const deudasData = await responseDeudas.json();
+
+                if (deudasData.success) {
+                    document.getElementById('deudas-pendientes').textContent = `$${deudasData.totalSaldoPendiente.toFixed(2)}`;
+                }
+            } catch (error) {
+                console.error('Error al cargar resumen:', error);
+            }
+        }
+
+        // ========================================
+        // CARGAR MOVIMIENTOS
+        // ========================================
+        async function cargarMovimientos() {
+            try {
+                const desde = document.getElementById('fecha-desde').value;
+                const hasta = document.getElementById('fecha-hasta').value;
+                const categoria = document.getElementById('filtro-categoria').value;
+
+                let url = `${API_URL}/Caja/movimientos?`;
+                if (desde) url += `desde=${desde}&`;
+                if (hasta) url += `hasta=${hasta}&`;
+                if (categoria) url += `categoria=${categoria}&`;
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                const tbody = document.getElementById('tabla-movimientos');
+
+                if (data.success && data.movimientos.length > 0) {
+                    tbody.innerHTML = data.movimientos.map(m => {
+                        const fecha = new Date(m.Fecha);
+                        const tipoColor = m.Tipo === 'ingreso' ? 'text-green-600' : 'text-red-600';
+                        const metodoBadge = m.MetodoPago === 'efectivo'
+                            ? '<span class="px-2 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded">Efectivo</span>'
+                            : '<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded">Transferencia</span>';
+
+                        return `
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 text-sm font-semibold text-gray-900">
+                                    ${fecha.toLocaleDateString('es-ES')} ${fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="px-3 py-1 ${tipoColor} bg-opacity-10 rounded-full text-xs font-black uppercase">${m.Tipo}</span>
+                                </td>
+                                <td class="px-6 py-4 text-sm font-semibold text-gray-700">${m.Categoria}</td>
+                                <td class="px-6 py-4 text-sm font-semibold text-gray-600">${m.Descripcion}</td>
+                                <td class="px-6 py-4">${metodoBadge}</td>
+                                <td class="px-6 py-4 text-right text-lg font-black ${tipoColor}">$${m.Monto.toFixed(2)}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                } else {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="px-6 py-12 text-center text-gray-500 font-bold">
+                                No hay movimientos para mostrar
+                            </td>
+                        </tr>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error al cargar movimientos:', error);
+            }
+        }
+
+        // ========================================
+        // RESUMEN SEMANAL
+        // ========================================
+        async function cargarResumenSemanal() {
+            try {
+                const response = await fetch(`${API_URL}/Caja/resumen-semanal`);
+                const data = await response.json();
+
+                if (data.success) {
+                    // Actualizar período
+                    const desde = new Date(data.periodo.desde);
+                    const hasta = new Date(data.periodo.hasta);
+                    document.getElementById('periodo-semanal').textContent =
+                        `Semana del ${desde.toLocaleDateString('es-ES')} al ${hasta.toLocaleDateString('es-ES')}`;
+
+                    // Actualizar totales
+                    document.getElementById('total-ingresos-semana').textContent = `$${data.totales.ingresos.toFixed(2)}`;
+                    document.getElementById('total-egresos-semana').textContent = `$${data.totales.egresos.toFixed(2)}`;
+                    document.getElementById('balance-semana').textContent = `$${data.totales.balance.toFixed(2)}`;
+                    document.getElementById('cantidad-movimientos-semana').textContent = data.totales.cantidadMovimientos;
+
+                    // Actualizar tabla por día
+                    const tbody = document.getElementById('tabla-resumen-semanal');
+                    tbody.innerHTML = data.resumenPorDia.map(dia => {
+                        const balanceColor = dia.balance >= 0 ? 'text-emerald-600' : 'text-red-600';
+                        return `
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 text-sm font-black text-gray-900 uppercase">${dia.diaNombre}</td>
+                                <td class="px-6 py-4 text-right text-lg font-black text-blue-600">$${dia.ingresos.toFixed(2)}</td>
+                                <td class="px-6 py-4 text-right text-lg font-black text-red-600">$${dia.egresos.toFixed(2)}</td>
+                                <td class="px-6 py-4 text-right text-lg font-black ${balanceColor}">$${dia.balance.toFixed(2)}</td>
+                                <td class="px-6 py-4 text-right text-sm font-semibold text-gray-700">$${dia.ingresosEfectivo.toFixed(2)}</td>
+                                <td class="px-6 py-4 text-right text-sm font-semibold text-gray-700">$${dia.ingresosTransferencia.toFixed(2)}</td>
+                                <td class="px-6 py-4 text-center">
+                                    <span class="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-full">${dia.cantidadMovimientos}</span>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+            } catch (error) {
+                console.error('Error al cargar resumen semanal:', error);
+            }
+        }
+
+        // ========================================
+        // HISTORIAL DE CIERRES
+        // ========================================
+        async function cargarHistorialCierres() {
+            try {
+                const response = await fetch(`${API_URL}/Caja/historial-cierres?limit=20`);
+                const data = await response.json();
+
+                const container = document.getElementById('lista-cierres');
+
+                if (data.success && data.cierres.length > 0) {
+                    container.innerHTML = data.cierres.map(cierre => {
+                        const fecha = new Date(cierre.fechaCierre);
+                        const tipoBadge = cierre.tipo === 'automatico'
+                            ? '<span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full">AUTOMÁTICO</span>'
+                            : '<span class="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-full">MANUAL</span>';
+
+                        return `
+                            <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div>
+                                        <h4 class="text-lg font-black text-gray-900">${fecha.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h4>
+                                        <p class="text-sm text-gray-600 font-semibold">${fecha.toLocaleTimeString('es-ES')}</p>
+                                    </div>
+                                    ${tipoBadge}
+                                </div>
+
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                                    <div class="bg-purple-50 rounded-xl p-3">
+                                        <p class="text-xs text-purple-700 font-bold mb-1">Saldo Inicial</p>
+                                        <p class="text-lg font-black text-purple-600">$${cierre.efectivoInicial.toFixed(2)}</p>
+                                    </div>
+                                    <div class="bg-emerald-50 rounded-xl p-3">
+                                        <p class="text-xs text-emerald-700 font-bold mb-1">Efectivo Final</p>
+                                        <p class="text-lg font-black text-emerald-600">$${cierre.efectivoFinal.toFixed(2)}</p>
+                                    </div>
+                                    <div class="bg-blue-50 rounded-xl p-3">
+                                        <p class="text-xs text-blue-700 font-bold mb-1">Ingresos</p>
+                                        <p class="text-lg font-black text-blue-600">$${cierre.totalIngresos.toFixed(2)}</p>
+                                    </div>
+                                    <div class="bg-red-50 rounded-xl p-3">
+                                        <p class="text-xs text-red-700 font-bold mb-1">Egresos</p>
+                                        <p class="text-lg font-black text-red-600">$${cierre.totalEgresos.toFixed(2)}</p>
+                                    </div>
+                                </div>
+
+                                <div class="bg-amber-50 rounded-xl p-4">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-sm text-amber-700 font-bold mb-1">Balance General</p>
+                                            <p class="text-2xl font-black text-amber-600">$${cierre.balanceGeneral.toFixed(2)}</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-xs text-gray-600 font-semibold">Movimientos</p>
+                                            <p class="text-xl font-black text-gray-900">${cierre.cantidadMovimientos}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                ${cierre.observaciones ? `
+                                    <div class="mt-4 bg-gray-50 rounded-xl p-3">
+                                        <p class="text-xs text-gray-600 font-bold mb-1">Observaciones:</p>
+                                        <p class="text-sm text-gray-700 font-semibold">${cierre.observaciones}</p>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    container.innerHTML = `
+                        <div class="bg-white rounded-2xl shadow-xl p-8 text-center border-2 border-gray-200">
+                            <p class="text-gray-500 font-bold">No hay cierres registrados aún</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error al cargar historial de cierres:', error);
+            }
+        }
+
+        // ========================================
+        // MODAL CERRAR CAJA
+        // ========================================
+        async function abrirModalCerrarCaja() {
+            try {
+                const response = await fetch(`${API_URL}/Caja/dashboard`);
+                const data = await response.json();
+
+                if (data.success) {
+                    // Mostrar datos del cierre
+                    const saldoAnterior = data.ultimoCierre ? data.ultimoCierre.EfectivoFinal : 0;
+                    const efectivoFinal = data.cajaActual.efectivo.balance;
+
+                    document.getElementById('cierre-saldo-anterior').textContent = `$${saldoAnterior.toFixed(2)}`;
+                    document.getElementById('cierre-efectivo-final').textContent = `$${efectivoFinal.toFixed(2)}`;
+                    document.getElementById('cierre-ingresos').textContent = `$${data.cajaActual.totalIngresos.toFixed(2)}`;
+                    document.getElementById('cierre-egresos').textContent = `$${data.cajaActual.totalEgresos.toFixed(2)}`;
+                    document.getElementById('cierre-balance').textContent = `$${data.cajaActual.balance.toFixed(2)}`;
+                }
+
+                document.getElementById('modal-cerrar-caja').style.display = 'flex';
+                lucide.createIcons();
+            } catch (error) {
+                console.error('Error al abrir modal:', error);
+                alert('❌ Error al cargar datos del cierre');
+            }
+        }
+
+        function cerrarModalCerrarCaja() {
+            document.getElementById('modal-cerrar-caja').style.display = 'none';
+            document.getElementById('cierre-observaciones').value = '';
+        }
+
+        async function confirmarCierreCaja() {
+            const observaciones = document.getElementById('cierre-observaciones').value;
+
+            if (!confirm('¿Confirmar cierre de caja? La caja quedará en $0.00 para el próximo día.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/Caja/cerrar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ observaciones })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(`✅ ${result.message}`);
+                    cerrarModalCerrarCaja();
+                    cargarResumen();
+                    cargarMovimientos();
+                    cambiarTab('cierres');
+                } else {
+                    alert(`❌ ${result.message}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error al realizar cierre de caja');
+            }
+        }
+
+        // ========================================
+        // REGISTRAR MOVIMIENTOS
+        // ========================================
+        async function registrarIngreso(event) {
+            event.preventDefault();
+
+            const monto = parseFloat(document.getElementById('ingreso-monto').value);
+            const categoria = document.getElementById('ingreso-categoria').value;
+            const metodo = document.getElementById('ingreso-metodo').value;
+            const descripcion = document.getElementById('ingreso-descripcion').value;
+
+            try {
+                const response = await fetch(`${API_URL}/Caja/ingreso`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        categoria: categoria,
+                        monto: monto,
+                        descripcion: descripcion,
+                        metodoPago: metodo
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('✅ Ingreso registrado exitosamente');
+                    event.target.reset();
+                    cargarResumen();
+                    cambiarTab('movimientos');
+                } else {
+                    alert(`❌ Error: ${result.message}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error al registrar ingreso');
+            }
+        }
+
+        async function registrarEgreso(event) {
+            event.preventDefault();
+
+            const monto = parseFloat(document.getElementById('egreso-monto').value);
+            const categoria = document.getElementById('egreso-categoria').value;
+            const metodo = document.getElementById('egreso-metodo').value;
+            const descripcion = document.getElementById('egreso-descripcion').value;
+
+            try {
+                const response = await fetch(`${API_URL}/Caja/egreso`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        categoria: categoria,
+                        monto: monto,
+                        descripcion: descripcion,
+                        metodoPago: metodo
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('✅ Egreso registrado exitosamente');
+                    event.target.reset();
+                    cargarResumen();
+                    cambiarTab('movimientos');
+                } else {
+                    alert(`❌ Error: ${result.message}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error al registrar egreso');
+            }
+        }
+
+        // ========================================
+        // DEUDAS
+        // ========================================
+        let deudasData = [];
+        let deudaSeleccionada = null;
+
+        async function cargarDeudas() {
+            try {
+                const response = await fetch(`${API_URL}/Deudas?estado=pendiente`);
+                const data = await response.json();
+
+                if (!data.success) {
+                    document.getElementById('lista-deudas').innerHTML = `
+                        <div class="text-center py-12 text-red-500 font-bold">
+                            Error al cargar deudas
+                        </div>
+                    `;
+                    return;
+                }
+
+                deudasData = data.data;
+
+                if (deudasData.length === 0) {
+                    document.getElementById('lista-deudas').innerHTML = `
+                        <div class="bg-white rounded-2xl shadow-xl p-12 text-center border-2 border-gray-200">
+                            <i data-lucide="check-circle" class="w-16 h-16 mx-auto text-emerald-600 mb-4"></i>
+                            <p class="text-xl font-black text-gray-900 uppercase">No hay deudas pendientes</p>
+                            <p class="text-gray-600 mt-2 font-semibold">Todos los clientes están al día</p>
+                        </div>
+                    `;
                     lucide.createIcons();
+                    return;
                 }
 
-                // ========================================
-                // CARGAR RESUMEN PRINCIPAL
-                // ========================================
-                async function cargarResumen() {
-                    try {
-                        const [responseHoy, responseSaldoAnterior] = await Promise.all([
-                            fetch(`${API_URL}/Caja/hoy`),
-                            fetch(`${API_URL}/Caja/saldo-anterior`)
-                        ]);
+                renderDeudas(deudasData);
+            } catch (error) {
+                console.error('Error cargando deudas:', error);
+            }
+        }
 
-                        const dataHoy = await responseHoy.json();
-                        const dataSaldoAnterior = await responseSaldoAnterior.json();
+        function renderDeudas(deudas) {
+            const container = document.getElementById('lista-deudas');
 
-                        if (dataHoy.success) {
-                            const saldoAnterior = dataSaldoAnterior.success ? dataSaldoAnterior.saldoAnterior : 0;
-                            const efectivoHoy = (dataHoy.ingresosEfectivo || 0) - (dataHoy.egresosEfectivo || 0);
-                            const efectivoTotal = saldoAnterior + efectivoHoy;
+            container.innerHTML = deudas.map(deuda => `
+                <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200 hover:shadow-2xl transition-shadow">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-2">
+                                <h3 class="text-2xl font-black text-gray-900 uppercase tracking-wide">
+                                    ${deuda.clienteNombre}
+                                </h3>
+                                <span class="px-3 py-1 rounded-full text-xs font-black uppercase bg-amber-100 text-amber-800">
+                                    Pendiente
+                                </span>
+                            </div>
+                            <p class="text-sm text-gray-600 font-bold mb-3">Cédula: ${deuda.clienteCedula}</p>
 
-                            // Actualizar tarjetas
-                            document.getElementById('efectivo-caja').textContent = `$${efectivoTotal.toFixed(2)}`;
-                            document.getElementById('saldo-anterior').textContent = `$${saldoAnterior.toFixed(2)}`;
-                            document.getElementById('ingresos-hoy').textContent = `$${(dataHoy.ingresos || 0).toFixed(2)}`;
-                            document.getElementById('egresos-hoy').textContent = `$${(dataHoy.egresos || 0).toFixed(2)}`;
-                            document.getElementById('balance-total').textContent = `$${(dataHoy.balance || 0).toFixed(2)}`;
+                            <div class="bg-gray-50 rounded-xl p-4 mb-4 border-2 border-gray-200">
+                                <p class="text-sm text-gray-600 font-bold uppercase mb-1">Concepto</p>
+                                <p class="text-base text-gray-900 font-black">${deuda.Concepto}</p>
+                            </div>
 
-                            // Detalles
-                            document.getElementById('detalle-ingresos').textContent =
-                                `Efectivo: $${(dataHoy.ingresosEfectivo || 0).toFixed(2)} | Transf: $${(dataHoy.ingresosTransferencia || 0).toFixed(2)}`;
-                            document.getElementById('detalle-egresos').textContent =
-                                `Efectivo: $${(dataHoy.egresosEfectivo || 0).toFixed(2)} | Transf: $${(dataHoy.egresosTransferencia || 0).toFixed(2)}`;
-
-                            if (dataSaldoAnterior.success && dataSaldoAnterior.fechaCierre) {
-                                const fecha = new Date(dataSaldoAnterior.fechaCierre);
-                                document.getElementById('fecha-saldo-anterior').textContent =
-                                    `Cierre: ${fecha.toLocaleDateString('es-ES')}`;
-                            }
-                        }
-
-                        // Cargar deudas pendientes
-                        const responseDeudas = await fetch(`${API_URL}/Deudas?estado=pendiente`);
-                        const deudasData = await responseDeudas.json();
-
-                        if (deudasData.success) {
-                            document.getElementById('deudas-pendientes').textContent = `$${deudasData.totalSaldoPendiente.toFixed(2)}`;
-                        }
-                    } catch (error) {
-                        console.error('Error al cargar resumen:', error);
-                    }
-                }
-
-                // ========================================
-                // CARGAR MOVIMIENTOS
-                // ========================================
-                async function cargarMovimientos() {
-                    try {
-                        const desde = document.getElementById('fecha-desde').value;
-                        const hasta = document.getElementById('fecha-hasta').value;
-                        const categoria = document.getElementById('filtro-categoria').value;
-
-                        let url = `${API_URL}/Caja/movimientos?`;
-                        if (desde) url += `desde=${desde}&`;
-                        if (hasta) url += `hasta=${hasta}&`;
-                        if (categoria) url += `categoria=${categoria}&`;
-
-                        const response = await fetch(url);
-                        const data = await response.json();
-
-                        const tbody = document.getElementById('tabla-movimientos');
-
-                        if (data.success && data.movimientos.length > 0) {
-                            tbody.innerHTML = data.movimientos.map(m => {
-                                const fecha = new Date(m.Fecha);
-                                const tipoColor = m.Tipo === 'ingreso' ? 'text-green-600' : 'text-red-600';
-                                const metodoBadge = m.MetodoPago === 'efectivo'
-                                    ? '<span class="px-2 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded">Efectivo</span>'
-                                    : '<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded">Transferencia</span>';
-
-                                return `
-                                    <tr class="hover:bg-gray-50 transition-colors">
-                                        <td class="px-6 py-4 text-sm font-semibold text-gray-900">
-                                            ${fecha.toLocaleDateString('es-ES')} ${fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span class="px-3 py-1 ${tipoColor} bg-opacity-10 rounded-full text-xs font-black uppercase">${m.Tipo}</span>
-                                        </td>
-                                        <td class="px-6 py-4 text-sm font-semibold text-gray-700">${m.Categoria}</td>
-                                        <td class="px-6 py-4 text-sm font-semibold text-gray-600">${m.Descripcion}</td>
-                                        <td class="px-6 py-4">${metodoBadge}</td>
-                                        <td class="px-6 py-4 text-right text-lg font-black ${tipoColor}">$${m.Monto.toFixed(2)}</td>
-                                    </tr>
-                                `;
-                            }).join('');
-                        } else {
-                            tbody.innerHTML = `
-                                <tr>
-                                    <td colspan="6" class="px-6 py-12 text-center text-gray-500 font-bold">
-                                        No hay movimientos para mostrar
-                                    </td>
-                                </tr>
-                            `;
-                        }
-                    } catch (error) {
-                        console.error('Error al cargar movimientos:', error);
-                    }
-                }
-
-                // ========================================
-                // RESUMEN SEMANAL
-                // ========================================
-                async function cargarResumenSemanal() {
-                    try {
-                        const response = await fetch(`${API_URL}/Caja/resumen-semanal`);
-                        const data = await response.json();
-
-                        if (data.success) {
-                            // Actualizar período
-                            const desde = new Date(data.periodo.desde);
-                            const hasta = new Date(data.periodo.hasta);
-                            document.getElementById('periodo-semanal').textContent =
-                                `Semana del ${desde.toLocaleDateString('es-ES')} al ${hasta.toLocaleDateString('es-ES')}`;
-
-                            // Actualizar totales
-                            document.getElementById('total-ingresos-semana').textContent = `$${data.totales.ingresos.toFixed(2)}`;
-                            document.getElementById('total-egresos-semana').textContent = `$${data.totales.egresos.toFixed(2)}`;
-                            document.getElementById('balance-semana').textContent = `$${data.totales.balance.toFixed(2)}`;
-                            document.getElementById('cantidad-movimientos-semana').textContent = data.totales.cantidadMovimientos;
-
-                            // Actualizar tabla por día
-                            const tbody = document.getElementById('tabla-resumen-semanal');
-                            tbody.innerHTML = data.resumenPorDia.map(dia => {
-                                const balanceColor = dia.balance >= 0 ? 'text-emerald-600' : 'text-red-600';
-                                return `
-                                    <tr class="hover:bg-gray-50 transition-colors">
-                                        <td class="px-6 py-4 text-sm font-black text-gray-900 uppercase">${dia.diaNombre}</td>
-                                        <td class="px-6 py-4 text-right text-lg font-black text-blue-600">$${dia.ingresos.toFixed(2)}</td>
-                                        <td class="px-6 py-4 text-right text-lg font-black text-red-600">$${dia.egresos.toFixed(2)}</td>
-                                        <td class="px-6 py-4 text-right text-lg font-black ${balanceColor}">$${dia.balance.toFixed(2)}</td>
-                                        <td class="px-6 py-4 text-right text-sm font-semibold text-gray-700">$${dia.ingresosEfectivo.toFixed(2)}</td>
-                                        <td class="px-6 py-4 text-right text-sm font-semibold text-gray-700">$${dia.ingresosTransferencia.toFixed(2)}</td>
-                                        <td class="px-6 py-4 text-center">
-                                            <span class="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-full">${dia.cantidadMovimientos}</span>
-                                        </td>
-                                    </tr>
-                                `;
-                            }).join('');
-                        }
-                    } catch (error) {
-                        console.error('Error al cargar resumen semanal:', error);
-                    }
-                }
-
-                // ========================================
-                // HISTORIAL DE CIERRES
-                // ========================================
-                async function cargarHistorialCierres() {
-                    try {
-                        const response = await fetch(`${API_URL}/Caja/historial-cierres?limit=20`);
-                        const data = await response.json();
-
-                        const container = document.getElementById('lista-cierres');
-
-                        if (data.success && data.cierres.length > 0) {
-                            container.innerHTML = data.cierres.map(cierre => {
-                                const fecha = new Date(cierre.fechaCierre);
-                                const tipoBadge = cierre.tipo === 'automatico'
-                                    ? '<span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full">AUTOMÁTICO</span>'
-                                    : '<span class="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-full">MANUAL</span>';
-
-                                return `
-                                    <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200">
-                                        <div class="flex items-center justify-between mb-4">
-                                            <div>
-                                                <h4 class="text-lg font-black text-gray-900">${fecha.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h4>
-                                                <p class="text-sm text-gray-600 font-semibold">${fecha.toLocaleTimeString('es-ES')}</p>
-                                            </div>
-                                            ${tipoBadge}
-                                        </div>
-
-                                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                                            <div class="bg-purple-50 rounded-xl p-3">
-                                                <p class="text-xs text-purple-700 font-bold mb-1">Saldo Inicial</p>
-                                                <p class="text-lg font-black text-purple-600">$${cierre.efectivoInicial.toFixed(2)}</p>
-                                            </div>
-                                            <div class="bg-emerald-50 rounded-xl p-3">
-                                                <p class="text-xs text-emerald-700 font-bold mb-1">Efectivo Final</p>
-                                                <p class="text-lg font-black text-emerald-600">$${cierre.efectivoFinal.toFixed(2)}</p>
-                                            </div>
-                                            <div class="bg-blue-50 rounded-xl p-3">
-                                                <p class="text-xs text-blue-700 font-bold mb-1">Ingresos</p>
-                                                <p class="text-lg font-black text-blue-600">$${cierre.totalIngresos.toFixed(2)}</p>
-                                            </div>
-                                            <div class="bg-red-50 rounded-xl p-3">
-                                                <p class="text-xs text-red-700 font-bold mb-1">Egresos</p>
-                                                <p class="text-lg font-black text-red-600">$${cierre.totalEgresos.toFixed(2)}</p>
-                                            </div>
-                                        </div>
-
-                                        <div class="bg-amber-50 rounded-xl p-4">
-                                            <div class="flex items-center justify-between">
-                                                <div>
-                                                    <p class="text-sm text-amber-700 font-bold mb-1">Balance General</p>
-                                                    <p class="text-2xl font-black text-amber-600">$${cierre.balanceGeneral.toFixed(2)}</p>
-                                                </div>
-                                                <div class="text-right">
-                                                    <p class="text-xs text-gray-600 font-semibold">Movimientos</p>
-                                                    <p class="text-xl font-black text-gray-900">${cierre.cantidadMovimientos}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        ${cierre.observaciones ? `
-                                            <div class="mt-4 bg-gray-50 rounded-xl p-3">
-                                                <p class="text-xs text-gray-600 font-bold mb-1">Observaciones:</p>
-                                                <p class="text-sm text-gray-700 font-semibold">${cierre.observaciones}</p>
-                                            </div>
-                                        ` : ''}
-                                    </div>
-                                `;
-                            }).join('');
-                        } else {
-                            container.innerHTML = `
-                                <div class="bg-white rounded-2xl shadow-xl p-8 text-center border-2 border-gray-200">
-                                    <p class="text-gray-500 font-bold">No hay cierres registrados aún</p>
+                            <div class="grid grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <p class="text-xs text-gray-600 font-bold uppercase mb-1">Total</p>
+                                    <p class="text-lg font-black text-gray-900">$${deuda.MontoTotal.toFixed(2)}</p>
                                 </div>
-                            `;
-                        }
-                    } catch (error) {
-                        console.error('Error al cargar historial de cierres:', error);
-                    }
-                }
-
-                // ========================================
-                // MODAL CERRAR CAJA
-                // ========================================
-                async function abrirModalCerrarCaja() {
-                    try {
-                        const [responseHoy, responseSaldoAnterior] = await Promise.all([
-                            fetch(`${API_URL}/Caja/hoy`),
-                            fetch(`${API_URL}/Caja/saldo-anterior`)
-                        ]);
-
-                        const dataHoy = await responseHoy.json();
-                        const dataSaldoAnterior = await responseSaldoAnterior.json();
-
-                        if (dataHoy.success) {
-                            const saldoAnterior = dataSaldoAnterior.success ? dataSaldoAnterior.saldoAnterior : 0;
-                            const efectivoHoy = (dataHoy.ingresosEfectivo || 0) - (dataHoy.egresosEfectivo || 0);
-                            const efectivoFinal = saldoAnterior + efectivoHoy;
-
-                            document.getElementById('cierre-saldo-anterior').textContent = `$${saldoAnterior.toFixed(2)}`;
-                            document.getElementById('cierre-efectivo-final').textContent = `$${efectivoFinal.toFixed(2)}`;
-                            document.getElementById('cierre-ingresos').textContent = `$${(dataHoy.ingresos || 0).toFixed(2)}`;
-                            document.getElementById('cierre-egresos').textContent = `$${(dataHoy.egresos || 0).toFixed(2)}`;
-                            document.getElementById('cierre-balance').textContent = `$${(dataHoy.balance || 0).toFixed(2)}`;
-                        }
-
-                        document.getElementById('modal-cerrar-caja').style.display = 'flex';
-                        lucide.createIcons();
-                    } catch (error) {
-                        console.error('Error al abrir modal:', error);
-                        alert('❌ Error al cargar datos del cierre');
-                    }
-                }
-
-                function cerrarModalCerrarCaja() {
-                    document.getElementById('modal-cerrar-caja').style.display = 'none';
-                    document.getElementById('cierre-observaciones').value = '';
-                }
-
-                async function confirmarCierreCaja() {
-                    try {
-                        const observaciones = document.getElementById('cierre-observaciones').value;
-
-                        const response = await fetch(`${API_URL}/Caja/cerrar-caja`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                observaciones: observaciones
-                                // No enviar usuarioId, será null por defecto
-                            })
-                        });
-
-                        const result = await response.json();
-
-                        if (result.success) {
-                            const cierre = result.cierre;
-                            const mensaje = `✅ CAJA CERRADA EXITOSAMENTE
-
-        📊 RESUMEN DEL CIERRE:
-        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        💰 Efectivo Inicial: $${cierre.efectivoInicial.toLocaleString()}
-        📈 Ingresos Efectivo: $${cierre.ingresosEfectivo.toLocaleString()}
-        📉 Egresos Efectivo: $${cierre.egresosEfectivo.toLocaleString()}
-        💵 Efectivo Final: $${cierre.efectivoFinal.toLocaleString()}
-
-        💳 Ingresos Transferencia: $${cierre.ingresosTransferencia.toLocaleString()}
-        💳 Egresos Transferencia: $${cierre.egresosTransferencia.toLocaleString()}
-
-        📊 TOTALES:
-        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        💵 Total Ingresos: $${cierre.totalIngresos.toLocaleString()}
-        💸 Total Egresos: $${cierre.totalEgresos.toLocaleString()}
-        📊 Balance General: $${cierre.balanceGeneral.toLocaleString()}
-        📋 Movimientos: ${cierre.cantidadMovimientos}`;
-
-                            alert(mensaje);
-                            cerrarModalCerrarCaja();
-                            cargarResumen();
-                            cambiarTab('cierres');
-                        } else {
-                            alert(`❌ Error: ${result.message}`);
-                        }
-                    } catch (error) {
-                        console.error('Error al cerrar caja:', error);
-                        alert('❌ Error al procesar el cierre de caja');
-                    }
-                }
-
-                // ========================================
-                // REGISTRAR MOVIMIENTOS
-                // ========================================
-                async function registrarIngreso(event) {
-                    event.preventDefault();
-
-                    const monto = parseFloat(document.getElementById('ingreso-monto').value);
-                    const categoria = document.getElementById('ingreso-categoria').value;
-                    const metodo = document.getElementById('ingreso-metodo').value;
-                    const descripcion = document.getElementById('ingreso-descripcion').value;
-
-                    try {
-                        const response = await fetch(`${API_URL}/Caja/ingreso`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                categoria: categoria,
-                                monto: monto,
-                                descripcion: descripcion,
-                                metodoPago: metodo
-                            })
-                        });
-
-                        const result = await response.json();
-
-                        if (result.success) {
-                            alert('✅ Ingreso registrado exitosamente');
-                            event.target.reset();
-                            cargarResumen();
-                            cambiarTab('movimientos');
-                        } else {
-                            alert(`❌ Error: ${result.message}`);
-                        }
-                    } catch (error) {
-                        console.error('Error:', error);
-                        alert('❌ Error al registrar ingreso');
-                    }
-                }
-
-                async function registrarEgreso(event) {
-                    event.preventDefault();
-
-                    const monto = parseFloat(document.getElementById('egreso-monto').value);
-                    const categoria = document.getElementById('egreso-categoria').value;
-                    const metodo = document.getElementById('egreso-metodo').value;
-                    const descripcion = document.getElementById('egreso-descripcion').value;
-
-                    try {
-                        const response = await fetch(`${API_URL}/Caja/egreso`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                categoria: categoria,
-                                monto: monto,
-                                descripcion: descripcion,
-                                metodoPago: metodo
-                            })
-                        });
-
-                        const result = await response.json();
-
-                        if (result.success) {
-                            alert('✅ Egreso registrado exitosamente');
-                            event.target.reset();
-                            cargarResumen();
-                            cambiarTab('movimientos');
-                        } else {
-                            alert(`❌ Error: ${result.message}`);
-                        }
-                    } catch (error) {
-                        console.error('Error:', error);
-                        alert('❌ Error al registrar egreso');
-                    }
-                }
-
-                // ========================================
-                // DEUDAS
-                // ========================================
-                let deudasData = [];
-                let deudaSeleccionada = null;
-
-                async function cargarDeudas() {
-                    try {
-                        const response = await fetch(`${API_URL}/Deudas?estado=pendiente`);
-                        const data = await response.json();
-
-                        if (!data.success) {
-                            document.getElementById('lista-deudas').innerHTML = `
-                                <div class="text-center py-12 text-red-500 font-bold">
-                                    Error al cargar deudas
+                                <div>
+                                    <p class="text-xs text-gray-600 font-bold uppercase mb-1">Pagado</p>
+                                    <p class="text-lg font-black text-emerald-600">$${deuda.MontoPagado.toFixed(2)}</p>
                                 </div>
-                            `;
-                            return;
-                        }
-
-                        deudasData = data.data;
-
-                        if (deudasData.length === 0) {
-                            document.getElementById('lista-deudas').innerHTML = `
-                                <div class="bg-white rounded-2xl shadow-xl p-12 text-center border-2 border-gray-200">
-                                    <i data-lucide="check-circle" class="w-16 h-16 mx-auto text-emerald-600 mb-4"></i>
-                                    <p class="text-xl font-black text-gray-900 uppercase">No hay deudas pendientes</p>
-                                    <p class="text-gray-600 mt-2 font-semibold">Todos los clientes están al día</p>
-                                </div>
-                            `;
-                            lucide.createIcons();
-                            return;
-                        }
-
-                        renderDeudas(deudasData);
-                    } catch (error) {
-                        console.error('Error cargando deudas:', error);
-                    }
-                }
-
-                function renderDeudas(deudas) {
-                    const container = document.getElementById('lista-deudas');
-
-                    container.innerHTML = deudas.map(deuda => `
-                        <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200 hover:shadow-2xl transition-shadow">
-                            <div class="flex justify-between items-start">
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-3 mb-2">
-                                        <h3 class="text-2xl font-black text-gray-900 uppercase tracking-wide">
-                                            ${deuda.clienteNombre}
-                                        </h3>
-                                        <span class="px-3 py-1 rounded-full text-xs font-black uppercase bg-amber-100 text-amber-800">
-                                            Pendiente
-                                        </span>
-                                    </div>
-                                    <p class="text-sm text-gray-600 font-bold mb-3">Cédula: ${deuda.clienteCedula}</p>
-
-                                    <div class="bg-gray-50 rounded-xl p-4 mb-4 border-2 border-gray-200">
-                                        <p class="text-sm text-gray-600 font-bold uppercase mb-1">Concepto</p>
-                                        <p class="text-base text-gray-900 font-black">${deuda.Concepto}</p>
-                                    </div>
-
-                                    <div class="grid grid-cols-3 gap-4 mb-4">
-                                        <div>
-                                            <p class="text-xs text-gray-600 font-bold uppercase mb-1">Total</p>
-                                            <p class="text-lg font-black text-gray-900">$${deuda.MontoTotal.toFixed(2)}</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-xs text-gray-600 font-bold uppercase mb-1">Pagado</p>
-                                            <p class="text-lg font-black text-emerald-600">$${deuda.MontoPagado.toFixed(2)}</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-xs text-gray-600 font-bold uppercase mb-1">Saldo</p>
-                                            <p class="text-2xl font-black text-red-600">$${deuda.Saldo.toFixed(2)}</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="ml-6 flex flex-col gap-2">
-                                    <button onclick="abrirModalAbonar('${deuda.Id}')"
-                                            class="px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900 text-white font-black rounded-xl transition-all shadow-lg uppercase tracking-wide transform hover:scale-105">
-                                        <i data-lucide="dollar-sign" class="w-5 h-5 inline-block mr-2"></i>
-                                        Abonar
-                                    </button>
-                                    <button onclick="pagarCompleto('${deuda.Id}')"
-                                            class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-black rounded-xl transition-all shadow-lg uppercase tracking-wide transform hover:scale-105">
-                                        <i data-lucide="check-circle" class="w-5 h-5 inline-block mr-2"></i>
-                                        Pagar Todo
-                                    </button>
+                                <div>
+                                    <p class="text-xs text-gray-600 font-bold uppercase mb-1">Saldo</p>
+                                    <p class="text-2xl font-black text-red-600">$${deuda.Saldo.toFixed(2)}</p>
                                 </div>
                             </div>
                         </div>
-                    `).join('');
 
-                    lucide.createIcons();
-                }
+                        <div class="ml-6 flex flex-col gap-2">
+                            <button onclick="abrirModalAbonar('${deuda.Id}')"
+                                    class="px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900 text-white font-black rounded-xl transition-all shadow-lg uppercase tracking-wide transform hover:scale-105">
+                                <i data-lucide="dollar-sign" class="w-5 h-5 inline-block mr-2"></i>
+                                Abonar
+                            </button>
+                            <button onclick="pagarCompleto('${deuda.Id}')"
+                                    class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-black rounded-xl transition-all shadow-lg uppercase tracking-wide transform hover:scale-105">
+                                <i data-lucide="check-circle" class="w-5 h-5 inline-block mr-2"></i>
+                                Pagar Todo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
 
-                function filtrarDeudas() {
-                    const query = document.getElementById('buscar-deuda').value.toLowerCase();
-                    const filtradas = deudasData.filter(d =>
-                        d.clienteNombre.toLowerCase().includes(query) ||
-                        d.clienteCedula.includes(query) ||
-                        d.Concepto.toLowerCase().includes(query)
-                    );
-                    renderDeudas(filtradas);
-                }
+            lucide.createIcons();
+        }
 
-                function abrirModalAbonar(deudaId) {
-                    const deuda = deudasData.find(d => d.Id === deudaId);
-                    if (!deuda) return;
+        function filtrarDeudas() {
+            const query = document.getElementById('buscar-deuda').value.toLowerCase();
+            const filtradas = deudasData.filter(d =>
+                d.clienteNombre.toLowerCase().includes(query) ||
+                d.clienteCedula.includes(query) ||
+                d.Concepto.toLowerCase().includes(query)
+            );
+            renderDeudas(filtradas);
+        }
 
-                    deudaSeleccionada = deuda;
-                    document.getElementById('modal-cliente-nombre').textContent = deuda.clienteNombre;
-                    document.getElementById('modal-concepto').textContent = deuda.Concepto;
-                    document.getElementById('modal-saldo').textContent = `$${deuda.Saldo.toFixed(2)}`;
-                    document.getElementById('input-monto-abono').value = deuda.Saldo.toFixed(2);
-                    document.getElementById('modalAbonarDeuda').classList.remove('hidden');
-                    lucide.createIcons();
-                }
+        function abrirModalAbonar(deudaId) {
+            const deuda = deudasData.find(d => d.Id === deudaId);
+            if (!deuda) return;
 
-                function cerrarModalAbonar() {
-                    document.getElementById('modalAbonarDeuda').classList.add('hidden');
-                    deudaSeleccionada = null;
-                }
+            deudaSeleccionada = deuda;
+            document.getElementById('modal-cliente-nombre').textContent = deuda.clienteNombre;
+            document.getElementById('modal-concepto').textContent = deuda.Concepto;
+            document.getElementById('modal-saldo').textContent = `$${deuda.Saldo.toFixed(2)}`;
+            document.getElementById('input-monto-abono').value = deuda.Saldo.toFixed(2);
+            document.getElementById('modalAbonarDeuda').classList.remove('hidden');
+            lucide.createIcons();
+        }
 
-                async function confirmarAbono() {
-                    const monto = parseFloat(document.getElementById('input-monto-abono').value);
-                    const metodo = document.getElementById('input-metodo-abono').value;
+        function cerrarModalAbonar() {
+            document.getElementById('modalAbonarDeuda').classList.add('hidden');
+            deudaSeleccionada = null;
+        }
 
-                    if (isNaN(monto) || monto <= 0) {
-                        alert('❌ Monto inválido');
-                        return;
-                    }
+        async function confirmarAbono() {
+            const monto = parseFloat(document.getElementById('input-monto-abono').value);
+            const metodo = document.getElementById('input-metodo-abono').value;
 
-                    if (monto > deudaSeleccionada.Saldo) {
-                        alert('❌ El monto no puede ser mayor al saldo pendiente');
-                        return;
-                    }
+            if (isNaN(monto) || monto <= 0) {
+                alert('❌ Monto inválido');
+                return;
+            }
 
-                    try {
-                        const response = await fetch(`${API_URL}/Deudas/abonar`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                deudaId: deudaSeleccionada.Id,
-                                monto: monto,
-                                metodoPago: metodo,
-                                notas: `Abono a deuda - ${deudaSeleccionada.Concepto}`
-                            })
-                        });
+            if (monto > deudaSeleccionada.Saldo) {
+                alert('❌ El monto no puede ser mayor al saldo pendiente');
+                return;
+            }
 
-                        const result = await response.json();
-
-                        if (result.success) {
-                            alert(`✅ ${result.message}`);
-                            cerrarModalAbonar();
-                            cargarDeudas();
-                            cargarResumen();
-                        } else {
-                            alert(`❌ Error: ${result.message}`);
-                        }
-                    } catch (error) {
-                        console.error('Error:', error);
-                        alert('❌ Error al registrar abono');
-                    }
-                }
-
-                async function pagarCompleto(deudaId) {
-                    const deuda = deudasData.find(d => d.Id === deudaId);
-                    if (!deuda) return;
-
-                    if (!confirm(`¿Pagar completamente $${deuda.Saldo.toFixed(2)}?`)) return;
-
-                    try {
-                        const response = await fetch(`${API_URL}/Deudas/abonar`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                deudaId: deuda.Id,
-                                monto: deuda.Saldo,
-                                metodoPago: 'efectivo',
-                                notas: 'Pago completo de deuda'
-                            })
-                        });
-
-                        const result = await response.json();
-
-                        if (result.success) {
-                            alert('✅ Deuda pagada completamente');
-                            cargarDeudas();
-                            cargarResumen();
-                        } else {
-                            alert(`❌ Error: ${result.message}`);
-                        }
-                    } catch (error) {
-                        console.error('Error:', error);
-                        alert('❌ Error al pagar deuda');
-                    }
-                }
-
-                // ========================================
-                // INICIALIZACIÓN
-                // ========================================
-                window.addEventListener('load', function() {
-                    cargarResumen();
-                    cargarMovimientos();
-                    lucide.createIcons();
+            try {
+                const response = await fetch(`${API_URL}/Deudas/abonar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        deudaId: deudaSeleccionada.Id,
+                        monto: monto,
+                        metodoPago: metodo,
+                        notas: `Abono a deuda - ${deudaSeleccionada.Concepto}`
+                    })
                 });
 
-                // Asignar funciones globales
-                window.cambiarTab = cambiarTab;
-                window.cargarMovimientos = cargarMovimientos;
-                window.cargarResumenSemanal = cargarResumenSemanal;
-                window.cargarHistorialCierres = cargarHistorialCierres;
-                window.abrirModalCerrarCaja = abrirModalCerrarCaja;
-                window.cerrarModalCerrarCaja = cerrarModalCerrarCaja;
-                window.confirmarCierreCaja = confirmarCierreCaja;
-                window.registrarIngreso = registrarIngreso;
-                window.registrarEgreso = registrarEgreso;
-                window.cargarDeudas = cargarDeudas;
-                window.filtrarDeudas = filtrarDeudas;
-                window.abrirModalAbonar = abrirModalAbonar;
-                window.cerrarModalAbonar = cerrarModalAbonar;
-                window.confirmarAbono = confirmarAbono;
-                window.pagarCompleto = pagarCompleto;
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(`✅ ${result.message}`);
+                    cerrarModalAbonar();
+                    cargarDeudas();
+                    cargarResumen();
+                } else {
+                    alert(`❌ Error: ${result.message}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error al registrar abono');
+            }
+        }
+
+        async function pagarCompleto(deudaId) {
+            const deuda = deudasData.find(d => d.Id === deudaId);
+            if (!deuda) return;
+
+            if (!confirm(`¿Pagar completamente $${deuda.Saldo.toFixed(2)}?`)) return;
+
+            try {
+                const response = await fetch(`${API_URL}/Deudas/abonar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        deudaId: deuda.Id,
+                        monto: deuda.Saldo,
+                        metodoPago: 'efectivo',
+                        notas: 'Pago completo de deuda'
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('✅ Deuda pagada completamente');
+                    cargarDeudas();
+                    cargarResumen();
+                } else {
+                    alert(`❌ Error: ${result.message}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error al pagar deuda');
+            }
+        }
+
+        // ========================================
+        // INICIALIZACIÓN
+        // ========================================
+        window.addEventListener('load', function() {
+            cargarResumen();
+            cargarMovimientos();
+            lucide.createIcons();
+        });
+
+        // Asignar funciones globales
+        window.cambiarTab = cambiarTab;
+        window.cargarMovimientos = cargarMovimientos;
+        window.cargarResumenSemanal = cargarResumenSemanal;
+        window.cargarHistorialCierres = cargarHistorialCierres;
+        window.abrirModalCerrarCaja = abrirModalCerrarCaja;
+        window.cerrarModalCerrarCaja = cerrarModalCerrarCaja;
+        window.confirmarCierreCaja = confirmarCierreCaja;
+        window.registrarIngreso = registrarIngreso;
+        window.registrarEgreso = registrarEgreso;
+        window.cargarDeudas = cargarDeudas;
+        window.filtrarDeudas = filtrarDeudas;
+        window.abrirModalAbonar = abrirModalAbonar;
+        window.cerrarModalAbonar = cerrarModalAbonar;
+        window.confirmarAbono = confirmarAbono;
+        window.pagarCompleto = pagarCompleto;
     </script>
 }

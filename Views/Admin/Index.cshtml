@@ -40,11 +40,22 @@
 
             async loadCajaHoy() {
                 try {
-                    const response = await fetch(`${API_URL}/Caja/hoy`);
+                    const response = await fetch(`${API_URL}/Caja/dashboard`);
                     const data = await response.json();
 
                     if (data.success) {
-                        this.cajaHoyData = data;
+                        // Adaptar la estructura del nuevo endpoint al formato que espera el dashboard
+                        this.cajaHoyData = {
+                            success: true,
+                            ingresos: data.hoy.ingresos,
+                            egresos: data.hoy.egresos,
+                            balance: data.hoy.balance,
+                            ingresosEfectivo: data.cajaActual.efectivo.ingresos,
+                            egresosEfectivo: data.cajaActual.efectivo.egresos,
+                            ingresosTransferencia: data.cajaActual.transferencia.ingresos,
+                            egresosTransferencia: data.cajaActual.transferencia.egresos,
+                            cantidadMovimientos: data.hoy.cantidadMovimientos
+                        };
                     }
                 } catch (error) {
                     console.error('Error cargando datos de caja:', error);
@@ -84,10 +95,7 @@
 
                 const { resumen, alertas, topClientes } = this.estadisticasData;
                 const { ingresos, egresos, balance, ingresosEfectivo, egresosEfectivo,
-                        ingresosTransferencia, egresosTransferencia, movimientos } = this.cajaHoyData;
-
-                // Procesar ingresos por categoría
-                const ingresosPorCategoria = this.procesarIngresosPorCategoria(movimientos);
+                        ingresosTransferencia, egresosTransferencia, cantidadMovimientos } = this.cajaHoyData;
 
                 document.getElementById('dashboard-app').innerHTML = `
                     <!-- Resumen de Caja Hoy -->
@@ -110,7 +118,7 @@
                                     <p class="text-sm uppercase tracking-wider mb-1 text-emerald-100">Ingresos de Hoy</p>
                                     <p class="text-3xl font-black">${this.formatCurrency(ingresos)}</p>
                                     <p class="text-xs mt-2 text-emerald-100">
-                                        ${movimientos.filter(m => m.Tipo === 'ingreso').length} movimientos
+                                        ${cantidadMovimientos} movimientos hoy
                                     </p>
                                 </div>
                             </div>
@@ -168,17 +176,6 @@
                                     </p>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Desglose de Ingresos de Hoy por Categoría -->
-                    <div class="mb-8">
-                        <h3 class="text-xl font-bold text-gray-800 mb-5 uppercase tracking-wide flex items-center gap-2">
-                            <i data-lucide="receipt" class="w-6 h-6 text-blue-600"></i>
-                            Ingresos por Categoría - Hoy
-                        </h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                            ${this.renderCategoriasIngresos(ingresosPorCategoria)}
                         </div>
                     </div>
 
@@ -319,55 +316,6 @@
                 `;
 
                 lucide.createIcons();
-            }
-
-            procesarIngresosPorCategoria(movimientos) {
-                const categorias = {
-                    'membresia': { total: 0, cantidad: 0 },
-                    'producto': { total: 0, cantidad: 0 },
-                    'abono_deuda': { total: 0, cantidad: 0 },
-                    'otros': { total: 0, cantidad: 0 }
-                };
-
-                movimientos
-                    .filter(m => m.Tipo === 'ingreso')
-                    .forEach(m => {
-                        const cat = m.Categoria?.toLowerCase();
-                        if (categorias[cat]) {
-                            categorias[cat].total += m.Monto;
-                            categorias[cat].cantidad++;
-                        } else {
-                            categorias.otros.total += m.Monto;
-                            categorias.otros.cantidad++;
-                        }
-                    });
-
-                return categorias;
-            }
-
-            renderCategoriasIngresos(categorias) {
-                const configs = {
-                    'membresia': { nombre: 'Membresías', icono: 'badge-check', color: 'red' },
-                    'producto': { nombre: 'Productos', icono: 'shopping-bag', color: 'emerald' },
-                    'abono_deuda': { nombre: 'Abonos', icono: 'coins', color: 'blue' },
-                    'otros': { nombre: 'Otros', icono: 'plus-circle', color: 'purple' }
-                };
-
-                return Object.entries(configs).map(([key, config]) => {
-                    const data = categorias[key];
-                    return `
-                        <div class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-${config.color}-600 hover:shadow-xl transition-all">
-                            <div class="flex items-center justify-between mb-3">
-                                <div class="bg-${config.color}-100 rounded-xl p-3">
-                                    <i data-lucide="${config.icono}" class="w-6 h-6 text-${config.color}-600"></i>
-                                </div>
-                                <span class="text-xs font-bold text-gray-500">${data.cantidad} ventas</span>
-                            </div>
-                            <p class="text-sm text-gray-600 uppercase tracking-wide mb-1">${config.nombre}</p>
-                            <p class="text-2xl font-black text-gray-900">${this.formatCurrency(data.total)}</p>
-                        </div>
-                    `;
-                }).join('');
             }
 
             renderAlertas(alertas) {
