@@ -47,21 +47,22 @@ namespace VidaFit.Controllers.API
 
             if (ultimoCierre == null)
             {
-                return new DateTime(1900, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                // Si no hay cierres previos, usar inicio del día actual
+                return DateTime.UtcNow.Date;
             }
 
             return DateTime.SpecifyKind(ultimoCierre.FechaCierre, DateTimeKind.Utc);
         }
 
         /// <summary>
-        /// Obtener movimientos pendientes (no cerrados)
+        /// Obtener movimientos del día actual (desde las 00:00 de hoy)
         /// </summary>
-        private async Task<List<MovimientoCaja>> ObtenerMovimientosPendientesAsync()
+        private async Task<List<MovimientoCaja>> ObtenerMovimientosDiaActualAsync()
         {
-            var fechaUltimoCierre = await ObtenerFechaUltimoCierreAsync();
+            var hoy = DateTime.UtcNow.Date;
 
             var movimientos = await _context.MovimientosCaja
-                .Where(m => m.Fecha > fechaUltimoCierre)
+                .Where(m => m.Fecha >= hoy && m.Fecha < hoy.AddDays(1))
                 .OrderBy(m => m.Fecha)
                 .ToListAsync();
 
@@ -77,38 +78,53 @@ namespace VidaFit.Controllers.API
         {
             try
             {
-                var movimientos = await ObtenerMovimientosPendientesAsync();
                 var hoy = DateTime.UtcNow.Date;
-                var movimientosHoy = movimientos.Where(m => m.Fecha.Date == hoy).ToList();
+                var movimientosHoy = await ObtenerMovimientosDiaActualAsync();
 
+                // Calcular totales de HOY
                 var ingresosHoy = movimientosHoy.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto);
                 var egresosHoy = movimientosHoy.Where(m => m.Tipo == "egreso").Sum(m => m.Monto);
                 var balanceHoy = ingresosHoy - egresosHoy;
 
-                var totalIngresos = movimientos.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto);
-                var totalEgresos = movimientos.Where(m => m.Tipo == "egreso").Sum(m => m.Monto);
-                var balanceTotal = totalIngresos - totalEgresos;
+                // Desglose por método de pago de HOY
+                var ingresosEfectivo = movimientosHoy
+                    .Where(m => m.Tipo == "ingreso" && m.MetodoPago == "efectivo")
+                    .Sum(m => m.Monto);
 
-                var efectivo = movimientos
-                    .Where(m => m.MetodoPago == "efectivo")
-                    .GroupBy(m => m.Tipo)
-                    .Select(g => new { tipo = g.Key, total = g.Sum(m => m.Monto) })
-                    .ToList();
+                var egresosEfectivo = movimientosHoy
+                    .Where(m => m.Tipo == "egreso" && m.MetodoPago == "efectivo")
+                    .Sum(m => m.Monto);
 
-                var transferencia = movimientos
-                    .Where(m => m.MetodoPago == "transferencia")
-                    .GroupBy(m => m.Tipo)
-                    .Select(g => new { tipo = g.Key, total = g.Sum(m => m.Monto) })
-                    .ToList();
-
-                var ingresosEfectivo = efectivo.FirstOrDefault(e => e.tipo == "ingreso")?.total ?? 0;
-                var egresosEfectivo = efectivo.FirstOrDefault(e => e.tipo == "egreso")?.total ?? 0;
                 var balanceEfectivo = ingresosEfectivo - egresosEfectivo;
 
-                var ingresosTransferencia = transferencia.FirstOrDefault(t => t.tipo == "ingreso")?.total ?? 0;
-                var egresosTransferencia = transferencia.FirstOrDefault(t => t.tipo == "egreso")?.total ?? 0;
+                var ingresosTransferencia = movimientosHoy
+                    .Where(m => m.Tipo == "ingreso" && m.MetodoPago == "transferencia")
+                    .Sum(m => m.Monto);
+
+                var egresosTransferencia = movimientosHoy
+                    .Where(m => m.Tipo == "egreso" && m.MetodoPago == "transferencia")
+                    .Sum(m => m.Monto);
+
                 var balanceTransferencia = ingresosTransferencia - egresosTransferencia;
 
+                // Desglose por categoría de HOY
+                var ingresoMembresias = movimientosHoy
+                    .Where(m => m.Tipo == "ingreso" && (m.Categoria == "membresia" || m.Categoria == "renovacion"))
+                    .Sum(m => m.Monto);
+
+                var ingresoProductos = movimientosHoy
+                    .Where(m => m.Tipo == "ingreso" && m.Categoria == "producto")
+                    .Sum(m => m.Monto);
+
+                var ingresoAbonos = movimientosHoy
+                    .Where(m => m.Tipo == "ingreso" && m.Categoria == "abono_deuda")
+                    .Sum(m => m.Monto);
+
+                var ingresoOtros = movimientosHoy
+                    .Where(m => m.Tipo == "ingreso" && m.Categoria != "membresia" && m.Categoria != "renovacion" && m.Categoria != "producto" && m.Categoria != "abono_deuda")
+                    .Sum(m => m.Monto);
+
+                // Obtener último cierre para información histórica
                 var ultimoCierre = await _context.CierresCaja
                     .OrderByDescending(c => c.FechaCierre)
                     .Select(c => new
@@ -124,12 +140,12 @@ namespace VidaFit.Controllers.API
                 return Ok(new
                 {
                     success = true,
-                    cajaActual = new
+                    cajaHoy = new
                     {
-                        totalIngresos,
-                        totalEgresos,
-                        balance = balanceTotal,
-                        cantidadMovimientos = movimientos.Count,
+                        totalIngresos = ingresosHoy,
+                        totalEgresos = egresosHoy,
+                        balance = balanceHoy,
+                        cantidadMovimientos = movimientosHoy.Count,
                         efectivo = new
                         {
                             ingresos = ingresosEfectivo,
@@ -141,14 +157,14 @@ namespace VidaFit.Controllers.API
                             ingresos = ingresosTransferencia,
                             egresos = egresosTransferencia,
                             balance = balanceTransferencia
+                        },
+                        categorias = new
+                        {
+                            membresias = ingresoMembresias,
+                            productos = ingresoProductos,
+                            abonos = ingresoAbonos,
+                            otros = ingresoOtros
                         }
-                    },
-                    hoy = new
-                    {
-                        ingresos = ingresosHoy,
-                        egresos = egresosHoy,
-                        balance = balanceHoy,
-                        cantidadMovimientos = movimientosHoy.Count
                     },
                     ultimoCierre
                 });
@@ -165,7 +181,7 @@ namespace VidaFit.Controllers.API
         }
 
         /// <summary>
-        /// Obtener movimientos de HOY (pendientes)
+        /// Obtener movimientos de HOY
         /// Endpoint: GET /api/caja/hoy
         /// </summary>
         [HttpGet("hoy")]
@@ -173,9 +189,7 @@ namespace VidaFit.Controllers.API
         {
             try
             {
-                var movimientos = await ObtenerMovimientosPendientesAsync();
-                var hoy = DateTime.UtcNow.Date;
-                var movimientosHoy = movimientos.Where(m => m.Fecha.Date == hoy).ToList();
+                var movimientosHoy = await ObtenerMovimientosDiaActualAsync();
 
                 var ingresos = movimientosHoy.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto);
                 var egresos = movimientosHoy.Where(m => m.Tipo == "egreso").Sum(m => m.Monto);
@@ -212,96 +226,55 @@ namespace VidaFit.Controllers.API
         }
 
         /// <summary>
-        /// Obtener saldo del cierre anterior
-        /// Endpoint: GET /api/caja/saldo-anterior
-        /// </summary>
-        [HttpGet("saldo-anterior")]
-        public async Task<IActionResult> GetSaldoAnterior()
-        {
-            try
-            {
-                var ultimoCierre = await _context.CierresCaja
-                    .OrderByDescending(c => c.FechaCierre)
-                    .FirstOrDefaultAsync();
-
-                if (ultimoCierre == null)
-                {
-                    return Ok(new
-                    {
-                        success = true,
-                        saldoAnterior = 0,
-                        fechaCierre = (DateTime?)null,
-                        mensaje = "No hay cierres anteriores"
-                    });
-                }
-
-                return Ok(new
-                {
-                    success = true,
-                    saldoAnterior = ultimoCierre.EfectivoFinal,
-                    fechaCierre = ultimoCierre.FechaCierre,
-                    tipoCierre = ultimoCierre.TipoCierre
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Error al obtener saldo anterior",
-                    error = ex.Message
-                });
-            }
-        }
-
-        /// <summary>
-        /// Lista de movimientos con filtros
+        /// Obtener movimientos con filtros
         /// Endpoint: GET /api/caja/movimientos
         /// </summary>
         [HttpGet("movimientos")]
         public async Task<IActionResult> GetMovimientos(
-            [FromQuery] string desde = null,
-            [FromQuery] string hasta = null,
-            [FromQuery] string categoria = null)
+            [FromQuery] DateTime? desde = null,
+            [FromQuery] DateTime? hasta = null,
+            [FromQuery] string? categoria = null,
+            [FromQuery] string? tipo = null)
         {
             try
             {
-                var movimientos = await ObtenerMovimientosPendientesAsync();
+                var hoy = DateTime.UtcNow.Date;
+                var fechaDesde = desde ?? hoy;
+                var fechaHasta = hasta ?? hoy.AddDays(1).AddTicks(-1);
 
-                if (!string.IsNullOrWhiteSpace(desde) && DateTime.TryParse(desde, out DateTime fechaDesde))
+                var query = _context.MovimientosCaja
+                    .Where(m => m.Fecha >= fechaDesde && m.Fecha <= fechaHasta);
+
+                if (!string.IsNullOrEmpty(categoria))
                 {
-                    movimientos = movimientos.Where(m => m.Fecha.Date >= fechaDesde.Date).ToList();
+                    query = query.Where(m => m.Categoria == categoria);
                 }
 
-                if (!string.IsNullOrWhiteSpace(hasta) && DateTime.TryParse(hasta, out DateTime fechaHasta))
+                if (!string.IsNullOrEmpty(tipo))
                 {
-                    movimientos = movimientos.Where(m => m.Fecha.Date <= fechaHasta.Date).ToList();
+                    query = query.Where(m => m.Tipo == tipo);
                 }
 
-                if (!string.IsNullOrWhiteSpace(categoria))
-                {
-                    movimientos = movimientos.Where(m => m.Categoria == categoria).ToList();
-                }
-
-                var movimientosOrdenados = movimientos
+                var movimientos = await query
                     .OrderByDescending(m => m.Fecha)
                     .Select(m => new
                     {
                         m.Id,
-                        m.Tipo,
-                        m.Categoria,
-                        m.Monto,
-                        m.Descripcion,
-                        m.MetodoPago,
-                        m.Fecha,
-                        m.ReferenciaId
+                        Tipo = m.Tipo,
+                        Categoria = m.Categoria,
+                        Monto = m.Monto,
+                        Descripcion = m.Descripcion,
+                        MetodoPago = m.MetodoPago,
+                        Fecha = m.Fecha,
+                        ReferenciaId = m.ReferenciaId
                     })
-                    .ToList();
+                    .ToListAsync();
 
                 return Ok(new
                 {
                     success = true,
-                    movimientos = movimientosOrdenados
+                    movimientos = movimientos,
+                    total = movimientos.Count
                 });
             }
             catch (Exception ex)
@@ -316,105 +289,50 @@ namespace VidaFit.Controllers.API
         }
 
         /// <summary>
-        /// Historial de cierres
-        /// Endpoint: GET /api/caja/historial-cierres
+        /// Resumen semanal
+        /// Endpoint: GET /api/caja/semanal
         /// </summary>
-        [HttpGet("historial-cierres")]
-        public async Task<IActionResult> GetHistorialCierres([FromQuery] int limit = 20)
-        {
-            try
-            {
-                var cierres = await _context.CierresCaja
-                    .OrderByDescending(c => c.FechaCierre)
-                    .Take(limit)
-                    .Select(c => new
-                    {
-                        c.Id,
-                        fechaCierre = c.FechaCierre,
-                        tipo = c.TipoCierre,
-                        efectivoInicial = c.EfectivoInicial,
-                        efectivoFinal = c.EfectivoFinal,
-                        totalIngresos = c.TotalIngresos,
-                        totalEgresos = c.TotalEgresos,
-                        balanceGeneral = c.BalanceGeneral,
-                        cantidadMovimientos = c.CantidadMovimientos,
-                        observaciones = c.Observaciones
-                    })
-                    .ToListAsync();
-
-                return Ok(new
-                {
-                    success = true,
-                    cierres
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Error al obtener historial de cierres",
-                    error = ex.Message
-                });
-            }
-        }
-
-        /// <summary>
-        /// Resumen semanal (lunes a sábado)
-        /// Endpoint: GET /api/caja/resumen-semanal
-        /// </summary>
-        [HttpGet("resumen-semanal")]
+        [HttpGet("semanal")]
         public async Task<IActionResult> GetResumenSemanal()
         {
             try
             {
                 var hoy = DateTime.UtcNow.Date;
-
-                int diasDesdeInicio = ((int)hoy.DayOfWeek - (int)DayOfWeek.Monday + 7) % 7;
-                var lunes = hoy.AddDays(-diasDesdeInicio);
-                var sabado = lunes.AddDays(5);
+                var hace7Dias = hoy.AddDays(-6);
 
                 var movimientos = await _context.MovimientosCaja
-                    .Where(m => m.Fecha.Date >= lunes && m.Fecha.Date <= sabado)
+                    .Where(m => m.Fecha >= hace7Dias && m.Fecha <= hoy.AddDays(1).AddTicks(-1))
                     .ToListAsync();
 
-                var resumenPorDia = new List<object>();
-                for (int i = 0; i < 6; i++)
-                {
-                    var dia = lunes.AddDays(i);
-                    var movimientosDia = movimientos.Where(m => m.Fecha.Date == dia.Date).ToList();
-
-                    var ingresos = movimientosDia.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto);
-                    var egresos = movimientosDia.Where(m => m.Tipo == "egreso").Sum(m => m.Monto);
-                    var balance = ingresos - egresos;
-
-                    var ingresosEfectivo = movimientosDia.Where(m => m.Tipo == "ingreso" && m.MetodoPago == "efectivo").Sum(m => m.Monto);
-                    var ingresosTransferencia = movimientosDia.Where(m => m.Tipo == "ingreso" && m.MetodoPago == "transferencia").Sum(m => m.Monto);
-
-                    resumenPorDia.Add(new
+                var resumenPorDia = movimientos
+                    .GroupBy(m => m.Fecha.Date)
+                    .Select(g => new
                     {
-                        fecha = dia,
-                        diaNombre = dia.ToString("dddd", new System.Globalization.CultureInfo("es-ES")),
-                        ingresos,
-                        egresos,
-                        balance,
-                        ingresosEfectivo,
-                        ingresosTransferencia,
-                        cantidadMovimientos = movimientosDia.Count
-                    });
-                }
+                        fecha = g.Key,
+                        diaNombre = g.Key.ToString("dddd, dd/MM"),
+                        ingresos = g.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto),
+                        egresos = g.Where(m => m.Tipo == "egreso").Sum(m => m.Monto),
+                        balance = g.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto) - g.Where(m => m.Tipo == "egreso").Sum(m => m.Monto),
+                        ingresosEfectivo = g.Where(m => m.Tipo == "ingreso" && m.MetodoPago == "efectivo").Sum(m => m.Monto),
+                        ingresosTransferencia = g.Where(m => m.Tipo == "ingreso" && m.MetodoPago == "transferencia").Sum(m => m.Monto),
+                        productosVendidos = g.Where(m => m.Tipo == "ingreso" && m.Categoria == "producto").Sum(m => m.Monto),
+                        cantidadMovimientos = g.Count()
+                    })
+                    .OrderBy(r => r.fecha)
+                    .ToList();
 
                 var totalIngresos = movimientos.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto);
                 var totalEgresos = movimientos.Where(m => m.Tipo == "egreso").Sum(m => m.Monto);
                 var balanceTotal = totalIngresos - totalEgresos;
+                var totalProductos = movimientos.Where(m => m.Tipo == "ingreso" && m.Categoria == "producto").Sum(m => m.Monto);
 
                 return Ok(new
                 {
                     success = true,
                     periodo = new
                     {
-                        desde = lunes,
-                        hasta = sabado
+                        desde = hace7Dias,
+                        hasta = hoy
                     },
                     resumenPorDia,
                     totales = new
@@ -422,7 +340,9 @@ namespace VidaFit.Controllers.API
                         ingresos = totalIngresos,
                         egresos = totalEgresos,
                         balance = balanceTotal,
-                        cantidadMovimientos = movimientos.Count
+                        productosVendidos = totalProductos,
+                        cantidadMovimientos = movimientos.Count,
+                        dias = resumenPorDia.Count
                     }
                 });
             }
@@ -432,6 +352,55 @@ namespace VidaFit.Controllers.API
                 {
                     success = false,
                     message = "Error al obtener resumen semanal",
+                    error = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// Historial de cierres
+        /// Endpoint: GET /api/caja/cierres
+        /// </summary>
+        [HttpGet("cierres")]
+        public async Task<IActionResult> GetHistorialCierres([FromQuery] int limite = 10)
+        {
+            try
+            {
+                var cierres = await _context.CierresCaja
+                    .OrderByDescending(c => c.FechaCierre)
+                    .Take(limite)
+                    .Select(c => new
+                    {
+                        c.Id,
+                        fechaCierre = c.FechaCierre,
+                        tipo = c.TipoCierre,
+                        efectivoInicial = c.EfectivoInicial,
+                        ingresosEfectivo = c.IngresosEfectivo,
+                        egresosEfectivo = c.EgresosEfectivo,
+                        efectivoFinal = c.EfectivoFinal,
+                        ingresosTransferencia = c.IngresosTransferencia,
+                        egresosTransferencia = c.EgresosTransferencia,
+                        totalIngresos = c.TotalIngresos,
+                        totalEgresos = c.TotalEgresos,
+                        balanceGeneral = c.BalanceGeneral,
+                        cantidadMovimientos = c.CantidadMovimientos,
+                        observaciones = c.Observaciones ?? ""
+                    })
+                    .ToListAsync();
+
+                return Ok(new
+                {
+                    success = true,
+                    cierres = cierres,
+                    total = cierres.Count
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Error al obtener historial de cierres",
                     error = ex.Message
                 });
             }
@@ -566,37 +535,38 @@ namespace VidaFit.Controllers.API
                     observaciones = obsEl.GetString();
                 }
 
-                var movimientos = await ObtenerMovimientosPendientesAsync();
+                // Obtener movimientos del día actual
+                var movimientosHoy = await ObtenerMovimientosDiaActualAsync();
 
-                if (movimientos.Count == 0)
+                if (movimientosHoy.Count == 0)
                 {
                     return Ok(new
                     {
                         success = false,
-                        message = "No hay movimientos pendientes para cerrar"
+                        message = "No hay movimientos del día para cerrar"
                     });
                 }
 
-                var ingresosEfectivo = movimientos
+                var ingresosEfectivo = movimientosHoy
                     .Where(m => m.Tipo == "ingreso" && m.MetodoPago == "efectivo")
                     .Sum(m => m.Monto);
 
-                var egresosEfectivo = movimientos
+                var egresosEfectivo = movimientosHoy
                     .Where(m => m.Tipo == "egreso" && m.MetodoPago == "efectivo")
                     .Sum(m => m.Monto);
 
-                var ingresosTransferencia = movimientos
+                var ingresosTransferencia = movimientosHoy
                     .Where(m => m.Tipo == "ingreso" && m.MetodoPago == "transferencia")
                     .Sum(m => m.Monto);
 
-                var egresosTransferencia = movimientos
+                var egresosTransferencia = movimientosHoy
                     .Where(m => m.Tipo == "egreso" && m.MetodoPago == "transferencia")
                     .Sum(m => m.Monto);
 
-                var totalIngresos = movimientos.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto);
-                var totalEgresos = movimientos.Where(m => m.Tipo == "egreso").Sum(m => m.Monto);
+                var totalIngresos = movimientosHoy.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto);
+                var totalEgresos = movimientosHoy.Where(m => m.Tipo == "egreso").Sum(m => m.Monto);
 
-                var efectivoInicial = 0;
+                var efectivoInicial = 0; // Siempre empezamos en 0 cada día
                 var efectivoFinal = ingresosEfectivo - egresosEfectivo;
                 var balanceGeneral = totalIngresos - totalEgresos;
 
@@ -616,7 +586,7 @@ namespace VidaFit.Controllers.API
                     TotalIngresos = totalIngresos,
                     TotalEgresos = totalEgresos,
                     BalanceGeneral = balanceGeneral,
-                    CantidadMovimientos = movimientos.Count,
+                    CantidadMovimientos = movimientosHoy.Count,
                     Observaciones = observaciones,
                     UsuarioId = usuarioId,
                     CreatedAt = DateTime.UtcNow
@@ -628,17 +598,33 @@ namespace VidaFit.Controllers.API
                 return Ok(new
                 {
                     success = true,
-                    message = "Cierre de caja realizado correctamente. La caja ahora está en cero.",
+                    message = "Cierre de caja realizado correctamente",
                     data = new
                     {
                         cierre.Id,
                         cierre.FechaCierre,
                         cierre.TipoCierre,
-                        cierre.EfectivoFinal,
-                        cierre.BalanceGeneral,
-                        cierre.TotalIngresos,
-                        cierre.TotalEgresos,
-                        cierre.CantidadMovimientos
+                        efectivoFinal = cierre.EfectivoFinal,
+                        transferenciaTotal = ingresosTransferencia - egresosTransferencia,
+                        balanceGeneral = cierre.BalanceGeneral,
+                        totalIngresos = cierre.TotalIngresos,
+                        totalEgresos = cierre.TotalEgresos,
+                        cantidadMovimientos = cierre.CantidadMovimientos,
+                        desglose = new
+                        {
+                            efectivo = new
+                            {
+                                ingresos = ingresosEfectivo,
+                                egresos = egresosEfectivo,
+                                balance = efectivoFinal
+                            },
+                            transferencia = new
+                            {
+                                ingresos = ingresosTransferencia,
+                                egresos = egresosTransferencia,
+                                balance = ingresosTransferencia - egresosTransferencia
+                            }
+                        }
                     }
                 });
             }

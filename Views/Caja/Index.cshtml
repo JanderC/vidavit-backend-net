@@ -10,9 +10,9 @@
         <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl shadow-xl p-6 border-l-4 border-emerald-600 transform hover:scale-105 transition-all">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-emerald-700 font-black uppercase tracking-wide mb-1">Efectivo en Caja</p>
-                    <p class="text-3xl font-black text-emerald-600" id="efectivo-caja">$0.00</p>
-                    <p class="text-xs text-emerald-600 font-semibold mt-1">+ Saldo anterior incluido</p>
+                    <p class="text-sm text-emerald-700 font-black uppercase tracking-wide mb-1">Efectivo Hoy</p>
+                    <p class="text-3xl font-black text-emerald-600" id="efectivo-hoy">$0.00</p>
+                    <p class="text-xs text-emerald-600 font-semibold mt-1">Balance en efectivo</p>
                 </div>
                 <div class="w-12 h-12 bg-emerald-200 rounded-full flex items-center justify-center">
                     <i data-lucide="wallet" class="w-6 h-6 text-emerald-600"></i>
@@ -89,6 +89,34 @@
             </div>
         </div>
     </div>
+
+
+    <!-- DESGLOSE DE VENTAS DEL DÍA -->
+    <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200">
+        <h3 class="text-lg font-black text-gray-800 mb-4 uppercase tracking-wide flex items-center gap-2">
+            <i data-lucide="pie-chart" class="w-5 h-5 text-blue-600"></i>
+            Desglose de Ventas del Día
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-4 border border-red-200">
+                <p class="text-xs text-red-700 font-bold uppercase mb-1">Membresías</p>
+                <p class="text-2xl font-black text-red-600" id="venta-membresias">$0.00</p>
+            </div>
+            <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-4 border border-amber-200">
+                <p class="text-xs text-amber-700 font-bold uppercase mb-1">Productos</p>
+                <p class="text-2xl font-black text-amber-600" id="venta-productos">$0.00</p>
+            </div>
+            <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-4 border border-emerald-200">
+                <p class="text-xs text-emerald-700 font-bold uppercase mb-1">Abonos a Deudas</p>
+                <p class="text-2xl font-black text-emerald-600" id="venta-abonos">$0.00</p>
+            </div>
+            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
+                <p class="text-xs text-blue-700 font-bold uppercase mb-1">Otros</p>
+                <p class="text-2xl font-black text-blue-600" id="venta-otros">$0.00</p>
+            </div>
+        </div>
+    </div>
+
 
     <!-- TABS DE NAVEGACIÓN -->
     <div class="bg-white rounded-2xl shadow-xl border-2 border-gray-200 overflow-hidden">
@@ -199,69 +227,55 @@
     </div>
 
     <!-- TAB: RESUMEN SEMANAL -->
+    <!-- TAB: RESUMEN SEMANAL -->
     <div id="content-semanal" class="tab-content hidden">
-        <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200 mb-4">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-black text-gray-900 uppercase tracking-wide">Resumen Semanal (Lunes a Sábado)</h3>
-                <button onclick="cargarResumenSemanal()"
-                        class="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-black rounded-xl transition-all shadow-xl">
-                    <i data-lucide="refresh-cw" class="w-4 h-4 inline-block mr-2"></i>
-                    Actualizar
-                </button>
+        <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-black text-gray-800 uppercase tracking-wide flex items-center gap-2">
+                    <i data-lucide="calendar-range" class="w-6 h-6 text-blue-600"></i>
+                    Resumen de los Últimos 7 Días
+                </h3>
+                <p class="text-sm text-gray-600 font-bold" id="periodo-semanal">Cargando...</p>
             </div>
-            <p class="text-gray-600 font-semibold" id="periodo-semanal">Cargando...</p>
-        </div>
 
-        <!-- Totales Semanales -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl shadow-xl p-6 border-l-4 border-blue-600">
-                <p class="text-sm text-blue-700 font-black uppercase tracking-wide mb-1">Total Ingresos</p>
-                <p class="text-3xl font-black text-blue-600" id="total-ingresos-semana">$0.00</p>
-            </div>
-            <div class="bg-gradient-to-br from-red-50 to-red-100 rounded-2xl shadow-xl p-6 border-l-4 border-red-600">
-                <p class="text-sm text-red-700 font-black uppercase tracking-wide mb-1">Total Egresos</p>
-                <p class="text-3xl font-black text-red-600" id="total-egresos-semana">$0.00</p>
-            </div>
-            <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl shadow-xl p-6 border-l-4 border-emerald-600">
-                <p class="text-sm text-emerald-700 font-black uppercase tracking-wide mb-1">Balance</p>
-                <p class="text-3xl font-black text-emerald-600" id="balance-semana">$0.00</p>
-            </div>
-            <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl shadow-xl p-6 border-l-4 border-purple-600">
-                <p class="text-sm text-purple-700 font-black uppercase tracking-wide mb-1">Movimientos</p>
-                <p class="text-3xl font-black text-purple-600" id="cantidad-movimientos-semana">0</p>
-            </div>
-        </div>
-
-        <!-- Tabla por Día -->
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-gray-200">
-            <div class="p-4 border-b-2 border-gray-200 bg-gray-50">
-                <h3 class="text-xl font-black uppercase tracking-wide text-gray-900">Desglose por Día</h3>
-            </div>
+            <!-- TABLA -->
             <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-gray-100 border-b-2 border-gray-200">
+                <table class="w-full border-collapse">
+                    <thead class="bg-gradient-to-r from-red-600 to-red-700 text-white">
                         <tr>
-                            <th class="px-6 py-4 text-left text-xs font-black text-gray-700 uppercase tracking-wider">Día</th>
-                            <th class="px-6 py-4 text-right text-xs font-black text-gray-700 uppercase tracking-wider">Ingresos</th>
-                            <th class="px-6 py-4 text-right text-xs font-black text-gray-700 uppercase tracking-wider">Egresos</th>
-                            <th class="px-6 py-4 text-right text-xs font-black text-gray-700 uppercase tracking-wider">Balance</th>
-                            <th class="px-6 py-4 text-right text-xs font-black text-gray-700 uppercase tracking-wider">Efectivo</th>
-                            <th class="px-6 py-4 text-right text-xs font-black text-gray-700 uppercase tracking-wider">Transferencia</th>
-                            <th class="px-6 py-4 text-center text-xs font-black text-gray-700 uppercase tracking-wider">Movimientos</th>
+                            <th class="px-6 py-4 text-left text-sm font-black uppercase">Día</th>
+                            <th class="px-6 py-4 text-right text-sm font-black uppercase">Ingresos</th>
+                            <th class="px-6 py-4 text-right text-sm font-black uppercase">Egresos</th>
+                            <th class="px-6 py-4 text-right text-sm font-black uppercase">Balance</th>
+                            <th class="px-6 py-4 text-right text-sm font-black uppercase">Efectivo</th>
+                            <th class="px-6 py-4 text-right text-sm font-black uppercase">Transferencia</th>
+                            <th class="px-6 py-4 text-right text-sm font-black uppercase bg-amber-600">
+                                <i data-lucide="shopping-bag" class="w-4 h-4 inline-block mr-1"></i>
+                                Productos Vendidos
+                            </th>
+                            <th class="px-6 py-4 text-center text-sm font-black uppercase">Movimientos</th>
                         </tr>
                     </thead>
                     <tbody id="tabla-resumen-semanal" class="divide-y divide-gray-200">
+                        <!-- Los datos se cargan dinámicamente con JavaScript -->
+                    </tbody>
+                    <tfoot class="bg-gray-50 border-t-2 border-gray-300">
                         <tr>
-                            <td colspan="7" class="px-6 py-12 text-center text-gray-500 font-bold">
-                                Cargando resumen semanal...
+                            <td class="px-6 py-4 text-sm font-black uppercase text-gray-900">TOTAL</td>
+                            <td class="px-6 py-4 text-right text-xl font-black text-blue-600" id="total-ingresos-semana">$0.00</td>
+                            <td class="px-6 py-4 text-right text-xl font-black text-red-600" id="total-egresos-semana">$0.00</td>
+                            <td class="px-6 py-4 text-right text-xl font-black text-emerald-600" id="balance-semana">$0.00</td>
+                            <td class="px-6 py-4" colspan="2"></td>
+                            <td class="px-6 py-4 text-right text-xl font-black text-amber-600 bg-amber-50" id="total-productos-semana">$0.00</td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-full" id="cantidad-movimientos-semana">0</span>
                             </td>
                         </tr>
-                    </tbody>
+                    </tfoot>
                 </table>
             </div>
         </div>
     </div>
-
     <!-- TAB: HISTORIAL CIERRES -->
     <div id="content-cierres" class="tab-content hidden">
         <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200 mb-4">
@@ -381,66 +395,111 @@
 </div>
 
 <!-- MODAL DE CIERRE DE CAJA -->
-<div id="modal-cerrar-caja" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center z-50" style="display: none;">
-    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl mx-4 transform transition-all">
-        <div class="bg-gradient-to-r from-amber-600 to-amber-800 text-white px-8 py-6 rounded-t-3xl">
+<div id="modal-cerrar-caja" class="fixed inset-0 bg-black bg-opacity-70 hidden flex items-center justify-center z-50">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-3xl mx-4 transform transition-all">
+        <div class="bg-gradient-to-r from-red-600 to-red-800 text-white px-8 py-6 rounded-t-3xl">
             <h3 class="text-3xl font-black uppercase tracking-wide flex items-center">
                 <i data-lucide="lock" class="w-8 h-8 mr-3"></i>
-                Cerrar Caja
+                Cerrar Caja del Día
             </h3>
         </div>
 
         <div class="p-8">
-            <!-- Resumen del cierre -->
-            <div class="bg-gray-50 rounded-2xl p-6 mb-6 border-2 border-gray-200">
-                <h4 class="text-lg font-black text-gray-900 mb-4 uppercase">Resumen del Cierre</h4>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <p class="text-sm text-gray-600 font-bold mb-1">Saldo Anterior:</p>
-                        <p class="text-2xl font-black text-purple-600" id="cierre-saldo-anterior">$0.00</p>
+            <!-- RESUMEN DEL CIERRE -->
+            <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 mb-6 border-2 border-gray-200">
+                <h4 class="text-xl font-black text-gray-900 mb-6 uppercase flex items-center gap-2">
+                    <i data-lucide="bar-chart-3" class="w-6 h-6 text-blue-600"></i>
+                    Resumen del Cierre
+                </h4>
+
+                <div class="grid grid-cols-2 gap-6">
+                    <!-- Efectivo Final -->
+                    <div class="bg-white rounded-xl p-4 border-l-4 border-emerald-600">
+                        <p class="text-xs text-gray-600 font-bold mb-1 uppercase">💵 Efectivo Final</p>
+                        <p class="text-3xl font-black text-emerald-600" id="cierre-efectivo-final">$0.00</p>
                     </div>
-                    <div>
-                        <p class="text-sm text-gray-600 font-bold mb-1">Efectivo Final:</p>
-                        <p class="text-2xl font-black text-emerald-600" id="cierre-efectivo-final">$0.00</p>
+
+                    <!-- Transferencias -->
+                    <div class="bg-white rounded-xl p-4 border-l-4 border-purple-600">
+                        <p class="text-xs text-gray-600 font-bold mb-1 uppercase">💳 Transferencias</p>
+                        <p class="text-3xl font-black text-purple-600" id="cierre-transferencias">$0.00</p>
                     </div>
-                    <div>
-                        <p class="text-sm text-gray-600 font-bold mb-1">Ingresos Hoy:</p>
-                        <p class="text-xl font-black text-blue-600" id="cierre-ingresos">$0.00</p>
+
+                    <!-- Ingresos Hoy -->
+                    <div class="bg-white rounded-xl p-4 border-l-4 border-blue-600">
+                        <p class="text-xs text-gray-600 font-bold mb-1 uppercase">📈 Ingresos Hoy</p>
+                        <p class="text-2xl font-black text-blue-600" id="cierre-ingresos">$0.00</p>
                     </div>
-                    <div>
-                        <p class="text-sm text-gray-600 font-bold mb-1">Egresos Hoy:</p>
-                        <p class="text-xl font-black text-red-600" id="cierre-egresos">$0.00</p>
+
+                    <!-- Egresos Hoy -->
+                    <div class="bg-white rounded-xl p-4 border-l-4 border-red-600">
+                        <p class="text-xs text-gray-600 font-bold mb-1 uppercase">📉 Egresos Hoy</p>
+                        <p class="text-2xl font-black text-red-600" id="cierre-egresos">$0.00</p>
                     </div>
-                    <div class="col-span-2">
-                        <p class="text-sm text-gray-600 font-bold mb-1">Balance General:</p>
-                        <p class="text-3xl font-black text-amber-600" id="cierre-balance">$0.00</p>
+
+                    <!-- Balance General -->
+                    <div class="bg-white rounded-xl p-4 border-l-4 border-amber-600 col-span-2">
+                        <p class="text-sm text-gray-600 font-bold mb-1 uppercase">💰 Balance General</p>
+                        <p class="text-4xl font-black text-amber-600" id="cierre-balance">$0.00</p>
                     </div>
                 </div>
             </div>
 
-            <div class="mb-6">
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Observaciones (Opcional)</label>
-                <textarea id="cierre-observaciones" rows="3"
-                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-600 focus:border-amber-600 font-semibold"
-                          placeholder="Notas adicionales sobre el cierre..."></textarea>
+            <!-- DESGLOSE DE PRODUCTOS -->
+            <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl p-6 mb-6 border-2 border-amber-200">
+                <h4 class="text-lg font-black text-gray-900 mb-4 uppercase flex items-center gap-2">
+                    <i data-lucide="shopping-bag" class="w-5 h-5 text-amber-600"></i>
+                    Productos Vendidos
+                </h4>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- Productos Efectivo -->
+                    <div class="bg-white rounded-xl p-4 border border-amber-300">
+                        <p class="text-xs text-amber-700 font-bold mb-1 uppercase">En Efectivo</p>
+                        <p class="text-2xl font-black text-amber-600" id="cierre-productos-efectivo">$0.00</p>
+                    </div>
+
+                    <!-- Productos Transferencia -->
+                    <div class="bg-white rounded-xl p-4 border border-amber-300">
+                        <p class="text-xs text-amber-700 font-bold mb-1 uppercase">En Transferencia</p>
+                        <p class="text-2xl font-black text-amber-600" id="cierre-productos-transferencia">$0.00</p>
+                    </div>
+
+                    <!-- Total Productos -->
+                    <div class="bg-amber-600 rounded-xl p-4 col-span-2">
+                        <p class="text-xs text-white font-bold mb-1 uppercase">Total Productos</p>
+                        <p class="text-3xl font-black text-white" id="cierre-productos-total">$0.00</p>
+                    </div>
+                </div>
             </div>
 
+            <!-- OBSERVACIONES -->
+            <div class="mb-6">
+                <label class="block text-sm font-black text-gray-700 mb-2 uppercase flex items-center gap-2">
+                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                    Observaciones (Opcional)
+                </label>
+                <textarea id="cierre-observaciones" rows="3"
+                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
+                          placeholder="Notas adicionales sobre el cierre del día..."></textarea>
+            </div>
+
+            <!-- BOTONES -->
             <div class="flex gap-4">
                 <button onclick="cerrarModalCerrarCaja()"
-                        class="flex-1 px-6 py-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-black rounded-xl transition-all uppercase tracking-wide">
-                    <i data-lucide="x" class="w-5 h-5 inline-block mr-2"></i>
+                        class="flex-1 px-6 py-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-black rounded-xl transition-all uppercase tracking-wide flex items-center justify-center gap-2">
+                    <i data-lucide="x" class="w-5 h-5"></i>
                     Cancelar
                 </button>
                 <button onclick="confirmarCierreCaja()"
-                        class="flex-1 px-6 py-4 bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white font-black rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
-                    <i data-lucide="check-circle" class="w-5 h-5 inline-block mr-2"></i>
+                        class="flex-1 px-6 py-4 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105 flex items-center justify-center gap-2">
+                    <i data-lucide="check-circle" class="w-5 h-5"></i>
                     Confirmar Cierre
                 </button>
             </div>
         </div>
     </div>
 </div>
-
 <!-- MODAL PARA ABONAR DEUDA -->
 <div id="modalAbonarDeuda" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4">
@@ -538,46 +597,100 @@
         // ========================================
         // CARGAR RESUMEN PRINCIPAL
         // ========================================
-        async function cargarResumen() {
+                async function cargarResumen() {
             try {
-                // Usar el endpoint dashboard que devuelve toda la info
                 const response = await fetch(`${API_URL}/Caja/dashboard`);
                 const data = await response.json();
 
                 if (data.success) {
-                    // Actualizar tarjetas principales
-                    document.getElementById('efectivo-caja').textContent = `$${data.cajaActual.efectivo.balance.toFixed(2)}`;
-                    document.getElementById('transferencias-hoy').textContent = `$${data.cajaActual.transferencia.ingresos.toFixed(2)}`;
-                    document.getElementById('ingresos-hoy').textContent = `$${data.hoy.ingresos.toFixed(2)}`;
-                    document.getElementById('egresos-hoy').textContent = `$${data.hoy.egresos.toFixed(2)}`;
-                    document.getElementById('balance-total').textContent = `$${data.cajaActual.balance.toFixed(2)}`;
+                    // ========================================
+                    // FUNCIÓN AUXILIAR PARA ACTUALIZAR ELEMENTOS DE FORMA SEGURA
+                    // ========================================
+                    const actualizarElemento = (id, valor) => {
+                        const elemento = document.getElementById(id);
+                        if (elemento) {
+                            elemento.textContent = `$${(valor || 0).toFixed(2)}`;
+                        } else {
+                            console.warn(`⚠️ Elemento no encontrado en el DOM: ${id}`);
+                        }
+                    };
 
-                    // Detalles
-                    document.getElementById('detalle-ingresos').textContent =
-                        `Efectivo: $${data.cajaActual.efectivo.ingresos.toFixed(2)} | Transf: $${data.cajaActual.transferencia.ingresos.toFixed(2)}`;
-                    document.getElementById('detalle-egresos').textContent =
-                        `Efectivo: $${data.cajaActual.efectivo.egresos.toFixed(2)} | Transf: $${data.cajaActual.transferencia.egresos.toFixed(2)}`;
+                    // ========================================
+                    // ACTUALIZAR TARJETAS PRINCIPALES
+                    // ========================================
+                    actualizarElemento('efectivo-hoy', data.cajaHoy.efectivo.balance);
+                    actualizarElemento('transferencias-hoy', data.cajaHoy.transferencia.balance);
+                    actualizarElemento('ingresos-hoy', data.cajaHoy.totalIngresos);
+                    actualizarElemento('egresos-hoy', data.cajaHoy.totalEgresos);
+                    actualizarElemento('balance-total', data.cajaHoy.balance);
 
-                    // Detalle de transferencias
-                    const egresosTransf = data.cajaActual.transferencia.egresos;
-                    document.getElementById('detalle-transferencias').textContent =
-                        egresosTransf > 0
-                        ? `Egresos: $${egresosTransf.toFixed(2)}`
-                        : 'Ingresos del día';
+                    // ========================================
+                    // ACTUALIZAR DESGLOSE DE VENTAS (SI EXISTEN LOS ELEMENTOS)
+                    // ========================================
+                    actualizarElemento('venta-membresias', data.cajaHoy.categorias.membresias);
+                    actualizarElemento('venta-productos', data.cajaHoy.categorias.productos);
+                    actualizarElemento('venta-abonos', data.cajaHoy.categorias.abonos);
+                    actualizarElemento('venta-otros', data.cajaHoy.categorias.otros);
+
+                    // Tarjeta "Productos Vendidos" (usa el mismo valor que venta-productos)
+                    actualizarElemento('productos-vendidos', data.cajaHoy.categorias.productos);
+
+                    // ========================================
+                    // ACTUALIZAR DETALLES (CON VALIDACIÓN)
+                    // ========================================
+                    const detalleIngresos = document.getElementById('detalle-ingresos');
+                    if (detalleIngresos) {
+                        const efectivoIng = data.cajaHoy.efectivo.ingresos || 0;
+                        const transfIng = data.cajaHoy.transferencia.ingresos || 0;
+                        detalleIngresos.textContent =
+                            `Efectivo: $${efectivoIng.toFixed(2)} | Transf: $${transfIng.toFixed(2)}`;
+                    }
+
+                    const detalleEgresos = document.getElementById('detalle-egresos');
+                    if (detalleEgresos) {
+                        const efectivoEgr = data.cajaHoy.efectivo.egresos || 0;
+                        const transfEgr = data.cajaHoy.transferencia.egresos || 0;
+                        detalleEgresos.textContent =
+                            `Efectivo: $${efectivoEgr.toFixed(2)} | Transf: $${transfEgr.toFixed(2)}`;
+                    }
+
+                    const detalleTransf = document.getElementById('detalle-transferencias');
+                    if (detalleTransf) {
+                        detalleTransf.textContent = 'Balance en transf.';
+                    }
+                } else {
+                    console.error('Error en la respuesta del API:', data.message);
                 }
 
-                // Cargar deudas pendientes
-                const responseDeudas = await fetch(`${API_URL}/Deudas?estado=pendiente`);
-                const deudasData = await responseDeudas.json();
+                // ========================================
+                // CARGAR DEUDAS PENDIENTES (OPCIONAL - NO CRÍTICO)
+                // ========================================
+                try {
+                    const responseDeudas = await fetch(`${API_URL}/Deudas?estado=pendiente`);
+                    const deudasData = await responseDeudas.json();
 
-                if (deudasData.success) {
-                    document.getElementById('deudas-pendientes').textContent = `$${deudasData.totalSaldoPendiente.toFixed(2)}`;
+                    if (deudasData.success) {
+                        const deudasElement = document.getElementById('deudas-pendientes');
+                        if (deudasElement) {
+                            const saldoPendiente = deudasData.totalSaldoPendiente || 0;
+                            deudasElement.textContent = `$${saldoPendiente.toFixed(2)}`;
+                        }
+                    }
+                } catch (errorDeudas) {
+                    console.warn('⚠️ Error al cargar deudas (no crítico):', errorDeudas);
+                    // No detener la ejecución si falla la carga de deudas
                 }
+
             } catch (error) {
-                console.error('Error al cargar resumen:', error);
+                console.error('❌ Error al cargar resumen de caja:', error);
+
+                // Mostrar error en consola pero no romper la aplicación
+                console.error('Detalles del error:', {
+                    mensaje: error.message,
+                    stack: error.stack
+                });
             }
         }
-
         // ========================================
         // CARGAR MOVIMIENTOS
         // ========================================
@@ -637,67 +750,120 @@
         // ========================================
         // RESUMEN SEMANAL
         // ========================================
-        async function cargarResumenSemanal() {
+                async function cargarResumenSemanal() {
             try {
-                const response = await fetch(`${API_URL}/Caja/resumen-semanal`);
+                const response = await fetch(`${API_URL}/Caja/semanal`);
                 const data = await response.json();
 
-                if (data.success) {
-                    // Actualizar período
+                if (data.success && data.periodo && data.totales) {
+                    // ========================================
+                    // ACTUALIZAR PERÍODO
+                    // ========================================
                     const desde = new Date(data.periodo.desde);
                     const hasta = new Date(data.periodo.hasta);
-                    document.getElementById('periodo-semanal').textContent =
-                        `Semana del ${desde.toLocaleDateString('es-ES')} al ${hasta.toLocaleDateString('es-ES')}`;
+                    const periodoElement = document.getElementById('periodo-semanal');
+                    if (periodoElement) {
+                        periodoElement.textContent =
+                            `Semana del ${desde.toLocaleDateString('es-ES')} al ${hasta.toLocaleDateString('es-ES')}`;
+                    }
 
-                    // Actualizar totales
-                    document.getElementById('total-ingresos-semana').textContent = `$${data.totales.ingresos.toFixed(2)}`;
-                    document.getElementById('total-egresos-semana').textContent = `$${data.totales.egresos.toFixed(2)}`;
-                    document.getElementById('balance-semana').textContent = `$${data.totales.balance.toFixed(2)}`;
-                    document.getElementById('cantidad-movimientos-semana').textContent = data.totales.cantidadMovimientos;
+                    // ========================================
+                    // ACTUALIZAR TOTALES CON VALIDACIÓN
+                    // ========================================
+                    const totalesElementos = {
+                        'total-ingresos-semana': data.totales.ingresos,
+                        'total-egresos-semana': data.totales.egresos,
+                        'balance-semana': data.totales.balance,
+                        'total-productos-semana': data.totales.productosVendidos, // ✅ NUEVO
+                        'cantidad-movimientos-semana': data.totales.cantidadMovimientos
+                    };
 
-                    // Actualizar tabla por día
+                    for (const [id, valor] of Object.entries(totalesElementos)) {
+                        const elemento = document.getElementById(id);
+                        if (elemento) {
+                            if (id === 'cantidad-movimientos-semana') {
+                                elemento.textContent = valor || 0;
+                            } else {
+                                elemento.textContent = `$${(valor || 0).toFixed(2)}`;
+                            }
+                        }
+                    }
+
+                    // ========================================
+                    // ACTUALIZAR TABLA POR DÍA (CON PRODUCTOS)
+                    // ========================================
                     const tbody = document.getElementById('tabla-resumen-semanal');
-                    tbody.innerHTML = data.resumenPorDia.map(dia => {
-                        const balanceColor = dia.balance >= 0 ? 'text-emerald-600' : 'text-red-600';
-                        return `
-                            <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="px-6 py-4 text-sm font-black text-gray-900 uppercase">${dia.diaNombre}</td>
-                                <td class="px-6 py-4 text-right text-lg font-black text-blue-600">$${dia.ingresos.toFixed(2)}</td>
-                                <td class="px-6 py-4 text-right text-lg font-black text-red-600">$${dia.egresos.toFixed(2)}</td>
-                                <td class="px-6 py-4 text-right text-lg font-black ${balanceColor}">$${dia.balance.toFixed(2)}</td>
-                                <td class="px-6 py-4 text-right text-sm font-semibold text-gray-700">$${dia.ingresosEfectivo.toFixed(2)}</td>
-                                <td class="px-6 py-4 text-right text-sm font-semibold text-gray-700">$${dia.ingresosTransferencia.toFixed(2)}</td>
-                                <td class="px-6 py-4 text-center">
-                                    <span class="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-full">${dia.cantidadMovimientos}</span>
-                                </td>
-                            </tr>
-                        `;
-                    }).join('');
+                    if (tbody && data.resumenPorDia && data.resumenPorDia.length > 0) {
+                        tbody.innerHTML = data.resumenPorDia.map(dia => {
+                            const balanceColor = (dia.balance || 0) >= 0 ? 'text-emerald-600' : 'text-red-600';
+                            return `
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 text-sm font-black text-gray-900 uppercase">${dia.diaNombre || ''}</td>
+                                    <td class="px-6 py-4 text-right text-lg font-black text-blue-600">$${(dia.ingresos || 0).toFixed(2)}</td>
+                                    <td class="px-6 py-4 text-right text-lg font-black text-red-600">$${(dia.egresos || 0).toFixed(2)}</td>
+                                    <td class="px-6 py-4 text-right text-lg font-black ${balanceColor}">$${(dia.balance || 0).toFixed(2)}</td>
+                                    <td class="px-6 py-4 text-right text-sm font-semibold text-gray-700">$${(dia.ingresosEfectivo || 0).toFixed(2)}</td>
+                                    <td class="px-6 py-4 text-right text-sm font-semibold text-gray-700">$${(dia.ingresosTransferencia || 0).toFixed(2)}</td>
+                                    <td class="px-6 py-4 text-right text-lg font-black text-amber-600 bg-amber-50">$${(dia.productosVendidos || 0).toFixed(2)}</td>
+                                    <td class="px-6 py-4 text-center">
+                                        <span class="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-full">${dia.cantidadMovimientos || 0}</span>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('');
+                    } else {
+                        // Mensaje si no hay datos
+                        if (tbody) {
+                            tbody.innerHTML = `
+                                <tr>
+                                    <td colspan="8" class="px-6 py-12 text-center text-gray-500 font-bold">
+                                        No hay datos disponibles para esta semana
+                                    </td>
+                                </tr>
+                            `;
+                        }
+                    }
                 }
             } catch (error) {
                 console.error('Error al cargar resumen semanal:', error);
+
+                // Mostrar error en la tabla
+                const tbody = document.getElementById('tabla-resumen-semanal');
+                if (tbody) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="8" class="px-6 py-12 text-center text-red-500 font-bold">
+                                Error al cargar los datos
+                            </td>
+                        </tr>
+                    `;
+                }
             }
         }
-
         // ========================================
         // HISTORIAL DE CIERRES
         // ========================================
-        async function cargarHistorialCierres() {
+                async function cargarHistorialCierres() {
             try {
-                const response = await fetch(`${API_URL}/Caja/historial-cierres?limit=20`);
+                const response = await fetch(`${API_URL}/Caja/cierres?limite=20`);
                 const data = await response.json();
 
                 const container = document.getElementById('lista-cierres');
 
-                if (data.success && data.cierres.length > 0) {
-                    container.innerHTML = data.cierres.map(cierre => {
+                if (!container) {
+                    console.error('Container lista-cierres no encontrado');
+                    return;
+                }
+
+                if (data.success && data.data && Array.isArray(data.data) && data.data.length > 0) {
+                    container.innerHTML = data.data.map(cierre => {
                         const fecha = new Date(cierre.fechaCierre);
                         const tipoBadge = cierre.tipo === 'automatico'
                             ? '<span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full">AUTOMÁTICO</span>'
                             : '<span class="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-full">MANUAL</span>';
 
                         return `
-                            <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200">
+                            <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200 hover:shadow-2xl transition-all">
                                 <div class="flex items-center justify-between mb-4">
                                     <div>
                                         <h4 class="text-lg font-black text-gray-900">${fecha.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h4>
@@ -705,43 +871,24 @@
                                     </div>
                                     ${tipoBadge}
                                 </div>
-
-                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                                    <div class="bg-purple-50 rounded-xl p-3">
-                                        <p class="text-xs text-purple-700 font-bold mb-1">Saldo Inicial</p>
-                                        <p class="text-lg font-black text-purple-600">$${cierre.efectivoInicial.toFixed(2)}</p>
-                                    </div>
+                                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
                                     <div class="bg-emerald-50 rounded-xl p-3">
                                         <p class="text-xs text-emerald-700 font-bold mb-1">Efectivo Final</p>
-                                        <p class="text-lg font-black text-emerald-600">$${cierre.efectivoFinal.toFixed(2)}</p>
+                                        <p class="text-lg font-black text-emerald-600">$${(cierre.efectivoFinal || 0).toFixed(2)}</p>
                                     </div>
                                     <div class="bg-blue-50 rounded-xl p-3">
                                         <p class="text-xs text-blue-700 font-bold mb-1">Ingresos</p>
-                                        <p class="text-lg font-black text-blue-600">$${cierre.totalIngresos.toFixed(2)}</p>
+                                        <p class="text-lg font-black text-blue-600">$${(cierre.totalIngresos || 0).toFixed(2)}</p>
                                     </div>
-                                    <div class="bg-red-50 rounded-xl p-3">
-                                        <p class="text-xs text-red-700 font-bold mb-1">Egresos</p>
-                                        <p class="text-lg font-black text-red-600">$${cierre.totalEgresos.toFixed(2)}</p>
-                                    </div>
-                                </div>
-
-                                <div class="bg-amber-50 rounded-xl p-4">
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <p class="text-sm text-amber-700 font-bold mb-1">Balance General</p>
-                                            <p class="text-2xl font-black text-amber-600">$${cierre.balanceGeneral.toFixed(2)}</p>
-                                        </div>
-                                        <div class="text-right">
-                                            <p class="text-xs text-gray-600 font-semibold">Movimientos</p>
-                                            <p class="text-xl font-black text-gray-900">${cierre.cantidadMovimientos}</p>
-                                        </div>
+                                    <div class="bg-amber-50 rounded-xl p-3">
+                                        <p class="text-xs text-amber-700 font-bold mb-1">Balance</p>
+                                        <p class="text-lg font-black text-amber-600">$${(cierre.balanceGeneral || 0).toFixed(2)}</p>
                                     </div>
                                 </div>
-
                                 ${cierre.observaciones ? `
-                                    <div class="mt-4 bg-gray-50 rounded-xl p-3">
-                                        <p class="text-xs text-gray-600 font-bold mb-1">Observaciones:</p>
-                                        <p class="text-sm text-gray-700 font-semibold">${cierre.observaciones}</p>
+                                    <div class="bg-gray-50 rounded-xl p-3 mt-3">
+                                        <p class="text-xs text-gray-600 font-bold mb-1">Observaciones</p>
+                                        <p class="text-sm text-gray-800">${cierre.observaciones}</p>
                                     </div>
                                 ` : ''}
                             </div>
@@ -749,79 +896,236 @@
                     }).join('');
                 } else {
                     container.innerHTML = `
-                        <div class="bg-white rounded-2xl shadow-xl p-8 text-center border-2 border-gray-200">
-                            <p class="text-gray-500 font-bold">No hay cierres registrados aún</p>
+                        <div class="bg-gray-50 rounded-2xl p-12 text-center border-2 border-dashed border-gray-300">
+                            <i data-lucide="inbox" class="w-16 h-16 text-gray-400 mx-auto mb-4"></i>
+                            <p class="text-xl font-black text-gray-600 mb-2">No hay cierres registrados</p>
+                            <p class="text-sm text-gray-500">Los cierres de caja aparecerán aquí</p>
                         </div>
                     `;
+                    lucide.createIcons();
                 }
             } catch (error) {
                 console.error('Error al cargar historial de cierres:', error);
+                const container = document.getElementById('lista-cierres');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="bg-red-50 rounded-2xl p-8 text-center border-2 border-red-200">
+                            <i data-lucide="alert-circle" class="w-12 h-12 text-red-500 mx-auto mb-3"></i>
+                            <p class="text-lg font-bold text-red-600">Error al cargar los cierres</p>
+                        </div>
+                    `;
+                    lucide.createIcons();
+                }
             }
         }
 
         // ========================================
         // MODAL CERRAR CAJA
         // ========================================
-        async function abrirModalCerrarCaja() {
+                                async function abrirModalCerrarCaja() {
             try {
+                // Cargar datos actuales de la caja
                 const response = await fetch(`${API_URL}/Caja/dashboard`);
                 const data = await response.json();
 
-                if (data.success) {
-                    // Mostrar datos del cierre
-                    const saldoAnterior = data.ultimoCierre ? data.ultimoCierre.EfectivoFinal : 0;
-                    const efectivoFinal = data.cajaActual.efectivo.balance;
+                if (data.success && data.cajaHoy) {
+                    // ACTUALIZAR VALORES DEL MODAL DE CIERRE
 
-                    document.getElementById('cierre-saldo-anterior').textContent = `$${saldoAnterior.toFixed(2)}`;
-                    document.getElementById('cierre-efectivo-final').textContent = `$${efectivoFinal.toFixed(2)}`;
-                    document.getElementById('cierre-ingresos').textContent = `$${data.cajaActual.totalIngresos.toFixed(2)}`;
-                    document.getElementById('cierre-egresos').textContent = `$${data.cajaActual.totalEgresos.toFixed(2)}`;
-                    document.getElementById('cierre-balance').textContent = `$${data.cajaActual.balance.toFixed(2)}`;
+                    // Efectivo Final
+                    const efectivoFinal = document.getElementById('cierre-efectivo-final');
+                    if (efectivoFinal) {
+                        efectivoFinal.textContent = `$${(data.cajaHoy.efectivo.balance || 0).toFixed(2)}`;
+                    }
+
+                    // Transferencias
+                    const transferencias = document.getElementById('cierre-transferencias');
+                    if (transferencias) {
+                        transferencias.textContent = `$${(data.cajaHoy.transferencia.balance || 0).toFixed(2)}`;
+                    }
+
+                    // Ingresos Hoy
+                    const ingresos = document.getElementById('cierre-ingresos');
+                    if (ingresos) {
+                        ingresos.textContent = `$${(data.cajaHoy.totalIngresos || 0).toFixed(2)}`;
+                    }
+
+                    // Egresos Hoy
+                    const egresos = document.getElementById('cierre-egresos');
+                    if (egresos) {
+                        egresos.textContent = `$${(data.cajaHoy.totalEgresos || 0).toFixed(2)}`;
+                    }
+
+                    // Balance General
+                    const balance = document.getElementById('cierre-balance');
+                    if (balance) {
+                        balance.textContent = `$${(data.cajaHoy.balance || 0).toFixed(2)}`;
+                    }
+
+                    // PRODUCTOS - Calcular desglose
+                    const productosTotal = data.cajaHoy.categorias.productos || 0;
+
+                    // Productos Efectivo (estimado proporcional)
+                    const productosEfectivo = document.getElementById('cierre-productos-efectivo');
+                    if (productosEfectivo) {
+                        // Por ahora mostramos el total, luego puedes ajustar con datos reales
+                        productosEfectivo.textContent = `$${(productosTotal || 0).toFixed(2)}`;
+                    }
+
+                    // Productos Transferencia
+                    const productosTransferencia = document.getElementById('cierre-productos-transferencia');
+                    if (productosTransferencia) {
+                        productosTransferencia.textContent = `$0.00`;
+                    }
+
+                    // Total Productos
+                    const productosTotalEl = document.getElementById('cierre-productos-total');
+                    if (productosTotalEl) {
+                        productosTotalEl.textContent = `$${(productosTotal || 0).toFixed(2)}`;
+                    }
+
+                    // MOSTRAR EL MODAL
+                    const modal = document.getElementById('modal-cerrar-caja');
+                    if (modal) {
+                        modal.style.display = "flex";
+                        modal.classList.remove('hidden');
+                        lucide.createIcons(); // Actualizar iconos
+                    } else {
+                        console.error('Modal no encontrado en el DOM');
+                    }
+
+                } else {
+                    console.error('Error en la respuesta del API:', data.message || 'Respuesta inválida');
+                    alert('Error al cargar los datos de la caja');
                 }
 
-                document.getElementById('modal-cerrar-caja').style.display = 'flex';
-                lucide.createIcons();
             } catch (error) {
-                console.error('Error al abrir modal:', error);
-                alert('❌ Error al cargar datos del cierre');
+                console.error('Error al abrir modal de cierre:', error);
+                alert('Error al cargar los datos. Por favor intenta nuevamente.');
+            }
+        }
+                function cerrarModalCerrarCaja() {
+            const modal = document.getElementById('modal-cerrar-caja');
+            if (modal) {
+                modal.style.display = "none"; modal.classList.add('hidden');
+
+                // Limpiar el campo de observaciones
+                const observaciones = document.getElementById('observaciones-cierre');
+                if (observaciones) {
+                    observaciones.value = '';
+                }
             }
         }
 
-        function cerrarModalCerrarCaja() {
-            document.getElementById('modal-cerrar-caja').style.display = 'none';
-            document.getElementById('cierre-observaciones').value = '';
+
+        // Función para resetear todos los valores a $0.00
+        function resetearValoresCaja() {
+            console.log('🔄 Reseteando valores de la caja a $0.00...');
+
+            const elementosResetear = [
+                'efectivo-hoy', 'transferencias-hoy', 'ingresos-hoy', 'egresos-hoy',
+                'balance-total', 'deudas-pendientes',
+                'venta-membresias', 'venta-productos', 'venta-abonos', 'venta-otros',
+                'detalle-ingresos', 'detalle-egresos', 'detalle-transferencias'
+            ];
+
+            elementosResetear.forEach(id => {
+                const elemento = document.getElementById(id);
+                if (elemento) elemento.textContent = '$0.00';
+            });
+
+            const tablaMovimientos = document.getElementById('tabla-movimientos');
+            if (tablaMovimientos) {
+                tablaMovimientos.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center text-gray-500 font-bold">
+                            <i data-lucide="inbox" class="w-12 h-12 text-gray-400 mx-auto mb-3"></i>
+                            <p class="text-lg">No hay movimientos registrados hoy</p>
+                            <p class="text-sm text-gray-400 mt-2">Los movimientos del nuevo día aparecerán aquí</p>
+                        </td>
+                    </tr>
+                `;
+                lucide.createIcons();
+            }
         }
 
-        async function confirmarCierreCaja() {
-            const observaciones = document.getElementById('cierre-observaciones').value;
-
-            if (!confirm('¿Confirmar cierre de caja? La caja quedará en $0.00 para el próximo día.')) {
-                return;
-            }
-
+                async function confirmarCierreCaja() {
             try {
+                const observaciones = document.getElementById('observaciones-cierre')?.value || '';
+
+                // Confirmar antes de cerrar
+                if (!confirm('¿Estás seguro de cerrar la caja? Esta acción registrará el cierre del día.')) {
+                    return;
+                }
+
+                // Mostrar loading
+                const btnConfirmar = document.getElementById('btn-confirmar-cierre');
+                if (btnConfirmar) {
+                    btnConfirmar.disabled = true;
+                    btnConfirmar.innerHTML = '<i data-lucide="loader" class="w-5 h-5 animate-spin"></i> Cerrando...';
+                    lucide.createIcons();
+                }
+
+                // Realizar el cierre
                 const response = await fetch(`${API_URL}/Caja/cerrar`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ observaciones })
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        observaciones: observaciones,
+                        tipoCierre: 'manual'
+                    })
                 });
 
-                const result = await response.json();
+                const data = await response.json();
 
-                if (result.success) {
-                    alert(`✅ ${result.message}`);
+                if (data.success) {
+                    // Cerrar modal
                     cerrarModalCerrarCaja();
-                    cargarResumen();
-                    cargarMovimientos();
-                    cambiarTab('cierres');
+
+                    // Mostrar mensaje de éxito
+                    alert('✅ Caja cerrada exitosamente');
+
+                    // Resetear valores
+                    resetearValoresCaja();
+
+                    // Recargar datos
+                    await cargarResumen();
+                    await cargarMovimientos();
+                    await cargarResumenSemanal();
+                    await cargarHistorialCierres();
+
                 } else {
-                    alert(`❌ ${result.message}`);
+                    alert('❌ Error al cerrar caja: ' + (data.message || 'Error desconocido'));
                 }
+
             } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al realizar cierre de caja');
+                console.error('Error al confirmar cierre:', error);
+                alert('❌ Error al cerrar la caja. Por favor intenta nuevamente.');
+            } finally {
+                // Restaurar botón
+                const btnConfirmar = document.getElementById('btn-confirmar-cierre');
+                if (btnConfirmar) {
+                    btnConfirmar.disabled = false;
+                    btnConfirmar.innerHTML = '<i data-lucide="check" class="w-5 h-5"></i> Confirmar Cierre';
+                    lucide.createIcons();
+                }
             }
         }
+
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        cerrarModalCerrarCaja();
+                    }
+                });
+
+                document.addEventListener('click', function(e) {
+            const modal = document.getElementById('modal-cerrar-caja');
+            if (e.target === modal) {
+                cerrarModalCerrarCaja();
+            }
+        });
+
 
         // ========================================
         // REGISTRAR MOVIMIENTOS
