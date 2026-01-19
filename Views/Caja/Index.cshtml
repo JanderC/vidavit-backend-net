@@ -492,21 +492,9 @@
                 </h4>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <!-- Productos Efectivo -->
-                    <div class="bg-white rounded-xl p-4 border border-amber-300">
-                        <p class="text-xs text-amber-700 font-bold mb-1 uppercase">En Efectivo</p>
-                        <p class="text-2xl font-black text-amber-600" id="cierre-productos-efectivo">$0.00</p>
-                    </div>
-
-                    <!-- Productos Transferencia -->
-                    <div class="bg-white rounded-xl p-4 border border-amber-300">
-                        <p class="text-xs text-amber-700 font-bold mb-1 uppercase">En Transferencia</p>
-                        <p class="text-2xl font-black text-amber-600" id="cierre-productos-transferencia">$0.00</p>
-                    </div>
-
                     <!-- Total Productos -->
                     <div class="bg-amber-600 rounded-xl p-4 col-span-2">
-                        <p class="text-xs text-white font-bold mb-1 uppercase">Total Productos</p>
+                        <p class="text-xs text-white font-bold mb-1 uppercase">Total Productos Efectivo y Transferencia</p>
                         <p class="text-3xl font-black text-white" id="cierre-productos-total">$0.00</p>
                     </div>
                 </div>
@@ -1078,26 +1066,27 @@
                         balance.textContent = `$${(data.cajaHoy.balance || 0).toFixed(2)}`;
                     }
 
-                    // PRODUCTOS - Calcular desglose
+                    // PRODUCTOS - Usar datos reales del backend
+                    const productosEfectivo = data.cajaHoy.categorias.productosEfectivo || 0;
+                    const productosTransferencia = data.cajaHoy.categorias.productosTransferencia || 0;
                     const productosTotal = data.cajaHoy.categorias.productos || 0;
 
-                    // Productos Efectivo (estimado proporcional)
-                    const productosEfectivo = document.getElementById('cierre-productos-efectivo');
-                    if (productosEfectivo) {
-                        // Por ahora mostramos el total, luego puedes ajustar con datos reales
-                        productosEfectivo.textContent = `$${(productosTotal || 0).toFixed(2)}`;
+                    // Productos Efectivo
+                    const productosEfectivoEl = document.getElementById('cierre-productos-efectivo');
+                    if (productosEfectivoEl) {
+                        productosEfectivoEl.textContent = `$${productosEfectivo.toFixed(2)}`;
                     }
 
                     // Productos Transferencia
-                    const productosTransferencia = document.getElementById('cierre-productos-transferencia');
-                    if (productosTransferencia) {
-                        productosTransferencia.textContent = `$0.00`;
+                    const productosTransferenciaEl = document.getElementById('cierre-productos-transferencia');
+                    if (productosTransferenciaEl) {
+                        productosTransferenciaEl.textContent = `$${productosTransferencia.toFixed(2)}`;
                     }
 
                     // Total Productos
                     const productosTotalEl = document.getElementById('cierre-productos-total');
                     if (productosTotalEl) {
-                        productosTotalEl.textContent = `$${(productosTotal || 0).toFixed(2)}`;
+                        productosTotalEl.textContent = `$${productosTotal.toFixed(2)}`;
                     }
 
                     // MOSTRAR EL MODAL
@@ -1274,7 +1263,6 @@
                     event.target.reset();
                     cargarResumen();
                     cambiarTab('movimientos');
-					window.location.reload();
                 } else {
                     alert(`❌ Error: ${result.message}`);
                 }
@@ -1311,7 +1299,6 @@
                     event.target.reset();
                     cargarResumen();
                     cambiarTab('movimientos');
-                    window.location.reload();
                 } else {
                     alert(`❌ Error: ${result.message}`);
                 }
