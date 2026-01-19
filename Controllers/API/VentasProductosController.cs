@@ -61,9 +61,10 @@ namespace VidaFit.Controllers.API
             public decimal PrecioUnitario { get; set; }
             public decimal Total { get; set; }
             public string EstadoPago { get; set; } = "pendiente";
-            public decimal? MontoPagado { get; set; } // NUEVO: para pago parcial
+            public decimal? MontoPagado { get; set; }
             public string? Notas { get; set; }
-            public Guid? UsuarioId { get; set; } // NUEVO: para registrar en caja
+            public Guid? UsuarioId { get; set; }
+            public string MetodoPago { get; set; } = "efectivo"; // NUEVO
         }
 
         [HttpPost]
@@ -171,7 +172,7 @@ namespace VidaFit.Controllers.API
                                     (saldoPendiente > 0 ? $" (Pago parcial, saldo: ${saldoPendiente:N2})" : ""),
                         ReferenciaId = venta.Id,
                         UsuarioId = ventaDto.UsuarioId ?? Guid.Parse("00000000-0000-0000-0000-000000000000"),
-                        MetodoPago = "efectivo", // Podrías agregar esto al DTO
+                        MetodoPago = string.IsNullOrWhiteSpace(ventaDto.MetodoPago) ? "efectivo" : ventaDto.MetodoPago, // MODIFICADO
                         Fecha = DateTime.UtcNow,
                         CreatedAt = DateTime.UtcNow
                     };

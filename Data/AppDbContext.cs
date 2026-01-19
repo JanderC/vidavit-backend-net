@@ -164,6 +164,7 @@ namespace VidaFit.Data
                 entity.Property(e => e.Monto).HasColumnType("decimal(10,2)");
                 entity.Property(e => e.Tipo).IsRequired().HasMaxLength(20);
                 entity.Property(e => e.Categoria).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Cerrado).HasDefaultValue(false); // NUEVO
 
                 // Relación con Usuario
                 entity.HasOne(m => m.Usuario)
@@ -171,10 +172,18 @@ namespace VidaFit.Data
                     .HasForeignKey(m => m.UsuarioId)
                     .OnDelete(DeleteBehavior.Restrict);
 
+                // Relación con CierreCaja - NUEVO
+                entity.HasOne(m => m.CierreCaja)
+                    .WithMany(c => c.Movimientos)
+                    .HasForeignKey(m => m.CierreCajaId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
                 // Índices
                 entity.HasIndex(m => m.Fecha);
                 entity.HasIndex(m => m.Tipo);
                 entity.HasIndex(m => m.Categoria);
+                entity.HasIndex(m => m.Cerrado); // NUEVO - para optimizar consultas de movimientos pendientes
+                entity.HasIndex(m => m.CierreCajaId); // NUEVO
             });
 
             modelBuilder.Entity<Empleado>(entity =>
@@ -186,7 +195,6 @@ namespace VidaFit.Data
                 entity.Property(e => e.Cedula).IsRequired().HasMaxLength(20);
                 entity.Property(e => e.Salario).HasColumnType("decimal(10,2)");
                 entity.HasIndex(e => e.Cedula).IsUnique();
-                entity.HasIndex(e => e.Activo);
             });
 
             modelBuilder.Entity<PagoEmpleado>(entity =>
@@ -200,32 +208,21 @@ namespace VidaFit.Data
                     .WithMany()
                     .HasForeignKey(p => p.EmpleadoId)
                     .OnDelete(DeleteBehavior.Cascade);
-
-                // Índices
-                entity.HasIndex(p => p.EmpleadoId);
-                entity.HasIndex(p => p.FechaPago);
             });
 
             modelBuilder.Entity<DeudaCliente>(entity =>
             {
                 entity.ToTable("deudas_clientes");
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Concepto).IsRequired().HasMaxLength(200);
                 entity.Property(e => e.MontoTotal).HasColumnType("decimal(10,2)");
                 entity.Property(e => e.MontoPagado).HasColumnType("decimal(10,2)");
                 entity.Property(e => e.Saldo).HasColumnType("decimal(10,2)");
-                entity.Property(e => e.Estado).HasMaxLength(20);
 
                 // Relación
                 entity.HasOne(d => d.Cliente)
                     .WithMany()
                     .HasForeignKey(d => d.ClienteId)
                     .OnDelete(DeleteBehavior.Cascade);
-
-                // Índices
-                entity.HasIndex(d => d.ClienteId);
-                entity.HasIndex(d => d.Estado);
-                entity.HasIndex(d => d.FechaVencimiento);
             });
 
             modelBuilder.Entity<AbonoDeuda>(entity =>
@@ -239,10 +236,6 @@ namespace VidaFit.Data
                     .WithMany(d => d.Abonos)
                     .HasForeignKey(a => a.DeudaId)
                     .OnDelete(DeleteBehavior.Cascade);
-
-                // Índices
-                entity.HasIndex(a => a.DeudaId);
-                entity.HasIndex(a => a.FechaAbono);
             });
 
             modelBuilder.Entity<CierreCaja>(entity =>
@@ -364,6 +357,9 @@ namespace VidaFit.Data
                         "BalanceGeneral" => "balance_general",
                         "CantidadMovimientos" => "cantidad_movimientos",
                         "Observaciones" => "observaciones",
+                        // NUEVO - propiedades para control de cierre
+                        "Cerrado" => "cerrado",
+                        "CierreCajaId" => "cierre_caja_id",
                         _ => property.Name.ToLower()
                     };
 

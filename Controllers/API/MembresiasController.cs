@@ -32,7 +32,7 @@ namespace VidaFit.Controllers.API
 
         private async Task ActualizarEstadosVencidas()
         {
-            var hoy = DateTime.UtcNow.Date;
+            var hoy = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
             var membresiasVencidas = await _context.Membresias
                 .Where(m => m.Estado == "activa" && m.FechaVencimiento < hoy)
                 .ToListAsync();

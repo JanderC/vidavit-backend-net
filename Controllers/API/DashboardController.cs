@@ -24,7 +24,7 @@ namespace VidaFit.Controllers.API
         {
             try
             {
-                var hoy = DateTime.UtcNow.Date;
+                var hoy = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
                 var inicioMes = new DateTime(hoy.Year, hoy.Month, 1, 0, 0, 0, DateTimeKind.Utc);
                 var finMes = inicioMes.AddMonths(1).AddTicks(-1);
                 var sieteDias = hoy.AddDays(7);
@@ -169,7 +169,7 @@ namespace VidaFit.Controllers.API
         {
             try
             {
-                var hoy = DateTime.UtcNow.Date;
+                var hoy = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
                 var sieteDias = hoy.AddDays(7);
 
                 var totalClientes = await _context.Clientes.CountAsync(c => c.Activo);

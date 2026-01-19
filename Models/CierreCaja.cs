@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace VidaFitBackend.Models
 {
@@ -34,5 +35,6 @@ namespace VidaFitBackend.Models
 
         // Navegación
         public Usuario Usuario { get; set; }
+        public List<MovimientoCaja> Movimientos { get; set; }
     }
 }

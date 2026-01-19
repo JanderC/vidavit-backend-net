@@ -87,17 +87,17 @@
                                             </div>`
                                         }
                                         <div>
-                                            <div class="font-black text-gray-900">${c.Nombre} ${c.Apellido}</div>
+                                            <div class="font-black text-gray-900 text-xl">${c.Nombre} ${c.Apellido}</div>
                                             <div class="text-sm text-gray-500 font-semibold">Registrado: ${new Date(c.CreatedAt).toLocaleDateString('es-ES')}</div>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="font-mono text-sm text-gray-900 font-bold">${c.Cedula}</span>
+                                    <span class="font-mono text-xl text-gray-900 font-bold">${c.Cedula}</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm">
-                                        <div class="text-gray-900 font-bold">${c.Telefono}</div>
+                                        <div class="text-gray-900 font-bold text-xl">${c.Telefono}</div>
                                         ${c.Email ? `<div class="text-gray-600 font-semibold">${c.Email}</div>` : ''}
                                     </div>
                                 </td>

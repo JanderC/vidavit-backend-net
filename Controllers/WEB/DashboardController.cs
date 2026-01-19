@@ -20,7 +20,7 @@
 //        {
 //            try
 //            {
-//                var hoy = DateTime.UtcNow.Date;
+//                var hoy = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
 //                var inicioMes = new DateTime(hoy.Year, hoy.Month, 1, 0, 0, 0, DateTimeKind.Utc);
 //                var dentroSieteDias = hoy.AddDays(7);
 

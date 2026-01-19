@@ -5,6 +5,26 @@
 }
 
 <div class="space-y-6">
+    <!-- ALERTA DE DÍAS PENDIENTES -->
+    <div id="alerta-dias-pendientes" class="hidden bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg shadow-lg">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <i data-lucide="alert-triangle" class="w-6 h-6 text-yellow-600"></i>
+            </div>
+            <div class="ml-3 flex-1">
+                <p class="text-sm font-bold text-yellow-800">
+                    ⚠️ Hay <span id="cantidad-dias-pendientes">0</span> día(s) anterior(es) con movimientos sin cerrar
+                </p>
+                <p class="text-xs text-yellow-700 mt-1">
+                    Se recomienda cerrar los días anteriores antes de continuar
+                </p>
+            </div>
+            <button onclick="cambiarTab('pendientes')" class="ml-4 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white text-sm font-bold rounded-lg transition-all">
+                Ver Días Pendientes
+            </button>
+        </div>
+    </div>
+
     <!-- RESUMEN GENERAL DE CAJA -->
     <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
         <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl shadow-xl p-6 border-l-4 border-emerald-600 transform hover:scale-105 transition-all">
@@ -126,6 +146,11 @@
                 <i data-lucide="list" class="w-5 h-5 inline-block mr-2"></i>
                 Movimientos
             </button>
+            <button onclick="cambiarTab('pendientes')" id="tab-pendientes"
+                    class="tab-btn flex-1 px-6 py-4 font-black uppercase tracking-wide transition-all hover:bg-gray-50">
+                <i data-lucide="calendar-clock" class="w-5 h-5 inline-block mr-2"></i>
+                Días Pendientes
+            </button>
             <button onclick="cambiarTab('deudas')" id="tab-deudas"
                     class="tab-btn flex-1 px-6 py-4 font-black uppercase tracking-wide transition-all hover:bg-gray-50">
                 <i data-lucide="file-text" class="w-5 h-5 inline-block mr-2"></i>
@@ -207,6 +232,20 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- TAB: DÍAS PENDIENTES -->
+    <div id="content-pendientes" class="tab-content hidden">
+        <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200">
+            <h3 class="text-xl font-black text-gray-900 uppercase tracking-wide mb-6">
+                <i data-lucide="calendar-clock" class="w-6 h-6 inline-block mr-2 text-yellow-600"></i>
+                Días con Movimientos Sin Cerrar
+            </h3>
+            <div id="lista-dias-pendientes" class="space-y-4">
+                <p class="text-center text-gray-500 font-semibold py-8">Cargando...</p>
             </div>
         </div>
     </div>
@@ -500,6 +539,34 @@
         </div>
     </div>
 </div>
+
+<!-- MODAL: CERRAR DÍA ESPECÍFICO -->
+<div id="modalCerrarDiaEspecifico" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4">
+        <h3 class="text-2xl font-black text-gray-900 mb-4 uppercase tracking-wide">
+            <i data-lucide="calendar-check" class="w-6 h-6 inline-block mr-2 text-blue-600"></i>
+            Cerrar Día Específico
+        </h3>
+        <p class="text-gray-600 mb-4 font-semibold">Fecha: <span id="modal-fecha-cerrar" class="text-blue-600 font-black"></span></p>
+        <p class="text-gray-600 mb-4 font-semibold">Movimientos: <span id="modal-cantidad-movimientos" class="text-gray-900 font-black"></span></p>
+        <p class="text-gray-600 mb-6 font-semibold">Balance: <span id="modal-balance-dia" class="text-emerald-600 font-black"></span></p>
+
+        <div class="mb-4">
+            <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Observaciones (opcional)</label>
+            <textarea id="input-observaciones-cierre-dia" rows="3" class="w-full px-4 py-3 rounded-xl border-2 border-gray-300 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Agregar notas sobre este cierre..."></textarea>
+        </div>
+
+        <div class="flex gap-3">
+            <button onclick="cerrarModalDiaEspecifico()" class="flex-1 px-6 py-3 bg-gray-300 hover:bg-gray-400 text-gray-800 font-black rounded-xl transition-all uppercase tracking-wide">
+                Cancelar
+            </button>
+            <button onclick="confirmarCierreDiaEspecifico()" class="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-black rounded-xl transition-all shadow-lg uppercase tracking-wide">
+                Cerrar Día
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- MODAL PARA ABONAR DEUDA -->
 <div id="modalAbonarDeuda" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4">
@@ -560,6 +627,7 @@
 @section Scripts {
     <script>
         const API_URL = '/api';
+        let fechaDiaCerrar = null;
 
         // ========================================
         // GESTIÓN DE TABS
@@ -589,6 +657,8 @@
                 cargarHistorialCierres();
             } else if (tab === 'deudas') {
                 cargarDeudas();
+            } else if (tab === 'pendientes') {
+                cargarDiasPendientes();
             }
 
             lucide.createIcons();
@@ -681,6 +751,21 @@
                     // No detener la ejecución si falla la carga de deudas
                 }
 
+                // MOSTRAR ALERTA SI HAY DÍAS PENDIENTES
+                if (data.alertas && data.alertas.tieneMovimientosPendientesAnteriores) {
+                    const alerta = document.getElementById('alerta-dias-pendientes');
+                    const cantidad = document.getElementById('cantidad-dias-pendientes');
+                    if (alerta && cantidad) {
+                        cantidad.textContent = data.alertas.movimientosPendientesAnteriores;
+                        alerta.classList.remove('hidden');
+                    }
+                } else {
+                    const alerta = document.getElementById('alerta-dias-pendientes');
+                    if (alerta) {
+                        alerta.classList.add('hidden');
+                    }
+                }
+
             } catch (error) {
                 console.error('❌ Error al cargar resumen de caja:', error);
 
@@ -710,8 +795,8 @@
 
                 const tbody = document.getElementById('tabla-movimientos');
 
-                if (data.success && data.movimientos.length > 0) {
-                    tbody.innerHTML = data.movimientos.map(m => {
+                if (data.success && data.data && data.data.length > 0) {
+                    tbody.innerHTML = data.data.map(m => {
                         const fecha = new Date(m.Fecha);
                         const tipoColor = m.Tipo === 'ingreso' ? 'text-green-600' : 'text-red-600';
                         const metodoBadge = m.MetodoPago === 'efectivo'
@@ -744,6 +829,16 @@
                 }
             } catch (error) {
                 console.error('Error al cargar movimientos:', error);
+                const tbody = document.getElementById('tabla-movimientos');
+                if (tbody) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="px-6 py-12 text-center text-red-500 font-bold">
+                                Error al cargar movimientos
+                            </td>
+                        </tr>
+                    `;
+                }
             }
         }
 
@@ -753,7 +848,18 @@
                 async function cargarResumenSemanal() {
             try {
                 const response = await fetch(`${API_URL}/Caja/semanal`);
-                const data = await response.json();
+
+                // Verificar si la respuesta es válida
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const text = await response.text();
+                if (!text) {
+                    throw new Error('Respuesta vacía del servidor');
+                }
+
+                const data = JSON.parse(text);
 
                 if (data.success && data.periodo && data.totales) {
                     // ========================================
@@ -846,7 +952,18 @@
                 async function cargarHistorialCierres() {
             try {
                 const response = await fetch(`${API_URL}/Caja/cierres?limite=20`);
-                const data = await response.json();
+
+                // Verificar si la respuesta es válida
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const text = await response.text();
+                if (!text) {
+                    throw new Error('Respuesta vacía del servidor');
+                }
+
+                const data = JSON.parse(text);
 
                 const container = document.getElementById('lista-cierres');
 
@@ -857,8 +974,8 @@
 
                 if (data.success && data.data && Array.isArray(data.data) && data.data.length > 0) {
                     container.innerHTML = data.data.map(cierre => {
-                        const fecha = new Date(cierre.fechaCierre);
-                        const tipoBadge = cierre.tipo === 'automatico'
+                        const fecha = new Date(cierre.FechaCierre);
+                        const tipoBadge = cierre.TipoCierre === 'automatico'
                             ? '<span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full">AUTOMÁTICO</span>'
                             : '<span class="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-full">MANUAL</span>';
 
@@ -874,21 +991,21 @@
                                 <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
                                     <div class="bg-emerald-50 rounded-xl p-3">
                                         <p class="text-xs text-emerald-700 font-bold mb-1">Efectivo Final</p>
-                                        <p class="text-lg font-black text-emerald-600">$${(cierre.efectivoFinal || 0).toFixed(2)}</p>
+                                        <p class="text-lg font-black text-emerald-600">$${(cierre.EfectivoFinal || 0).toFixed(2)}</p>
                                     </div>
                                     <div class="bg-blue-50 rounded-xl p-3">
                                         <p class="text-xs text-blue-700 font-bold mb-1">Ingresos</p>
-                                        <p class="text-lg font-black text-blue-600">$${(cierre.totalIngresos || 0).toFixed(2)}</p>
+                                        <p class="text-lg font-black text-blue-600">$${(cierre.TotalIngresos || 0).toFixed(2)}</p>
                                     </div>
                                     <div class="bg-amber-50 rounded-xl p-3">
                                         <p class="text-xs text-amber-700 font-bold mb-1">Balance</p>
-                                        <p class="text-lg font-black text-amber-600">$${(cierre.balanceGeneral || 0).toFixed(2)}</p>
+                                        <p class="text-lg font-black text-amber-600">$${(cierre.BalanceGeneral || 0).toFixed(2)}</p>
                                     </div>
                                 </div>
-                                ${cierre.observaciones ? `
+                                ${cierre.Observaciones ? `
                                     <div class="bg-gray-50 rounded-xl p-3 mt-3">
                                         <p class="text-xs text-gray-600 font-bold mb-1">Observaciones</p>
-                                        <p class="text-sm text-gray-800">${cierre.observaciones}</p>
+                                        <p class="text-sm text-gray-800">${cierre.Observaciones}</p>
                                     </div>
                                 ` : ''}
                             </div>
@@ -1157,6 +1274,7 @@
                     event.target.reset();
                     cargarResumen();
                     cambiarTab('movimientos');
+					window.location.reload();
                 } else {
                     alert(`❌ Error: ${result.message}`);
                 }
@@ -1193,6 +1311,7 @@
                     event.target.reset();
                     cargarResumen();
                     cambiarTab('movimientos');
+                    window.location.reload();
                 } else {
                     alert(`❌ Error: ${result.message}`);
                 }
@@ -1402,10 +1521,130 @@
             }
         }
 
+
+        // ========================================
+        // DÍAS PENDIENTES
+        // ========================================
+        async function cargarDiasPendientes() {
+            try {
+                const response = await fetch(`${API_URL}/Caja/pendientes`);
+                const data = await response.json();
+
+                const container = document.getElementById('lista-dias-pendientes');
+
+                if (data.success && data.diasPendientes && data.diasPendientes.length > 0) {
+                    container.innerHTML = data.diasPendientes.map(dia => {
+                        const fecha = new Date(dia.fecha);
+                        const balanceColor = dia.balance >= 0 ? 'text-emerald-600' : 'text-red-600';
+
+                        return `
+                            <div class="bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl p-6 border-l-4 border-yellow-500 shadow-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div>
+                                        <h4 class="text-lg font-black text-gray-900">
+                                            ${fecha.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                        </h4>
+                                        <p class="text-sm text-gray-600 font-semibold">
+                                            ${dia.cantidadMovimientos} movimientos sin cerrar
+                                        </p>
+                                    </div>
+                                    <button onclick="abrirModalCerrarDia('${dia.fecha}', ${dia.cantidadMovimientos}, ${dia.balance})"
+                                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-all">
+                                        <i data-lucide="lock" class="w-4 h-4 inline-block mr-1"></i>
+                                        Cerrar Día
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div class="bg-blue-50 rounded-lg p-3">
+                                        <p class="text-xs text-blue-700 font-bold mb-1">Ingresos</p>
+                                        <p class="text-lg font-black text-blue-600">$${dia.totalIngresos.toFixed(2)}</p>
+                                    </div>
+                                    <div class="bg-red-50 rounded-lg p-3">
+                                        <p class="text-xs text-red-700 font-bold mb-1">Egresos</p>
+                                        <p class="text-lg font-black text-red-600">$${dia.totalEgresos.toFixed(2)}</p>
+                                    </div>
+                                    <div class="bg-emerald-50 rounded-lg p-3">
+                                        <p class="text-xs text-emerald-700 font-bold mb-1">Balance</p>
+                                        <p class="text-lg font-black ${balanceColor}">$${dia.balance.toFixed(2)}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                    lucide.createIcons();
+                } else {
+                    container.innerHTML = `
+                        <div class="bg-emerald-50 rounded-2xl p-12 text-center border-2 border-emerald-200">
+                            <i data-lucide="check-circle" class="w-16 h-16 text-emerald-500 mx-auto mb-4"></i>
+                            <h3 class="text-xl font-black text-emerald-800 mb-2">¡Todo al día!</h3>
+                            <p class="text-emerald-700 font-semibold">No hay días pendientes por cerrar</p>
+                        </div>
+                    `;
+                    lucide.createIcons();
+                }
+            } catch (error) {
+                console.error('Error al cargar días pendientes:', error);
+            }
+        }
+
+        function abrirModalCerrarDia(fecha, cantidadMovimientos, balance) {
+            fechaDiaCerrar = fecha;
+            const fechaObj = new Date(fecha);
+            document.getElementById('modal-fecha-cerrar').textContent =
+                fechaObj.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('modal-cantidad-movimientos').textContent = cantidadMovimientos;
+            document.getElementById('modal-balance-dia').textContent = `$${balance.toFixed(2)}`;
+            document.getElementById('modalCerrarDiaEspecifico').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function cerrarModalDiaEspecifico() {
+            document.getElementById('modalCerrarDiaEspecifico').classList.add('hidden');
+            fechaDiaCerrar = null;
+        }
+
+        async function confirmarCierreDiaEspecifico() {
+            try {
+                const observaciones = document.getElementById('input-observaciones-cierre-dia').value;
+
+                // Extraer solo la fecha (YYYY-MM-DD) sin la hora
+                const soloFecha = fechaDiaCerrar.split('T')[0];
+
+                const response = await fetch(`${API_URL}/Caja/cerrar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fecha: soloFecha,
+                        observaciones
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(`✅ ${data.message}`);
+                    cerrarModalDiaEspecifico();
+                    cargarResumen();
+                    cargarDiasPendientes();
+                } else {
+                    alert(`❌ ${data.message}`);
+                }
+            } catch (error) {
+                console.error('Error al cerrar día:', error);
+                alert('❌ Error al cerrar el día');
+            }
+        }
+
         // ========================================
         // INICIALIZACIÓN
         // ========================================
         window.addEventListener('load', function() {
+            // Establecer fecha de hoy en los filtros
+            const hoy = new Date();
+            const fechaHoy = hoy.toISOString().split('T')[0];
+            document.getElementById('fecha-desde').value = fechaHoy;
+            document.getElementById('fecha-hasta').value = fechaHoy;
+
             cargarResumen();
             cargarMovimientos();
             lucide.createIcons();

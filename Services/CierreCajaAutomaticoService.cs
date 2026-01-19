@@ -8,7 +8,7 @@ namespace VidaFit.Services
 {
     /// <summary>
     /// Servicio que ejecuta el cierre automático de caja a medianoche
-    /// MODIFICADO: Ahora cierra solo movimientos pendientes y deja la caja en cero
+    /// MEJORADO: Cierra TODOS los días pendientes hasta ayer, no solo el día inmediato anterior
     /// </summary>
     public class CierreCajaAutomaticoService : BackgroundService
     {
@@ -69,69 +69,28 @@ namespace VidaFit.Services
                     _logger.LogInformation("Iniciando cierre automático de caja...");
                     _logger.LogInformation($"Fecha/Hora: {DateTime.UtcNow}");
 
-                    // Obtener el último cierre para saber desde cuándo contar
-                    var ultimoCierre = await context.CierresCaja
-                        .OrderByDescending(c => c.FechaCierre)
-                        .FirstOrDefaultAsync();
+                    var hoy = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
 
-                    DateTime fechaDesde;
-                    if (ultimoCierre != null)
-                    {
-                        fechaDesde = DateTime.SpecifyKind(ultimoCierre.FechaCierre, DateTimeKind.Utc);
-                        _logger.LogInformation($"Último cierre: {fechaDesde}");
-                    }
-                    else
-                    {
-                        fechaDesde = new DateTime(1900, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-                        _logger.LogInformation("No hay cierres previos - primer cierre del sistema");
-                    }
-
-                    // Obtener movimientos PENDIENTES (después del último cierre)
-                    var movimientos = await context.MovimientosCaja
-                        .Where(m => m.Fecha > fechaDesde)
+                    // Obtener TODOS los días con movimientos pendientes (no cerrados) HASTA AYER
+                    var diasPendientes = await context.MovimientosCaja
+                        .Where(m => !m.Cerrado && m.Fecha < hoy)
+                        .Select(m => m.Fecha.Date)
+                        .Distinct()
+                        .OrderBy(d => d)
                         .ToListAsync();
 
-                    _logger.LogInformation($"Movimientos pendientes encontrados: {movimientos.Count}");
-
-                    // Si no hay movimientos pendientes, no hacer cierre
-                    if (movimientos.Count == 0)
+                    if (diasPendientes.Count == 0)
                     {
-                        _logger.LogInformation("No hay movimientos pendientes para cerrar");
+                        _logger.LogInformation("No hay días pendientes para cerrar");
                         _logger.LogInformation("========================================");
                         return;
                     }
 
-                    // Calcular montos
-                    var ingresosEfectivo = movimientos
-                        .Where(m => m.Tipo == "ingreso" && m.MetodoPago == "efectivo")
-                        .Sum(m => m.Monto);
-
-                    var egresosEfectivo = movimientos
-                        .Where(m => m.Tipo == "egreso" && m.MetodoPago == "efectivo")
-                        .Sum(m => m.Monto);
-
-                    var ingresosTransferencia = movimientos
-                        .Where(m => m.Tipo == "ingreso" && m.MetodoPago == "transferencia")
-                        .Sum(m => m.Monto);
-
-                    var egresosTransferencia = movimientos
-                        .Where(m => m.Tipo == "egreso" && m.MetodoPago == "transferencia")
-                        .Sum(m => m.Monto);
-
-                    var totalIngresos = movimientos.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto);
-                    var totalEgresos = movimientos.Where(m => m.Tipo == "egreso").Sum(m => m.Monto);
-
-                    // IMPORTANTE: La caja siempre empieza en 0 después de cada cierre
-                    var efectivoInicial = 0;
-                    var efectivoFinal = ingresosEfectivo - egresosEfectivo;
-                    var balanceGeneral = totalIngresos - totalEgresos;
-
-                    _logger.LogInformation("--- Resumen del cierre ---");
-                    _logger.LogInformation($"Total ingresos: ${totalIngresos:F2}");
-                    _logger.LogInformation($"Total egresos: ${totalEgresos:F2}");
-                    _logger.LogInformation($"Balance general: ${balanceGeneral:F2}");
-                    _logger.LogInformation($"Efectivo final: ${efectivoFinal:F2}");
-                    _logger.LogInformation($"Transferencias netas: ${(ingresosTransferencia - egresosTransferencia):F2}");
+                    _logger.LogInformation($"Días pendientes encontrados: {diasPendientes.Count}");
+                    foreach (var dia in diasPendientes)
+                    {
+                        _logger.LogInformation($"  - {dia:dd/MM/yyyy}");
+                    }
 
                     // Obtener el primer usuario activo del sistema
                     var usuarioId = await context.Usuarios
@@ -146,32 +105,23 @@ namespace VidaFit.Services
                         return;
                     }
 
-                    // Crear registro de cierre
-                    var cierre = new CierreCaja
+                    // CERRAR CADA DÍA PENDIENTE
+                    int cierresRealizados = 0;
+                    foreach (var diaPendiente in diasPendientes)
                     {
-                        Id = Guid.NewGuid(),
-                        FechaCierre = DateTime.UtcNow,
-                        TipoCierre = "automatico",
-                        EfectivoInicial = efectivoInicial,
-                        IngresosEfectivo = ingresosEfectivo,
-                        EgresosEfectivo = egresosEfectivo,
-                        EfectivoFinal = efectivoFinal,
-                        IngresosTransferencia = ingresosTransferencia,
-                        EgresosTransferencia = egresosTransferencia,
-                        TotalIngresos = totalIngresos,
-                        TotalEgresos = totalEgresos,
-                        BalanceGeneral = balanceGeneral,
-                        CantidadMovimientos = movimientos.Count,
-                        Observaciones = $"Cierre automático - Período: {fechaDesde:dd/MM/yyyy HH:mm} - {DateTime.UtcNow:dd/MM/yyyy HH:mm}",
-                        UsuarioId = usuarioId,
-                        CreatedAt = DateTime.UtcNow
-                    };
+                        try
+                        {
+                            await CerrarDia(context, diaPendiente, usuarioId);
+                            cierresRealizados++;
+                            _logger.LogInformation($"✅ Día {diaPendiente:dd/MM/yyyy} cerrado correctamente");
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, $"❌ Error al cerrar día {diaPendiente:dd/MM/yyyy}");
+                        }
+                    }
 
-                    context.CierresCaja.Add(cierre);
-                    await context.SaveChangesAsync();
-
-                    _logger.LogInformation("✅ Cierre automático completado exitosamente");
-                    _logger.LogInformation($"ID del cierre: {cierre.Id}");
+                    _logger.LogInformation($"Resumen: {cierresRealizados} de {diasPendientes.Count} días cerrados");
                     _logger.LogInformation("========================================");
                 }
             }
@@ -182,6 +132,92 @@ namespace VidaFit.Services
                 _logger.LogError($"StackTrace: {ex.StackTrace}");
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Cierra un día específico con sus movimientos pendientes
+        /// </summary>
+        private async Task CerrarDia(AppDbContext context, DateTime fecha, Guid usuarioId)
+        {
+            var inicioDia = fecha.Date;
+            var finDia = inicioDia.AddDays(1);
+
+            _logger.LogInformation($"--- Cerrando día: {fecha:dd/MM/yyyy} ---");
+
+            // Obtener movimientos NO CERRADOS de este día específico
+            var movimientosPendientes = await context.MovimientosCaja
+                .Where(m => !m.Cerrado && m.Fecha >= inicioDia && m.Fecha < finDia)
+                .ToListAsync();
+
+            if (movimientosPendientes.Count == 0)
+            {
+                _logger.LogWarning($"No hay movimientos pendientes para {fecha:dd/MM/yyyy}");
+                return;
+            }
+
+            // Calcular montos
+            var ingresosEfectivo = movimientosPendientes
+                .Where(m => m.Tipo == "ingreso" && m.MetodoPago == "efectivo")
+                .Sum(m => m.Monto);
+
+            var egresosEfectivo = movimientosPendientes
+                .Where(m => m.Tipo == "egreso" && m.MetodoPago == "efectivo")
+                .Sum(m => m.Monto);
+
+            var ingresosTransferencia = movimientosPendientes
+                .Where(m => m.Tipo == "ingreso" && m.MetodoPago == "transferencia")
+                .Sum(m => m.Monto);
+
+            var egresosTransferencia = movimientosPendientes
+                .Where(m => m.Tipo == "egreso" && m.MetodoPago == "transferencia")
+                .Sum(m => m.Monto);
+
+            var totalIngresos = movimientosPendientes.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto);
+            var totalEgresos = movimientosPendientes.Where(m => m.Tipo == "egreso").Sum(m => m.Monto);
+
+            var efectivoInicial = 0;
+            var efectivoFinal = ingresosEfectivo - egresosEfectivo;
+            var balanceGeneral = totalIngresos - totalEgresos;
+
+            _logger.LogInformation($"  Movimientos: {movimientosPendientes.Count}");
+            _logger.LogInformation($"  Ingresos: ${totalIngresos:F2}");
+            _logger.LogInformation($"  Egresos: ${totalEgresos:F2}");
+            _logger.LogInformation($"  Balance: ${balanceGeneral:F2}");
+
+            // Crear registro de cierre
+            var cierre = new CierreCaja
+            {
+                Id = Guid.NewGuid(),
+                FechaCierre = DateTime.UtcNow,
+                TipoCierre = "automatico",
+                EfectivoInicial = efectivoInicial,
+                IngresosEfectivo = ingresosEfectivo,
+                EgresosEfectivo = egresosEfectivo,
+                EfectivoFinal = efectivoFinal,
+                IngresosTransferencia = ingresosTransferencia,
+                EgresosTransferencia = egresosTransferencia,
+                TotalIngresos = totalIngresos,
+                TotalEgresos = totalEgresos,
+                BalanceGeneral = balanceGeneral,
+                CantidadMovimientos = movimientosPendientes.Count,
+                Observaciones = $"Cierre automático - Día: {fecha:dd/MM/yyyy}",
+                UsuarioId = usuarioId,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            context.CierresCaja.Add(cierre);
+            await context.SaveChangesAsync();
+
+            // MARCAR TODOS LOS MOVIMIENTOS COMO CERRADOS
+            foreach (var movimiento in movimientosPendientes)
+            {
+                movimiento.Cerrado = true;
+                movimiento.CierreCajaId = cierre.Id;
+            }
+
+            await context.SaveChangesAsync();
+
+            _logger.LogInformation($"  ID del cierre: {cierre.Id}");
         }
 
         public override async Task StopAsync(CancellationToken cancellationToken)

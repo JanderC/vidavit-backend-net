@@ -407,7 +407,7 @@ namespace VidaFit.Controllers.API
         {
             try
             {
-                var hoy = DateTime.UtcNow.Date;
+                var hoy = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
 
                 var deudas = await _context.DeudasClientes
                     .Include(d => d.Cliente)

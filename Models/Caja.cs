@@ -17,10 +17,13 @@ namespace VidaFitBackend.Models
         public Guid UsuarioId { get; set; }
         public DateTime Fecha { get; set; }
         public string MetodoPago { get; set; }
+        public bool Cerrado { get; set; } // Indica si el movimiento ya fue cerrado
+        public Guid? CierreCajaId { get; set; } // Referencia al cierre que incluyó este movimiento
         public DateTime CreatedAt { get; set; }
 
         // Navegación
         public Usuario Usuario { get; set; }
+        public CierreCaja CierreCaja { get; set; }
     }
 
     /// <summary>
