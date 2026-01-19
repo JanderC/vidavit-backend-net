@@ -34,14 +34,14 @@
             var duracionPromedio = Model.Where(p => p.Activo).Any() ? Model.Where(p => p.Activo).Average(p => p.DuracionDias) : 0;
         }
 
-        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-orange-500">
             <p class="text-sm text-gray-600 mb-1">Total Planes</p>
             <p class="text-3xl font-bold text-gray-800">@totalPlanes</p>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-orange-500">
             <p class="text-sm text-gray-600 mb-1">Planes Activos</p>
-            <p class="text-3xl font-bold text-green-600">@planesActivos</p>
+            <p class="text-3xl font-bold text-orange-600">@planesActivos</p>
         </div>
 
         <div class="bg-white rounded-lg shadow p-6 border-l-4 border-vida-primary">
@@ -49,7 +49,7 @@
             <p class="text-3xl font-bold text-gray-800">$@precioPromedio.ToString("N0")</p>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-purple-500">
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-gray-500">
             <p class="text-sm text-gray-600 mb-1">Duración Promedio</p>
             <p class="text-3xl font-bold text-gray-800">@duracionPromedio.ToString("N0") días</p>
         </div>
@@ -124,12 +124,12 @@
                             <!-- Acciones -->
                             <div class="flex gap-2">
                                 <a href="/membresias/planes/editar/@plan.Id"
-                                   class="flex-1 bg-blue-600 text-white text-center py-2 rounded-lg hover:bg-blue-700 transition text-sm font-bold">
+                                   class="flex-1 bg-orange-600 text-white text-center py-2 rounded-lg hover:bg-orange-700 transition text-sm font-bold">
                                     <i data-lucide="edit" class="w-4 h-4 inline mr-1"></i>
                                     Editar
                                 </a>
                                 <button onclick="toggleActivoPlan('@plan.Id', @(plan.Activo ? "false" : "true"), '@plan.Nombre')"
-                                        class="flex-1 @(plan.Activo ? "bg-orange-600 hover:bg-orange-700" : "bg-green-600 hover:bg-green-700") text-white py-2 rounded-lg transition text-sm font-bold">
+                                        class="flex-1 @(plan.Activo ? "bg-orange-600 hover:bg-orange-700" : "bg-orange-600 hover:bg-orange-700") text-white py-2 rounded-lg transition text-sm font-bold">
                                     <i data-lucide="@(plan.Activo ? "toggle-right" : "toggle-left")" class="w-4 h-4 inline mr-1"></i>
                                     @(plan.Activo ? "Desactivar" : "Activar")
                                 </button>

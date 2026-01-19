@@ -60,6 +60,7 @@ namespace VidaFit.Controllers.WEB
             ModelState.Remove("Email");
             ModelState.Remove("FechaNacimiento");
             ModelState.Remove("Direccion");
+            ModelState.Remove("Peso");  // ← AGREGADO: Peso es opcional
             ModelState.Remove("FotoBase64");
             ModelState.Remove("HuellaTemplate");
             ModelState.Remove("HuellaDigital");
@@ -92,6 +93,9 @@ namespace VidaFit.Controllers.WEB
                     cliente.Direccion = null;
                 if (string.IsNullOrWhiteSpace(cliente.FotoBase64))
                     cliente.FotoBase64 = null;
+
+                // ← AGREGADO: El peso ya viene correctamente del formulario (es decimal nullable)
+                // No necesita conversión adicional
 
                 // CRÍTICO: Convertir FechaNacimiento a UTC si tiene valor
                 if (cliente.FechaNacimiento.HasValue)
@@ -177,6 +181,7 @@ namespace VidaFit.Controllers.WEB
                 dbCliente.Telefono = string.IsNullOrWhiteSpace(cliente.Telefono) ? null : cliente.Telefono;
                 dbCliente.Email = string.IsNullOrWhiteSpace(cliente.Email) ? null : cliente.Email;
                 dbCliente.Direccion = string.IsNullOrWhiteSpace(cliente.Direccion) ? null : cliente.Direccion;
+                dbCliente.Peso = cliente.Peso;  // ← AGREGADO: Actualizar peso
                 dbCliente.Activo = cliente.Activo;
                 dbCliente.UpdatedAt = DateTime.UtcNow;
 

@@ -16,7 +16,7 @@
                 <div class="text-right">
                     @if (Model.Activo)
                     {
-                        <span class="inline-flex items-center px-6 py-3 bg-emerald-500 text-white rounded-full font-black uppercase tracking-wide shadow-xl">
+                        <span class="inline-flex items-center px-6 py-3 bg-orange-500 text-white rounded-full font-black uppercase tracking-wide shadow-xl">
                             <i data-lucide="check-circle" class="w-5 h-5 mr-2"></i>
                             Activo
                         </span>
@@ -59,14 +59,14 @@
                     <p class="text-xl font-bold text-gray-900">@(string.IsNullOrEmpty(Model.Categoria) ? "Sin categoría" : Model.Categoria)</p>
                 </div>
 
-                <div class="bg-emerald-50 p-6 rounded-xl border-2 border-emerald-300">
-                    <p class="text-sm font-black text-emerald-800 uppercase tracking-wide mb-2">Precio</p>
-                    <p class="text-3xl font-black text-emerald-600">$@Model.Precio.ToString("N2")</p>
+                <div class="bg-orange-50 p-6 rounded-xl border-2 border-orange-300">
+                    <p class="text-sm font-black text-orange-800 uppercase tracking-wide mb-2">Precio</p>
+                    <p class="text-3xl font-black text-orange-600">$@Model.Precio.ToString("N2")</p>
                 </div>
 
-                <div class="bg-blue-50 p-6 rounded-xl border-2 border-blue-300">
-                    <p class="text-sm font-black text-blue-800 uppercase tracking-wide mb-2">Stock Disponible</p>
-                    <p class="text-3xl font-black text-blue-600">@Model.Stock</p>
+                <div class="bg-orange-50 p-6 rounded-xl border-2 border-blue-300">
+                    <p class="text-sm font-black text-orange-800 uppercase tracking-wide mb-2">Stock Disponible</p>
+                    <p class="text-3xl font-black text-orange-600">@Model.Stock</p>
                 </div>
 
                 @if (!string.IsNullOrEmpty(Model.Descripcion))
@@ -90,7 +90,7 @@
 
             <div class="flex gap-4 pt-6 border-t-2 border-gray-200">
                 <a href="/productos/editar/@Model.Id"
-                   class="flex-1 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-black py-4 px-6 rounded-xl transition-all shadow-xl hover:shadow-2xl text-center uppercase tracking-wide flex items-center justify-center gap-2">
+                   class="flex-1 bg-gradient-to-r from-orange-600 to-orange-800 hover:from-blue-700 hover:to-blue-900 text-white font-black py-4 px-6 rounded-xl transition-all shadow-xl hover:shadow-2xl text-center uppercase tracking-wide flex items-center justify-center gap-2">
                     <i data-lucide="edit" class="w-5 h-5"></i>
                     Editar Producto
                 </a>

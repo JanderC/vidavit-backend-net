@@ -1,7 +1,7 @@
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Membresías";
-    ViewData["Subtitle"] = "Gestión de membresías - TAURO GYM";
+    ViewData["Subtitle"] = "Gestión de membresías - JONELGYM";
 }
 
 <div class="mb-6">
@@ -56,7 +56,7 @@
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-emerald-600">
+    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-600">
         <p class="text-sm text-gray-600 font-bold uppercase tracking-wide mb-2">Activas</p>
         <p class="text-4xl font-black text-gray-900" id="count-activas">0</p>
     </div>
@@ -68,7 +68,7 @@
         <p class="text-sm text-gray-600 font-bold uppercase tracking-wide mb-2">Vencidas</p>
         <p class="text-4xl font-black text-gray-900" id="count-vencidas">0</p>
     </div>
-    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-600">
+    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-600">
         <p class="text-sm text-gray-600 font-bold uppercase tracking-wide mb-2">Total</p>
         <p class="text-4xl font-black text-gray-900" id="count-total">0</p>
     </div>
@@ -150,7 +150,7 @@
                     Cancelar
                 </button>
                 <button onclick="confirmarRenovacion()"
-                        class="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-800 text-white rounded-xl hover:from-emerald-700 hover:to-emerald-900 font-black uppercase tracking-wide transition-all">
+                        class="flex-1 px-6 py-3 bg-gradient-to-r from-orange-600 to-orange-800 text-white rounded-xl hover:from-orange-700 hover:to-orange-900 font-black uppercase tracking-wide transition-all">
                     Confirmar
                 </button>
             </div>
@@ -339,8 +339,8 @@
                     diasTexto = `<span class="text-amber-600 font-black">${diasRestantes} días</span>`;
                     mostrarRenovar = true;
                 } else {
-                    estadoBadge = '<span class="px-4 py-2 bg-emerald-100 text-emerald-800 font-black rounded-full uppercase text-xs tracking-wide">Activa</span>';
-                    diasTexto = `<span class="text-emerald-600 font-black">${diasRestantes} días</span>`;
+                    estadoBadge = '<span class="px-4 py-2 bg-orange-100 text-orange-800 font-black rounded-full uppercase text-xs tracking-wide">Activa</span>';
+                    diasTexto = `<span class="text-orange-600 font-black">${diasRestantes} días</span>`;
                 }
             } else if (estado === 'vencida' || (estado === 'activa' && fechaVenc < hoy)) {
                 estadoBadge = '<span class="px-4 py-2 bg-red-100 text-red-800 font-black rounded-full uppercase text-xs tracking-wide">Vencida</span>';
@@ -390,20 +390,20 @@
         </div>
         <div>
             <p class="text-gray-600 mb-1 font-bold uppercase tracking-wide" style="font-size: 20px;">Monto</p>
-            <p class="font-black text-emerald-600" style="font-size: 20px;">$${m.montoPagado || m.MontoPagado}</p>
+            <p class="font-black text-orange-600" style="font-size: 20px;">$${m.montoPagado || m.MontoPagado}</p>
         </div>
                             </div>
                         </div>
                         <div class="flex items-center gap-2 ml-4">
                             ${mostrarRenovar ? `
                             <button onclick="abrirModalRenovar('${m.id || m.Id}', '${clienteNombre}', '${planNombre}', ${planPrecio})"
-                                    class="px-4 py-2 bg-gradient-to-r from-emerald-600 to-emerald-800 text-white rounded-xl hover:from-emerald-700 hover:to-emerald-900 transition-all font-black uppercase text-xs tracking-wide">
+                                    class="px-4 py-2 bg-gradient-to-r from-orange-600 to-orange-800 text-white rounded-xl hover:from-orange-700 hover:to-orange-900 transition-all font-black uppercase text-xs tracking-wide">
                                 <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-1"></i>
                                 Renovar
                             </button>
                             ` : ''}
                             <button onclick="verDetalles('${m.id || m.Id}')"
-                                    class="p-3 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
+                                    class="p-3 text-orange-600 hover:bg-orange-50 rounded-xl transition-colors"
                                     title="Ver detalles">
                                 <i data-lucide="eye" class="w-6 h-6"></i>
                             </button>

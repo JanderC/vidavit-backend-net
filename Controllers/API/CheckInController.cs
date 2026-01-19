@@ -105,7 +105,7 @@ namespace VidaFit.Controllers.API
                 _context.CheckIns.Add(checkIn);
                 await _context.SaveChangesAsync();
 
-                // RETORNO con información de deuda
+                // RETORNO con información de deuda Y PESO
                 return Ok(new
                 {
                     success = tieneAcceso,
@@ -114,6 +114,7 @@ namespace VidaFit.Controllers.API
                     {
                         nombre = $"{cliente.Nombre} {cliente.Apellido}",
                         fotoBase64 = cliente.FotoBase64,
+                        peso = cliente.Peso,
                         diasRestantes
                     },
                     membresia = membresiaActiva != null ? new

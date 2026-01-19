@@ -1,7 +1,7 @@
 ﻿@{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Clientes";
-    ViewData["Subtitle"] = "Gestión de miembros de TAURO GYM";
+    ViewData["Subtitle"] = "Gestión de miembros de JONELGYM";
 }
 
 <div class="mb-6 flex items-center justify-between gap-4">
@@ -104,11 +104,11 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex flex-col gap-1">
                                         ${c.Activo ?
-                                            '<span class="inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-800 font-black rounded-full uppercase text-xs"><i data-lucide="check-circle" class="w-3 h-3"></i> Activo</span>' :
+                                            '<span class="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-800 font-black rounded-full uppercase text-xs"><i data-lucide="check-circle" class="w-3 h-3"></i> Activo</span>' :
                                             '<span class="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-800 font-black rounded-full uppercase text-xs"><i data-lucide="x-circle" class="w-3 h-3"></i> Inactivo</span>'
                                         }
                                         ${c.HuellaTemplate ?
-                                            '<span class="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-800 font-black rounded-full uppercase text-xs"><i data-lucide="fingerprint" class="w-3 h-3"></i> Con huella</span>' :
+                                            '<span class="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-purple-800 font-black rounded-full uppercase text-xs"><i data-lucide="fingerprint" class="w-3 h-3"></i> Con huella</span>' :
                                             '<span class="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 font-black rounded-full uppercase text-xs"><i data-lucide="fingerprint" class="w-3 h-3"></i> Sin huella</span>'
                                         }
                                     </div>
@@ -116,7 +116,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-right">
                                     <div class="flex items-center justify-end gap-2">
                                         <a href="/clientes/detalle/${c.Id}"
-                                           class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                           class="p-2 text-orange-600 hover:bg-blue-50 rounded-lg transition-colors"
                                            title="Ver detalles">
                                             <i data-lucide="eye" class="w-5 h-5"></i>
                                         </a>
@@ -127,13 +127,13 @@
                                         </a>
                                         ${!c.HuellaTemplate ?
                                             `<a href="/clientes/capturar-huella/${c.Id}"
-                                                class="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                                                class="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
                                                 title="Capturar huella">
                                                 <i data-lucide="fingerprint" class="w-5 h-5"></i>
                                             </a>` : ''
                                         }
                                         <a href="/membresias/crear?clienteId=${c.Id}"
-                                           class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                                           class="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
                                            title="Nueva membresía">
                                             <i data-lucide="plus-circle" class="w-5 h-5"></i>
                                         </a>

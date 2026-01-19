@@ -2,7 +2,7 @@
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Reporte de Asistencia";
-    ViewData["Subtitle"] = "Control de check-ins - TAURO GYM";
+    ViewData["Subtitle"] = "Control de check-ins - JONELGYM";
 
     int totalCheckins = 0;
     foreach (var item in Model)
@@ -34,31 +34,31 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-blue-600">
+        <div class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-orange-600">
             <div class="flex items-center justify-between mb-3">
                 <div>
                     <p class="text-sm text-gray-600 mb-1 font-black uppercase tracking-wide">Total Check-ins</p>
                     <p class="text-4xl font-black text-gray-900" id="total-checkins">@totalCheckins</p>
                 </div>
-                <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center">
-                    <i data-lucide="users" class="w-7 h-7 text-blue-600"></i>
+                <div class="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center">
+                    <i data-lucide="users" class="w-7 h-7 text-orange-600"></i>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-emerald-600">
+        <div class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-orange-600">
             <div class="flex items-center justify-between mb-3">
                 <div>
                     <p class="text-sm text-gray-600 mb-1 font-black uppercase tracking-wide">Promedio Diario</p>
                     <p class="text-4xl font-black text-gray-900" id="promedio-diario">@Math.Round(promedioDiario, 1)</p>
                 </div>
-                <div class="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center">
-                    <i data-lucide="trending-up" class="w-7 h-7 text-emerald-600"></i>
+                <div class="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center">
+                    <i data-lucide="trending-up" class="w-7 h-7 text-orange-600"></i>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-purple-600">
+        <div class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-gray-600">
             <div class="flex items-center justify-between mb-3">
                 <div>
                     <p class="text-sm text-gray-600 mb-1 font-black uppercase tracking-wide">Día Más Activo</p>
@@ -66,8 +66,8 @@
                         @(Model.Any() ? Model.OrderByDescending(x => x.Total).First().Total : 0)
                     </p>
                 </div>
-                <div class="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center">
-                    <i data-lucide="award" class="w-7 h-7 text-purple-600"></i>
+                <div class="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center">
+                    <i data-lucide="award" class="w-7 h-7 text-gray-600"></i>
                 </div>
             </div>
         </div>
@@ -119,14 +119,14 @@
                                 <span class="text-gray-600 font-bold">@fecha.ToString("dddd", new System.Globalization.CultureInfo("es-ES"))</span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
-                                <span class="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 font-black rounded-full uppercase text-xs tracking-wide">
+                                <span class="inline-flex items-center px-4 py-2 bg-orange-100 text-orange-800 font-black rounded-full uppercase text-xs tracking-wide">
                                     @total visitas
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 @if (total >= 30)
                                 {
-                                    <span class="inline-flex items-center gap-1 px-3 py-2 bg-emerald-100 text-emerald-800 font-black rounded-full uppercase text-xs tracking-wide">
+                                    <span class="inline-flex items-center gap-1 px-3 py-2 bg-orange-100 text-orange-800 font-black rounded-full uppercase text-xs tracking-wide">
                                         <i data-lucide="trending-up" class="w-3 h-3"></i> Alto
                                     </span>
                                 }

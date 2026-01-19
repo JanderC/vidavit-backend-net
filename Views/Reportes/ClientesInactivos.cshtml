@@ -2,7 +2,7 @@
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Clientes Inactivos";
-    ViewData["Subtitle"] = "Seguimiento de clientes - TAURO GYM";
+    ViewData["Subtitle"] = "Seguimiento de clientes - JONELGYM";
 }
 
 <div class="space-y-6">
@@ -78,17 +78,17 @@
                 </p>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-blue-600">
+            <div class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-orange-600">
                 <div class="flex items-center justify-between mb-3">
                     <div>
                         <p class="text-sm text-gray-600 mb-1 font-black uppercase tracking-wide">Tasa de Inactividad</p>
                         <p class="text-4xl font-black text-gray-900">@((Model.Count() * 100.0 / (Model.Count() + 1)).ToString("F1"))%</p>
                     </div>
-                    <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center">
-                        <i data-lucide="percent" class="w-7 h-7 text-blue-600"></i>
+                    <div class="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center">
+                        <i data-lucide="percent" class="w-7 h-7 text-orange-600"></i>
                     </div>
                 </div>
-                <p class="text-xs text-blue-600 flex items-center gap-1 font-bold">
+                <p class="text-xs text-orange-600 flex items-center gap-1 font-bold">
                     <i data-lucide="trending-down" class="w-3 h-3"></i>
                     Del total
                 </p>
@@ -212,12 +212,12 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                     <div class="flex items-center justify-center gap-2">
                                         <a href="/clientes/detalle/@cliente.Id"
-                                           class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                           class="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
                                            title="Ver detalle">
                                             <i data-lucide="eye" class="w-5 h-5"></i>
                                         </a>
                                         <button onclick="contactarCliente('@cliente.Telefono', '@cliente.Nombre')"
-                                                class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                                                class="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
                                                 title="Contactar">
                                             <i data-lucide="phone" class="w-5 h-5"></i>
                                         </button>
@@ -230,7 +230,7 @@
                                         @if (tieneMembresia)
                                         {
                                             <a href="/membresias?clienteId=@cliente.Id"
-                                               class="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                                               class="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
                                                title="Ver membresías">
                                                 <i data-lucide="credit-card" class="w-5 h-5"></i>
                                             </a>
@@ -247,8 +247,8 @@
     else
     {
         <div class="bg-white rounded-2xl shadow-xl p-12 text-center border-2 border-gray-200">
-            <div class="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i data-lucide="check-circle" class="w-14 h-14 text-emerald-600"></i>
+            <div class="w-24 h-24 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="check-circle" class="w-14 h-14 text-orange-600"></i>
             </div>
             <h3 class="text-3xl font-black text-gray-900 mb-3 uppercase tracking-wide">¡Excelente Participación!</h3>
             <p class="text-gray-600 text-lg font-bold">No hay clientes inactivos en los últimos @ViewBag.Dias días</p>

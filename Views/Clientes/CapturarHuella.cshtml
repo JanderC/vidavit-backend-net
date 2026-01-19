@@ -20,7 +20,7 @@
 
         <div id="instrucciones" class="hidden mb-6 bg-blue-50 rounded-xl p-5 border-2 border-blue-300">
             <h3 class="font-black text-blue-900 mb-3 flex items-center gap-2 uppercase tracking-wide">
-                <i data-lucide="info" class="w-5 h-5 text-blue-600"></i>
+                <i data-lucide="info" class="w-5 h-5 text-orange-600"></i>
                 Instrucciones Importantes
             </h3>
             <ol class="list-decimal list-inside space-y-2 text-sm text-blue-900 font-semibold">
@@ -56,7 +56,7 @@
         <div id="loading-area" class="hidden text-center py-12">
             <div class="mb-8 flex justify-center">
                 <div class="relative">
-                    <div class="absolute inset-0 bg-blue-600 rounded-full blur-3xl opacity-50 animate-pulse"></div>
+                    <div class="absolute inset-0 bg-orange-600 rounded-full blur-3xl opacity-50 animate-pulse"></div>
                     <div class="relative bg-gradient-to-br from-blue-600 to-cyan-600 p-12 rounded-full">
                         <i data-lucide="fingerprint" class="w-28 h-28 text-white animate-pulse" stroke-width="1.5"></i>
                     </div>
@@ -116,8 +116,8 @@
                 const statusMessage = document.getElementById('status-message');
 
                 if (data.connected) {
-                    statusDiv.className = 'mb-6 p-5 rounded-xl border-2 border-emerald-500 bg-emerald-50';
-                    statusIcon.className = 'w-14 h-14 rounded-full flex items-center justify-center bg-emerald-500';
+                    statusDiv.className = 'mb-6 p-5 rounded-xl border-2 border-orange-500 bg-orange-50';
+                    statusIcon.className = 'w-14 h-14 rounded-full flex items-center justify-center bg-orange-500';
                     statusIcon.innerHTML = '<i data-lucide="check-circle" class="w-7 h-7 text-white"></i>';
                     statusTitle.textContent = '✓ Lector Conectado';
                     statusMessage.textContent = 'U.are.U 4500 detectado y listo';
@@ -167,14 +167,14 @@
                 if (data.success) {
                     resultIcon.innerHTML = `
                         <div class="relative">
-                            <div class="absolute inset-0 bg-emerald-500 rounded-full blur-3xl opacity-30"></div>
-                            <div class="relative w-40 h-40 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-full flex items-center justify-center shadow-2xl">
+                            <div class="absolute inset-0 bg-orange-500 rounded-full blur-3xl opacity-30"></div>
+                            <div class="relative w-40 h-40 bg-gradient-to-br from-orange-500 to-orange-700 rounded-full flex items-center justify-center shadow-2xl">
                                 <i data-lucide="check" class="w-24 h-24 text-white" stroke-width="2"></i>
                             </div>
                         </div>
                     `;
                     resultTitle.textContent = '¡HUELLA CAPTURADA!';
-                    resultTitle.className = 'text-4xl font-black mb-4 text-emerald-700 uppercase tracking-wide';
+                    resultTitle.className = 'text-4xl font-black mb-4 text-orange-700 uppercase tracking-wide';
                     resultMessage.textContent = 'La huella digital se registró correctamente. El cliente ya puede usar el sistema de check-in biométrico.';
                 } else {
                     resultIcon.innerHTML = `

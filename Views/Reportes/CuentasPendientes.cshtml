@@ -1,6 +1,6 @@
 @{
     ViewData["Title"] = "Cuentas Pendientes";
-    ViewData["Subtitle"] = "Productos Fiados - TAURO GYM";
+    ViewData["Subtitle"] = "Productos Fiados - JONELGYM";
     Layout = "_AdminLayout";
 }
 
@@ -22,7 +22,7 @@
             <p class="text-gray-600 text-sm font-black uppercase tracking-wide mb-2">Clientes con Deuda</p>
             <p class="text-4xl font-black text-gray-900" id="clientesConDeuda">0</p>
         </div>
-        <div class="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-blue-600">
+        <div class="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-orange-600">
             <p class="text-gray-600 text-sm font-black uppercase tracking-wide mb-2">Productos Fiados</p>
             <p class="text-4xl font-black text-gray-900" id="productosFiados">0</p>
         </div>
@@ -99,7 +99,7 @@
                         <div class="text-right">
                             <p class="text-3xl font-black text-orange-600">$${cuenta.total.toFixed(2)}</p>
                             <button onclick="marcarComoPagado('${cuenta.cliente.Id}')"
-                                    class="mt-3 bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900 text-white px-6 py-3 rounded-xl font-black uppercase tracking-wide shadow-lg">
+                                    class="mt-3 bg-gradient-to-r from-orange-600 to-orange-800 hover:from-orange-700 hover:to-orange-900 text-white px-6 py-3 rounded-xl font-black uppercase tracking-wide shadow-lg">
                                 Marcar Pagado
                             </button>
                         </div>

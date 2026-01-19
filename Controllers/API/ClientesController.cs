@@ -59,6 +59,23 @@ namespace VidaFit.Controllers.API
                 UpdatedAt = DateTime.UtcNow
             };
 
+            // ← AGREGADO: Procesar campo Peso
+            if (data.TryGetProperty("peso", out var pesoElement))
+            {
+                if (pesoElement.ValueKind == JsonValueKind.Number)
+                {
+                    cliente.Peso = pesoElement.GetDecimal();
+                }
+                else if (pesoElement.ValueKind == JsonValueKind.String)
+                {
+                    var pesoStr = pesoElement.GetString();
+                    if (!string.IsNullOrWhiteSpace(pesoStr) && decimal.TryParse(pesoStr, out decimal pesoValue))
+                    {
+                        cliente.Peso = pesoValue;
+                    }
+                }
+            }
+
             if (data.TryGetProperty("fechaNacimiento", out var fechaNac) && !string.IsNullOrEmpty(fechaNac.GetString()))
             {
                 if (DateTime.TryParse(fechaNac.GetString(), out DateTime fechaPost))
@@ -106,6 +123,31 @@ namespace VidaFit.Controllers.API
             dbCliente.Direccion = data.TryGetProperty("direccion", out var dir) && !string.IsNullOrWhiteSpace(dir.GetString()) ? dir.GetString() : null;
             dbCliente.Activo = data.GetProperty("activo").GetBoolean();
             dbCliente.UpdatedAt = DateTime.UtcNow;
+
+            // ← AGREGADO: Actualizar campo Peso
+            if (data.TryGetProperty("peso", out var pesoElement))
+            {
+                if (pesoElement.ValueKind == JsonValueKind.Number)
+                {
+                    dbCliente.Peso = pesoElement.GetDecimal();
+                }
+                else if (pesoElement.ValueKind == JsonValueKind.String)
+                {
+                    var pesoStr = pesoElement.GetString();
+                    if (!string.IsNullOrWhiteSpace(pesoStr) && decimal.TryParse(pesoStr, out decimal pesoValue))
+                    {
+                        dbCliente.Peso = pesoValue;
+                    }
+                    else
+                    {
+                        dbCliente.Peso = null; // Si viene vacío, establecer como null
+                    }
+                }
+                else if (pesoElement.ValueKind == JsonValueKind.Null)
+                {
+                    dbCliente.Peso = null;
+                }
+            }
 
             if (data.TryGetProperty("fechaNacimiento", out var fechaNac) && !string.IsNullOrEmpty(fechaNac.GetString()))
             {

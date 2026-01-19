@@ -1,7 +1,7 @@
 ﻿@{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Gestión de Caja";
-    ViewData["Subtitle"] = "Control financiero completo - TAURO GYM";
+    ViewData["Subtitle"] = "Control financiero completo - JONELGYM";
 }
 
 <div class="space-y-6">
@@ -27,41 +27,41 @@
 
     <!-- RESUMEN GENERAL DE CAJA -->
     <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
-        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl shadow-xl p-6 border-l-4 border-emerald-600 transform hover:scale-105 transition-all">
+        <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl shadow-xl p-6 border-l-4 border-orange-600 transform hover:scale-105 transition-all">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-emerald-700 font-black uppercase tracking-wide mb-1">Efectivo Hoy</p>
-                    <p class="text-3xl font-black text-emerald-600" id="efectivo-hoy">$0.00</p>
-                    <p class="text-xs text-emerald-600 font-semibold mt-1">Balance en efectivo</p>
+                    <p class="text-sm text-orange-700 font-black uppercase tracking-wide mb-1">Efectivo Hoy</p>
+                    <p class="text-3xl font-black text-orange-600" id="efectivo-hoy">$0.00</p>
+                    <p class="text-xs text-orange-600 font-semibold mt-1">Balance en efectivo</p>
                 </div>
-                <div class="w-12 h-12 bg-emerald-200 rounded-full flex items-center justify-center">
-                    <i data-lucide="wallet" class="w-6 h-6 text-emerald-600"></i>
+                <div class="w-12 h-12 bg-orange-200 rounded-full flex items-center justify-center">
+                    <i data-lucide="wallet" class="w-6 h-6 text-orange-600"></i>
                 </div>
             </div>
         </div>
 
-        <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl shadow-xl p-6 border-l-4 border-purple-600 transform hover:scale-105 transition-all">
+        <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl shadow-xl p-6 border-l-4 border-gray-600 transform hover:scale-105 transition-all">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-purple-700 font-black uppercase tracking-wide mb-1">Transferencias Hoy</p>
-                    <p class="text-3xl font-black text-purple-600" id="transferencias-hoy">$0.00</p>
-                    <p class="text-xs text-purple-600 font-semibold mt-1" id="detalle-transferencias">Ingresos del día</p>
+                    <p class="text-sm text-gray-700 font-black uppercase tracking-wide mb-1">Transferencias Hoy</p>
+                    <p class="text-3xl font-black text-gray-600" id="transferencias-hoy">$0.00</p>
+                    <p class="text-xs text-gray-600 font-semibold mt-1" id="detalle-transferencias">Ingresos del día</p>
                 </div>
-                <div class="w-12 h-12 bg-purple-200 rounded-full flex items-center justify-center">
-                    <i data-lucide="credit-card" class="w-6 h-6 text-purple-600"></i>
+                <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
+                    <i data-lucide="credit-card" class="w-6 h-6 text-gray-600"></i>
                 </div>
             </div>
         </div>
 
-        <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl shadow-xl p-6 border-l-4 border-blue-600 transform hover:scale-105 transition-all">
+        <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl shadow-xl p-6 border-l-4 border-orange-600 transform hover:scale-105 transition-all">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-blue-700 font-black uppercase tracking-wide mb-1">Ingresos Hoy</p>
-                    <p class="text-3xl font-black text-blue-600" id="ingresos-hoy">$0.00</p>
-                    <p class="text-xs text-blue-600 font-semibold mt-1" id="detalle-ingresos">Efectivo + Transferencia</p>
+                    <p class="text-sm text-orange-700 font-black uppercase tracking-wide mb-1">Ingresos Hoy</p>
+                    <p class="text-3xl font-black text-orange-600" id="ingresos-hoy">$0.00</p>
+                    <p class="text-xs text-orange-600 font-semibold mt-1" id="detalle-ingresos">Efectivo + Transferencia</p>
                 </div>
-                <div class="w-12 h-12 bg-blue-200 rounded-full flex items-center justify-center">
-                    <i data-lucide="trending-up" class="w-6 h-6 text-blue-600"></i>
+                <div class="w-12 h-12 bg-orange-200 rounded-full flex items-center justify-center">
+                    <i data-lucide="trending-up" class="w-6 h-6 text-orange-600"></i>
                 </div>
             </div>
         </div>
@@ -114,7 +114,7 @@
     <!-- DESGLOSE DE VENTAS DEL DÍA -->
     <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200">
         <h3 class="text-lg font-black text-gray-800 mb-4 uppercase tracking-wide flex items-center gap-2">
-            <i data-lucide="pie-chart" class="w-5 h-5 text-blue-600"></i>
+            <i data-lucide="pie-chart" class="w-5 h-5 text-orange-600"></i>
             Desglose de Ventas del Día
         </h3>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -126,13 +126,13 @@
                 <p class="text-xs text-amber-700 font-bold uppercase mb-1">Productos</p>
                 <p class="text-2xl font-black text-amber-600" id="venta-productos">$0.00</p>
             </div>
-            <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-4 border border-emerald-200">
-                <p class="text-xs text-emerald-700 font-bold uppercase mb-1">Abonos a Deudas</p>
-                <p class="text-2xl font-black text-emerald-600" id="venta-abonos">$0.00</p>
+            <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200">
+                <p class="text-xs text-orange-700 font-bold uppercase mb-1">Abonos a Deudas</p>
+                <p class="text-2xl font-black text-orange-600" id="venta-abonos">$0.00</p>
             </div>
-            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
-                <p class="text-xs text-blue-700 font-bold uppercase mb-1">Otros</p>
-                <p class="text-2xl font-black text-blue-600" id="venta-otros">$0.00</p>
+            <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200">
+                <p class="text-xs text-orange-700 font-bold uppercase mb-1">Otros</p>
+                <p class="text-2xl font-black text-orange-600" id="venta-otros">$0.00</p>
             </div>
         </div>
     </div>
@@ -271,7 +271,7 @@
         <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200">
             <div class="flex items-center justify-between mb-6">
                 <h3 class="text-xl font-black text-gray-800 uppercase tracking-wide flex items-center gap-2">
-                    <i data-lucide="calendar-range" class="w-6 h-6 text-blue-600"></i>
+                    <i data-lucide="calendar-range" class="w-6 h-6 text-orange-600"></i>
                     Resumen de los Últimos 7 Días
                 </h3>
                 <p class="text-sm text-gray-600 font-bold" id="periodo-semanal">Cargando...</p>
@@ -301,13 +301,13 @@
                     <tfoot class="bg-gray-50 border-t-2 border-gray-300">
                         <tr>
                             <td class="px-6 py-4 text-sm font-black uppercase text-gray-900">TOTAL</td>
-                            <td class="px-6 py-4 text-right text-xl font-black text-blue-600" id="total-ingresos-semana">$0.00</td>
+                            <td class="px-6 py-4 text-right text-xl font-black text-orange-600" id="total-ingresos-semana">$0.00</td>
                             <td class="px-6 py-4 text-right text-xl font-black text-red-600" id="total-egresos-semana">$0.00</td>
-                            <td class="px-6 py-4 text-right text-xl font-black text-emerald-600" id="balance-semana">$0.00</td>
+                            <td class="px-6 py-4 text-right text-xl font-black text-orange-600" id="balance-semana">$0.00</td>
                             <td class="px-6 py-4" colspan="2"></td>
                             <td class="px-6 py-4 text-right text-xl font-black text-amber-600 bg-amber-50" id="total-productos-semana">$0.00</td>
                             <td class="px-6 py-4 text-center">
-                                <span class="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-full" id="cantidad-movimientos-semana">0</span>
+                                <span class="px-3 py-1 bg-gray-100 text-purple-800 text-xs font-bold rounded-full" id="cantidad-movimientos-semana">0</span>
                             </td>
                         </tr>
                     </tfoot>
@@ -321,7 +321,7 @@
             <div class="flex items-center justify-between">
                 <h3 class="text-2xl font-black text-gray-900 uppercase tracking-wide">Historial de Cierres de Caja</h3>
                 <button onclick="cargarHistorialCierres()"
-                        class="px-6 py-2 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white font-black rounded-xl transition-all shadow-xl">
+                        class="px-6 py-2 bg-gradient-to-r from-gray-600 to-purple-800 hover:from-gray-700 hover:to-purple-900 text-white font-black rounded-xl transition-all shadow-xl">
                     <i data-lucide="refresh-cw" class="w-4 h-4 inline-block mr-2"></i>
                     Actualizar
                 </button>
@@ -447,27 +447,27 @@
             <!-- RESUMEN DEL CIERRE -->
             <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 mb-6 border-2 border-gray-200">
                 <h4 class="text-xl font-black text-gray-900 mb-6 uppercase flex items-center gap-2">
-                    <i data-lucide="bar-chart-3" class="w-6 h-6 text-blue-600"></i>
+                    <i data-lucide="bar-chart-3" class="w-6 h-6 text-orange-600"></i>
                     Resumen del Cierre
                 </h4>
 
                 <div class="grid grid-cols-2 gap-6">
                     <!-- Efectivo Final -->
-                    <div class="bg-white rounded-xl p-4 border-l-4 border-emerald-600">
+                    <div class="bg-white rounded-xl p-4 border-l-4 border-orange-600">
                         <p class="text-xs text-gray-600 font-bold mb-1 uppercase">💵 Efectivo Final</p>
-                        <p class="text-3xl font-black text-emerald-600" id="cierre-efectivo-final">$0.00</p>
+                        <p class="text-3xl font-black text-orange-600" id="cierre-efectivo-final">$0.00</p>
                     </div>
 
                     <!-- Transferencias -->
-                    <div class="bg-white rounded-xl p-4 border-l-4 border-purple-600">
+                    <div class="bg-white rounded-xl p-4 border-l-4 border-gray-600">
                         <p class="text-xs text-gray-600 font-bold mb-1 uppercase">💳 Transferencias</p>
-                        <p class="text-3xl font-black text-purple-600" id="cierre-transferencias">$0.00</p>
+                        <p class="text-3xl font-black text-gray-600" id="cierre-transferencias">$0.00</p>
                     </div>
 
                     <!-- Ingresos Hoy -->
-                    <div class="bg-white rounded-xl p-4 border-l-4 border-blue-600">
+                    <div class="bg-white rounded-xl p-4 border-l-4 border-orange-600">
                         <p class="text-xs text-gray-600 font-bold mb-1 uppercase">📈 Ingresos Hoy</p>
-                        <p class="text-2xl font-black text-blue-600" id="cierre-ingresos">$0.00</p>
+                        <p class="text-2xl font-black text-orange-600" id="cierre-ingresos">$0.00</p>
                     </div>
 
                     <!-- Egresos Hoy -->
@@ -532,23 +532,23 @@
 <div id="modalCerrarDiaEspecifico" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4">
         <h3 class="text-2xl font-black text-gray-900 mb-4 uppercase tracking-wide">
-            <i data-lucide="calendar-check" class="w-6 h-6 inline-block mr-2 text-blue-600"></i>
+            <i data-lucide="calendar-check" class="w-6 h-6 inline-block mr-2 text-orange-600"></i>
             Cerrar Día Específico
         </h3>
-        <p class="text-gray-600 mb-4 font-semibold">Fecha: <span id="modal-fecha-cerrar" class="text-blue-600 font-black"></span></p>
+        <p class="text-gray-600 mb-4 font-semibold">Fecha: <span id="modal-fecha-cerrar" class="text-orange-600 font-black"></span></p>
         <p class="text-gray-600 mb-4 font-semibold">Movimientos: <span id="modal-cantidad-movimientos" class="text-gray-900 font-black"></span></p>
-        <p class="text-gray-600 mb-6 font-semibold">Balance: <span id="modal-balance-dia" class="text-emerald-600 font-black"></span></p>
+        <p class="text-gray-600 mb-6 font-semibold">Balance: <span id="modal-balance-dia" class="text-orange-600 font-black"></span></p>
 
         <div class="mb-4">
             <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Observaciones (opcional)</label>
-            <textarea id="input-observaciones-cierre-dia" rows="3" class="w-full px-4 py-3 rounded-xl border-2 border-gray-300 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Agregar notas sobre este cierre..."></textarea>
+            <textarea id="input-observaciones-cierre-dia" rows="3" class="w-full px-4 py-3 rounded-xl border-2 border-gray-300 font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Agregar notas sobre este cierre..."></textarea>
         </div>
 
         <div class="flex gap-3">
             <button onclick="cerrarModalDiaEspecifico()" class="flex-1 px-6 py-3 bg-gray-300 hover:bg-gray-400 text-gray-800 font-black rounded-xl transition-all uppercase tracking-wide">
                 Cancelar
             </button>
-            <button onclick="confirmarCierreDiaEspecifico()" class="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-black rounded-xl transition-all shadow-lg uppercase tracking-wide">
+            <button onclick="confirmarCierreDiaEspecifico()" class="flex-1 px-6 py-3 bg-gradient-to-r from-orange-600 to-orange-800 hover:from-orange-700 hover:to-blue-900 text-white font-black rounded-xl transition-all shadow-lg uppercase tracking-wide">
                 Cerrar Día
             </button>
         </div>
@@ -558,7 +558,7 @@
 <!-- MODAL PARA ABONAR DEUDA -->
 <div id="modalAbonarDeuda" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4">
-        <div class="bg-gradient-to-r from-emerald-600 to-emerald-800 text-white p-6 rounded-t-2xl">
+        <div class="bg-gradient-to-r from-orange-600 to-orange-800 text-white p-6 rounded-t-2xl">
             <div class="flex items-center justify-between">
                 <h3 class="text-2xl font-black uppercase tracking-wide">Abonar a Deuda</h3>
                 <button onclick="cerrarModalAbonar()" class="text-white hover:text-gray-200">
@@ -586,13 +586,13 @@
             <div class="mb-4">
                 <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Monto a Abonar</label>
                 <input type="number" step="0.01" id="input-monto-abono"
-                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-emerald-600 focus:outline-none font-bold text-lg">
+                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-orange-600 focus:outline-none font-bold text-lg">
             </div>
 
             <div class="mb-6">
                 <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Método de Pago</label>
                 <select id="input-metodo-abono"
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-emerald-600 focus:outline-none font-bold">
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-orange-600 focus:outline-none font-bold">
                     <option value="efectivo">Efectivo</option>
                     <option value="transferencia">Transferencia</option>
                 </select>
@@ -604,7 +604,7 @@
                     Cancelar
                 </button>
                 <button onclick="confirmarAbono()"
-                        class="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-800 text-white rounded-xl hover:from-emerald-700 hover:to-emerald-900 font-black uppercase tracking-wide transition-all">
+                        class="flex-1 px-6 py-3 bg-gradient-to-r from-orange-600 to-orange-800 text-white rounded-xl hover:from-orange-700 hover:to-emerald-900 font-black uppercase tracking-wide transition-all">
                     Confirmar
                 </button>
             </div>
@@ -788,8 +788,8 @@
                         const fecha = new Date(m.Fecha);
                         const tipoColor = m.Tipo === 'ingreso' ? 'text-green-600' : 'text-red-600';
                         const metodoBadge = m.MetodoPago === 'efectivo'
-                            ? '<span class="px-2 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded">Efectivo</span>'
-                            : '<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded">Transferencia</span>';
+                            ? '<span class="px-2 py-1 bg-orange-100 text-orange-800 text-xs font-bold rounded">Efectivo</span>'
+                            : '<span class="px-2 py-1 bg-orange-100 text-orange-800 text-xs font-bold rounded">Transferencia</span>';
 
                         return `
                             <tr class="hover:bg-gray-50 transition-colors">
@@ -889,18 +889,18 @@
                     const tbody = document.getElementById('tabla-resumen-semanal');
                     if (tbody && data.resumenPorDia && data.resumenPorDia.length > 0) {
                         tbody.innerHTML = data.resumenPorDia.map(dia => {
-                            const balanceColor = (dia.balance || 0) >= 0 ? 'text-emerald-600' : 'text-red-600';
+                            const balanceColor = (dia.balance || 0) >= 0 ? 'text-orange-600' : 'text-red-600';
                             return `
                                 <tr class="hover:bg-gray-50 transition-colors">
                                     <td class="px-6 py-4 text-sm font-black text-gray-900 uppercase">${dia.diaNombre || ''}</td>
-                                    <td class="px-6 py-4 text-right text-lg font-black text-blue-600">$${(dia.ingresos || 0).toFixed(2)}</td>
+                                    <td class="px-6 py-4 text-right text-lg font-black text-orange-600">$${(dia.ingresos || 0).toFixed(2)}</td>
                                     <td class="px-6 py-4 text-right text-lg font-black text-red-600">$${(dia.egresos || 0).toFixed(2)}</td>
                                     <td class="px-6 py-4 text-right text-lg font-black ${balanceColor}">$${(dia.balance || 0).toFixed(2)}</td>
                                     <td class="px-6 py-4 text-right text-sm font-semibold text-gray-700">$${(dia.ingresosEfectivo || 0).toFixed(2)}</td>
                                     <td class="px-6 py-4 text-right text-sm font-semibold text-gray-700">$${(dia.ingresosTransferencia || 0).toFixed(2)}</td>
                                     <td class="px-6 py-4 text-right text-lg font-black text-amber-600 bg-amber-50">$${(dia.productosVendidos || 0).toFixed(2)}</td>
                                     <td class="px-6 py-4 text-center">
-                                        <span class="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-full">${dia.cantidadMovimientos || 0}</span>
+                                        <span class="px-3 py-1 bg-gray-100 text-purple-800 text-xs font-bold rounded-full">${dia.cantidadMovimientos || 0}</span>
                                     </td>
                                 </tr>
                             `;
@@ -964,8 +964,8 @@
                     container.innerHTML = data.data.map(cierre => {
                         const fecha = new Date(cierre.FechaCierre);
                         const tipoBadge = cierre.TipoCierre === 'automatico'
-                            ? '<span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full">AUTOMÁTICO</span>'
-                            : '<span class="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-full">MANUAL</span>';
+                            ? '<span class="px-3 py-1 bg-orange-100 text-orange-800 text-xs font-bold rounded-full">AUTOMÁTICO</span>'
+                            : '<span class="px-3 py-1 bg-gray-100 text-purple-800 text-xs font-bold rounded-full">MANUAL</span>';
 
                         return `
                             <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200 hover:shadow-2xl transition-all">
@@ -977,13 +977,13 @@
                                     ${tipoBadge}
                                 </div>
                                 <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-                                    <div class="bg-emerald-50 rounded-xl p-3">
-                                        <p class="text-xs text-emerald-700 font-bold mb-1">Efectivo Final</p>
-                                        <p class="text-lg font-black text-emerald-600">$${(cierre.EfectivoFinal || 0).toFixed(2)}</p>
+                                    <div class="bg-orange-50 rounded-xl p-3">
+                                        <p class="text-xs text-orange-700 font-bold mb-1">Efectivo Final</p>
+                                        <p class="text-lg font-black text-orange-600">$${(cierre.EfectivoFinal || 0).toFixed(2)}</p>
                                     </div>
-                                    <div class="bg-blue-50 rounded-xl p-3">
-                                        <p class="text-xs text-blue-700 font-bold mb-1">Ingresos</p>
-                                        <p class="text-lg font-black text-blue-600">$${(cierre.TotalIngresos || 0).toFixed(2)}</p>
+                                    <div class="bg-orange-50 rounded-xl p-3">
+                                        <p class="text-xs text-orange-700 font-bold mb-1">Ingresos</p>
+                                        <p class="text-lg font-black text-orange-600">$${(cierre.TotalIngresos || 0).toFixed(2)}</p>
                                     </div>
                                     <div class="bg-amber-50 rounded-xl p-3">
                                         <p class="text-xs text-amber-700 font-bold mb-1">Balance</p>
@@ -1333,7 +1333,7 @@
                 if (deudasData.length === 0) {
                     document.getElementById('lista-deudas').innerHTML = `
                         <div class="bg-white rounded-2xl shadow-xl p-12 text-center border-2 border-gray-200">
-                            <i data-lucide="check-circle" class="w-16 h-16 mx-auto text-emerald-600 mb-4"></i>
+                            <i data-lucide="check-circle" class="w-16 h-16 mx-auto text-orange-600 mb-4"></i>
                             <p class="text-xl font-black text-gray-900 uppercase">No hay deudas pendientes</p>
                             <p class="text-gray-600 mt-2 font-semibold">Todos los clientes están al día</p>
                         </div>
@@ -1377,7 +1377,7 @@
                                 </div>
                                 <div>
                                     <p class="text-xs text-gray-600 font-bold uppercase mb-1">Pagado</p>
-                                    <p class="text-lg font-black text-emerald-600">$${deuda.MontoPagado.toFixed(2)}</p>
+                                    <p class="text-lg font-black text-orange-600">$${deuda.MontoPagado.toFixed(2)}</p>
                                 </div>
                                 <div>
                                     <p class="text-xs text-gray-600 font-bold uppercase mb-1">Saldo</p>
@@ -1388,12 +1388,12 @@
 
                         <div class="ml-6 flex flex-col gap-2">
                             <button onclick="abrirModalAbonar('${deuda.Id}')"
-                                    class="px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900 text-white font-black rounded-xl transition-all shadow-lg uppercase tracking-wide transform hover:scale-105">
+                                    class="px-6 py-3 bg-gradient-to-r from-orange-600 to-orange-800 hover:from-orange-700 hover:to-emerald-900 text-white font-black rounded-xl transition-all shadow-lg uppercase tracking-wide transform hover:scale-105">
                                 <i data-lucide="dollar-sign" class="w-5 h-5 inline-block mr-2"></i>
                                 Abonar
                             </button>
                             <button onclick="pagarCompleto('${deuda.Id}')"
-                                    class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-black rounded-xl transition-all shadow-lg uppercase tracking-wide transform hover:scale-105">
+                                    class="px-6 py-3 bg-gradient-to-r from-orange-600 to-orange-800 hover:from-orange-700 hover:to-blue-900 text-white font-black rounded-xl transition-all shadow-lg uppercase tracking-wide transform hover:scale-105">
                                 <i data-lucide="check-circle" class="w-5 h-5 inline-block mr-2"></i>
                                 Pagar Todo
                             </button>
@@ -1522,7 +1522,7 @@
                 if (data.success && data.diasPendientes && data.diasPendientes.length > 0) {
                     container.innerHTML = data.diasPendientes.map(dia => {
                         const fecha = new Date(dia.fecha);
-                        const balanceColor = dia.balance >= 0 ? 'text-emerald-600' : 'text-red-600';
+                        const balanceColor = dia.balance >= 0 ? 'text-orange-600' : 'text-red-600';
 
                         return `
                             <div class="bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl p-6 border-l-4 border-yellow-500 shadow-lg">
@@ -1536,22 +1536,22 @@
                                         </p>
                                     </div>
                                     <button onclick="abrirModalCerrarDia('${dia.fecha}', ${dia.cantidadMovimientos}, ${dia.balance})"
-                                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-all">
+                                            class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-bold rounded-lg transition-all">
                                         <i data-lucide="lock" class="w-4 h-4 inline-block mr-1"></i>
                                         Cerrar Día
                                     </button>
                                 </div>
                                 <div class="grid grid-cols-3 gap-4">
-                                    <div class="bg-blue-50 rounded-lg p-3">
-                                        <p class="text-xs text-blue-700 font-bold mb-1">Ingresos</p>
-                                        <p class="text-lg font-black text-blue-600">$${dia.totalIngresos.toFixed(2)}</p>
+                                    <div class="bg-orange-50 rounded-lg p-3">
+                                        <p class="text-xs text-orange-700 font-bold mb-1">Ingresos</p>
+                                        <p class="text-lg font-black text-orange-600">$${dia.totalIngresos.toFixed(2)}</p>
                                     </div>
                                     <div class="bg-red-50 rounded-lg p-3">
                                         <p class="text-xs text-red-700 font-bold mb-1">Egresos</p>
                                         <p class="text-lg font-black text-red-600">$${dia.totalEgresos.toFixed(2)}</p>
                                     </div>
-                                    <div class="bg-emerald-50 rounded-lg p-3">
-                                        <p class="text-xs text-emerald-700 font-bold mb-1">Balance</p>
+                                    <div class="bg-orange-50 rounded-lg p-3">
+                                        <p class="text-xs text-orange-700 font-bold mb-1">Balance</p>
                                         <p class="text-lg font-black ${balanceColor}">$${dia.balance.toFixed(2)}</p>
                                     </div>
                                 </div>
@@ -1561,10 +1561,10 @@
                     lucide.createIcons();
                 } else {
                     container.innerHTML = `
-                        <div class="bg-emerald-50 rounded-2xl p-12 text-center border-2 border-emerald-200">
-                            <i data-lucide="check-circle" class="w-16 h-16 text-emerald-500 mx-auto mb-4"></i>
-                            <h3 class="text-xl font-black text-emerald-800 mb-2">¡Todo al día!</h3>
-                            <p class="text-emerald-700 font-semibold">No hay días pendientes por cerrar</p>
+                        <div class="bg-orange-50 rounded-2xl p-12 text-center border-2 border-orange-200">
+                            <i data-lucide="check-circle" class="w-16 h-16 text-orange-500 mx-auto mb-4"></i>
+                            <h3 class="text-xl font-black text-orange-800 mb-2">¡Todo al día!</h3>
+                            <p class="text-orange-700 font-semibold">No hay días pendientes por cerrar</p>
                         </div>
                     `;
                     lucide.createIcons();

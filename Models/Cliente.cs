@@ -41,6 +41,9 @@ namespace VidaFitBackend.Models
         [Column("direccion")]
         public string? Direccion { get; set; }
 
+        [Column("peso")]
+        public decimal? Peso { get; set; }
+
         [Column("huella_digital")]
         public string? HuellaDigital { get; set; }
 
