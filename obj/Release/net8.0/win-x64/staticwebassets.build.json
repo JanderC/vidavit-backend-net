@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "IzVjDxjMGonR3UGEWWD3/IXasdIh+hHMHwMYtOCTSsQ=",
+  "Hash": "5xJM/SX+TsF+AD1YW5A5huVayMdAL1mu5rsmANqZLu8=",
   "Source": "VidaFit",
   "BasePath": "_content/VidaFit",
   "Mode": "Default",
@@ -115,8 +115,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "qpsjodkfmg",
-      "Integrity": "4nt37IW/Rkb3mHn6Zj+Pj9G3rzVFO2NDeUSfldSBcs8=",
+      "Fingerprint": "oemdbpj0on",
+      "Integrity": "sNH/Hno6sYQyEBQWtCUvxMBs2FWYbG7K7xiN0GK/39k=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\images\\logo-nelson.png"
@@ -1527,6 +1527,51 @@
       ]
     },
     {
+      "Route": "images/logo-nelson.oemdbpj0on.png",
+      "AssetFile": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\images\\logo-nelson.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "504100"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"sNH/Hno6sYQyEBQWtCUvxMBs2FWYbG7K7xiN0GK/39k=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 20 Jan 2026 15:04:49 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "oemdbpj0on"
+        },
+        {
+          "Name": "label",
+          "Value": "images/logo-nelson.png"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-sNH/Hno6sYQyEBQWtCUvxMBs2FWYbG7K7xiN0GK/39k="
+        }
+      ]
+    },
+    {
       "Route": "images/logo-nelson.png",
       "AssetFile": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\images\\logo-nelson.png",
       "Selectors": [],
@@ -1537,7 +1582,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "35929"
+          "Value": "504100"
         },
         {
           "Name": "Content-Type",
@@ -1545,11 +1590,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"4nt37IW/Rkb3mHn6Zj+Pj9G3rzVFO2NDeUSfldSBcs8=\""
+          "Value": "\"sNH/Hno6sYQyEBQWtCUvxMBs2FWYbG7K7xiN0GK/39k=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 19 Jan 2026 13:34:55 GMT"
+          "Value": "Tue, 20 Jan 2026 15:04:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -1559,52 +1604,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-4nt37IW/Rkb3mHn6Zj+Pj9G3rzVFO2NDeUSfldSBcs8="
-        }
-      ]
-    },
-    {
-      "Route": "images/logo-nelson.qpsjodkfmg.png",
-      "AssetFile": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\images\\logo-nelson.png",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "35929"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "image/png"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"4nt37IW/Rkb3mHn6Zj+Pj9G3rzVFO2NDeUSfldSBcs8=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Mon, 19 Jan 2026 13:34:55 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "qpsjodkfmg"
-        },
-        {
-          "Name": "label",
-          "Value": "images/logo-nelson.png"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-4nt37IW/Rkb3mHn6Zj+Pj9G3rzVFO2NDeUSfldSBcs8="
+          "Value": "sha256-sNH/Hno6sYQyEBQWtCUvxMBs2FWYbG7K7xiN0GK/39k="
         }
       ]
     },

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "+C5DLu1fuzY=",
+  "dgSpecHash": "OOpafj+Tauo=",
   "success": true,
   "projectFilePath": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\VidaFit.csproj",
   "expectedPackageFiles": [
@@ -65,9 +65,9 @@
     "C:\\Users\\usuario\\.nuget\\packages\\system.text.encodings.web\\8.0.0\\system.text.encodings.web.8.0.0.nupkg.sha512",
     "C:\\Users\\usuario\\.nuget\\packages\\system.text.json\\8.0.0\\system.text.json.8.0.0.nupkg.sha512",
     "C:\\Users\\usuario\\.nuget\\packages\\system.threading.channels\\6.0.0\\system.threading.channels.6.0.0.nupkg.sha512",
-    "C:\\Users\\usuario\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\8.0.12\\microsoft.netcore.app.runtime.win-x64.8.0.12.nupkg.sha512",
-    "C:\\Users\\usuario\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\8.0.12\\microsoft.windowsdesktop.app.runtime.win-x64.8.0.12.nupkg.sha512",
-    "C:\\Users\\usuario\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x64\\8.0.12\\microsoft.aspnetcore.app.runtime.win-x64.8.0.12.nupkg.sha512"
+    "C:\\Users\\usuario\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x86\\8.0.12\\microsoft.netcore.app.runtime.win-x86.8.0.12.nupkg.sha512",
+    "C:\\Users\\usuario\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x86\\8.0.12\\microsoft.windowsdesktop.app.runtime.win-x86.8.0.12.nupkg.sha512",
+    "C:\\Users\\usuario\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x86\\8.0.12\\microsoft.aspnetcore.app.runtime.win-x86.8.0.12.nupkg.sha512"
   ],
   "logs": [
     {

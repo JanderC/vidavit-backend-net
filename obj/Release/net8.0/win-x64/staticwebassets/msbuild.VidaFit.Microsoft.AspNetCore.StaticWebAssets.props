@@ -48,8 +48,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>qpsjodkfmg</Fingerprint>
-      <Integrity>4nt37IW/Rkb3mHn6Zj+Pj9G3rzVFO2NDeUSfldSBcs8=</Integrity>
+      <Fingerprint>oemdbpj0on</Fingerprint>
+      <Integrity>sNH/Hno6sYQyEBQWtCUvxMBs2FWYbG7K7xiN0GK/39k=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\logo-nelson.png'))</OriginalItemSpec>

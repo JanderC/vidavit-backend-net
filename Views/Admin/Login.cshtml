@@ -35,17 +35,43 @@
             letter-spacing: 3px;
         }
 
-
         .logo-container {
             animation: pulse-glow 3s ease-in-out infinite;
         }
 
+        @@keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(244, 121, 32, 0.5);
+            }
+
+            50% {
+                box-shadow: 0 0 40px rgba(244, 121, 32, 0.8);
+            }
+        }
+
         .grid-pattern {
-            background-image:
-                linear-gradient(rgba(244, 121, 32, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(244, 121, 32, 0.05) 1px, transparent 1px);
+            background-image: linear-gradient(rgba(244, 121, 32, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(244, 121, 32, 0.05) 1px, transparent 1px);
             background-size: 50px 50px;
         }
+
+        .password-toggle {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+            .password-toggle:hover {
+                color: #F47920;
+            }
+
+        .credential-blur {
+            filter: blur(4px);
+            transition: filter 0.3s;
+            user-select: none;
+        }
+
+            .credential-blur.revealed {
+                filter: blur(0);
+            }
     </style>
 </head>
 <body>
@@ -107,8 +133,13 @@
                             <i data-lucide="lock" class="w-4 h-4 inline mr-2"></i>
                             Contraseña
                         </label>
-                        <input type="password" name="password" required placeholder="••••••••"
-                               class="w-full px-5 py-4 bg-black/60 border-2 border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-orange-600 transition-all font-semibold" />
+                        <div class="relative">
+                            <input type="password" id="passwordInput" name="password" required placeholder="••••••••"
+                                   class="w-full px-5 py-4 pr-12 bg-black/60 border-2 border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-orange-600 transition-all font-semibold" />
+                            <button type="button" onclick="togglePassword()" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 password-toggle">
+                                <i data-lucide="eye" id="eyeIcon" class="w-5 h-5"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <button type="submit"
@@ -120,14 +151,24 @@
 
                 <div class="mt-8 pt-6 border-t-2 border-gray-800 relative z-10">
                     <p class="text-xs text-gray-500 text-center mb-3 uppercase tracking-wide font-bold">Credenciales por defecto:</p>
-                    <div class="bg-black/70 rounded-xl p-4 font-mono text-xs text-center border-2 border-gray-800">
-                        <div class="flex items-center justify-center gap-2 mb-2">
-                            <span class="text-gray-400">Email:</span>
-                            <span class="text-orange-500 font-bold">admin@jonelgym.com</span>
+                    <div class="bg-black/70 rounded-xl p-4 font-mono text-xs border-2 border-gray-800">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-gray-400">Email:</span>
+                                <span class="text-orange-500 font-bold credential-blur" id="emailCred">admin@jonelgym.com</span>
+                            </div>
+                            <button type="button" onclick="toggleEmail()" class="text-gray-400 password-toggle">
+                                <i data-lucide="eye" id="eyeIconEmail" class="w-4 h-4"></i>
+                            </button>
                         </div>
-                        <div class="flex items-center justify-center gap-2">
-                            <span class="text-gray-400">Password:</span>
-                            <span class="text-orange-500 font-bold">admin123</span>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="text-gray-400">Password:</span>
+                                <span class="text-orange-500 font-bold credential-blur" id="passwordCred">admin123</span>
+                            </div>
+                            <button type="button" onclick="togglePasswordCred()" class="text-gray-400 password-toggle">
+                                <i data-lucide="eye" id="eyeIconPassword" class="w-4 h-4"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -152,6 +193,48 @@
 
     <script>
         lucide.createIcons();
+
+        function togglePassword() {
+            const passwordInput = document.getElementById('passwordInput');
+            const eyeIcon = document.getElementById('eyeIcon');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+        }
+
+        function toggleEmail() {
+            const emailCred = document.getElementById('emailCred');
+            const eyeIconEmail = document.getElementById('eyeIconEmail');
+
+            emailCred.classList.toggle('revealed');
+
+            if (emailCred.classList.contains('revealed')) {
+                eyeIconEmail.setAttribute('data-lucide', 'eye-off');
+            } else {
+                eyeIconEmail.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+        }
+
+        function togglePasswordCred() {
+            const passwordCred = document.getElementById('passwordCred');
+            const eyeIconPassword = document.getElementById('eyeIconPassword');
+
+            passwordCred.classList.toggle('revealed');
+
+            if (passwordCred.classList.contains('revealed')) {
+                eyeIconPassword.setAttribute('data-lucide', 'eye-off');
+            } else {
+                eyeIconPassword.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+        }
     </script>
 </body>
 </html>

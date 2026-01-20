@@ -151,17 +151,18 @@
                     return;
                 }
 
-                this.stopFingerprintDetection();
-                this.setState({ mode: 'scanning', message: 'Consultando información...' });
+                this.setState({ mode: 'scanning', message: 'Verificando identidad...' });
 
                 try {
-                    const response = await fetch('/api/CheckIn/cedula', {
+                    const response = await fetch('/kiosko/checkin-cedula', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ cedula: this.state.cedula })
                     });
 
                     const data = await response.json();
+
+                    await new Promise(resolve => setTimeout(resolve, 1500));
 
                     if (data.success && data.cliente) {
                         const diasRestantes = data.cliente?.diasRestantes ?? data.membresia?.diasRestantes ?? null;
@@ -173,59 +174,135 @@
                             deuda: data.deuda || null
                         });
                     } else {
+                        const diasRestantes = data.cliente?.diasRestantes ?? data.membresia?.diasRestantes ?? null;
                         this.setState({
                             mode: 'error',
-                            message: data.message || 'No se pudo verificar la cédula',
+                            message: data.message || 'No se encontró registro',
+                            diasRestantes: diasRestantes,
                             deuda: data.deuda || null
                         });
                     }
                 } catch (error) {
                     this.setState({
                         mode: 'error',
-                        message: 'Error al consultar cédula. Intenta nuevamente.'
+                        message: 'Error al verificar la cédula'
                     });
                 }
             }
 
             renderIdle() {
                 return `
-                    <div class="min-h-screen relative overflow-hidden" style="background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 50%, #000000 100%);">
-                        <div class="absolute inset-0 opacity-10">
-                            <div class="absolute top-20 left-20 w-96 h-96 rounded-full filter blur-3xl" style="background: #FF8C00;"></div>
-                            <div class="absolute bottom-20 right-20 w-96 h-96 rounded-full filter blur-3xl" style="background: #FF8C00;"></div>
+                    <div class="min-h-screen relative overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-900">
+                        <!-- Animated Background -->
+                        <div class="absolute inset-0">
+                            <div class="absolute top-0 left-0 w-full h-full opacity-30">
+                                <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-orange-600 rounded-full blur-3xl animate-pulse"></div>
+                                <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-orange-800 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+                            </div>
+                            <!-- Grid Pattern -->
+                            <div class="absolute inset-0" style="background-image: linear-gradient(rgba(244, 121, 32, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(244, 121, 32, 0.05) 1px, transparent 1px); background-size: 50px 50px;"></div>
                         </div>
 
-                        <div class="relative z-10 flex flex-col items-center justify-center min-h-screen px-8">
-                            <div class="mb-12 animate-pulse">
-                                <img src="/images/logo-nelson.png" alt="JONELGYM" class="h-40 w-40 object-contain drop-shadow-2xl" />
-                            </div>
+                        <div class="relative z-10">
+                            <!-- Header -->
+                            <div class="pt-12 px-8">
+                                <div class="flex justify-between items-start max-w-7xl mx-auto">
+                                    <!-- Logo -->
+                                    <div class="backdrop-blur-xl bg-white/10 rounded-3xl p-6 border-2 border-orange-500/30 shadow-2xl">
+                                        <img src="/images/logo-nelson.png" alt="JONELGYM" class="h-20 w-20 object-contain drop-shadow-2xl" />
+                                    </div>
 
-                            <h1 class="text-8xl font-black text-white mb-6 uppercase tracking-wider text-center">Bienvenido</h1>
-                            <p class="text-3xl mb-12 uppercase tracking-wide font-semibold text-center" style="color: #FF8C00;">JONELGYM</p>
-
-                            <div class="backdrop-blur-sm rounded-3xl px-16 py-12 max-w-2xl" style="background: rgba(0,0,0,0.6); border: 3px solid #FF8C00;">
-                                <div class="flex items-center justify-center mb-8">
-                                    <div class="w-24 h-24 rounded-full flex items-center justify-center animate-pulse" style="background: #FF8C00;">
-                                        <svg class="w-14 h-14 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-                                        </svg>
+                                    <!-- Clock -->
+                                    <div class="text-right backdrop-blur-xl bg-white/10 rounded-3xl p-6 border-2 border-orange-500/30 shadow-2xl">
+                                        <div id="clock-time" class="text-5xl font-black text-white tracking-wider">00:00:00</div>
+                                        <div id="clock-date" class="text-sm font-bold text-orange-400 mt-2 uppercase tracking-wide">Cargando...</div>
                                     </div>
                                 </div>
-                                <p class="text-4xl text-white font-bold text-center mb-4">Coloca tu huella</p>
-                                <p class="text-2xl text-center font-semibold" style="color: #FF8C00;">en el lector</p>
                             </div>
 
-                            <div class="mt-16 text-center">
-                                <p class="text-xl text-white mb-4">¿No tienes huella registrada?</p>
-                                <button onclick="app.setState({ mode: 'cedula', cedula: '' })"
-                                    class="px-10 py-4 text-white rounded-xl text-lg font-bold transition-all duration-300 transform hover:scale-105" style="background: #FF8C00;">
-                                    INGRESAR CON CÉDULA
-                                </button>
-                            </div>
+                            <!-- Main Content -->
+                            <div class="flex items-center justify-center min-h-[calc(100vh-200px)] px-8">
+                                <div class="text-center max-w-4xl">
+                                    <!-- Welcome -->
+                                    <div class="mb-12">
+                                        <h1 class="text-8xl font-black text-white mb-4 uppercase tracking-wider">
+                                            Bienvenido
+                                        </h1>
+                                        <p class="text-2xl text-orange-400 font-bold uppercase tracking-widest">
+                                            Sistema de Check-In
+                                        </p>
+                                    </div>
 
-                            <div class="mt-16 text-center">
-                                <p id="clock-time" class="text-3xl text-white font-bold mb-2"></p>
-                                <p id="clock-date" class="text-lg font-semibold capitalize" style="color: #FF8C00;"></p>
+                                    <!-- Fingerprint Animation -->
+                                    <div class="mb-16 flex justify-center">
+                                        <div class="relative">
+                                            <div class="w-64 h-64 rounded-full bg-gradient-to-br from-orange-600 to-orange-800 flex items-center justify-center shadow-2xl">
+                                                <svg class="w-40 h-40 text-white animate-pulse" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M11.828 10.828L17.657 5H6.343L12.172 10.828C12.047 11.051 12 11.316 12 11.586C12 12.406 12.677 13.071 13.5 13.071S15 12.406 15 11.586C15 11.316 14.953 11.051 14.828 10.828L11.828 10.828Z"/>
+                                                    <path d="M12 2C10.355 2 9 3.355 9 5C9 6.111 9.555 7.086 10.414 7.621V9.586L8 12V17C8 18.657 9.343 20 11 20H13C14.657 20 16 18.657 16 17V12L13.586 9.586V7.621C14.445 7.086 15 6.111 15 5C15 3.355 13.645 2 12 2ZM12 4C12.553 4 13 4.448 13 5C13 5.552 12.553 6 12 6C11.447 6 11 5.552 11 5C11 4.448 11.447 4 12 4Z"/>
+                                                </svg>
+                                            </div>
+                                            <div class="absolute inset-0 w-64 h-64 rounded-full animate-ping bg-orange-500 opacity-20"></div>
+                                            <div class="absolute -inset-4 w-72 h-72 rounded-full bg-gradient-to-r from-orange-600/20 to-orange-800/20 blur-xl"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Instructions -->
+                                    <div class="backdrop-blur-xl bg-white/10 rounded-3xl p-10 border-2 border-orange-500/30 shadow-2xl">
+                                        <div class="flex items-center justify-center gap-4 mb-6">
+                                            <div class="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-700 rounded-2xl flex items-center justify-center">
+                                                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                                </svg>
+                                            </div>
+                                            <h2 class="text-4xl font-black text-white uppercase tracking-wide">Instrucciones</h2>
+                                        </div>
+
+                                        <div class="space-y-4 text-left">
+                                            <div class="flex items-start gap-4 p-4 bg-white/5 rounded-2xl border border-orange-500/20">
+                                                <div class="w-10 h-10 bg-orange-600 rounded-xl flex items-center justify-center flex-shrink-0 mt-1">
+                                                    <span class="text-white font-black text-xl">1</span>
+                                                </div>
+                                                <p class="text-xl text-white font-semibold">Coloca tu <span class="text-orange-400 font-black">dedo en el sensor</span> de huellas</p>
+                                            </div>
+
+                                            <div class="flex items-start gap-4 p-4 bg-white/5 rounded-2xl border border-orange-500/20">
+                                                <div class="w-10 h-10 bg-orange-600 rounded-xl flex items-center justify-center flex-shrink-0 mt-1">
+                                                    <span class="text-white font-black text-xl">2</span>
+                                                </div>
+                                                <p class="text-xl text-white font-semibold">Espera la <span class="text-orange-400 font-black">verificación automática</span></p>
+                                            </div>
+
+                                            <div class="flex items-start gap-4 p-4 bg-white/5 rounded-2xl border border-orange-500/20">
+                                                <div class="w-10 h-10 bg-orange-600 rounded-xl flex items-center justify-center flex-shrink-0 mt-1">
+                                                    <span class="text-white font-black text-xl">3</span>
+                                                </div>
+                                                <p class="text-xl text-white font-semibold">Si no funciona, usa tu <span class="text-orange-400 font-black">cédula</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Alternative Method -->
+                                    <div class="mt-10 pt-8 border-t-2 border-orange-500/20">
+                                        <p class="text-lg text-gray-400 font-bold mb-6 uppercase tracking-wide">¿No tienes huella registrada?</p>
+                                        <button
+                                            onclick="app.setState({ mode: 'cedula', message: 'Ingresa tu cédula para acceder' })"
+                                            class="px-10 py-5 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white text-xl font-black rounded-2xl transition-all transform hover:scale-105 shadow-2xl uppercase tracking-wider flex items-center justify-center gap-3 mx-auto"
+                                        >
+                                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+                                            </svg>
+                                            Ingresar con Cédula
+                                        </button>
+                                    </div>
+
+                                    <!-- Footer Message -->
+                                    <div class="mt-10">
+                                        <p class="text-2xl font-bold text-white uppercase tracking-wider animate-pulse">
+                                            🏋️ ¡Listo para tu entrenamiento!
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -234,43 +311,67 @@
 
             renderCedula() {
                 return `
-                    <div class="min-h-screen relative overflow-hidden" style="background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 50%, #000000 100%);">
-                        <div class="absolute inset-0 opacity-10">
-                            <div class="absolute top-20 left-20 w-96 h-96 rounded-full filter blur-3xl" style="background: #FF8C00;"></div>
-                            <div class="absolute bottom-20 right-20 w-96 h-96 rounded-full filter blur-3xl" style="background: #FF8C00;"></div>
+                    <div class="min-h-screen relative overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-900">
+                        <!-- Animated Background -->
+                        <div class="absolute inset-0">
+                            <div class="absolute inset-0 opacity-20">
+                                <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-600 rounded-full blur-3xl animate-pulse"></div>
+                                <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+                            </div>
+                            <div class="absolute inset-0" style="background-image: linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px); background-size: 50px 50px;"></div>
                         </div>
 
-                        <div class="relative z-10 flex flex-col items-center justify-center min-h-screen px-8">
-                            <div class="mb-12">
-                                <img src="/images/logo-nelson.png" alt="JONELGYM" class="h-32 w-32 object-contain drop-shadow-2xl" />
-                            </div>
+                        <div class="relative z-10 flex items-center justify-center min-h-screen px-8">
+                            <div class="text-center max-w-2xl w-full">
+                                <!-- Icon -->
+                                <div class="mb-10 flex justify-center">
+                                    <div class="relative">
+                                        <div class="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-2xl">
+                                            <svg class="w-20 h-20 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+                                            </svg>
+                                        </div>
+                                        <div class="absolute -inset-3 rounded-full bg-gradient-to-r from-blue-500/20 to-blue-700/20 blur-xl"></div>
+                                    </div>
+                                </div>
 
-                            <h1 class="text-7xl font-black text-white mb-4 uppercase tracking-wider">Identificación</h1>
-                            <p class="text-2xl mb-12 uppercase tracking-wide font-semibold" style="color: #FF8C00;">Ingresa tu cédula</p>
+                                <h2 class="text-6xl font-black text-white mb-6 uppercase tracking-wider">Identificación</h2>
+                                <p class="text-2xl text-blue-400 font-bold mb-12 uppercase tracking-wide">${this.state.message}</p>
 
-                            <div class="backdrop-blur-sm rounded-3xl px-16 py-12 max-w-2xl" style="background: rgba(0,0,0,0.6); border: 3px solid #FF8C00;">
-                                <input id="cedula-input" type="text" placeholder="000-0000000-0"
-                                    value="${this.state.cedula}"
-                                    oninput="app.setState({ cedula: this.value })"
-                                    onkeypress="if(event.key === 'Enter') app.handleCedulaConsulta()"
-                                    class="w-full px-8 py-6 text-4xl text-center text-white rounded-xl font-bold focus:outline-none"
-                                    style="background: rgba(0,0,0,0.7); border: 2px solid #FF8C00;"
-                                    maxlength="13" />
+                                <!-- Input Card -->
+                                <div class="backdrop-blur-xl bg-white/10 rounded-3xl p-10 border-2 border-blue-500/30 shadow-2xl mb-8">
+                                    <label class="block text-2xl font-black text-white mb-6 uppercase tracking-wide">Ingresa tu Cédula</label>
+                                    <input
+                                        type="text"
+                                        id="cedula-input"
+                                        value="${this.state.cedula}"
+                                        oninput="app.setState({ cedula: this.value })"
+                                        onkeypress="if(event.key==='Enter') app.handleCedulaConsulta()"
+                                        placeholder="000-0000000-0"
+                                        class="w-full px-8 py-6 bg-black/60 border-3 border-blue-500 rounded-2xl text-white text-3xl font-bold text-center placeholder-gray-500 focus:outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-500/30 transition-all"
+                                    />
+                                </div>
 
-                                ${this.state.message ? `
-                                    <p class="text-xl text-center mt-6 font-semibold" style="color: #FFA500;">
-                                        ${this.state.message}
-                                    </p>
-                                ` : ''}
-
-                                <div class="flex gap-4 mt-8">
-                                    <button onclick="app.handleCedulaConsulta()"
-                                        class="flex-1 px-8 py-5 text-white rounded-xl text-2xl font-bold transition-all duration-300 transform hover:scale-105" style="background: #FF8C00;">
-                                        CONSULTAR
+                                <!-- Buttons -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <button
+                                        onclick="app.handleCedulaConsulta()"
+                                        class="px-10 py-6 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white text-2xl font-black rounded-2xl transition-all transform hover:scale-105 shadow-2xl uppercase tracking-wider flex items-center justify-center gap-3"
+                                    >
+                                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        Verificar
                                     </button>
-                                    <button onclick="app.reset(); app.startFingerprintDetection();"
-                                        class="flex-1 px-8 py-5 text-white rounded-xl text-2xl font-bold transition-all duration-300 transform hover:scale-105" style="background: #666;">
-                                        VOLVER
+
+                                    <button
+                                        onclick="app.reset(); app.startFingerprintDetection();"
+                                        class="px-10 py-6 bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-600 hover:to-gray-800 text-white text-2xl font-black rounded-2xl transition-all transform hover:scale-105 shadow-2xl uppercase tracking-wider flex items-center justify-center gap-3"
+                                    >
+                                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                                        </svg>
+                                        Volver
                                     </button>
                                 </div>
                             </div>
@@ -281,34 +382,30 @@
 
             renderScanning() {
                 return `
-                    <div class="min-h-screen relative overflow-hidden" style="background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 50%, #000000 100%);">
-                        <div class="absolute inset-0 opacity-10">
-                            <div class="absolute top-20 left-20 w-96 h-96 rounded-full filter blur-3xl animate-pulse" style="background: #FF8C00;"></div>
-                            <div class="absolute bottom-20 right-20 w-96 h-96 rounded-full filter blur-3xl animate-pulse" style="background: #FF8C00;"></div>
+                    <div class="min-h-screen relative overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-900 flex items-center justify-center">
+                        <div class="absolute inset-0">
+                            <div class="absolute inset-0 opacity-30">
+                                <div class="absolute top-1/3 left-1/3 w-96 h-96 bg-purple-600 rounded-full blur-3xl animate-pulse"></div>
+                                <div class="absolute bottom-1/3 right-1/3 w-96 h-96 bg-pink-600 rounded-full blur-3xl animate-pulse" style="animation-delay: 0.5s;"></div>
+                            </div>
                         </div>
 
-                        <div class="relative z-10 flex items-center justify-center min-h-screen px-8">
-                            <div class="text-center">
-                                <div class="mb-12 flex justify-center">
-                                    <div class="relative">
-                                        <div class="w-48 h-48 rounded-full flex items-center justify-center animate-spin" style="background: linear-gradient(45deg, #FF8C00, transparent);">
-                                            <div class="w-40 h-40 rounded-full" style="background: #1a1a1a;"></div>
-                                        </div>
-                                        <div class="absolute inset-0 flex items-center justify-center">
-                                            <svg class="w-20 h-20 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                        <div class="relative z-10 text-center">
+                            <div class="mb-10">
+                                <div class="relative inline-block">
+                                    <div class="w-48 h-48 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-2xl animate-spin" style="animation-duration: 2s;">
+                                        <div class="w-40 h-40 rounded-full bg-gray-900 flex items-center justify-center">
+                                            <svg class="w-24 h-24 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                                             </svg>
                                         </div>
                                     </div>
-                                </div>
-
-                                <h2 class="text-6xl font-black text-white mb-6 uppercase tracking-wider">${this.state.message}</h2>
-                                <div class="flex justify-center space-x-3">
-                                    <div class="w-4 h-4 rounded-full animate-bounce" style="background: #FF8C00; animation-delay: 0s;"></div>
-                                    <div class="w-4 h-4 rounded-full animate-bounce" style="background: #FF8C00; animation-delay: 0.2s;"></div>
-                                    <div class="w-4 h-4 rounded-full animate-bounce" style="background: #FF8C00; animation-delay: 0.4s;"></div>
+                                    <div class="absolute -inset-6 rounded-full bg-gradient-to-r from-purple-600/20 to-pink-600/20 blur-2xl"></div>
                                 </div>
                             </div>
+
+                            <h2 class="text-7xl font-black text-white mb-6 uppercase tracking-wider animate-pulse">${this.state.message}</h2>
+                            <p class="text-3xl text-purple-400 font-bold uppercase tracking-widest">Por favor espera...</p>
                         </div>
                     </div>
                 `;
@@ -317,124 +414,92 @@
             renderSuccess() {
                 const { cliente, diasRestantes, similarity, deuda } = this.state;
                 return `
-                    <div class="min-h-screen relative overflow-hidden" style="background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 50%, #000000 100%);">
-                        <div class="absolute inset-0 opacity-15">
-                            <div class="absolute top-10 left-10 w-96 h-96 rounded-full filter blur-3xl" style="background: #00FF00;"></div>
-                            <div class="absolute bottom-10 right-10 w-96 h-96 rounded-full filter blur-3xl" style="background: #FF8C00;"></div>
+                    <div class="min-h-screen relative overflow-hidden bg-gradient-to-br from-green-900 via-emerald-950 to-black">
+                        <div class="absolute inset-0">
+                            <div class="absolute inset-0 opacity-20">
+                                <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-green-500 rounded-full blur-3xl animate-pulse"></div>
+                                <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-500 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+                            </div>
                         </div>
 
                         <div class="relative z-10 flex items-center justify-center min-h-screen px-8 py-12">
-                            <div class="max-w-6xl w-full flex gap-8">
-                                <!-- Foto del cliente -->
-                                <div class="flex-shrink-0">
-                                    ${cliente?.fotoBase64 ? `
-                                        <div class="w-80 h-80 rounded-3xl overflow-hidden shadow-2xl" style="border: 5px solid #00FF00;">
-                                            <img src="data:image/jpeg;base64,${cliente.fotoBase64}"
-                                                alt="${cliente.nombre}"
-                                                class="w-full h-full object-cover" />
-                                        </div>
-                                    ` : `
-                                        <div class="w-80 h-80 rounded-3xl flex items-center justify-center shadow-2xl" style="background: rgba(0,255,0,0.1); border: 5px solid #00FF00;">
-                                            <svg class="w-40 h-40" style="color: #00FF00;" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                            <div class="text-center max-w-4xl">
+                                <!-- Success Icon -->
+                                <div class="mb-10 flex justify-center">
+                                    <div class="relative">
+                                        <div class="w-48 h-48 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-2xl">
+                                            <svg class="w-32 h-32 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                                             </svg>
                                         </div>
-                                    `}
+                                        <div class="absolute inset-0 w-48 h-48 rounded-full animate-ping bg-green-500 opacity-20"></div>
+                                        <div class="absolute -inset-6 rounded-full bg-gradient-to-r from-green-500/30 to-emerald-500/30 blur-2xl"></div>
+                                    </div>
                                 </div>
 
-                                <!-- Información -->
-                                <div class="flex-1">
-                                    <!-- Logo -->
-                                    <div class="mb-6 flex justify-center">
-                                        <img src="/images/logo-nelson.png" alt="JONELGYM" class="h-24 w-24 object-contain drop-shadow-2xl" />
+                                <h2 class="text-8xl font-black text-white mb-4 uppercase tracking-wider">¡Bienvenido!</h2>
+                                <p class="text-4xl text-green-400 font-bold mb-12 uppercase tracking-wide">${this.state.message}</p>
+
+                                <!-- Client Info Card -->
+                                <div class="backdrop-blur-xl bg-white/10 rounded-3xl p-12 border-2 border-green-500/30 shadow-2xl mb-10">
+                                    <div class="mb-8">
+                                        <p class="text-6xl font-black text-white mb-4">${cliente?.nombre || 'Cliente'}</p>
+                                        ${cliente?.cedula ? `<p class="text-2xl text-green-300 font-bold">Cédula: ${cliente.cedula}</p>` : ''}
                                     </div>
 
-                                    <h2 class="text-7xl font-black mb-8 uppercase tracking-wider" style="color: #00FF00;">Acceso Permitido</h2>
-
-                                    <div class="backdrop-blur-sm rounded-3xl px-10 py-8" style="background: rgba(0,0,0,0.6); border: 3px solid #00FF00;">
-                                        <p class="text-5xl font-black text-white mb-6">${cliente?.nombre || 'Usuario'}</p>
-
-                                        <!-- Estado de Membresía -->
-                                        <div class="mb-6">
-                                            <p class="text-xl mb-3 uppercase tracking-wide font-semibold" style="color: #FF8C00;">Estado de Membresía</p>
-                                            <p class="text-4xl font-black ${
-                                                diasRestantes !== null && diasRestantes !== undefined ? 'text-white' : ''
-                                            }" style="${diasRestantes === null || diasRestantes === undefined ? 'color: #FFA500;' : ''}">
-                                                ${this.state.message}
-                                            </p>
+                                    ${diasRestantes !== null && diasRestantes !== undefined ? `
+                                        <div class="pt-8 border-t-2 border-green-500/30">
+                                            <p class="text-2xl font-bold text-green-300 mb-4 uppercase tracking-wide">Estado de Membresía</p>
+                                            <div class="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl p-8 border-2 border-green-400/40">
+                                                <p class="text-7xl font-black ${diasRestantes > 7 ? 'text-green-400' : diasRestantes > 0 ? 'text-yellow-400' : 'text-orange-400'} mb-3">
+                                                    ${diasRestantes > 0 ? diasRestantes : 0} ${diasRestantes === 1 ? 'DÍA' : 'DÍAS'}
+                                                </p>
+                                                <p class="text-2xl text-white font-bold">${diasRestantes > 0 ? 'restantes' : 'Membresía por vencer'}</p>
+                                            </div>
                                         </div>
+                                    ` : ''}
 
-                                        <!-- Días restantes -->
-                                        ${diasRestantes !== null && diasRestantes !== undefined ? `
-                                            <div class="pt-6 mt-6" style="border-top: 2px solid rgba(255, 140, 0, 0.3);">
-                                                <p class="text-lg mb-3 uppercase tracking-wide" style="color: #FF8C00;">
-                                                    ${diasRestantes <= 7 ? 'Tiempo Restante' : 'Vigencia'}
-                                                </p>
-                                                <p class="text-7xl font-black" style="color: ${
-                                                    diasRestantes <= 3 ? '#FFA500' : '#FFFFFF'
-                                                };">
-                                                    ${diasRestantes} ${diasRestantes === 1 ? 'DÍA' : 'DÍAS'}
-                                                </p>
-                                                ${diasRestantes <= 7 ? `
-                                                    <p class="text-xl mt-4 font-semibold" style="color: #FFA500;">
-                                                        ⚠️ Renueva pronto tu membresía
-                                                    </p>
-                                                ` : ''}
-                                            </div>
-                                        ` : ''}
-
-
-                                        <!-- Peso del Cliente -->
-                                        ${cliente?.peso ? `
-                                            <div class="pt-6 mt-6" style="border-top: 2px solid rgba(255, 140, 0, 0.3);">
-                                                <p class="text-lg mb-3 uppercase tracking-wide flex items-center gap-2" style="color: #FF8C00;">
-                                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
-                                                    </svg>
-                                                    Peso Registrado
-                                                </p>
-                                                <p class="text-6xl font-black text-white">
-                                                    ${parseFloat(cliente.peso).toFixed(1)} kg
-                                                </p>
-                                            </div>
-                                        ` : ''}
-                                        <!-- Información de Deuda -->
-                                        ${deuda && deuda.tieneDeuda ? `
-                                            <div class="pt-6 mt-6" style="border-top: 2px solid rgba(255, 140, 0, 0.3);">
-                                                <div class="flex items-center gap-3 mb-3">
-                                                    <svg class="w-8 h-8" style="color: #FFA500;" fill="currentColor" viewBox="0 0 20 20">
+                                    ${deuda && deuda.tieneDeuda ? `
+                                        <div class="pt-8 mt-8 border-t-2 border-orange-500/30">
+                                            <div class="bg-gradient-to-r from-orange-500/20 to-amber-500/20 rounded-2xl p-8 border-2 border-orange-400/40">
+                                                <div class="flex items-center justify-center gap-4 mb-4">
+                                                    <svg class="w-12 h-12 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
                                                         <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
                                                     </svg>
-                                                    <p class="text-xl uppercase tracking-wide font-semibold" style="color: #FFA500;">Tienes un monto pendiente</p>
+                                                    <p class="text-2xl font-bold text-orange-400 uppercase tracking-wide">Monto Pendiente</p>
                                                 </div>
-                                                <p class="text-6xl font-black mb-3" style="color: #FFA500;">
+                                                <p class="text-6xl font-black text-orange-400 mb-3">
                                                     $${deuda.montoTotal.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                                 </p>
-                                                <p class="text-lg font-semibold" style="color: #FFA500;">
+                                                <p class="text-xl text-white font-semibold">
                                                     💰 Recuerda ponerte al día
                                                 </p>
                                                 ${deuda.cantidadDeudas > 1 ? `
-                                                    <p class="text-base mt-2 text-white">
+                                                    <p class="text-lg mt-3 text-orange-300 font-bold">
                                                         (${deuda.cantidadDeudas} deudas pendientes)
                                                     </p>
                                                 ` : ''}
                                             </div>
-                                        ` : ''}
+                                        </div>
+                                    ` : ''}
 
-                                        <!-- Verificación de similitud -->
-                                        ${similarity ? `
-                                            <div class="mt-6 pt-6" style="border-top: 2px solid rgba(255, 140, 0, 0.3);">
-                                                <p class="text-lg font-semibold" style="color: #FF8C00;">
-                                                    🔒 Verificación: ${similarity.toFixed(1)}% de coincidencia
+                                    ${similarity ? `
+                                        <div class="pt-8 mt-8 border-t-2 border-green-500/30">
+                                            <div class="flex items-center justify-center gap-3">
+                                                <svg class="w-8 h-8 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                                </svg>
+                                                <p class="text-2xl font-bold text-green-400">
+                                                    Verificación: ${similarity.toFixed(1)}% de coincidencia
                                                 </p>
                                             </div>
-                                        ` : ''}
-                                    </div>
+                                        </div>
+                                    ` : ''}
+                                </div>
 
-                                    <!-- Mensaje motivacional -->
-                                    <div class="mt-8 space-y-3">
-                                        <p class="text-3xl text-white font-bold">Queremos que adoptes un estilo de vida saludable!</p>
-                                    </div>
+                                <!-- Motivational Message -->
+                                <div class="backdrop-blur-xl bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-3xl p-10 border-2 border-green-400/30 shadow-xl">
+                                    <p class="text-4xl text-white font-black uppercase tracking-wide">🏋️ ¡A dar lo mejor de ti hoy! 💪</p>
                                 </div>
                             </div>
                         </div>
@@ -445,80 +510,87 @@
             renderError() {
                 const { diasRestantes, deuda } = this.state;
                 return `
-                    <div class="min-h-screen relative overflow-hidden" style="background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 50%, #000000 100%);">
-                        <div class="absolute inset-0 opacity-15">
-                            <div class="absolute top-10 left-10 w-96 h-96 rounded-full filter blur-3xl" style="background: #FF4444;"></div>
-                            <div class="absolute bottom-10 right-10 w-96 h-96 rounded-full filter blur-3xl" style="background: #FF8C00;"></div>
+                    <div class="min-h-screen relative overflow-hidden bg-gradient-to-br from-red-900 via-red-950 to-black">
+                        <div class="absolute inset-0">
+                            <div class="absolute inset-0 opacity-20">
+                                <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-red-600 rounded-full blur-3xl animate-pulse"></div>
+                                <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-orange-600 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+                            </div>
                         </div>
 
-                        <div class="relative z-10 flex items-center justify-center min-h-screen px-8">
-                            <div class="text-center max-w-3xl">
-                                <!-- Logo -->
-                                <div class="mb-8 flex justify-center">
-                                    <img src="/images/logo-nelson.png" alt="JONELGYM" class="h-32 w-32 object-contain drop-shadow-2xl" />
-                                </div>
-
+                        <div class="relative z-10 flex items-center justify-center min-h-screen px-8 py-12">
+                            <div class="text-center max-w-4xl">
                                 <!-- Error Icon -->
                                 <div class="mb-10 flex justify-center">
                                     <div class="relative">
-                                        <div class="w-40 h-40 rounded-full flex items-center justify-center shadow-2xl" style="background: #FF4444;">
-                                            <svg class="w-24 h-24 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                                        <div class="w-48 h-48 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center shadow-2xl">
+                                            <svg class="w-32 h-32 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                                             </svg>
                                         </div>
-                                        <div class="absolute inset-0 w-40 h-40 rounded-full animate-ping opacity-20" style="background: #FF4444;"></div>
+                                        <div class="absolute inset-0 w-48 h-48 rounded-full animate-ping bg-red-500 opacity-20"></div>
+                                        <div class="absolute -inset-6 rounded-full bg-gradient-to-r from-red-500/30 to-red-700/30 blur-2xl"></div>
                                     </div>
                                 </div>
 
-                                <h2 class="text-6xl font-black text-white mb-8 uppercase tracking-wider">Acceso Denegado</h2>
+                                <h2 class="text-8xl font-black text-white mb-8 uppercase tracking-wider">Acceso Denegado</h2>
 
-                                <div class="backdrop-blur-sm rounded-3xl px-12 py-10 mb-10" style="background: rgba(0,0,0,0.6); border: 3px solid #FF4444;">
-                                    <div class="mb-6 flex justify-center">
-                                        <div class="w-20 h-20 rounded-full flex items-center justify-center" style="background: #FF4444;">
-                                            <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <!-- Error Info Card -->
+                                <div class="backdrop-blur-xl bg-white/10 rounded-3xl p-12 border-2 border-red-500/30 shadow-2xl mb-10">
+                                    <div class="mb-8 flex justify-center">
+                                        <div class="w-24 h-24 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center shadow-xl">
+                                            <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
                                             </svg>
                                         </div>
                                     </div>
 
-                                    <p class="text-3xl text-white mb-4 font-bold">${this.state.message}</p>
+                                    <p class="text-4xl text-white mb-6 font-black">${this.state.message}</p>
 
                                     ${diasRestantes !== null && diasRestantes !== undefined && diasRestantes < 0 ? `
-                                        <div class="pt-6 mt-6" style="border-top: 2px solid rgba(255, 68, 68, 0.5);">
-                                            <p class="text-lg mb-3 uppercase tracking-wide font-semibold" style="color: #FF8C00;">Membresía Vencida</p>
-                                            <p class="text-5xl font-black" style="color: #FFA500;">
-                                                ${Math.abs(diasRestantes)} ${Math.abs(diasRestantes) === 1 ? 'DÍA' : 'DÍAS'}
-                                            </p>
-                                            <p class="text-white text-lg mt-3">desde su vencimiento</p>
-                                        </div>
-                                    ` : ''}
-
-                                    <!-- Información de Deuda en Error -->
-                                    ${deuda && deuda.tieneDeuda ? `
-                                        <div class="pt-6 mt-6" style="border-top: 2px solid rgba(255, 68, 68, 0.5);">
-                                            <div class="flex items-center justify-center gap-3 mb-3">
-                                                <svg class="w-8 h-8" style="color: #FFA500;" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                                                </svg>
-                                                <p class="text-lg uppercase tracking-wide font-semibold" style="color: #FFA500;">Monto Pendiente</p>
+                                        <div class="pt-8 mt-8 border-t-2 border-red-500/30">
+                                            <p class="text-2xl mb-4 uppercase tracking-wide font-bold text-orange-400">Membresía Vencida</p>
+                                            <div class="bg-gradient-to-r from-orange-500/20 to-red-500/20 rounded-2xl p-8 border-2 border-orange-400/40">
+                                                <p class="text-7xl font-black text-orange-400 mb-3">
+                                                    ${Math.abs(diasRestantes)} ${Math.abs(diasRestantes) === 1 ? 'DÍA' : 'DÍAS'}
+                                                </p>
+                                                <p class="text-2xl text-white font-bold">desde su vencimiento</p>
                                             </div>
-                                            <p class="text-5xl font-black mb-2" style="color: #FFA500;">
-                                                ${deuda.montoTotal.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                            </p>
-                                            <p class="text-base font-semibold" style="color: #FFA500;">
-                                                Recuerda ponerte al día
-                                            </p>
                                         </div>
                                     ` : ''}
 
-                                    <div class="mt-8 pt-6" style="border-top: 2px solid rgba(255, 68, 68, 0.5);">
-                                        <p class="text-xl text-white font-semibold">Dirígete a recepción para asistencia</p>
+                                    ${deuda && deuda.tieneDeuda ? `
+                                        <div class="pt-8 mt-8 border-t-2 border-orange-500/30">
+                                            <div class="bg-gradient-to-r from-orange-500/20 to-amber-500/20 rounded-2xl p-8 border-2 border-orange-400/40">
+                                                <div class="flex items-center justify-center gap-4 mb-4">
+                                                    <svg class="w-12 h-12 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                                    </svg>
+                                                    <p class="text-2xl font-bold text-orange-400 uppercase tracking-wide">Monto Pendiente</p>
+                                                </div>
+                                                <p class="text-6xl font-black text-orange-400 mb-3">
+                                                    $${deuda.montoTotal.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                </p>
+                                                <p class="text-xl text-white font-semibold">
+                                                    Recuerda ponerte al día
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ` : ''}
+
+                                    <div class="mt-10 pt-8 border-t-2 border-red-500/30">
+                                        <p class="text-3xl text-white font-bold">📞 Dirígete a recepción para asistencia</p>
                                     </div>
                                 </div>
 
-                                <button onclick="app.reset(); app.startFingerprintDetection();"
-                                    class="px-12 py-5 text-white rounded-xl text-xl font-bold transition-all duration-300 transform hover:scale-105" style="background: #FF8C00;">
-                                    VOLVER AL INICIO
+                                <button
+                                    onclick="app.reset(); app.startFingerprintDetection();"
+                                    class="px-12 py-6 bg-gradient-to-r from-orange-600 to-orange-800 hover:from-orange-700 hover:to-orange-900 text-white text-3xl font-black rounded-2xl transition-all transform hover:scale-105 shadow-2xl uppercase tracking-wider flex items-center justify-center gap-4 mx-auto"
+                                >
+                                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                                    </svg>
+                                    Volver al Inicio
                                 </button>
                             </div>
                         </div>

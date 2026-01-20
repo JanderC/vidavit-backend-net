@@ -1,0 +1,4 @@
+C:\d\NelsonGymFinalVersion32\appsettings.Development.json
+C:\d\NelsonGymFinalVersion32\appsettings.json
+C:\d\NelsonGymFinalVersion32\VidaFit.pdb
+C:\d\NelsonGymFinalVersion32\VidaFit.exe
