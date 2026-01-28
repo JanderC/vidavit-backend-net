@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("VidaFit")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a7bf7e70f2453e287c5c01b172ffc6a625f897a4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8da0bb472a9dd2e6c57e2dc26e0d4fe62e106f09")]
 [assembly: System.Reflection.AssemblyProductAttribute("VidaFit")]
 [assembly: System.Reflection.AssemblyTitleAttribute("VidaFit")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

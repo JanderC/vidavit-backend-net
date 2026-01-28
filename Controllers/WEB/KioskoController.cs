@@ -91,6 +91,40 @@ namespace VidaFit.Controllers.WEB
                     });
                 }
 
+                // ==================== VALIDACIÓN DE CHECK-IN DUPLICADO ====================
+                var hoy = DateTime.UtcNow.Date;
+                var checkInHoy = await _context.CheckIns
+                    .Where(c => c.ClienteId == clienteEncontrado.Id
+                                && c.FechaHora.Date == hoy
+                                && c.Exitoso)
+                    .OrderByDescending(c => c.FechaHora)
+                    .FirstOrDefaultAsync();
+
+                if (checkInHoy != null)
+                {
+                    // Usar hora UTC directamente sin conversión a local
+                    return Json(new
+                    {
+                        success = false,
+                        yaRegistrado = true,
+                        message = $"Ya realizaste check-in hoy a las {checkInHoy.FechaHora:HH:mm}",
+                        alertType = "warning",
+                        cliente = new
+                        {
+                            nombre = $"{clienteEncontrado.Nombre} {clienteEncontrado.Apellido}",
+                            fotoBase64 = clienteEncontrado.FotoBase64,
+                            peso = clienteEncontrado.Peso
+                        },
+                        ultimoCheckIn = new
+                        {
+                            fecha = checkInHoy.FechaHora,
+                            hora = checkInHoy.FechaHora.ToString("HH:mm")
+                        },
+                        similarity = similarity
+                    });
+                }
+                // ==================== FIN VALIDACIÓN ====================
+
                 // Verificar membresía
                 var membresiaActiva = clienteEncontrado.Membresias
                     .Where(m => m.Estado == "activa")
@@ -154,7 +188,8 @@ namespace VidaFit.Controllers.WEB
                     cliente = new
                     {
                         nombre = $"{clienteEncontrado.Nombre} {clienteEncontrado.Apellido}",
-                        fotoBase64 = clienteEncontrado.FotoBase64
+                        fotoBase64 = clienteEncontrado.FotoBase64,
+                        peso = clienteEncontrado.Peso
                     },
                     membresia = membresiaActiva != null ? new
                     {
@@ -212,6 +247,39 @@ namespace VidaFit.Controllers.WEB
                     alertType = "error"
                 });
             }
+
+            // ==================== VALIDACIÓN DE CHECK-IN DUPLICADO ====================
+            var hoy = DateTime.UtcNow.Date;
+            var checkInHoy = await _context.CheckIns
+                .Where(c => c.ClienteId == cliente.Id
+                            && c.FechaHora.Date == hoy
+                            && c.Exitoso)
+                .OrderByDescending(c => c.FechaHora)
+                .FirstOrDefaultAsync();
+
+            if (checkInHoy != null)
+            {
+                // Usar hora UTC directamente sin conversión a local
+                return Json(new
+                {
+                    success = false,
+                    yaRegistrado = true,
+                    message = $"Ya realizaste check-in hoy a las {checkInHoy.FechaHora:HH:mm}",
+                    alertType = "warning",
+                    cliente = new
+                    {
+                        nombre = $"{cliente.Nombre} {cliente.Apellido}",
+                        fotoBase64 = cliente.FotoBase64,
+                        peso = cliente.Peso
+                    },
+                    ultimoCheckIn = new
+                    {
+                        fecha = checkInHoy.FechaHora,
+                        hora = checkInHoy.FechaHora.ToString("HH:mm")
+                    }
+                });
+            }
+            // ==================== FIN VALIDACIÓN ====================
 
             var membresiaActiva = cliente.Membresias
                 .Where(m => m.Estado == "activa")
@@ -275,7 +343,8 @@ namespace VidaFit.Controllers.WEB
                 cliente = new
                 {
                     nombre = $"{cliente.Nombre} {cliente.Apellido}",
-                    fotoBase64 = cliente.FotoBase64
+                    fotoBase64 = cliente.FotoBase64,
+                    peso = cliente.Peso
                 },
                 membresia = membresiaActiva != null ? new
                 {

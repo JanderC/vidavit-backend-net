@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "ZcPVUew6WxBRYhwSRuxpmwUU97dEhk8M0SX9iyINqtU=",
+  "Hash": "nCJp23EJDcCpa42kPHrQXEL12IuycHMprkmTSHwk7ZQ=",
   "Source": "VidaFit",
   "BasePath": "_content/VidaFit",
   "Mode": "Default",
@@ -1549,7 +1549,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 20 Jan 2026 15:04:49 GMT"
+          "Value": "Wed, 28 Jan 2026 20:21:35 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -1594,7 +1594,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 20 Jan 2026 15:04:49 GMT"
+          "Value": "Wed, 28 Jan 2026 20:21:35 GMT"
         },
         {
           "Name": "Cache-Control",

@@ -55,6 +55,38 @@ namespace VidaFit.Controllers.API
                     });
                 }
 
+                // ==================== VALIDACIÓN DE CHECK-IN DUPLICADO ====================
+                var hoy = DateTime.UtcNow.Date;
+                var checkInHoy = await _context.CheckIns
+                    .Where(c => c.ClienteId == cliente.Id
+                                && c.FechaHora.Date == hoy
+                                && c.Exitoso)
+                    .OrderByDescending(c => c.FechaHora)
+                    .FirstOrDefaultAsync();
+
+                if (checkInHoy != null)
+                {
+                    var horaCheckin = checkInHoy.FechaHora.ToLocalTime();
+                    return Ok(new
+                    {
+                        success = false,
+                        yaRegistrado = true,
+                        message = $"Ya realizaste check-in hoy a las {horaCheckin:hh:mm tt}",
+                        cliente = new
+                        {
+                            nombre = $"{cliente.Nombre} {cliente.Apellido}",
+                            fotoBase64 = cliente.FotoBase64,
+                            peso = cliente.Peso
+                        },
+                        ultimoCheckIn = new
+                        {
+                            fecha = checkInHoy.FechaHora,
+                            hora = horaCheckin.ToString("hh:mm tt")
+                        }
+                    });
+                }
+                // ==================== FIN VALIDACIÓN ====================
+
                 // Verificar deudas pendientes
                 var deudasPendientes = await _context.DeudasClientes
                     .Where(d => d.ClienteId == cliente.Id && d.Estado != "pagada")
