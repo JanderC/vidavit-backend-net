@@ -198,6 +198,41 @@
                         </div>
                     </div>
 
+                    <!-- NUEVO: Egresos del Mes Desglosados -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold text-gray-800 mb-5 uppercase tracking-wide flex items-center gap-2">
+                            <i data-lucide="trending-down" class="w-6 h-6 text-red-600"></i>
+                            Egresos del Mes Desglosados
+                        </h3>
+                        <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-gray-100">
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="bg-gradient-to-r from-red-600 to-red-700 text-white">
+                                        <tr>
+                                            <th class="px-6 py-4 text-left text-sm font-black uppercase tracking-wider">Categoría</th>
+                                            <th class="px-6 py-4 text-right text-sm font-black uppercase tracking-wider">Monto</th>
+                                            <th class="px-6 py-4 text-right text-sm font-black uppercase tracking-wider">% del Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                                        ${this.renderFilaEgreso('Sueldos', resumen.egresosMes.sueldos, resumen.egresosMes.total, 'red')}
+                                        ${this.renderFilaEgreso('Servicios', resumen.egresosMes.servicios, resumen.egresosMes.total, 'orange')}
+                                        ${this.renderFilaEgreso('Mantenimiento', resumen.egresosMes.mantenimiento, resumen.egresosMes.total, 'yellow')}
+                                        ${this.renderFilaEgreso('Compras', resumen.egresosMes.compras, resumen.egresosMes.total, 'pink')}
+                                        ${this.renderFilaEgreso('Otros', resumen.egresosMes.otros, resumen.egresosMes.total, 'gray')}
+                                    </tbody>
+                                    <tfoot class="bg-gray-50">
+                                        <tr class="border-t-2 border-gray-300">
+                                            <td class="px-6 py-4 text-left text-sm font-black uppercase text-gray-900">TOTAL</td>
+                                            <td class="px-6 py-4 text-right text-xl font-black text-red-600">${this.formatCurrency(resumen.egresosMes.total)}</td>
+                                            <td class="px-6 py-4 text-right text-sm font-bold text-gray-600">100%</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Estadísticas Generales -->
                     <div class="mb-8">
                         <h3 class="text-xl font-bold text-gray-800 mb-5 uppercase tracking-wide flex items-center gap-2">
@@ -286,6 +321,36 @@
                 `;
             }
 
+            renderFilaEgreso(nombre, monto, total, color) {
+                const porcentaje = total > 0 ? ((monto / total) * 100).toFixed(1) : 0;
+                const colorClasses = {
+                    'red': 'bg-red-50 text-red-700',
+                    'orange': 'bg-orange-50 text-orange-700',
+                    'yellow': 'bg-yellow-50 text-yellow-700',
+                    'pink': 'bg-pink-50 text-pink-700',
+                    'gray': 'bg-gray-50 text-gray-700'
+                };
+
+                return `
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-2">
+                                <span class="px-3 py-1 ${colorClasses[color]} rounded-full text-xs font-bold uppercase">${nombre}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-right text-lg font-black text-gray-900">${this.formatCurrency(monto)}</td>
+                        <td class="px-6 py-4 text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                <div class="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                    <div class="h-full bg-${color}-500" style="width: ${porcentaje}%"></div>
+                                </div>
+                                <span class="text-sm font-bold text-gray-700">${porcentaje}%</span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+
             renderAlertas(alertas) {
                 return `
                     <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-gray-100">
@@ -296,12 +361,12 @@
                             </h3>
                         </div>
                         <div class="p-6">
-                            ${alertas.membresiasProximasVencer > 0 || alertas.membresiasVencidas > 0 ? `
+                            ${alertas.membresiasPorVencer > 0 || alertas.membresiasVencidas > 0 ? `
                                 <div class="space-y-5">
-                                    ${alertas.membresiasProximasVencer > 0 ? `
+                                    ${alertas.membresiasPorVencer > 0 ? `
                                         <div>
                                             <div class="flex items-center justify-between mb-3">
-                                                <h4 class="font-bold text-gray-800 uppercase text-sm tracking-wide">Por Vencer (${alertas.membresiasProximasVencer})</h4>
+                                                <h4 class="font-bold text-gray-800 uppercase text-sm tracking-wide">Por Vencer (${alertas.membresiasPorVencer})</h4>
                                                 <a href="/membresias" class="text-xs text-orange-600 hover:text-orange-800 font-bold uppercase">Ver todas →</a>
                                             </div>
                                             <div class="space-y-2 max-h-48 overflow-y-auto">
@@ -323,7 +388,7 @@
                                     ` : ''}
 
                                     ${alertas.membresiasVencidas > 0 ? `
-                                        <div class="${alertas.membresiasProximasVencer > 0 ? 'pt-5 border-t-2 border-gray-200' : ''}">
+                                        <div class="${alertas.membresiasPorVencer > 0 ? 'pt-5 border-t-2 border-gray-200' : ''}">
                                             <div class="flex items-center justify-between mb-3">
                                                 <h4 class="font-bold text-gray-800 uppercase text-sm tracking-wide">Vencidas (${alertas.membresiasVencidas})</h4>
                                                 <a href="/membresias" class="text-xs text-red-600 hover:text-red-800 font-bold uppercase">Ver todas →</a>

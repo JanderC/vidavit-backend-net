@@ -100,28 +100,57 @@ namespace VidaFit.Controllers.API
                     .OrderBy(g => g.Fecha)
                     .ToListAsync();
 
-                // INGRESOS DEL MES DESGLOSADOS
-                var movimientosMes = await _context.MovimientosCaja
-                    .Where(m => m.Tipo == "ingreso" && m.Fecha >= inicioMes && m.Fecha <= finMes)
+                // INGRESOS DEL MES DESGLOSADOS (CORREGIDO CON PLAN.PRECIO)
+                // Calcular ingresos de membresías usando el precio del Plan
+                var membresiasDelMes = await _context.Membresias
+                    .Where(m => m.FechaInicio >= inicioMes && m.FechaInicio <= finMes)
+                    .Join(_context.Planes, m => m.PlanId, p => p.Id, (m, p) => new { m, p })
                     .ToListAsync();
 
-                var ingresoMembresias = movimientosMes
-                    .Where(m => m.Categoria == "membresia" || m.Categoria == "renovacion")
-                    .Sum(m => m.Monto);
+                var ingresoMembresias = membresiasDelMes.Sum(mp => mp.p.Precio);
 
-                var ingresoProductos = movimientosMes
-                    .Where(m => m.Categoria == "producto")
-                    .Sum(m => m.Monto);
+                // Calcular ingresos de productos vendidos
+                var ingresoProductos = await _context.VentasProductos
+                    .Where(v => v.FechaVenta >= inicioMes && v.FechaVenta <= finMes && v.EstadoPago == "pagado")
+                    .SumAsync(v => (decimal?)v.Total) ?? 0;
+
+                // Obtener movimientos del mes para abonos y otros
+                var movimientosMes = await _context.MovimientosCaja
+                    .Where(m => m.Fecha >= inicioMes && m.Fecha <= finMes)
+                    .ToListAsync();
 
                 var ingresoAbonos = movimientosMes
-                    .Where(m => m.Categoria == "abono_deuda")
+                    .Where(m => m.Tipo == "ingreso" && m.Categoria == "abono_deuda")
                     .Sum(m => m.Monto);
 
                 var ingresoOtros = movimientosMes
-                    .Where(m => m.Categoria != "membresia" && m.Categoria != "renovacion" && m.Categoria != "producto" && m.Categoria != "abono_deuda")
+                    .Where(m => m.Tipo == "ingreso" && m.Categoria != "membresia" && m.Categoria != "renovacion" && m.Categoria != "producto" && m.Categoria != "abono_deuda")
                     .Sum(m => m.Monto);
 
                 var totalIngresosMes = ingresoMembresias + ingresoProductos + ingresoAbonos + ingresoOtros;
+
+                // EGRESOS DEL MES DESGLOSADOS (NUEVO)
+                var egresosSueldos = movimientosMes
+                    .Where(m => m.Tipo == "egreso" && m.Categoria == "sueldo")
+                    .Sum(m => m.Monto);
+
+                var egresosServicios = movimientosMes
+                    .Where(m => m.Tipo == "egreso" && m.Categoria == "servicio")
+                    .Sum(m => m.Monto);
+
+                var egresosMantenimiento = movimientosMes
+                    .Where(m => m.Tipo == "egreso" && m.Categoria == "mantenimiento")
+                    .Sum(m => m.Monto);
+
+                var egresosCompras = movimientosMes
+                    .Where(m => m.Tipo == "egreso" && m.Categoria == "compra")
+                    .Sum(m => m.Monto);
+
+                var egresosOtros = movimientosMes
+                    .Where(m => m.Tipo == "egreso" && m.Categoria != "sueldo" && m.Categoria != "servicio" && m.Categoria != "mantenimiento" && m.Categoria != "compra")
+                    .Sum(m => m.Monto);
+
+                var totalEgresosMes = egresosSueldos + egresosServicios + egresosMantenimiento + egresosCompras + egresosOtros;
 
                 return Ok(new
                 {
@@ -139,6 +168,15 @@ namespace VidaFit.Controllers.API
                             productos = ingresoProductos,
                             abonos = ingresoAbonos,
                             otros = ingresoOtros
+                        },
+                        egresosMes = new
+                        {
+                            total = totalEgresosMes,
+                            sueldos = egresosSueldos,
+                            servicios = egresosServicios,
+                            mantenimiento = egresosMantenimiento,
+                            compras = egresosCompras,
+                            otros = egresosOtros
                         }
                     },
                     alertas = new
