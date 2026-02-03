@@ -1178,6 +1178,7 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
+                        Fecha: new Date().toISOString().split('T')[0],
                         observaciones: observaciones,
                         tipoCierre: 'manual'
                     })
@@ -1364,6 +1365,15 @@
                                 </span>
                             </div>
                             <p class="text-sm text-gray-600 font-bold mb-3">Cédula: ${deuda.clienteCedula}</p>
+
+                                                  <p class="text-base text-gray-500 font-semibold mb-3">
+                                            <i data-lucide="calendar" class="w-4 h-4 inline-block mr-1"></i>
+                                            Fecha: ${deuda.FechaCreacion ? new Date(deuda.FechaCreacion).toLocaleDateString('es-ES', {
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric'
+                                            }) : 'Sin fecha'}
+                                        </p>
 
                             <div class="bg-gray-50 rounded-xl p-4 mb-4 border-2 border-gray-200">
                                 <p class="text-sm text-gray-600 font-bold uppercase mb-1">Concepto</p>

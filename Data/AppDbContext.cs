@@ -31,6 +31,12 @@ namespace VidaFit.Data
         public DbSet<AbonoDeuda> AbonosDeuda { get; set; }
         public DbSet<CierreCaja> CierresCaja { get; set; }
 
+        // Nuevas tablas para Caja Fuerte
+        public DbSet<CajaFuerte> CajasFuertes { get; set; }
+        public DbSet<MovimientoCajaFuerte> MovimientosCajaFuerte { get; set; }
+        public DbSet<ConsolidadoMensual> ConsolidadosMensuales { get; set; }
+        public DbSet<ConfiguracionCajaFuerte> ConfiguracionesCajaFuerte { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -264,6 +270,72 @@ namespace VidaFit.Data
                 entity.HasIndex(c => c.TipoCierre);
             });
 
+            // ==================== TABLAS DE CAJA FUERTE ====================
+
+            modelBuilder.Entity<CajaFuerte>(entity =>
+            {
+                entity.ToTable("caja_fuerte");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.BalanceEfectivo).HasColumnType("decimal(10,2)").HasDefaultValue(0);
+                entity.Property(e => e.BalanceTransferencias).HasColumnType("decimal(10,2)").HasDefaultValue(0);
+                entity.Property(e => e.BalanceTotal).HasColumnType("decimal(10,2)").HasDefaultValue(0);
+                entity.Property(e => e.UltimaActualizacion).IsRequired();
+            });
+
+            modelBuilder.Entity<MovimientoCajaFuerte>(entity =>
+            {
+                entity.ToTable("movimientos_caja_fuerte");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Tipo).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.Origen).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.MetodoPago).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Monto).HasColumnType("decimal(10,2)").IsRequired();
+                entity.Property(e => e.Categoria).HasMaxLength(50);
+
+                // Relación con Usuario
+                entity.HasOne(m => m.Usuario)
+                    .WithMany()
+                    .HasForeignKey(m => m.UsuarioId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Relación con CierreCaja
+                entity.HasOne(m => m.CierreCaja)
+                    .WithMany()
+                    .HasForeignKey(m => m.CierreCajaId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                // Índices
+                entity.HasIndex(m => m.Fecha);
+                entity.HasIndex(m => m.Tipo);
+                entity.HasIndex(m => m.UsuarioId);
+            });
+
+            modelBuilder.Entity<ConsolidadoMensual>(entity =>
+            {
+                entity.ToTable("consolidados_mensuales");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Mes).IsRequired();
+                entity.Property(e => e.Anio).IsRequired();
+                entity.Property(e => e.TotalIngresosEfectivo).HasColumnType("decimal(10,2)").HasDefaultValue(0);
+                entity.Property(e => e.TotalIngresosTransferencia).HasColumnType("decimal(10,2)").HasDefaultValue(0);
+                entity.Property(e => e.TotalEgresosEfectivo).HasColumnType("decimal(10,2)").HasDefaultValue(0);
+                entity.Property(e => e.TotalEgresosTransferencia).HasColumnType("decimal(10,2)").HasDefaultValue(0);
+                entity.Property(e => e.BalanceFinalEfectivo).HasColumnType("decimal(10,2)").HasDefaultValue(0);
+                entity.Property(e => e.BalanceFinalTransferencia).HasColumnType("decimal(10,2)").HasDefaultValue(0);
+                entity.Property(e => e.FechaConsolidacion).IsRequired();
+
+                // Índice único para mes/año
+                entity.HasIndex(e => new { e.Mes, e.Anio }).IsUnique();
+            });
+
+            modelBuilder.Entity<ConfiguracionCajaFuerte>(entity =>
+            {
+                entity.ToTable("configuracion_caja_fuerte");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.PasswordHash).IsRequired().HasMaxLength(255);
+                entity.Property(e => e.RequiereCambioPassword).HasDefaultValue(false);
+            });
+
             // ==================== CONFIGURACIÓN DE CONVERSIÓN DE NOMBRES ====================
 
             // Configurar nombres de columnas en snake_case (PostgreSQL style)
@@ -357,9 +429,26 @@ namespace VidaFit.Data
                         "BalanceGeneral" => "balance_general",
                         "CantidadMovimientos" => "cantidad_movimientos",
                         "Observaciones" => "observaciones",
-                        // NUEVO - propiedades para control de cierre
+                        // Propiedades para control de cierre
                         "Cerrado" => "cerrado",
                         "CierreCajaId" => "cierre_caja_id",
+                        // Propiedades para Caja Fuerte
+                        "BalanceEfectivo" => "balance_efectivo",
+                        "BalanceTransferencias" => "balance_transferencias",
+                        "BalanceTotal" => "balance_total",
+                        "UltimaActualizacion" => "ultima_actualizacion",
+                        "Origen" => "origen",
+                        "TotalIngresosEfectivo" => "total_ingresos_efectivo",
+                        "TotalIngresosTransferencia" => "total_ingresos_transferencia",
+                        "TotalEgresosEfectivo" => "total_egresos_efectivo",
+                        "TotalEgresosTransferencia" => "total_egresos_transferencia",
+                        "BalanceFinalEfectivo" => "balance_final_efectivo",
+                        "BalanceFinalTransferencia" => "balance_final_transferencia",
+                        "FechaConsolidacion" => "fecha_consolidacion",
+                        "Mes" => "mes",
+                        "Anio" => "anio",
+                        "RequiereCambioPassword" => "requiere_cambio_password",
+                        "Peso" => "peso",
                         _ => property.Name.ToLower()
                     };
 

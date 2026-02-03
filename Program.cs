@@ -75,6 +75,10 @@ builder.Services.AddAuthentication(x =>
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddSingleton<IFingerprintService, FingerprintService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddHostedService<ConsolidacionMensualService>();
+
+// ⭐ NUEVO: HttpClient para comunicación entre controladores
+builder.Services.AddHttpClient();
 
 // Sesiones para el panel admin
 builder.Services.AddSession(options =>
@@ -160,6 +164,12 @@ app.MapControllerRoute(
     name: "kiosko",
     pattern: "kiosko",
     defaults: new { controller = "Kiosko", action = "Index" });
+
+app.MapControllerRoute(
+    name: "cajafuerte",
+    pattern: "cajafuerte/{action=Index}/{id?}",
+    defaults: new { controller = "CajaFuerte" }
+);
 
 // ==================== ABRIR NAVEGADOR AUTOMÁTICAMENTE ====================
 

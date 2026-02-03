@@ -767,76 +767,46 @@ namespace VidaFit.Controllers.API
         /// Si no se envía fecha, cierra el día actual
         /// </summary>
         [HttpPost("cerrar")]
-        public async Task<IActionResult> CerrarCaja([FromBody] JsonElement data)
+        public async Task<IActionResult> CerrarCaja([FromBody] CerrarCajaRequest request)
         {
             try
             {
-                // Obtener fecha a cerrar (si no se especifica, usar hoy)
-                DateTime fechaCierre = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
-                if (data.TryGetProperty("fecha", out var fechaEl))
-                {
-                    var fechaStr = fechaEl.GetString();
-                    _logger.LogInformation($"📅 Fecha recibida del cliente: {fechaStr}");
+                var fechaCierre = DateTime.Parse(request.Fecha).Date;
 
-                    // Parsear la fecha y asegurarse que es UTC
-                    fechaCierre = DateTime.SpecifyKind(DateTime.Parse(fechaStr).Date, DateTimeKind.Utc);
-
-                    _logger.LogInformation($"📅 Fecha procesada para cierre: {fechaCierre:yyyy-MM-dd HH:mm:ss} UTC");
-                }
-
-                var observaciones = "";
-                if (data.TryGetProperty("observaciones", out var obsEl))
-                {
-                    observaciones = obsEl.GetString();
-                }
-
-                _logger.LogInformation($"Iniciando cierre de caja para fecha: {fechaCierre:dd/MM/yyyy}");
-
-                // Validar que la fecha no sea futura
+                // Validación: no cerrar fecha futura
                 if (fechaCierre > DateTime.UtcNow.Date)
                 {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "No se puede cerrar una fecha futura"
-                    });
+                    return BadRequest(new { success = false, message = "No se puede cerrar una fecha futura" });
                 }
 
-                // Obtener SOLO movimientos NO cerrados de la fecha específica
+                // Obtener movimientos pendientes
                 var movimientosPendientes = await ObtenerMovimientosPendientesPorFechaAsync(fechaCierre);
 
                 if (movimientosPendientes.Count == 0)
                 {
-                    return Ok(new
-                    {
-                        success = false,
-                        message = $"No hay movimientos pendientes para cerrar en la fecha {fechaCierre:dd/MM/yyyy}"
-                    });
+                    return Ok(new { success = false, message = $"No hay movimientos pendientes para cerrar en la fecha {fechaCierre:dd/MM/yyyy}" });
                 }
 
                 // Calcular totales
-                var ingresosEfectivo = movimientosPendientes
-                    .Where(m => m.Tipo == "ingreso" && m.MetodoPago == "efectivo")
-                    .Sum(m => m.Monto);
-
-                var egresosEfectivo = movimientosPendientes
-                    .Where(m => m.Tipo == "egreso" && m.MetodoPago == "efectivo")
-                    .Sum(m => m.Monto);
-
-                var ingresosTransferencia = movimientosPendientes
-                    .Where(m => m.Tipo == "ingreso" && m.MetodoPago == "transferencia")
-                    .Sum(m => m.Monto);
-
-                var egresosTransferencia = movimientosPendientes
-                    .Where(m => m.Tipo == "egreso" && m.MetodoPago == "transferencia")
-                    .Sum(m => m.Monto);
-
+                var ingresosEfectivo = movimientosPendientes.Where(m => m.Tipo == "ingreso" && m.MetodoPago == "efectivo").Sum(m => m.Monto);
+                var egresosEfectivo = movimientosPendientes.Where(m => m.Tipo == "egreso" && m.MetodoPago == "efectivo").Sum(m => m.Monto);
+                var ingresosTransferencia = movimientosPendientes.Where(m => m.Tipo == "ingreso" && m.MetodoPago == "transferencia").Sum(m => m.Monto);
+                var egresosTransferencia = movimientosPendientes.Where(m => m.Tipo == "egreso" && m.MetodoPago == "transferencia").Sum(m => m.Monto);
                 var totalIngresos = movimientosPendientes.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto);
                 var totalEgresos = movimientosPendientes.Where(m => m.Tipo == "egreso").Sum(m => m.Monto);
 
                 var efectivoInicial = 0;
                 var efectivoFinal = ingresosEfectivo - egresosEfectivo;
                 var balanceGeneral = totalIngresos - totalEgresos;
+
+                // ===== NUEVO: PREGUNTAR CUÁNTO EFECTIVO DEJAR =====
+                var efectivoADejar = request.EfectivoADejar ?? 0; // Valor opcional del request
+                var efectivoACajaFuerte = efectivoFinal - efectivoADejar;
+
+                if (efectivoADejar < 0 || efectivoADejar > efectivoFinal)
+                {
+                    return BadRequest(new { success = false, message = "El monto a dejar no puede ser negativo ni mayor al efectivo final" });
+                }
 
                 var usuarioId = await ObtenerUsuarioSistemaAsync();
 
@@ -856,7 +826,7 @@ namespace VidaFit.Controllers.API
                     TotalEgresos = totalEgresos,
                     BalanceGeneral = balanceGeneral,
                     CantidadMovimientos = movimientosPendientes.Count,
-                    Observaciones = $"{observaciones} - Cierre del día {fechaCierre:dd/MM/yyyy}".Trim(),
+                    Observaciones = $"{request.Observaciones} - Cierre del día {fechaCierre:dd/MM/yyyy}. Efectivo a dejar: ${efectivoADejar}, a Caja Fuerte: ${efectivoACajaFuerte}".Trim(),
                     UsuarioId = usuarioId,
                     CreatedAt = DateTime.UtcNow
                 };
@@ -864,7 +834,7 @@ namespace VidaFit.Controllers.API
                 _context.CierresCaja.Add(cierre);
                 await _context.SaveChangesAsync();
 
-                // MARCAR TODOS LOS MOVIMIENTOS COMO CERRADOS
+                // Marcar movimientos como cerrados
                 foreach (var movimiento in movimientosPendientes)
                 {
                     movimiento.Cerrado = true;
@@ -873,14 +843,38 @@ namespace VidaFit.Controllers.API
 
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation($"Cierre completado. ID: {cierre.Id} - Fecha: {fechaCierre:dd/MM/yyyy} - Movimientos: {movimientosPendientes.Count}");
+                // ===== NUEVO: ENVIAR A CAJA FUERTE =====
+                if (efectivoACajaFuerte > 0 || (ingresosTransferencia - egresosTransferencia) > 0)
+                {
+                    try
+                    {
+                        var cajaFuerteRequest = new RecibirDesdeCajaRequest
+                        {
+                            MontoEfectivo = efectivoACajaFuerte,
+                            MontoTransferencia = ingresosTransferencia - egresosTransferencia,
+                            FechaCierre = fechaCierre,
+                            CierreCajaId = cierre.Id
+                        };
 
-                // Verificar si quedan días pendientes
-                var diasPendientesRestantes = await _context.MovimientosCaja
-                    .Where(m => !m.Cerrado)
-                    .Select(m => m.Fecha.Date)
-                    .Distinct()
-                    .CountAsync();
+                        var httpClient = new HttpClient();
+                        var response = await httpClient.PostAsJsonAsync(
+                            $"{Request.Scheme}://{Request.Host}/api/cajafuerte/recibir-desde-caja",
+                            cajaFuerteRequest
+                        );
+
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            _logger.LogWarning($"No se pudo enviar dinero a Caja Fuerte: {response.StatusCode}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error al enviar dinero a Caja Fuerte");
+                        // No fallar el cierre si hay error en Caja Fuerte
+                    }
+                }
+
+                _logger.LogInformation($"Cierre completado. ID: {cierre.Id} - Fecha: {fechaCierre:dd/MM/yyyy} - Movimientos: {movimientosPendientes.Count}");
 
                 return Ok(new
                 {
@@ -893,46 +887,23 @@ namespace VidaFit.Controllers.API
                         fechaDiaCerrado = fechaCierre,
                         cierre.TipoCierre,
                         efectivoFinal = cierre.EfectivoFinal,
+                        efectivoADejar,
+                        efectivoACajaFuerte,
                         transferenciaTotal = ingresosTransferencia - egresosTransferencia,
                         balanceGeneral = cierre.BalanceGeneral,
                         totalIngresos = cierre.TotalIngresos,
                         totalEgresos = cierre.TotalEgresos,
                         cantidadMovimientos = cierre.CantidadMovimientos,
-                        desglose = new
-                        {
-                            efectivo = new
-                            {
-                                ingresos = ingresosEfectivo,
-                                egresos = egresosEfectivo,
-                                balance = efectivoFinal
-                            },
-                            transferencia = new
-                            {
-                                ingresos = ingresosTransferencia,
-                                egresos = egresosTransferencia,
-                                balance = ingresosTransferencia - egresosTransferencia
-                            }
-                        }
-                    },
-                    alertas = new
-                    {
-                        diasPendientesRestantes,
-                        tieneDiasPendientes = diasPendientesRestantes > 0
+                        enviadoACajaFuerte = efectivoACajaFuerte > 0 || (ingresosTransferencia - egresosTransferencia) > 0
                     }
                 });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al realizar cierre de caja");
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Error al realizar cierre de caja",
-                    error = ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Error al realizar cierre de caja", error = ex.Message });
             }
         }
-
         /// <summary>
         /// Eliminar movimiento (SOLO si NO está cerrado)
         /// Endpoint: DELETE /api/caja/{id}
@@ -975,6 +946,74 @@ namespace VidaFit.Controllers.API
                     error = ex.Message
                 });
             }
+
+        }
+
+        /// <summary>
+        /// Recibir dinero desde Caja Fuerte (transferencia interna)
+        /// Endpoint: POST /api/caja/recibir-desde-cajafuerte
+        /// </summary>
+        [HttpPost("recibir-desde-cajafuerte")]
+        public async Task<IActionResult> RecibirDesdeCajaFuerte([FromBody] RecibirDesdeCajaFuerteRequest request)
+        {
+            try
+            {
+                var usuarioId = await ObtenerUsuarioSistemaAsync();
+
+                // Crear movimiento de INGRESO en Caja Diaria
+                var movimiento = new MovimientoCaja
+                {
+                    Id = Guid.NewGuid(),
+                    Tipo = "ingreso",
+                    Categoria = "transferencia_cajafuerte",
+                    MetodoPago = "efectivo",
+                    Monto = request.Monto,
+                    Descripcion = "Transferencia desde Caja Fuerte",
+                    ReferenciaId = null,
+                    UsuarioId = usuarioId,
+                    Fecha = DateTime.UtcNow,
+                    Cerrado = false,
+                    CierreCajaId = null,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                _context.MovimientosCaja.Add(movimiento);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation($"💰 Dinero recibido desde Caja Fuerte: ${request.Monto}");
+
+                return Ok(new
+                {
+                    success = true,
+                    message = $"${request.Monto:N2} recibidos desde Caja Fuerte",
+                    movimiento = new
+                    {
+                        movimiento.Id,
+                        movimiento.Monto,
+                        movimiento.Descripcion,
+                        movimiento.Fecha
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al recibir dinero desde Caja Fuerte");
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Error al recibir dinero desde Caja Fuerte"
+                });
+            }
+        }
+        public class CerrarCajaRequest
+        {
+            public string Fecha { get; set; }
+            public string Observaciones { get; set; }
+            public decimal? EfectivoADejar { get; set; } // NUEVO: cuánto efectivo dejar para el día siguiente
+        }
+        public class RecibirDesdeCajaFuerteRequest
+        {
+            public decimal Monto { get; set; }
         }
     }
 }
