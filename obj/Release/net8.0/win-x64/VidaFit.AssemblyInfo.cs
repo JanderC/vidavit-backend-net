@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("VidaFit")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9650931cc84563afea24ab256f1bc1b083609864")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b523376c2f9542d45f89e507cb6a2840dddbdcb5")]
 [assembly: System.Reflection.AssemblyProductAttribute("VidaFit")]
 [assembly: System.Reflection.AssemblyTitleAttribute("VidaFit")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
