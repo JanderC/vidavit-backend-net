@@ -173,6 +173,17 @@
         let paginaActual = 1;
         let itemsPorPagina = 10;
 
+        function parsearFechaUTC(fechaStr) {
+            if (!fechaStr) return null;
+
+            // Extraer año, mes, día del string
+            const fecha = fechaStr.split('T')[0]; 
+            const [year, month, day] = fecha.split('-').map(Number);
+
+            // Crear fecha local (sin conversión UTC)
+            return new Date(year, month - 1, day);
+        }
+
         async function loadMembresias() {
             try {
                 const response = await fetch(`${API_URL}/Membresias`);
@@ -226,7 +237,7 @@
 
             membresiasData.forEach(m => {
                 const estado = (m.estado || m.Estado).toLowerCase();
-                const fechaVenc = new Date(m.fechaVencimiento || m.FechaVencimiento);
+                const fechaVenc = parsearFechaUTC(m.fechaVencimiento || m.FechaVencimiento); // 🔧 CORREGIDO
                 fechaVenc.setHours(0, 0, 0, 0);
 
                 if (estado === 'activa' && fechaVenc >= hoy) {
@@ -252,7 +263,7 @@
 
             membresiasFiltradas = membresiasData.filter(m => {
                 const estado = (m.estado || m.Estado).toLowerCase();
-                const fechaVenc = new Date(m.fechaVencimiento || m.FechaVencimiento);
+                const fechaVenc = parsearFechaUTC(m.fechaVencimiento || m.FechaVencimiento); // 🔧 CORREGIDO
                 fechaVenc.setHours(0, 0, 0, 0);
 
                 // Filtro por estado
@@ -310,8 +321,9 @@
             const hoy = new Date();
             hoy.setHours(0, 0, 0, 0);
 
-            const fechaInicio = new Date(m.fechaInicio || m.FechaInicio);
-            const fechaVenc = new Date(m.fechaVencimiento || m.FechaVencimiento);
+            // 🔧 USAR FUNCIÓN HELPER PARA PARSEAR FECHAS UTC CORRECTAMENTE
+            const fechaInicio = parsearFechaUTC(m.fechaInicio || m.FechaInicio);
+            const fechaVenc = parsearFechaUTC(m.fechaVencimiento || m.FechaVencimiento);
             fechaVenc.setHours(0, 0, 0, 0);
 
             const fechaInicioStr = fechaInicio.toLocaleDateString('es-ES');

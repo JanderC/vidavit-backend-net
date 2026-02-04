@@ -1,0 +1,4 @@
+C:\d\SistemaValmore\appsettings.Development.json
+C:\d\SistemaValmore\appsettings.json
+C:\d\SistemaValmore\VidaFit.pdb
+C:\d\SistemaValmore\VidaFit.exe

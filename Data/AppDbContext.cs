@@ -68,6 +68,16 @@ namespace VidaFit.Data
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Nombre).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.Precio).HasColumnType("decimal(10,2)");
+
+                // 🆕 NUEVAS CONFIGURACIONES
+                entity.Property(e => e.TipoCalculoVencimiento)
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .HasDefaultValue("dias"); // Valor por defecto para registros existentes
+
+                entity.Property(e => e.CantidadUnidades)
+                    .IsRequired()
+                    .HasDefaultValue(1); // Valor por defecto
             });
 
             modelBuilder.Entity<Membresia>(entity =>
@@ -370,6 +380,8 @@ namespace VidaFit.Data
                         "DuracionDias" => "duracion_dias",
                         "Precio" => "precio",
                         "Color" => "color",
+                        "TipoCalculoVencimiento" => "tipo_calculo_vencimiento",  // 🆕 NUEVO
+                        "CantidadUnidades" => "cantidad_unidades",                // 🆕 NUEVO
                         "ClienteId" => "cliente_id",
                         "PlanId" => "plan_id",
                         "FechaInicio" => "fecha_inicio",

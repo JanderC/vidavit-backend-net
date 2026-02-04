@@ -195,14 +195,28 @@
                     id: p.Id || p.id,
                     nombre: p.Nombre || p.nombre,
                     precio: p.Precio || p.precio,
-                    duracionDias: p.DuracionDias || p.duracionDias
+                    duracionDias: p.DuracionDias || p.duracionDias,
+                    // 🆕 AGREGAR NUEVOS CAMPOS
+                    tipoCalculoVencimiento: p.TipoCalculoVencimiento || p.tipoCalculoVencimiento || 'dias',
+                    cantidadUnidades: p.CantidadUnidades || p.cantidadUnidades || 1
                 }));
 
                 const planSelect = document.getElementById('planSelect');
                 planes.forEach(p => {
                     const option = document.createElement('option');
                     option.value = p.id;
-                    option.textContent = `${p.nombre} - $${p.precio.toFixed(2)} (${p.duracionDias} días)`;
+
+                    // 🆕 Mostrar duración según el tipo de cálculo
+                    let duracionTexto = `${p.duracionDias} días`;
+                    if (p.tipoCalculoVencimiento === 'meses') {
+                        duracionTexto = `${p.cantidadUnidades} ${p.cantidadUnidades === 1 ? 'mes' : 'meses'}`;
+                    } else if (p.tipoCalculoVencimiento === 'semanas') {
+                        duracionTexto = `${p.cantidadUnidades} ${p.cantidadUnidades === 1 ? 'semana' : 'semanas'}`;
+                    } else if (p.tipoCalculoVencimiento === 'anios') {
+                        duracionTexto = `${p.cantidadUnidades} ${p.cantidadUnidades === 1 ? 'año' : 'años'}`;
+                    }
+
+                    option.textContent = `${p.nombre} - $${p.precio.toFixed(2)} (${duracionTexto})`;
                     option.className = 'text-gray-900 font-semibold';
                     planSelect.appendChild(option);
                 });
@@ -316,7 +330,17 @@
             planSeleccionado = planes.find(p => p.id == planId);
 
             if (planSeleccionado) {
-                document.getElementById('planInfo').textContent = `${planSeleccionado.nombre} - ${planSeleccionado.duracionDias} días - $${planSeleccionado.precio.toFixed(2)}`;
+                // 🆕 Mostrar información más clara según el tipo de cálculo
+                let duracionTexto = `${planSeleccionado.duracionDias} días`;
+                if (planSeleccionado.tipoCalculoVencimiento === 'meses') {
+                    duracionTexto = `${planSeleccionado.cantidadUnidades} ${planSeleccionado.cantidadUnidades === 1 ? 'mes' : 'meses'}`;
+                } else if (planSeleccionado.tipoCalculoVencimiento === 'semanas') {
+                    duracionTexto = `${planSeleccionado.cantidadUnidades} ${planSeleccionado.cantidadUnidades === 1 ? 'semana' : 'semanas'}`;
+                } else if (planSeleccionado.tipoCalculoVencimiento === 'anios') {
+                    duracionTexto = `${planSeleccionado.cantidadUnidades} ${planSeleccionado.cantidadUnidades === 1 ? 'año' : 'años'}`;
+                }
+
+                document.getElementById('planInfo').textContent = `${planSeleccionado.nombre} - ${duracionTexto} - $${planSeleccionado.precio.toFixed(2)}`;
                 document.getElementById('planInfo').classList.remove('hidden');
 
                 // Mostrar precio
@@ -329,7 +353,7 @@
 
                 const fechaInicio = document.getElementById('fechaInicio').value;
                 if (fechaInicio) {
-                    calcularFechaVencimiento(fechaInicio, planSeleccionado.duracionDias);
+                    calcularFechaVencimiento(fechaInicio, planSeleccionado); // 🔧 Pasar plan completo
                 }
 
                 calcularSaldoPendiente();
@@ -340,7 +364,7 @@
         // Cambio de fecha inicio
         document.getElementById('fechaInicio').addEventListener('change', function() {
             if (planSeleccionado && this.value) {
-                calcularFechaVencimiento(this.value, planSeleccionado.duracionDias);
+                calcularFechaVencimiento(this.value, planSeleccionado); // 🔧 Pasar plan completo
             }
         });
 
@@ -375,14 +399,56 @@
             lucide.createIcons();
         }
 
-        function calcularFechaVencimiento(fechaInicioStr, duracionDias) {
-            const fechaInicio = new Date(fechaInicioStr + 'T00:00:00');
-            const fechaVenc = new Date(fechaInicio);
-            fechaVenc.setDate(fechaVenc.getDate() + duracionDias);
+        function calcularFechaVencimiento(fechaInicioStr, plan) {
+            // 🔧 CORRECCIÓN: Parsear como fecha local sin conversión UTC
+            const [year, month, day] = fechaInicioStr.split('-').map(Number);
+            const fechaInicio = new Date(year, month - 1, day); // Mes es 0-indexed en JS
 
-            const fechaVencStr = fechaVenc.toISOString().split('T')[0];
+            let fechaVenc;
+            let duracionTexto;
+
+            // Calcular según el tipo de plan
+            switch (plan.tipoCalculoVencimiento?.toLowerCase() || 'dias') {
+                case 'meses':
+                    // Sumar meses calendario (30 Ene → 28/29 Feb)
+                    fechaVenc = new Date(fechaInicio);
+                    fechaVenc.setMonth(fechaVenc.getMonth() + (plan.cantidadUnidades || 1));
+                    duracionTexto = `${plan.cantidadUnidades || 1} ${(plan.cantidadUnidades || 1) === 1 ? 'mes' : 'meses'}`;
+                    break;
+
+                case 'semanas':
+                    // Sumar semanas
+                    fechaVenc = new Date(fechaInicio);
+                    fechaVenc.setDate(fechaVenc.getDate() + ((plan.cantidadUnidades || 1) * 7));
+                    duracionTexto = `${plan.cantidadUnidades || 1} ${(plan.cantidadUnidades || 1) === 1 ? 'semana' : 'semanas'}`;
+                    break;
+
+                case 'anios':
+                    // Sumar años
+                    fechaVenc = new Date(fechaInicio);
+                    fechaVenc.setFullYear(fechaVenc.getFullYear() + (plan.cantidadUnidades || 1));
+                    duracionTexto = `${plan.cantidadUnidades || 1} ${(plan.cantidadUnidades || 1) === 1 ? 'año' : 'años'}`;
+                    break;
+
+                case 'dias':
+                default:
+                    // Sumar días corridos (incluye el día de inicio)
+                    // Si son 30 días: día 1 (inicio) + 29 días más = 30 días total
+                    fechaVenc = new Date(fechaInicio);
+                    fechaVenc.setDate(fechaVenc.getDate() + (plan.duracionDias - 1));
+                    duracionTexto = `${plan.duracionDias} días`;
+                    break;
+            }
+
+            // Formatear fecha para el input (YYYY-MM-DD)
+            const year2 = fechaVenc.getFullYear();
+            const month2 = String(fechaVenc.getMonth() + 1).padStart(2, '0');
+            const day2 = String(fechaVenc.getDate()).padStart(2, '0');
+            const fechaVencStr = `${year2}-${month2}-${day2}`;
+
+            // Actualizar UI
             document.getElementById('fechaVencimiento').value = fechaVencStr;
-            document.getElementById('totalDias').textContent = `${duracionDias} días`;
+            document.getElementById('totalDias').textContent = duracionTexto;
             document.getElementById('fechaVencTexto').textContent = fechaVenc.toLocaleDateString('es-ES', {
                 weekday: 'long',
                 year: 'numeric',
@@ -429,11 +495,12 @@
 
             if (!confirm(mensaje)) return;
 
+            // 🔧 IMPORTANTE: Ya NO enviamos fechaVencimiento, el backend la calculará
             const data = {
                 clienteId: clienteSeleccionadoId,
                 planId: formData.get('planId'),
                 fechaInicio: formData.get('fechaInicio'),
-                fechaVencimiento: formData.get('fechaVencimiento'),
+                // fechaVencimiento se elimina - el backend la calculará correctamente
                 montoPagado: montoPagado,
                 metodoPago: formData.get('metodoPago'),
                 notas: formData.get('notas') || '',

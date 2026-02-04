@@ -28,6 +28,27 @@ namespace VidaFitBackend.Models
         [Required]
         public int DuracionDias { get; set; }
 
+        // 🆕 NUEVO CAMPO
+        /// <summary>
+        /// Tipo de cálculo de vencimiento:
+        /// - "dias": Suma días corridos (ejemplo: 30 días desde inicio)
+        /// - "meses": Suma meses calendario (ejemplo: mismo día del mes siguiente)
+        /// - "semanas": Suma semanas (7 días * número de semanas)
+        /// - "anios": Suma años calendario
+        /// </summary>
+        [Column("tipo_calculo_vencimiento")]
+        [MaxLength(20)]
+        public string TipoCalculoVencimiento { get; set; } = "dias";
+
+        // 🆕 NUEVO CAMPO
+        /// <summary>
+        /// Cantidad de unidades a sumar según el tipo de cálculo.
+        /// Ejemplo: Si TipoCalculoVencimiento = "meses" y CantidadUnidades = 1, suma 1 mes.
+        /// Si TipoCalculoVencimiento = "dias" y CantidadUnidades = 30, suma 30 días.
+        /// </summary>
+        [Column("cantidad_unidades")]
+        public int CantidadUnidades { get; set; } = 1;
+
         [Column("precio")]
         [Required]
         public decimal Precio { get; set; }

@@ -62,6 +62,18 @@ namespace VidaFit.Controllers.API
             public string? Descripcion { get; set; }
             public string Tipo { get; set; }
             public int DuracionDias { get; set; }
+
+            // 🆕 NUEVOS CAMPOS
+            /// <summary>
+            /// Tipo de cálculo: "dias", "meses", "semanas", "anios"
+            /// </summary>
+            public string TipoCalculoVencimiento { get; set; } = "dias";
+
+            /// <summary>
+            /// Cantidad de unidades a sumar según el tipo de cálculo
+            /// </summary>
+            public int CantidadUnidades { get; set; } = 1;
+
             public decimal Precio { get; set; }
             public string? Color { get; set; }
             public bool Activo { get; set; } = true;
@@ -85,6 +97,14 @@ namespace VidaFit.Controllers.API
             if (planDto.Precio <= 0)
                 return BadRequest("El precio debe ser mayor a 0");
 
+            // 🆕 VALIDACIONES PARA NUEVOS CAMPOS
+            var tiposCalculoValidos = new[] { "dias", "meses", "semanas", "anios" };
+            if (!tiposCalculoValidos.Contains(planDto.TipoCalculoVencimiento.ToLower()))
+                return BadRequest($"Tipo de cálculo inválido. Permitidos: {string.Join(", ", tiposCalculoValidos)}");
+
+            if (planDto.CantidadUnidades <= 0)
+                return BadRequest("La cantidad de unidades debe ser mayor a 0");
+
             var existeNombre = await _context.Planes
                 .AnyAsync(p => p.Nombre.ToLower() == planDto.Nombre.ToLower());
 
@@ -98,6 +118,8 @@ namespace VidaFit.Controllers.API
                 Descripcion = planDto.Descripcion,
                 Tipo = planDto.Tipo.ToLower(),
                 DuracionDias = planDto.DuracionDias,
+                TipoCalculoVencimiento = planDto.TipoCalculoVencimiento.ToLower(),  // 🆕 NUEVO
+                CantidadUnidades = planDto.CantidadUnidades,                        // 🆕 NUEVO
                 Precio = planDto.Precio,
                 Color = string.IsNullOrWhiteSpace(planDto.Color) ? "#00FF00" : planDto.Color,
                 Activo = planDto.Activo,
@@ -136,6 +158,15 @@ namespace VidaFit.Controllers.API
             if (plan.Precio <= 0)
                 return BadRequest("El precio debe ser mayor a 0");
 
+            // 🆕 VALIDACIONES PARA NUEVOS CAMPOS
+            var tiposCalculoValidos = new[] { "dias", "meses", "semanas", "anios" };
+            if (!string.IsNullOrWhiteSpace(plan.TipoCalculoVencimiento) &&
+                !tiposCalculoValidos.Contains(plan.TipoCalculoVencimiento.ToLower()))
+                return BadRequest($"Tipo de cálculo inválido. Permitidos: {string.Join(", ", tiposCalculoValidos)}");
+
+            if (plan.CantidadUnidades <= 0)
+                return BadRequest("La cantidad de unidades debe ser mayor a 0");
+
             var existeNombre = await _context.Planes
                 .AnyAsync(p => p.Nombre.ToLower() == plan.Nombre.ToLower() && p.Id != id);
 
@@ -146,6 +177,8 @@ namespace VidaFit.Controllers.API
             dbPlan.Descripcion = plan.Descripcion;
             dbPlan.Tipo = plan.Tipo.ToLower();
             dbPlan.DuracionDias = plan.DuracionDias;
+            dbPlan.TipoCalculoVencimiento = plan.TipoCalculoVencimiento?.ToLower() ?? "dias";  // 🆕 NUEVO
+            dbPlan.CantidadUnidades = plan.CantidadUnidades > 0 ? plan.CantidadUnidades : 1;   // 🆕 NUEVO
             dbPlan.Precio = plan.Precio;
             dbPlan.Color = plan.Color;
             dbPlan.Activo = plan.Activo;
