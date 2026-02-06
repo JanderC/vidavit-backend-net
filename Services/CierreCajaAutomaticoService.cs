@@ -67,9 +67,9 @@ namespace VidaFit.Services
 
                     _logger.LogInformation("========================================");
                     _logger.LogInformation("Iniciando cierre automático de caja...");
-                    _logger.LogInformation($"Fecha/Hora: {DateTime.UtcNow}");
+                    _logger.LogInformation($"Fecha/Hora: {DateTime.Now}");
 
-                    var hoy = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
+                    var hoy = DateTime.SpecifyKind(DateTime.Now.Date, DateTimeKind.Utc);
 
                     // Obtener TODOS los días con movimientos pendientes (no cerrados) HASTA AYER
                     var diasPendientes = await context.MovimientosCaja
@@ -188,7 +188,7 @@ namespace VidaFit.Services
             var cierre = new CierreCaja
             {
                 Id = Guid.NewGuid(),
-                FechaCierre = DateTime.UtcNow,
+                FechaCierre = DateTime.Now,
                 TipoCierre = "automatico",
                 EfectivoInicial = efectivoInicial,
                 IngresosEfectivo = ingresosEfectivo,
@@ -202,7 +202,7 @@ namespace VidaFit.Services
                 CantidadMovimientos = movimientosPendientes.Count,
                 Observaciones = $"Cierre automático - Día: {fecha:dd/MM/yyyy}",
                 UsuarioId = usuarioId,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.Now
             };
 
             context.CierresCaja.Add(cierre);

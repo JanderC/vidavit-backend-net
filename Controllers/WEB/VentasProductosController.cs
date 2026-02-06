@@ -80,9 +80,9 @@ namespace VidaFit.Controllers.WEB
             if (ModelState.IsValid)
             {
                 venta.Id = Guid.NewGuid();
-                venta.CreatedAt = DateTime.UtcNow;
-                venta.UpdatedAt = DateTime.UtcNow;
-                venta.FechaVenta = DateTime.UtcNow;
+                venta.CreatedAt = DateTime.Now;
+                venta.UpdatedAt = DateTime.Now;
+                venta.FechaVenta = DateTime.Now;
 
                 _context.VentasProductos.Add(venta);
                 await _context.SaveChangesAsync();
@@ -104,8 +104,8 @@ namespace VidaFit.Controllers.WEB
                 return NotFound();
 
             venta.EstadoPago = "pagado";
-            venta.FechaPago = DateTime.UtcNow;
-            venta.UpdatedAt = DateTime.UtcNow;
+            venta.FechaPago = DateTime.Now;
+            venta.UpdatedAt = DateTime.Now;
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));

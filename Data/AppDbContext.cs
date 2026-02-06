@@ -5,6 +5,7 @@ namespace VidaFit.Data
 {
     /// <summary>
     /// Context de Entity Framework Core para VIDA FIT
+    /// CONFIGURADO PARA USAR HORA LOCAL DEL SERVIDOR
     /// </summary>
     public class AppDbContext : DbContext
     {
@@ -36,6 +37,9 @@ namespace VidaFit.Data
         public DbSet<MovimientoCajaFuerte> MovimientosCajaFuerte { get; set; }
         public DbSet<ConsolidadoMensual> ConsolidadosMensuales { get; set; }
         public DbSet<ConfiguracionCajaFuerte> ConfiguracionesCajaFuerte { get; set; }
+
+        // ✅ No necesitamos OnConfiguring adicional
+        // La configuración de la conexión se hace en Program.cs con EnableLegacyTimestampBehavior
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -69,15 +73,14 @@ namespace VidaFit.Data
                 entity.Property(e => e.Nombre).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.Precio).HasColumnType("decimal(10,2)");
 
-                // 🆕 NUEVAS CONFIGURACIONES
                 entity.Property(e => e.TipoCalculoVencimiento)
                     .IsRequired()
                     .HasMaxLength(20)
-                    .HasDefaultValue("dias"); // Valor por defecto para registros existentes
+                    .HasDefaultValue("dias");
 
                 entity.Property(e => e.CantidadUnidades)
                     .IsRequired()
-                    .HasDefaultValue(1); // Valor por defecto
+                    .HasDefaultValue(1);
             });
 
             modelBuilder.Entity<Membresia>(entity =>
@@ -85,6 +88,12 @@ namespace VidaFit.Data
                 entity.ToTable("membresias");
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.MontoPagado).HasColumnType("decimal(10,2)");
+
+                // ✅ CONFIGURACIÓN CRÍTICA DE FECHAS
+                entity.Property(e => e.FechaInicio).HasColumnType("date");
+                entity.Property(e => e.FechaVencimiento).HasColumnType("date");
+                entity.Property(e => e.CreatedAt).HasColumnType("date");
+                entity.Property(e => e.UpdatedAt).HasColumnType("date");
 
                 // Relaciones
                 entity.HasOne(m => m.Cliente)
@@ -171,36 +180,73 @@ namespace VidaFit.Data
                 entity.HasIndex(n => n.FechaCreacion);
             });
 
-            // ==================== NUEVAS TABLAS SISTEMA DE CAJA ====================
+            // ==================== CIERRES DE CAJA (PRIMERO) ====================
+            modelBuilder.Entity<CierreCaja>(entity =>
+            {
+                entity.ToTable("cierres_caja");
+                entity.HasKey(e => e.Id);
 
+                // Configurar todos los campos decimales
+                entity.Property(e => e.EfectivoInicial).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.IngresosEfectivo).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.EgresosEfectivo).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.EfectivoFinal).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.IngresosTransferencia).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.EgresosTransferencia).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.TotalIngresos).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.TotalEgresos).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.BalanceGeneral).HasColumnType("decimal(10,2)");
+
+                // ✅ CRÍTICO: Configurar relación con Usuario SIN crear columnas extras
+                entity.HasOne(c => c.Usuario)
+                    .WithMany()
+                    .HasForeignKey(c => c.UsuarioId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // ✅ CRÍTICO: Ignorar la propiedad de navegación Movimientos
+                // La relación inversa se configura en MovimientoCaja
+                entity.Ignore(c => c.Movimientos);
+
+                // Índices
+                entity.HasIndex(c => c.FechaCierre);
+                entity.HasIndex(c => c.UsuarioId);
+            });
+
+            // ==================== MOVIMIENTOS DE CAJA (DESPUÉS) ====================
             modelBuilder.Entity<MovimientoCaja>(entity =>
             {
                 entity.ToTable("movimientos_caja");
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Monto).HasColumnType("decimal(10,2)");
                 entity.Property(e => e.Tipo).IsRequired().HasMaxLength(20);
-                entity.Property(e => e.Categoria).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.Cerrado).HasDefaultValue(false); // NUEVO
 
-                // Relación con Usuario
+                // ✅ IMPORTANTE: Fecha debe ser TIMESTAMP para guardar hora exacta
+                // NO usamos 'date' porque necesitamos saber la hora del movimiento
+                entity.Property(e => e.Fecha).HasColumnType("timestamp");
+
+                // CreatedAt puede ser date (solo auditoría del día)
+                entity.Property(e => e.CreatedAt).HasColumnType("date");
+
+                // ✅ CRÍTICO: Configurar relación con Usuario
                 entity.HasOne(m => m.Usuario)
                     .WithMany()
                     .HasForeignKey(m => m.UsuarioId)
                     .OnDelete(DeleteBehavior.Restrict);
 
-                // Relación con CierreCaja - NUEVO
+                // ✅ CRÍTICO: Configurar relación con CierreCaja
                 entity.HasOne(m => m.CierreCaja)
-                    .WithMany(c => c.Movimientos)
+                    .WithMany()
                     .HasForeignKey(m => m.CierreCajaId)
                     .OnDelete(DeleteBehavior.SetNull);
 
                 // Índices
                 entity.HasIndex(m => m.Fecha);
                 entity.HasIndex(m => m.Tipo);
-                entity.HasIndex(m => m.Categoria);
-                entity.HasIndex(m => m.Cerrado); // NUEVO - para optimizar consultas de movimientos pendientes
-                entity.HasIndex(m => m.CierreCajaId); // NUEVO
+                entity.HasIndex(m => m.Cerrado);
+                entity.HasIndex(m => m.CierreCajaId);
             });
+
+            // ==================== OTRAS TABLAS ====================
 
             modelBuilder.Entity<Empleado>(entity =>
             {
@@ -223,7 +269,7 @@ namespace VidaFit.Data
                 entity.HasOne(p => p.Empleado)
                     .WithMany()
                     .HasForeignKey(p => p.EmpleadoId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<DeudaCliente>(entity =>
@@ -254,61 +300,31 @@ namespace VidaFit.Data
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
-            modelBuilder.Entity<CierreCaja>(entity =>
-            {
-                entity.ToTable("cierres_caja");
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.EfectivoInicial).HasColumnType("decimal(10,2)");
-                entity.Property(e => e.IngresosEfectivo).HasColumnType("decimal(10,2)");
-                entity.Property(e => e.EgresosEfectivo).HasColumnType("decimal(10,2)");
-                entity.Property(e => e.EfectivoFinal).HasColumnType("decimal(10,2)");
-                entity.Property(e => e.IngresosTransferencia).HasColumnType("decimal(10,2)");
-                entity.Property(e => e.EgresosTransferencia).HasColumnType("decimal(10,2)");
-                entity.Property(e => e.TotalIngresos).HasColumnType("decimal(10,2)");
-                entity.Property(e => e.TotalEgresos).HasColumnType("decimal(10,2)");
-                entity.Property(e => e.BalanceGeneral).HasColumnType("decimal(10,2)");
-                entity.Property(e => e.TipoCierre).IsRequired().HasMaxLength(20);
-
-                // Relación con Usuario
-                entity.HasOne(c => c.Usuario)
-                    .WithMany()
-                    .HasForeignKey(c => c.UsuarioId)
-                    .OnDelete(DeleteBehavior.SetNull);
-
-                // Índices
-                entity.HasIndex(c => c.FechaCierre);
-                entity.HasIndex(c => c.TipoCierre);
-            });
-
-            // ==================== TABLAS DE CAJA FUERTE ====================
+            // ==================== CAJA FUERTE ====================
 
             modelBuilder.Entity<CajaFuerte>(entity =>
             {
                 entity.ToTable("caja_fuerte");
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.BalanceEfectivo).HasColumnType("decimal(10,2)").HasDefaultValue(0);
-                entity.Property(e => e.BalanceTransferencias).HasColumnType("decimal(10,2)").HasDefaultValue(0);
-                entity.Property(e => e.BalanceTotal).HasColumnType("decimal(10,2)").HasDefaultValue(0);
-                entity.Property(e => e.UltimaActualizacion).IsRequired();
+
+                entity.Property(e => e.BalanceEfectivo).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.BalanceTransferencias).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.BalanceTotal).HasColumnType("decimal(10,2)");
             });
 
             modelBuilder.Entity<MovimientoCajaFuerte>(entity =>
             {
                 entity.ToTable("movimientos_caja_fuerte");
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Tipo).IsRequired().HasMaxLength(20);
-                entity.Property(e => e.Origen).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.MetodoPago).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.Monto).HasColumnType("decimal(10,2)").IsRequired();
-                entity.Property(e => e.Categoria).HasMaxLength(50);
+                entity.Property(e => e.Monto).HasColumnType("decimal(10,2)");
 
-                // Relación con Usuario
+                // ✅ Configurar relación con Usuario
                 entity.HasOne(m => m.Usuario)
                     .WithMany()
                     .HasForeignKey(m => m.UsuarioId)
                     .OnDelete(DeleteBehavior.Restrict);
 
-                // Relación con CierreCaja
+                // ✅ Configurar relación con CierreCaja
                 entity.HasOne(m => m.CierreCaja)
                     .WithMany()
                     .HasForeignKey(m => m.CierreCajaId)
@@ -324,18 +340,16 @@ namespace VidaFit.Data
             {
                 entity.ToTable("consolidados_mensuales");
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Mes).IsRequired();
-                entity.Property(e => e.Anio).IsRequired();
-                entity.Property(e => e.TotalIngresosEfectivo).HasColumnType("decimal(10,2)").HasDefaultValue(0);
-                entity.Property(e => e.TotalIngresosTransferencia).HasColumnType("decimal(10,2)").HasDefaultValue(0);
-                entity.Property(e => e.TotalEgresosEfectivo).HasColumnType("decimal(10,2)").HasDefaultValue(0);
-                entity.Property(e => e.TotalEgresosTransferencia).HasColumnType("decimal(10,2)").HasDefaultValue(0);
-                entity.Property(e => e.BalanceFinalEfectivo).HasColumnType("decimal(10,2)").HasDefaultValue(0);
-                entity.Property(e => e.BalanceFinalTransferencia).HasColumnType("decimal(10,2)").HasDefaultValue(0);
-                entity.Property(e => e.FechaConsolidacion).IsRequired();
 
-                // Índice único para mes/año
+                entity.Property(e => e.TotalIngresosEfectivo).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.TotalIngresosTransferencia).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.TotalEgresosEfectivo).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.TotalEgresosTransferencia).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.BalanceFinalEfectivo).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.BalanceFinalTransferencia).HasColumnType("decimal(10,2)");
+
                 entity.HasIndex(e => new { e.Mes, e.Anio }).IsUnique();
+                entity.HasIndex(e => e.Anio);
             });
 
             modelBuilder.Entity<ConfiguracionCajaFuerte>(entity =>
@@ -343,17 +357,13 @@ namespace VidaFit.Data
                 entity.ToTable("configuracion_caja_fuerte");
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.PasswordHash).IsRequired().HasMaxLength(255);
-                entity.Property(e => e.RequiereCambioPassword).HasDefaultValue(false);
             });
 
-            // ==================== CONFIGURACIÓN DE CONVERSIÓN DE NOMBRES ====================
-
-            // Configurar nombres de columnas en snake_case (PostgreSQL style)
+            // ==================== CONVERSIÓN DE NOMBRES A SNAKE_CASE ====================
             foreach (var entity in modelBuilder.Model.GetEntityTypes())
             {
                 foreach (var property in entity.GetProperties())
                 {
-                    // Convertir propiedades a snake_case
                     var columnName = property.Name switch
                     {
                         "Id" => "id",
@@ -380,8 +390,8 @@ namespace VidaFit.Data
                         "DuracionDias" => "duracion_dias",
                         "Precio" => "precio",
                         "Color" => "color",
-                        "TipoCalculoVencimiento" => "tipo_calculo_vencimiento",  // 🆕 NUEVO
-                        "CantidadUnidades" => "cantidad_unidades",                // 🆕 NUEVO
+                        "TipoCalculoVencimiento" => "tipo_calculo_vencimiento",
+                        "CantidadUnidades" => "cantidad_unidades",
                         "ClienteId" => "cliente_id",
                         "PlanId" => "plan_id",
                         "FechaInicio" => "fecha_inicio",
@@ -413,7 +423,6 @@ namespace VidaFit.Data
                         "Prioridad" => "prioridad",
                         "FechaCreacion" => "fecha_creacion",
                         "FechaLeida" => "fecha_leida",
-                        // Nuevas propiedades para sistema de caja
                         "ReferenciaId" => "referencia_id",
                         "UsuarioId" => "usuario_id",
                         "Fecha" => "fecha",
@@ -427,7 +436,6 @@ namespace VidaFit.Data
                         "Saldo" => "saldo",
                         "DeudaId" => "deuda_id",
                         "FechaAbono" => "fecha_abono",
-                        // Propiedades para CierreCaja
                         "FechaCierre" => "fecha_cierre",
                         "TipoCierre" => "tipo_cierre",
                         "EfectivoInicial" => "efectivo_inicial",
@@ -441,10 +449,8 @@ namespace VidaFit.Data
                         "BalanceGeneral" => "balance_general",
                         "CantidadMovimientos" => "cantidad_movimientos",
                         "Observaciones" => "observaciones",
-                        // Propiedades para control de cierre
                         "Cerrado" => "cerrado",
                         "CierreCajaId" => "cierre_caja_id",
-                        // Propiedades para Caja Fuerte
                         "BalanceEfectivo" => "balance_efectivo",
                         "BalanceTransferencias" => "balance_transferencias",
                         "BalanceTotal" => "balance_total",
@@ -471,6 +477,7 @@ namespace VidaFit.Data
 
         /// <summary>
         /// Sobrescribe SaveChanges para actualizar automáticamente UpdatedAt
+        /// ✅ USANDO HORA LOCAL EN LUGAR DE UTC
         /// </summary>
         public override int SaveChanges()
         {
@@ -480,6 +487,7 @@ namespace VidaFit.Data
 
         /// <summary>
         /// Sobrescribe SaveChangesAsync para actualizar automáticamente UpdatedAt
+        /// ✅ USANDO HORA LOCAL EN LUGAR DE UTC
         /// </summary>
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
@@ -489,6 +497,7 @@ namespace VidaFit.Data
 
         /// <summary>
         /// Actualiza automáticamente CreatedAt y UpdatedAt
+        /// ✅ USANDO HORA LOCAL DEL SERVIDOR
         /// </summary>
         private void UpdateTimestamps()
         {
@@ -504,7 +513,8 @@ namespace VidaFit.Data
                         var createdAtProp = entry.Property("CreatedAt");
                         if (createdAtProp != null)
                         {
-                            createdAtProp.CurrentValue = DateTime.UtcNow;
+                            // ✅ Usar DateTime.Now (hora local) en lugar de DateTime.UtcNow
+                            createdAtProp.CurrentValue = DateTime.Now;
                         }
                     }
                     catch
@@ -518,7 +528,8 @@ namespace VidaFit.Data
                     var updatedAtProp = entry.Property("UpdatedAt");
                     if (updatedAtProp != null)
                     {
-                        updatedAtProp.CurrentValue = DateTime.UtcNow;
+                        // ✅ Usar DateTime.Now (hora local) en lugar de DateTime.UtcNow
+                        updatedAtProp.CurrentValue = DateTime.Now;
                     }
                 }
                 catch

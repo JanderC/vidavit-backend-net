@@ -167,10 +167,10 @@ namespace VidaFit.Controllers.API
                     MontoPagado = 0,
                     Saldo = montoTotal,
                     Estado = "pendiente",
-                    FechaCreacion = DateTime.UtcNow,
+                    FechaCreacion = DateTime.Now,
                     FechaVencimiento = fechaVencimiento,
                     Notas = notas,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.Now
                 };
 
                 _context.DeudasClientes.Add(deuda);
@@ -244,7 +244,7 @@ namespace VidaFit.Controllers.API
                     DeudaId = deudaId,
                     Monto = monto,
                     MetodoPago = metodoPago,
-                    FechaAbono = DateTime.UtcNow,
+                    FechaAbono = DateTime.Now,
                     Notas = notas
                 };
 
@@ -259,7 +259,7 @@ namespace VidaFit.Controllers.API
                     deuda.Estado = "pagada";
                     deuda.Saldo = 0; // Asegurar que quede en 0
                 }
-                else if (deuda.FechaVencimiento.HasValue && deuda.FechaVencimiento < DateTime.UtcNow)
+                else if (deuda.FechaVencimiento.HasValue && deuda.FechaVencimiento < DateTime.Now)
                 {
                     deuda.Estado = "vencida";
                 }
@@ -277,8 +277,8 @@ namespace VidaFit.Controllers.API
                         ReferenciaId = deuda.Id,
                         UsuarioId = usuarioId ?? Guid.Parse("00000000-0000-0000-0000-000000000000"),
                         MetodoPago = metodoPago,
-                        Fecha = DateTime.UtcNow,
-                        CreatedAt = DateTime.UtcNow
+                        Fecha = DateTime.Now,
+                        CreatedAt = DateTime.Now
                     };
 
                     _context.MovimientosCaja.Add(movimientoCaja);
@@ -407,7 +407,7 @@ namespace VidaFit.Controllers.API
         {
             try
             {
-                var hoy = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
+                var hoy = DateTime.SpecifyKind(DateTime.Now.Date, DateTimeKind.Utc);
 
                 var deudas = await _context.DeudasClientes
                     .Include(d => d.Cliente)

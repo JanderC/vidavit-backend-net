@@ -17,6 +17,8 @@ using System.Threading.Tasks;
 
 var builder = WebApplication.CreateBuilder(args);
 
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 // ==================== CONFIGURACIÓN DE SERVICIOS ====================
 
 // Servicios para MVC (Vistas Razor)

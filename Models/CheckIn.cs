@@ -16,7 +16,7 @@ namespace VidaFitBackend.Models
         public Guid ClienteId { get; set; }
 
         [Column("fecha_hora")]
-        public DateTime FechaHora { get; set; } = DateTime.UtcNow;
+        public DateTime FechaHora { get; set; } = DateTime.Now;
 
         [Column("metodo")]
         [MaxLength(20)]
@@ -29,10 +29,10 @@ namespace VidaFitBackend.Models
         public string Nota { get; set; }
 
         [Column("created_at")]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         [Column("updated_at")]
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
         // Propiedades de Navegación
         [ForeignKey("ClienteId")]

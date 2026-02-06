@@ -173,13 +173,10 @@
         let paginaActual = 1;
         let itemsPorPagina = 10;
 
-        function parsearFechaUTC(fechaStr) {
+                function parsearFechaUTC(fechaStr) {
             if (!fechaStr) return null;
-
-            // Extraer año, mes, día del string
-            const fecha = fechaStr.split('T')[0]; 
+            const fecha = fechaStr.split('T')[0];
             const [year, month, day] = fecha.split('-').map(Number);
-
             // Crear fecha local (sin conversión UTC)
             return new Date(year, month - 1, day);
         }
@@ -219,7 +216,7 @@
                     <button onclick="filterByPlan('${p.id || p.Id}')"
                             class="plan-filter-btn px-4 py-2 bg-gray-200 text-gray-900 rounded-xl hover:bg-gray-300 font-bold uppercase text-xs tracking-wide"
                             data-plan="${p.id || p.Id}">
-                        ${p.nombre || p.Nombre}
+                        ${p.Nombre || p.Nombre}
                     </button>
                 `).join('');
             } catch (error) {

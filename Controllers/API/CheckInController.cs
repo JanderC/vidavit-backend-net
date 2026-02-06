@@ -96,7 +96,7 @@ namespace VidaFit.Controllers.API
                 var checkIn = new CheckIn
                 {
                     ClienteId = cliente.Id,
-                    FechaHora = DateTime.UtcNow,
+                    FechaHora = DateTime.Now,
                     Metodo = "cedula",
                     Exitoso = tieneAcceso,
                     Nota = mensaje
@@ -122,8 +122,8 @@ namespace VidaFit.Controllers.API
                         mensaje = mensaje,
                         diasRestantes = diasRestantes,
                         fechaVencimiento = membresiaActiva.FechaVencimiento,
-                        diasVencidos = membresiaActiva.FechaVencimiento < DateTime.UtcNow
-                            ? (DateTime.UtcNow.Date - membresiaActiva.FechaVencimiento).Days
+                        diasVencidos = membresiaActiva.FechaVencimiento < DateTime.Now
+                            ? (DateTime.Now.Date - membresiaActiva.FechaVencimiento).Days
                             : (int?)null
                     } : null,
                     deuda = totalDeuda > 0 ? new
@@ -153,7 +153,7 @@ namespace VidaFit.Controllers.API
         {
             try
             {
-                var today = DateTime.UtcNow.Date;
+                var today = DateTime.Now.Date;
                 var checkIns = await _context.CheckIns
                     .Include(c => c.Cliente)
                     .Where(c => c.FechaHora.Date == today)
@@ -199,11 +199,11 @@ namespace VidaFit.Controllers.API
                 // Convertir fechas a UTC explícitamente
                 var fechaDesde = desde.HasValue
                     ? DateTime.SpecifyKind(desde.Value.Date, DateTimeKind.Utc)
-                    : DateTime.UtcNow.Date;
+                    : DateTime.Now.Date;
 
                 var fechaHasta = hasta.HasValue
                     ? DateTime.SpecifyKind(hasta.Value.Date, DateTimeKind.Utc)
-                    : DateTime.UtcNow.Date;
+                    : DateTime.Now.Date;
 
                 var checkIns = await _context.CheckIns
                     .Include(c => c.Cliente)
@@ -324,7 +324,7 @@ namespace VidaFit.Controllers.API
                 var checkIn = new CheckIn
                 {
                     ClienteId = cliente.Id,
-                    FechaHora = request.FechaHora ?? DateTime.UtcNow,
+                    FechaHora = request.FechaHora ?? DateTime.Now,
                     Metodo = "manual",
                     Exitoso = true,
                     Nota = request.Nota ?? "Check-in manual por administrador"

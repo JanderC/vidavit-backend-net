@@ -53,8 +53,8 @@ namespace VidaFit.Controllers.WEB
         public async Task<IActionResult> Asistencia(DateTime? desde, DateTime? hasta)
         {
             // Convertir fechas a UTC para PostgreSQL
-            var fechaInicio = (desde ?? DateTime.UtcNow.AddDays(-30));
-            var fechaFin = (hasta ?? DateTime.UtcNow);
+            var fechaInicio = (desde ?? DateTime.Now.AddDays(-30));
+            var fechaFin = (hasta ?? DateTime.Now);
 
             // Asegurar que las fechas sean UTC
             if (fechaInicio.Kind == DateTimeKind.Unspecified)
@@ -100,8 +100,8 @@ namespace VidaFit.Controllers.WEB
         public async Task<IActionResult> IngresosMembresias(DateTime? desde, DateTime? hasta)
         {
             // Convertir fechas a UTC para PostgreSQL
-            var fechaInicio = (desde ?? DateTime.UtcNow.AddMonths(-1));
-            var fechaFin = (hasta ?? DateTime.UtcNow);
+            var fechaInicio = (desde ?? DateTime.Now.AddMonths(-1));
+            var fechaFin = (hasta ?? DateTime.Now);
 
             // Asegurar que las fechas sean UTC
             if (fechaInicio.Kind == DateTimeKind.Unspecified)
@@ -155,8 +155,8 @@ namespace VidaFit.Controllers.WEB
         public async Task<IActionResult> ProductosMasVendidos(DateTime? desde, DateTime? hasta)
         {
             // Convertir fechas a UTC para PostgreSQL
-            var fechaInicio = (desde ?? DateTime.UtcNow.AddMonths(-1));
-            var fechaFin = (hasta ?? DateTime.UtcNow);
+            var fechaInicio = (desde ?? DateTime.Now.AddMonths(-1));
+            var fechaFin = (hasta ?? DateTime.Now);
 
             // Asegurar que las fechas sean UTC y establecer hora inicio/fin del día
             if (fechaInicio.Kind == DateTimeKind.Unspecified)
@@ -247,7 +247,7 @@ namespace VidaFit.Controllers.WEB
         public async Task<IActionResult> ClientesInactivos(int dias = 30)
         {
             // Convertir fecha a UTC para PostgreSQL
-            var fechaLimite = DateTime.UtcNow.AddDays(-dias);
+            var fechaLimite = DateTime.Now.AddDays(-dias);
 
             // Asegurar que la fecha sea UTC
             if (fechaLimite.Kind == DateTimeKind.Unspecified)

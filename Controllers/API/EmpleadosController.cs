@@ -116,10 +116,10 @@ namespace VidaFit.Controllers.API
                     Email = email,
                     Cargo = cargo,
                     Salario = salario,
-                    FechaContratacion = fechaContratacion ?? DateTime.UtcNow,
+                    FechaContratacion = fechaContratacion ?? DateTime.Now,
                     Activo = true,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
                 };
 
                 _context.Empleados.Add(empleado);
@@ -175,7 +175,7 @@ namespace VidaFit.Controllers.API
                 if (data.TryGetProperty("activo", out var actEl))
                     empleado.Activo = actEl.GetBoolean();
 
-                empleado.UpdatedAt = DateTime.UtcNow;
+                empleado.UpdatedAt = DateTime.Now;
                 await _context.SaveChangesAsync();
 
                 return Ok(new
@@ -211,7 +211,7 @@ namespace VidaFit.Controllers.API
                 }
 
                 empleado.Activo = false;
-                empleado.UpdatedAt = DateTime.UtcNow;
+                empleado.UpdatedAt = DateTime.Now;
                 await _context.SaveChangesAsync();
 
                 return Ok(new { success = true, message = "Empleado desactivado correctamente" });
@@ -255,10 +255,10 @@ namespace VidaFit.Controllers.API
                     EmpleadoId = empleadoId,
                     Monto = monto,
                     Periodo = periodo,
-                    FechaPago = DateTime.UtcNow,
+                    FechaPago = DateTime.Now,
                     MetodoPago = metodoPago,
                     Notas = notas,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.Now
                 };
 
                 _context.PagosEmpleados.Add(pago);
@@ -274,8 +274,8 @@ namespace VidaFit.Controllers.API
                     ReferenciaId = pago.Id,
                     UsuarioId = usuarioId,
                     MetodoPago = metodoPago,
-                    Fecha = DateTime.UtcNow,
-                    CreatedAt = DateTime.UtcNow
+                    Fecha = DateTime.Now,
+                    CreatedAt = DateTime.Now
                 };
 
                 _context.MovimientosCaja.Add(movimientoCaja);

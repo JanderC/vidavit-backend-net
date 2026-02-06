@@ -209,7 +209,7 @@ namespace VidaFit.Services
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Subject = new ClaimsIdentity(claims),
-                    Expires = DateTime.UtcNow.AddDays(expirationDays),
+                    Expires = DateTime.Now.AddDays(expirationDays),
                     Issuer = issuer,
                     Audience = audience,
                     SigningCredentials = new SigningCredentials(

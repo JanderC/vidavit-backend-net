@@ -37,7 +37,7 @@ namespace VidaFit.Services
             {
                 try
                 {
-                    var ahora = DateTime.UtcNow;
+                    var ahora = DateTime.Now;
 
                     // Verificar si es el primer día del mes y no se ha ejecutado hoy
                     if (ahora.Day == 1 && _ultimaEjecucion.Date != ahora.Date)
@@ -126,8 +126,8 @@ namespace VidaFit.Services
                     TotalEgresosTransferencia = totalEgresosTransferencia,
                     BalanceFinalEfectivo = totalIngresosEfectivo - totalEgresosEfectivo,
                     BalanceFinalTransferencia = totalIngresosTransferencia - totalEgresosTransferencia,
-                    FechaConsolidacion = DateTime.UtcNow,
-                    CreatedAt = DateTime.UtcNow
+                    FechaConsolidacion = DateTime.Now,
+                    CreatedAt = DateTime.Now
                 };
 
                 context.ConsolidadosMensuales.Add(consolidado);

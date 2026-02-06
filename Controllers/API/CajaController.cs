@@ -43,22 +43,19 @@ namespace VidaFit.Controllers.API
         /// </summary>
         private async Task<List<MovimientoCaja>> ObtenerMovimientosPendientesPorFechaAsync(DateTime fecha)
         {
-            // Convertir la fecha a inicio y fin del día en UTC
-            var inicioDelDia = DateTime.SpecifyKind(fecha.Date, DateTimeKind.Utc);
-            var finDelDia = inicioDelDia.AddDays(1);
+            // Usar fecha local sin conversiones a UTC
+            var fechaBuscar = fecha.Date;
 
-            _logger.LogInformation($"🔍 Buscando movimientos pendientes para {fecha:yyyy-MM-dd}");
-            _logger.LogInformation($"   Rango UTC: {inicioDelDia:yyyy-MM-dd HH:mm:ss} a {finDelDia:yyyy-MM-dd HH:mm:ss}");
+            _logger.LogInformation($"🔍 Buscando movimientos pendientes para {fechaBuscar:yyyy-MM-dd}");
 
-            // SOLUCIÓN: Usar solo la parte DATE para la comparación
-            // Esto ignora completamente la hora y zona horaria
+            // Obtener todos los movimientos no cerrados
             var movimientos = await _context.MovimientosCaja
                 .Where(m => !m.Cerrado)
                 .ToListAsync();
 
             // Filtrar en memoria por la fecha (solo día, mes, año)
             var movimientosFiltrados = movimientos
-                .Where(m => m.Fecha.Date == fecha.Date)
+                .Where(m => m.Fecha.Date == fechaBuscar)
                 .OrderBy(m => m.Fecha)
                 .ToList();
 
@@ -95,7 +92,8 @@ namespace VidaFit.Controllers.API
         {
             try
             {
-                var hoy = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
+                // CORRECCIÓN: Usar DateTime.Now.Date sin conversiones a UTC
+                var hoy = DateTime.Now.Date;
 
                 // SOLO movimientos NO cerrados del día de hoy
                 var movimientosHoy = await ObtenerMovimientosPendientesPorFechaAsync(hoy);
@@ -162,7 +160,7 @@ namespace VidaFit.Controllers.API
 
                 // Verificar si hay movimientos pendientes de días anteriores
                 var movimientosPendientesAnteriores = await _context.MovimientosCaja
-                    .Where(m => !m.Cerrado && m.Fecha < hoy)
+                    .Where(m => !m.Cerrado && m.Fecha.Date < hoy)
                     .CountAsync();
 
                 return Ok(new
@@ -194,7 +192,7 @@ namespace VidaFit.Controllers.API
                             otros = ingresoOtros
                         }
                     },
-                    ultimoCierre,
+                    ultimoCierre = ultimoCierre,
                     alertas = new
                     {
                         movimientosPendientesAnteriores,
@@ -223,12 +221,13 @@ namespace VidaFit.Controllers.API
         {
             try
             {
-                var hoy = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
+                // CORRECCIÓN: Usar DateTime.Now.Date sin conversiones a UTC
+                var hoy = DateTime.Now.Date;
                 var hace7Dias = hoy.AddDays(-6); // Los últimos 7 días (incluyendo hoy)
 
                 // Obtener todos los movimientos de los últimos 7 días
                 var movimientos = await _context.MovimientosCaja
-                    .Where(m => m.Fecha >= hace7Dias && m.Fecha < hoy.AddDays(1))
+                    .Where(m => m.Fecha.Date >= hace7Dias && m.Fecha.Date <= hoy)
                     .ToListAsync();
 
                 // Agrupar por día
@@ -237,11 +236,9 @@ namespace VidaFit.Controllers.API
                 for (int i = 0; i < 7; i++)
                 {
                     var fecha = hace7Dias.AddDays(i);
-                    var inicioDelDia = fecha;
-                    var finDelDia = fecha.AddDays(1);
 
                     var movimientosDia = movimientos
-                        .Where(m => m.Fecha >= inicioDelDia && m.Fecha < finDelDia)
+                        .Where(m => m.Fecha.Date == fecha)
                         .ToList();
 
                     var ingresos = movimientosDia.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto);
@@ -327,7 +324,8 @@ namespace VidaFit.Controllers.API
         {
             try
             {
-                var hoy = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
+                // CORRECCIÓN: Usar DateTime.Now.Date sin conversiones a UTC
+                var hoy = DateTime.Now.Date;
                 var movimientosHoy = await ObtenerMovimientosPendientesPorFechaAsync(hoy);
 
                 var ingresos = movimientosHoy.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto);
@@ -398,36 +396,27 @@ namespace VidaFit.Controllers.API
             {
                 var movimientosPendientes = await ObtenerTodosMovimientosPendientesAsync();
 
-                // Agrupar por fecha para mostrar días con movimientos pendientes
-                var porFecha = movimientosPendientes
+                // Agrupar por fecha
+                var movimientosPorFecha = movimientosPendientes
                     .GroupBy(m => m.Fecha.Date)
+                    .OrderBy(g => g.Key)
                     .Select(g => new
                     {
                         fecha = g.Key,
-                        cantidadMovimientos = g.Count(),
+                        cantidad = g.Count(),
                         totalIngresos = g.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto),
                         totalEgresos = g.Where(m => m.Tipo == "egreso").Sum(m => m.Monto),
                         balance = g.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto) -
-                                 g.Where(m => m.Tipo == "egreso").Sum(m => m.Monto),
-                        movimientos = g.Select(m => new
-                        {
-                            m.Id,
-                            m.Tipo,
-                            m.Categoria,
-                            m.Monto,
-                            m.Descripcion,
-                            m.MetodoPago,
-                            m.Fecha
-                        }).ToList()
+                                  g.Where(m => m.Tipo == "egreso").Sum(m => m.Monto)
                     })
-                    .OrderBy(g => g.fecha)
                     .ToList();
 
                 return Ok(new
                 {
                     success = true,
-                    totalDiasPendientes = porFecha.Count,
-                    diasPendientes = porFecha
+                    cantidadTotal = movimientosPendientes.Count,
+                    diasConMovimientos = movimientosPorFecha.Count,
+                    movimientosPorFecha = movimientosPorFecha
                 });
             }
             catch (Exception ex)
@@ -443,57 +432,53 @@ namespace VidaFit.Controllers.API
         }
 
         /// <summary>
-        /// Obtener todos los movimientos con filtros opcionales
+        /// Obtener movimientos con filtros
         /// Endpoint: GET /api/caja/movimientos
         /// </summary>
         [HttpGet("movimientos")]
         public async Task<IActionResult> GetMovimientos(
-           [FromQuery] string? desde = null,
-           [FromQuery] string? hasta = null,
-           [FromQuery] string? categoria = null,
-           [FromQuery] bool? soloPendientes = null)
+            [FromQuery] string? desde = null,
+            [FromQuery] string? hasta = null,
+            [FromQuery] bool soloPendientes = false)
         {
             try
             {
-                _logger.LogInformation($"📋 Obteniendo movimientos - Desde: {desde}, Hasta: {hasta}, Categoría: {categoria}");
-
-                // Iniciar con todos los movimientos
                 var query = _context.MovimientosCaja.AsQueryable();
 
-                // Filtrar solo pendientes
-                if (soloPendientes.HasValue && soloPendientes.Value)
+                // Filtrar por rango de fechas si se proporcionan
+                if (!string.IsNullOrEmpty(desde))
+                {
+                    var fechaDesde = DateTime.Parse(desde).Date;
+                    query = query.Where(m => m.Fecha.Date >= fechaDesde);
+                }
+
+                if (!string.IsNullOrEmpty(hasta))
+                {
+                    var fechaHasta = DateTime.Parse(hasta).Date;
+                    query = query.Where(m => m.Fecha.Date <= fechaHasta);
+                }
+
+                // Filtrar solo pendientes si se solicita
+                if (soloPendientes)
                 {
                     query = query.Where(m => !m.Cerrado);
                 }
 
-                // Traer a memoria para filtrar por fecha (evita problemas de zona horaria)
-                var movimientos = await query.ToListAsync();
-
-                // Filtrar por fecha desde
-                if (!string.IsNullOrEmpty(desde) && DateTime.TryParse(desde, out var fechaDesde))
-                {
-                    movimientos = movimientos.Where(m => m.Fecha.Date >= fechaDesde.Date).ToList();
-                    _logger.LogInformation($"📅 Filtrado desde {fechaDesde:yyyy-MM-dd}");
-                }
-
-                // Filtrar por fecha hasta
-                if (!string.IsNullOrEmpty(hasta) && DateTime.TryParse(hasta, out var fechaHasta))
-                {
-                    movimientos = movimientos.Where(m => m.Fecha.Date <= fechaHasta.Date).ToList();
-                    _logger.LogInformation($"📅 Filtrado hasta {fechaHasta:yyyy-MM-dd}");
-                }
-
-                // Filtrar por categoría
-                if (!string.IsNullOrEmpty(categoria))
-                {
-                    movimientos = movimientos.Where(m => m.Categoria == categoria).ToList();
-                    _logger.LogInformation($"🏷️ Filtrado por categoría: {categoria}");
-                }
-
-                // Ordenar por fecha descendente
-                movimientos = movimientos.OrderByDescending(m => m.Fecha).ToList();
-
-                _logger.LogInformation($"✅ Encontrados {movimientos.Count} movimientos");
+                var movimientos = await query
+                    .OrderByDescending(m => m.Fecha)
+                    .Select(m => new
+                    {
+                        m.Id,
+                        m.Tipo,
+                        m.Categoria,
+                        m.Monto,
+                        m.Descripcion,
+                        m.MetodoPago,
+                        m.Fecha,
+                        m.Cerrado,
+                        m.CierreCajaId
+                    })
+                    .ToListAsync();
 
                 return Ok(new
                 {
@@ -519,6 +504,7 @@ namespace VidaFit.Controllers.API
                 });
             }
         }
+
         /// <summary>
         /// Obtener historial de cierres
         /// Endpoint: GET /api/caja/cierres
@@ -670,9 +656,9 @@ namespace VidaFit.Controllers.API
                     MetodoPago = metodoPago,
                     UsuarioId = usuarioId,
                     ReferenciaId = referenciaId,
-                    Fecha = DateTime.UtcNow,
+                    Fecha = DateTime.Now,
                     Cerrado = false,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.Now
                 };
 
                 _context.MovimientosCaja.Add(movimiento);
@@ -731,9 +717,9 @@ namespace VidaFit.Controllers.API
                     MetodoPago = metodoPago,
                     UsuarioId = usuarioId,
                     ReferenciaId = referenciaId,
-                    Fecha = DateTime.UtcNow,
+                    Fecha = DateTime.Now,
                     Cerrado = false,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.Now
                 };
 
                 _context.MovimientosCaja.Add(movimiento);
@@ -761,74 +747,104 @@ namespace VidaFit.Controllers.API
         }
 
         /// <summary>
-        /// Cierre de caja - puede ser del día actual o de días anteriores
+        /// Realizar cierre de caja de una fecha específica
         /// Endpoint: POST /api/caja/cerrar
-        /// Body (opcional): { "fecha": "2025-01-15", "observaciones": "..." }
-        /// Si no se envía fecha, cierra el día actual
         /// </summary>
         [HttpPost("cerrar")]
         public async Task<IActionResult> CerrarCaja([FromBody] CerrarCajaRequest request)
         {
             try
             {
-                var fechaCierre = DateTime.Parse(request.Fecha).Date;
+                var usuarioId = await ObtenerUsuarioSistemaAsync();
 
-                // Validación: no cerrar fecha futura
-                if (fechaCierre > DateTime.UtcNow.Date)
+                // CORRECCIÓN: Parsear fecha sin conversiones a UTC
+                DateTime fechaCierre;
+                if (string.IsNullOrEmpty(request.Fecha))
                 {
-                    return BadRequest(new { success = false, message = "No se puede cerrar una fecha futura" });
+                    fechaCierre = DateTime.Now.Date;
+                }
+                else
+                {
+                    fechaCierre = DateTime.Parse(request.Fecha).Date;
                 }
 
-                // Obtener movimientos pendientes
+                _logger.LogInformation($"🔒 Iniciando cierre de caja para {fechaCierre:yyyy-MM-dd}");
+
+                // Obtener movimientos pendientes de esa fecha específica
                 var movimientosPendientes = await ObtenerMovimientosPendientesPorFechaAsync(fechaCierre);
 
-                if (movimientosPendientes.Count == 0)
+                if (!movimientosPendientes.Any())
                 {
-                    return Ok(new { success = false, message = $"No hay movimientos pendientes para cerrar en la fecha {fechaCierre:dd/MM/yyyy}" });
+                    return Ok(new
+                    {
+                        success = false,
+                        message = $"No hay movimientos pendientes para el {fechaCierre:dd/MM/yyyy}"
+                    });
                 }
 
                 // Calcular totales
-                var ingresosEfectivo = movimientosPendientes.Where(m => m.Tipo == "ingreso" && m.MetodoPago == "efectivo").Sum(m => m.Monto);
-                var egresosEfectivo = movimientosPendientes.Where(m => m.Tipo == "egreso" && m.MetodoPago == "efectivo").Sum(m => m.Monto);
-                var ingresosTransferencia = movimientosPendientes.Where(m => m.Tipo == "ingreso" && m.MetodoPago == "transferencia").Sum(m => m.Monto);
-                var egresosTransferencia = movimientosPendientes.Where(m => m.Tipo == "egreso" && m.MetodoPago == "transferencia").Sum(m => m.Monto);
+                var ingresosEfectivo = movimientosPendientes
+                    .Where(m => m.Tipo == "ingreso" && m.MetodoPago == "efectivo")
+                    .Sum(m => m.Monto);
+
+                var egresosEfectivo = movimientosPendientes
+                    .Where(m => m.Tipo == "egreso" && m.MetodoPago == "efectivo")
+                    .Sum(m => m.Monto);
+
+                var ingresosTransferencia = movimientosPendientes
+                    .Where(m => m.Tipo == "ingreso" && m.MetodoPago == "transferencia")
+                    .Sum(m => m.Monto);
+
+                var egresosTransferencia = movimientosPendientes
+                    .Where(m => m.Tipo == "egreso" && m.MetodoPago == "transferencia")
+                    .Sum(m => m.Monto);
+
                 var totalIngresos = movimientosPendientes.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto);
                 var totalEgresos = movimientosPendientes.Where(m => m.Tipo == "egreso").Sum(m => m.Monto);
 
-                var efectivoInicial = 0;
-                var efectivoFinal = ingresosEfectivo - egresosEfectivo;
-                var balanceGeneral = totalIngresos - totalEgresos;
+                // Calcular efectivo inicial (del cierre anterior o 0)
+                var cierreAnterior = await _context.CierresCaja
+                    .Where(c => c.FechaCierre < fechaCierre)
+                    .OrderByDescending(c => c.FechaCierre)
+                    .FirstOrDefaultAsync();
 
-                // ===== NUEVO: PREGUNTAR CUÁNTO EFECTIVO DEJAR =====
-                var efectivoADejar = request.EfectivoADejar ?? 0; // Valor opcional del request
+                decimal efectivoInicial = cierreAnterior?.EfectivoFinal ?? 0;
+
+                // Calcular efectivo final
+                var efectivoFinal = efectivoInicial + ingresosEfectivo - egresosEfectivo;
+
+                // Determinar cuánto efectivo dejar para el día siguiente
+                var efectivoADejar = request.EfectivoADejar ?? 0;
                 var efectivoACajaFuerte = efectivoFinal - efectivoADejar;
 
-                if (efectivoADejar < 0 || efectivoADejar > efectivoFinal)
+                if (efectivoACajaFuerte < 0)
                 {
-                    return BadRequest(new { success = false, message = "El monto a dejar no puede ser negativo ni mayor al efectivo final" });
+                    return Ok(new
+                    {
+                        success = false,
+                        message = $"No hay suficiente efectivo. Efectivo final: ${efectivoFinal:N2}, solicitado dejar: ${efectivoADejar:N2}"
+                    });
                 }
 
-                var usuarioId = await ObtenerUsuarioSistemaAsync();
-
-                // Crear el cierre
+                // Crear registro de cierre
                 var cierre = new CierreCaja
                 {
                     Id = Guid.NewGuid(),
-                    FechaCierre = DateTime.UtcNow,
-                    TipoCierre = "manual",
+                    FechaCierre = DateTime.Now,
+                    TipoCierre = "diario",
                     EfectivoInicial = efectivoInicial,
                     IngresosEfectivo = ingresosEfectivo,
                     EgresosEfectivo = egresosEfectivo,
-                    EfectivoFinal = efectivoFinal,
+                    EfectivoFinal = efectivoADejar,
                     IngresosTransferencia = ingresosTransferencia,
                     EgresosTransferencia = egresosTransferencia,
                     TotalIngresos = totalIngresos,
                     TotalEgresos = totalEgresos,
-                    BalanceGeneral = balanceGeneral,
+                    BalanceGeneral = totalIngresos - totalEgresos,
                     CantidadMovimientos = movimientosPendientes.Count,
                     Observaciones = $"{request.Observaciones} - Cierre del día {fechaCierre:dd/MM/yyyy}. Efectivo a dejar: ${efectivoADejar}, a Caja Fuerte: ${efectivoACajaFuerte}".Trim(),
                     UsuarioId = usuarioId,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.Now
                 };
 
                 _context.CierresCaja.Add(cierre);
@@ -843,7 +859,7 @@ namespace VidaFit.Controllers.API
 
                 await _context.SaveChangesAsync();
 
-                // ===== NUEVO: ENVIAR A CAJA FUERTE =====
+                // Enviar a Caja Fuerte si hay dinero para transferir
                 if (efectivoACajaFuerte > 0 || (ingresosTransferencia - egresosTransferencia) > 0)
                 {
                     try
@@ -870,7 +886,6 @@ namespace VidaFit.Controllers.API
                     catch (Exception ex)
                     {
                         _logger.LogError(ex, "Error al enviar dinero a Caja Fuerte");
-                        // No fallar el cierre si hay error en Caja Fuerte
                     }
                 }
 
@@ -904,6 +919,7 @@ namespace VidaFit.Controllers.API
                 return StatusCode(500, new { success = false, message = "Error al realizar cierre de caja", error = ex.Message });
             }
         }
+
         /// <summary>
         /// Eliminar movimiento (SOLO si NO está cerrado)
         /// Endpoint: DELETE /api/caja/{id}
@@ -946,7 +962,6 @@ namespace VidaFit.Controllers.API
                     error = ex.Message
                 });
             }
-
         }
 
         /// <summary>
@@ -971,10 +986,10 @@ namespace VidaFit.Controllers.API
                     Descripcion = "Transferencia desde Caja Fuerte",
                     ReferenciaId = null,
                     UsuarioId = usuarioId,
-                    Fecha = DateTime.UtcNow,
+                    Fecha = DateTime.Now,
                     Cerrado = false,
                     CierreCajaId = null,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.Now
                 };
 
                 _context.MovimientosCaja.Add(movimiento);
@@ -1005,15 +1020,25 @@ namespace VidaFit.Controllers.API
                 });
             }
         }
+
         public class CerrarCajaRequest
         {
             public string Fecha { get; set; }
             public string Observaciones { get; set; }
-            public decimal? EfectivoADejar { get; set; } // NUEVO: cuánto efectivo dejar para el día siguiente
+            public decimal? EfectivoADejar { get; set; }
         }
+
         public class RecibirDesdeCajaFuerteRequest
         {
             public decimal Monto { get; set; }
+        }
+
+        public class RecibirDesdeCajaRequest
+        {
+            public decimal MontoEfectivo { get; set; }
+            public decimal MontoTransferencia { get; set; }
+            public DateTime FechaCierre { get; set; }
+            public Guid CierreCajaId { get; set; }
         }
     }
 }

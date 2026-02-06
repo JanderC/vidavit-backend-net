@@ -29,7 +29,7 @@ namespace VidaFitBackend.Models
         public string? MetodoPago { get; set; }
 
         [Column("fecha_pago")]
-        public DateTime FechaPago { get; set; } = DateTime.UtcNow;
+        public DateTime FechaPago { get; set; } = DateTime.Now;
 
         [Column("recibo_numero")]
         [MaxLength(50)]
@@ -39,7 +39,7 @@ namespace VidaFitBackend.Models
         public string? Notas { get; set; }
 
         [Column("created_at")]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         // Propiedades de Navegación (Relaciones)
         [ForeignKey("MembresiaId")]

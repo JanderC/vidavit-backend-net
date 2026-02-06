@@ -123,8 +123,8 @@ namespace VidaFit.Controllers.API
                 Precio = planDto.Precio,
                 Color = string.IsNullOrWhiteSpace(planDto.Color) ? "#00FF00" : planDto.Color,
                 Activo = planDto.Activo,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now
             };
 
             _context.Planes.Add(plan);
@@ -182,7 +182,7 @@ namespace VidaFit.Controllers.API
             dbPlan.Precio = plan.Precio;
             dbPlan.Color = plan.Color;
             dbPlan.Activo = plan.Activo;
-            dbPlan.UpdatedAt = DateTime.UtcNow;
+            dbPlan.UpdatedAt = DateTime.Now;
 
             await _context.SaveChangesAsync();
             return NoContent();
@@ -219,7 +219,7 @@ namespace VidaFit.Controllers.API
                 return NotFound("Plan no encontrado");
 
             plan.Activo = !plan.Activo;
-            plan.UpdatedAt = DateTime.UtcNow;
+            plan.UpdatedAt = DateTime.Now;
 
             await _context.SaveChangesAsync();
 

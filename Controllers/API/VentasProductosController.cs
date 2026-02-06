@@ -118,17 +118,17 @@ namespace VidaFit.Controllers.API
                     Total = totalVenta,
                     EstadoPago = estadoPago,
                     Notas = ventaDto.Notas,
-                    FechaVenta = DateTime.UtcNow,
-                    FechaPago = estadoPago == "pagado" ? DateTime.UtcNow : null,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
+                    FechaVenta = DateTime.Now,
+                    FechaPago = estadoPago == "pagado" ? DateTime.Now : null,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
                 };
 
                 _context.VentasProductos.Add(venta);
 
                 // Actualizar stock
                 producto.Stock -= venta.Cantidad;
-                producto.UpdatedAt = DateTime.UtcNow;
+                producto.UpdatedAt = DateTime.Now;
 
                 // SI HAY DEUDA (pago parcial o pendiente), registrarla
                 decimal saldoPendiente = totalVenta - montoPagado;
@@ -145,12 +145,12 @@ namespace VidaFit.Controllers.API
                         MontoPagado = 0,
                         Saldo = saldoPendiente,
                         Estado = "pendiente",
-                        FechaCreacion = DateTime.UtcNow,
+                        FechaCreacion = DateTime.Now,
                         FechaVencimiento = null,
                         Notas = montoPagado > 0
                             ? $"Abono inicial: ${montoPagado:N2} de ${totalVenta:N2}"
                             : "Venta fiada - Sin pago inicial",
-                        CreatedAt = DateTime.UtcNow
+                        CreatedAt = DateTime.Now
                     };
 
                     _context.DeudasClientes.Add(deuda);
@@ -173,8 +173,8 @@ namespace VidaFit.Controllers.API
                         ReferenciaId = venta.Id,
                         UsuarioId = ventaDto.UsuarioId ?? Guid.Parse("00000000-0000-0000-0000-000000000000"),
                         MetodoPago = string.IsNullOrWhiteSpace(ventaDto.MetodoPago) ? "efectivo" : ventaDto.MetodoPago, // MODIFICADO
-                        Fecha = DateTime.UtcNow,
-                        CreatedAt = DateTime.UtcNow
+                        Fecha = DateTime.Now,
+                        CreatedAt = DateTime.Now
                     };
 
                     _context.MovimientosCaja.Add(movimientoCaja);
@@ -239,16 +239,16 @@ namespace VidaFit.Controllers.API
             dbVenta.Total = ventaDto.Total > 0 ? ventaDto.Total : ventaDto.Cantidad * ventaDto.PrecioUnitario;
             dbVenta.EstadoPago = ventaDto.EstadoPago;
             dbVenta.Notas = ventaDto.Notas;
-            dbVenta.UpdatedAt = DateTime.UtcNow;
+            dbVenta.UpdatedAt = DateTime.Now;
 
             if (ventaDto.EstadoPago == "pagado" && dbVenta.FechaPago == null)
             {
-                dbVenta.FechaPago = DateTime.UtcNow;
+                dbVenta.FechaPago = DateTime.Now;
             }
 
             // Actualizar stock del nuevo producto
             productoNuevo.Stock -= ventaDto.Cantidad;
-            productoNuevo.UpdatedAt = DateTime.UtcNow;
+            productoNuevo.UpdatedAt = DateTime.Now;
 
             await _context.SaveChangesAsync();
             return NoContent();
@@ -266,7 +266,7 @@ namespace VidaFit.Controllers.API
             if (producto != null)
             {
                 producto.Stock += venta.Cantidad;
-                producto.UpdatedAt = DateTime.UtcNow;
+                producto.UpdatedAt = DateTime.Now;
             }
 
             _context.VentasProductos.Remove(venta);
@@ -282,8 +282,8 @@ namespace VidaFit.Controllers.API
                 return NotFound();
 
             venta.EstadoPago = "pagado";
-            venta.FechaPago = DateTime.UtcNow;
-            venta.UpdatedAt = DateTime.UtcNow;
+            venta.FechaPago = DateTime.Now;
+            venta.UpdatedAt = DateTime.Now;
 
             await _context.SaveChangesAsync();
             return Ok(new { mensaje = "Venta marcada como pagada exitosamente" });

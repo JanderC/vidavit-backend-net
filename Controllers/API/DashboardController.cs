@@ -24,9 +24,10 @@ namespace VidaFit.Controllers.API
         {
             try
             {
-                var hoy = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
-                var inicioMes = new DateTime(hoy.Year, hoy.Month, 1, 0, 0, 0, DateTimeKind.Utc);
-                var finMes = inicioMes.AddMonths(1).AddTicks(-1);
+                // CORRECCIÓN: Usar DateTime.Now.Date sin conversiones UTC
+                var hoy = DateTime.Now.Date;
+                var inicioMes = new DateTime(hoy.Year, hoy.Month, 1);
+                var finMes = inicioMes.AddMonths(1).AddDays(-1);
                 var sieteDias = hoy.AddDays(7);
 
                 var totalClientes = await _context.Clientes.CountAsync(c => c.Activo);
@@ -39,34 +40,38 @@ namespace VidaFit.Controllers.API
                     .Take(10)
                     .ToListAsync();
 
-                // Detalles de membresías próximas a vencer
-                var detalleProximasVencer = await _context.Membresias
+                // CORRECCIÓN: Traer los datos y calcular diasRestantes en memoria
+                var proximasVencerData = await _context.Membresias
                     .Where(m => m.Estado == "activa" && m.FechaVencimiento >= hoy && m.FechaVencimiento <= sieteDias)
                     .OrderBy(m => m.FechaVencimiento)
-                    .Join(_context.Clientes, m => m.ClienteId, c => c.Id, (m, c) => new { m, c })
-                    .Join(_context.Planes, mc => mc.m.PlanId, p => p.Id, (mc, p) => new
-                    {
-                        clienteNombre = mc.c.Nombre + " " + mc.c.Apellido,
-                        planNombre = p.Nombre,
-                        fechaVencimiento = mc.m.FechaVencimiento,
-                        diasRestantes = (mc.m.FechaVencimiento - hoy).Days
-                    })
+                    .Include(m => m.Cliente)
+                    .Include(m => m.Plan)
                     .ToListAsync();
 
-                // Detalles de membresías vencidas
-                var detalleVencidas = await _context.Membresias
+                var detalleProximasVencer = proximasVencerData.Select(m => new
+                {
+                    clienteNombre = m.Cliente.Nombre + " " + m.Cliente.Apellido,
+                    planNombre = m.Plan.Nombre,
+                    fechaVencimiento = m.FechaVencimiento,
+                    diasRestantes = (m.FechaVencimiento.Date - hoy).Days
+                }).ToList();
+
+                // CORRECCIÓN: Traer los datos y calcular diasVencido en memoria
+                var vencidasData = await _context.Membresias
                     .Where(m => m.Estado == "vencida")
                     .OrderByDescending(m => m.FechaVencimiento)
                     .Take(10)
-                    .Join(_context.Clientes, m => m.ClienteId, c => c.Id, (m, c) => new { m, c })
-                    .Join(_context.Planes, mc => mc.m.PlanId, p => p.Id, (mc, p) => new
-                    {
-                        clienteNombre = mc.c.Nombre + " " + mc.c.Apellido,
-                        planNombre = p.Nombre,
-                        fechaVencimiento = mc.m.FechaVencimiento,
-                        diasVencido = (hoy - mc.m.FechaVencimiento).Days
-                    })
+                    .Include(m => m.Cliente)
+                    .Include(m => m.Plan)
                     .ToListAsync();
+
+                var detalleVencidas = vencidasData.Select(m => new
+                {
+                    clienteNombre = m.Cliente.Nombre + " " + m.Cliente.Apellido,
+                    planNombre = m.Plan.Nombre,
+                    fechaVencimiento = m.FechaVencimiento,
+                    diasVencido = (hoy - m.FechaVencimiento.Date).Days
+                }).ToList();
 
                 // Productos pendientes de pago
                 var productosPendientes = await _context.VentasProductos
@@ -75,7 +80,7 @@ namespace VidaFit.Controllers.API
 
                 // Top clientes del mes
                 var topClientes = await _context.CheckIns
-                    .Where(ci => ci.FechaHora >= inicioMes && ci.FechaHora <= finMes)
+                    .Where(ci => ci.FechaHora.Date >= inicioMes && ci.FechaHora.Date <= finMes)
                     .GroupBy(ci => ci.ClienteId)
                     .Select(g => new
                     {
@@ -94,29 +99,29 @@ namespace VidaFit.Controllers.API
 
                 // Asistencia últimos 30 días
                 var asistencia30dias = await _context.CheckIns
-                    .Where(ci => ci.FechaHora >= hoy.AddDays(-29))
+                    .Where(ci => ci.FechaHora.Date >= hoy.AddDays(-29))
                     .GroupBy(ci => ci.FechaHora.Date)
                     .Select(g => new { Fecha = g.Key, Total = g.Count() })
                     .OrderBy(g => g.Fecha)
                     .ToListAsync();
 
-                // INGRESOS DEL MES DESGLOSADOS (CORREGIDO CON PLAN.PRECIO)
+                // INGRESOS DEL MES DESGLOSADOS
                 // Calcular ingresos de membresías usando el precio del Plan
                 var membresiasDelMes = await _context.Membresias
-                    .Where(m => m.FechaInicio >= inicioMes && m.FechaInicio <= finMes)
-                    .Join(_context.Planes, m => m.PlanId, p => p.Id, (m, p) => new { m, p })
+                    .Where(m => m.FechaInicio.Date >= inicioMes && m.FechaInicio.Date <= finMes)
+                    .Include(m => m.Plan)
                     .ToListAsync();
 
-                var ingresoMembresias = membresiasDelMes.Sum(mp => mp.p.Precio);
+                var ingresoMembresias = membresiasDelMes.Sum(m => m.Plan.Precio);
 
                 // Calcular ingresos de productos vendidos
                 var ingresoProductos = await _context.VentasProductos
-                    .Where(v => v.FechaVenta >= inicioMes && v.FechaVenta <= finMes && v.EstadoPago == "pagado")
+                    .Where(v => v.FechaVenta.Date >= inicioMes && v.FechaVenta.Date <= finMes && v.EstadoPago == "pagado")
                     .SumAsync(v => (decimal?)v.Total) ?? 0;
 
                 // Obtener movimientos del mes para abonos y otros
                 var movimientosMes = await _context.MovimientosCaja
-                    .Where(m => m.Fecha >= inicioMes && m.Fecha <= finMes)
+                    .Where(m => m.Fecha.Date >= inicioMes && m.Fecha.Date <= finMes)
                     .ToListAsync();
 
                 var ingresoAbonos = movimientosMes
@@ -129,7 +134,7 @@ namespace VidaFit.Controllers.API
 
                 var totalIngresosMes = ingresoMembresias + ingresoProductos + ingresoAbonos + ingresoOtros;
 
-                // EGRESOS DEL MES DESGLOSADOS (NUEVO)
+                // EGRESOS DEL MES DESGLOSADOS
                 var egresosSueldos = movimientosMes
                     .Where(m => m.Tipo == "egreso" && m.Categoria == "sueldo")
                     .Sum(m => m.Monto);
@@ -207,7 +212,8 @@ namespace VidaFit.Controllers.API
         {
             try
             {
-                var hoy = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
+                // CORRECCIÓN: Usar DateTime.Now.Date sin conversiones UTC
+                var hoy = DateTime.Now.Date;
                 var sieteDias = hoy.AddDays(7);
 
                 var totalClientes = await _context.Clientes.CountAsync(c => c.Activo);
@@ -240,7 +246,7 @@ namespace VidaFit.Controllers.API
                     .ToListAsync();
 
                 var asistencia30dias = await _context.CheckIns
-                    .Where(ci => ci.FechaHora >= hoy.AddDays(-29))
+                    .Where(ci => ci.FechaHora.Date >= hoy.AddDays(-29))
                     .GroupBy(ci => ci.FechaHora.Date)
                     .Select(g => new { Fecha = g.Key, Total = g.Count() })
                     .OrderBy(g => g.Fecha)

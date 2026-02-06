@@ -60,8 +60,8 @@ namespace VidaFit.Controllers.WEB
             if (ModelState.IsValid)
             {
                 membresia.Id = Guid.NewGuid();
-                membresia.CreatedAt = DateTime.UtcNow;
-                membresia.UpdatedAt = DateTime.UtcNow;
+                membresia.CreatedAt = DateTime.Now;
+                membresia.UpdatedAt = DateTime.Now;
                 membresia.Estado = "activa";
                 _context.Membresias.Add(membresia);
                 await _context.SaveChangesAsync();
@@ -107,7 +107,7 @@ namespace VidaFit.Controllers.WEB
                 dbMembresia.MontoPagado = membresia.MontoPagado;
                 dbMembresia.MetodoPago = membresia.MetodoPago;
                 dbMembresia.Notas = membresia.Notas;
-                dbMembresia.UpdatedAt = DateTime.UtcNow;
+                dbMembresia.UpdatedAt = DateTime.Now;
 
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));

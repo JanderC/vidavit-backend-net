@@ -55,8 +55,8 @@ namespace VidaFit.Controllers.API
                 HuellaDigital = data.TryGetProperty("huellaDigital", out var hd) ? hd.GetString() : null,
                 HuellaTemplate = data.TryGetProperty("huellaTemplate", out var ht) ? ht.GetString() : null,
                 Activo = true,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now
             };
 
             if (data.TryGetProperty("fechaNacimiento", out var fechaNac) && !string.IsNullOrEmpty(fechaNac.GetString()))
@@ -105,7 +105,7 @@ namespace VidaFit.Controllers.API
             dbCliente.Email = data.TryGetProperty("email", out var email) && !string.IsNullOrWhiteSpace(email.GetString()) ? email.GetString() : null;
             dbCliente.Direccion = data.TryGetProperty("direccion", out var dir) && !string.IsNullOrWhiteSpace(dir.GetString()) ? dir.GetString() : null;
             dbCliente.Activo = data.GetProperty("activo").GetBoolean();
-            dbCliente.UpdatedAt = DateTime.UtcNow;
+            dbCliente.UpdatedAt = DateTime.Now;
 
             if (data.TryGetProperty("fechaNacimiento", out var fechaNac) && !string.IsNullOrEmpty(fechaNac.GetString()))
             {
@@ -171,7 +171,7 @@ namespace VidaFit.Controllers.API
 
             cliente.HuellaTemplate = data.TryGetProperty("huellaTemplate", out var ht) ? ht.GetString() : null;
             cliente.HuellaDigital = data.TryGetProperty("huellaDigital", out var hd) ? hd.GetString() : null;
-            cliente.UpdatedAt = DateTime.UtcNow;
+            cliente.UpdatedAt = DateTime.Now;
 
             await _context.SaveChangesAsync();
 
@@ -201,7 +201,7 @@ namespace VidaFit.Controllers.API
                     montoPagado = m.MontoPagado,
                     metodoPago = m.MetodoPago,
                     notas = m.Notas,
-                    diasRestantes = m.Estado == "activa" ? (m.FechaVencimiento - DateTime.UtcNow).Days : 0
+                    diasRestantes = m.Estado == "activa" ? (m.FechaVencimiento - DateTime.Now).Days : 0
                 })
                 .ToListAsync();
 

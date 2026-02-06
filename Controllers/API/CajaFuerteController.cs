@@ -71,9 +71,9 @@ namespace VidaFit.Controllers.API
                     BalanceEfectivo = 0,
                     BalanceTransferencias = 0,
                     BalanceTotal = 0,
-                    UltimaActualizacion = DateTime.UtcNow,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
+                    UltimaActualizacion = DateTime.Now,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
                 };
 
                 _context.CajasFuertes.Add(cajaFuerte);
@@ -98,8 +98,8 @@ namespace VidaFit.Controllers.API
                     Id = Guid.NewGuid(),
                     PasswordHash = HashPassword("123456"),
                     RequiereCambioPassword = false,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
                 };
 
                 _context.ConfiguracionesCajaFuerte.Add(config);
@@ -182,7 +182,7 @@ namespace VidaFit.Controllers.API
 
                 config.PasswordHash = HashPassword(request.PasswordNueva);
                 config.RequiereCambioPassword = false;
-                config.UpdatedAt = DateTime.UtcNow;
+                config.UpdatedAt = DateTime.Now;
 
                 await _context.SaveChangesAsync();
 
@@ -207,7 +207,7 @@ namespace VidaFit.Controllers.API
                 var cajaFuerte = await ObtenerOCrearCajaFuerteAsync();
 
                 // Movimientos del mes actual
-                var hoy = DateTime.UtcNow.Date;
+                var hoy = DateTime.Now.Date;
                 var primerDiaMes = DateTime.SpecifyKind(new DateTime(hoy.Year, hoy.Month, 1), DateTimeKind.Utc);
 
                 var movimientosMes = await _context.MovimientosCajaFuerte
@@ -280,7 +280,7 @@ namespace VidaFit.Controllers.API
         {
             try
             {
-                var fechaBase = fecha ?? DateTime.UtcNow.Date;
+                var fechaBase = fecha ?? DateTime.Now.Date;
                 DateTime fechaDesde, fechaHasta;
 
                 switch (vista.ToLower())
@@ -383,8 +383,8 @@ namespace VidaFit.Controllers.API
                     Descripcion = request.Descripcion,
                     Categoria = request.Categoria,
                     UsuarioId = usuarioId,
-                    Fecha = DateTime.UtcNow,
-                    CreatedAt = DateTime.UtcNow
+                    Fecha = DateTime.Now,
+                    CreatedAt = DateTime.Now
                 };
 
                 _context.MovimientosCajaFuerte.Add(movimiento);
@@ -399,8 +399,8 @@ namespace VidaFit.Controllers.API
                 }
 
                 cajaFuerte.BalanceTotal = cajaFuerte.BalanceEfectivo + cajaFuerte.BalanceTransferencias;
-                cajaFuerte.UltimaActualizacion = DateTime.UtcNow;
-                cajaFuerte.UpdatedAt = DateTime.UtcNow;
+                cajaFuerte.UltimaActualizacion = DateTime.Now;
+                cajaFuerte.UpdatedAt = DateTime.Now;
 
                 await _context.SaveChangesAsync();
 
@@ -460,8 +460,8 @@ namespace VidaFit.Controllers.API
                     Monto = request.Monto,
                     Descripcion = "Transferencia a Caja Diaria",
                     UsuarioId = usuarioId,
-                    Fecha = DateTime.UtcNow,
-                    CreatedAt = DateTime.UtcNow
+                    Fecha = DateTime.Now,
+                    CreatedAt = DateTime.Now
                 };
 
                 _context.MovimientosCajaFuerte.Add(movimiento);
@@ -469,8 +469,8 @@ namespace VidaFit.Controllers.API
                 // 2. Actualizar balance de Caja Fuerte
                 cajaFuerte.BalanceEfectivo -= request.Monto;
                 cajaFuerte.BalanceTotal = cajaFuerte.BalanceEfectivo + cajaFuerte.BalanceTransferencias;
-                cajaFuerte.UltimaActualizacion = DateTime.UtcNow;
-                cajaFuerte.UpdatedAt = DateTime.UtcNow;
+                cajaFuerte.UltimaActualizacion = DateTime.Now;
+                cajaFuerte.UpdatedAt = DateTime.Now;
 
                 await _context.SaveChangesAsync();
 
@@ -485,10 +485,10 @@ namespace VidaFit.Controllers.API
                     Descripcion = "Transferencia desde Caja Fuerte",
                     ReferenciaId = null,
                     UsuarioId = usuarioId,
-                    Fecha = DateTime.UtcNow,
+                    Fecha = DateTime.Now,
                     Cerrado = false,
                     CierreCajaId = null,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.Now
                 };
 
                 _context.MovimientosCaja.Add(movimientoCaja);
@@ -540,8 +540,8 @@ namespace VidaFit.Controllers.API
                         Descripcion = $"Cierre de Caja - {request.FechaCierre:dd/MM/yyyy}",
                         CierreCajaId = request.CierreCajaId,
                         UsuarioId = usuarioId,
-                        Fecha = DateTime.UtcNow,
-                        CreatedAt = DateTime.UtcNow
+                        Fecha = DateTime.Now,
+                        CreatedAt = DateTime.Now
                     };
                     _context.MovimientosCajaFuerte.Add(movimientoEfectivo);
                     cajaFuerte.BalanceEfectivo += request.MontoEfectivo;
@@ -559,16 +559,16 @@ namespace VidaFit.Controllers.API
                         Descripcion = $"Cierre de Caja - {request.FechaCierre:dd/MM/yyyy}",
                         CierreCajaId = request.CierreCajaId,
                         UsuarioId = usuarioId,
-                        Fecha = DateTime.UtcNow,
-                        CreatedAt = DateTime.UtcNow
+                        Fecha = DateTime.Now,
+                        CreatedAt = DateTime.Now
                     };
                     _context.MovimientosCajaFuerte.Add(movimientoTransferencia);
                     cajaFuerte.BalanceTransferencias += request.MontoTransferencia;
                 }
 
                 cajaFuerte.BalanceTotal = cajaFuerte.BalanceEfectivo + cajaFuerte.BalanceTransferencias;
-                cajaFuerte.UltimaActualizacion = DateTime.UtcNow;
-                cajaFuerte.UpdatedAt = DateTime.UtcNow;
+                cajaFuerte.UltimaActualizacion = DateTime.Now;
+                cajaFuerte.UpdatedAt = DateTime.Now;
 
                 await _context.SaveChangesAsync();
 
@@ -752,8 +752,8 @@ namespace VidaFit.Controllers.API
                     TotalEgresosTransferencia = totalEgresosTransferencia,
                     BalanceFinalEfectivo = totalIngresosEfectivo - totalEgresosEfectivo,
                     BalanceFinalTransferencia = totalIngresosTransferencia - totalEgresosTransferencia,
-                    FechaConsolidacion = DateTime.UtcNow,
-                    CreatedAt = DateTime.UtcNow
+                    FechaConsolidacion = DateTime.Now,
+                    CreatedAt = DateTime.Now
                 };
 
                 _context.ConsolidadosMensuales.Add(consolidado);

@@ -92,8 +92,8 @@ namespace VidaFit.Controllers.API
                 ImagenBase64 = productoDto.ImagenBase64,
                 Categoria = productoDto.Categoria,
                 Activo = productoDto.Activo,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now
             };
 
             _context.Productos.Add(producto);
@@ -129,7 +129,7 @@ namespace VidaFit.Controllers.API
             dbProducto.ImagenBase64 = producto.ImagenBase64;
             dbProducto.Categoria = producto.Categoria;
             dbProducto.Activo = producto.Activo;
-            dbProducto.UpdatedAt = DateTime.UtcNow;
+            dbProducto.UpdatedAt = DateTime.Now;
 
             await _context.SaveChangesAsync();
             return NoContent();
@@ -170,7 +170,7 @@ namespace VidaFit.Controllers.API
                 return NotFound("Producto no encontrado");
 
             producto.Activo = !producto.Activo;
-            producto.UpdatedAt = DateTime.UtcNow;
+            producto.UpdatedAt = DateTime.Now;
 
             await _context.SaveChangesAsync();
 
@@ -193,7 +193,7 @@ namespace VidaFit.Controllers.API
                 return BadRequest("El stock no puede ser negativo");
 
             producto.Stock = stockDto.NuevoStock;
-            producto.UpdatedAt = DateTime.UtcNow;
+            producto.UpdatedAt = DateTime.Now;
 
             await _context.SaveChangesAsync();
 

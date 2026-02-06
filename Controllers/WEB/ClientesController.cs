@@ -79,8 +79,8 @@ namespace VidaFit.Controllers.WEB
                 }
 
                 cliente.Id = Guid.NewGuid();
-                cliente.CreatedAt = DateTime.UtcNow;
-                cliente.UpdatedAt = DateTime.UtcNow;
+                cliente.CreatedAt = DateTime.Now;
+                cliente.UpdatedAt = DateTime.Now;
                 cliente.Activo = true;
 
                 // Asegurar que los campos opcionales sean null si están vacíos
@@ -178,7 +178,7 @@ namespace VidaFit.Controllers.WEB
                 dbCliente.Email = string.IsNullOrWhiteSpace(cliente.Email) ? null : cliente.Email;
                 dbCliente.Direccion = string.IsNullOrWhiteSpace(cliente.Direccion) ? null : cliente.Direccion;
                 dbCliente.Activo = cliente.Activo;
-                dbCliente.UpdatedAt = DateTime.UtcNow;
+                dbCliente.UpdatedAt = DateTime.Now;
 
                 // Actualizar fecha de nacimiento si viene
                 if (cliente.FechaNacimiento.HasValue)

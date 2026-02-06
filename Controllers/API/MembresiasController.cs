@@ -25,14 +25,13 @@ namespace VidaFit.Controllers.API
         /// <returns>Fecha de vencimiento (incluye el último día)</returns>
         private DateTime CalcularFechaVencimiento(DateTime fechaInicio, Plan plan)
         {
-            // Asegurar que trabajamos solo con la fecha (sin hora)
             var inicio = fechaInicio.Date;
             DateTime vencimiento;
 
             switch (plan.TipoCalculoVencimiento.ToLower())
             {
                 case "meses":
-                    // Sumar meses calendarios (ejemplo: 30 Ene -> 28/29 Feb, 1 Mar -> 1 Abr)
+                    // Sumar meses calendarios (ejemplo: 5 Feb -> 5 Mar)
                     vencimiento = inicio.AddMonths(plan.CantidadUnidades);
                     break;
 
@@ -42,23 +41,18 @@ namespace VidaFit.Controllers.API
                     break;
 
                 case "anios":
-                    // Sumar años (ejemplo: 1 Ene 2024 -> 1 Ene 2025)
+                    // Sumar años (ejemplo: 5 Feb 2024 -> 5 Feb 2025)
                     vencimiento = inicio.AddYears(plan.CantidadUnidades);
                     break;
 
                 case "dias":
                 default:
                     // Sumar días corridos
-                    // IMPORTANTE: Si el plan dice "30 días", el cliente puede entrenar:
-                    // - El día de inicio (día 1)
-                    // - Los siguientes 29 días (días 2-30)
-                    // Por lo tanto, sumamos (cantidadUnidades - 1) para que el último día sea inclusivo
                     vencimiento = inicio.AddDays(plan.CantidadUnidades - 1);
                     break;
             }
 
-            // Convertir a UTC manteniendo la fecha calculada
-            return DateTime.SpecifyKind(vencimiento, DateTimeKind.Utc);
+            return vencimiento.Date;
         }
 
         [HttpGet]
@@ -76,7 +70,8 @@ namespace VidaFit.Controllers.API
 
         private async Task ActualizarEstadosVencidas()
         {
-            var hoy = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
+            var hoy = DateTime.Now.Date;
+
             var membresiasVencidas = await _context.Membresias
                 .Where(m => m.Estado == "activa" && m.FechaVencimiento < hoy)
                 .ToListAsync();
@@ -86,7 +81,7 @@ namespace VidaFit.Controllers.API
                 foreach (var membresia in membresiasVencidas)
                 {
                     membresia.Estado = "vencida";
-                    membresia.UpdatedAt = DateTime.UtcNow;
+                    membresia.UpdatedAt = DateTime.Now;
                 }
                 await _context.SaveChangesAsync();
             }
@@ -115,9 +110,8 @@ namespace VidaFit.Controllers.API
                 var clienteId = Guid.Parse(data.GetProperty("clienteId").GetString());
                 var planId = Guid.Parse(data.GetProperty("planId").GetString());
 
-                // 🔧 CORRECCIÓN: Parsear la fecha como UTC directamente para evitar conversión de zona horaria
                 var fechaInicioStr = data.GetProperty("fechaInicio").GetString();
-                var fechaInicio = DateTime.Parse(fechaInicioStr + "T00:00:00Z", null, System.Globalization.DateTimeStyles.AdjustToUniversal);
+                var fechaInicio = DateTime.Parse(fechaInicioStr).Date;
 
                 var montoPagado = data.GetProperty("montoPagado").GetDecimal();
                 var metodoPago = data.GetProperty("metodoPago").GetString();
@@ -152,7 +146,7 @@ namespace VidaFit.Controllers.API
                     return Ok(new { success = false, message = "El monto pagado no puede ser mayor al precio del plan" });
                 }
 
-                // 🆕 CALCULAR fecha de vencimiento usando el nuevo método
+                // Calcular fecha de vencimiento
                 var fechaVencimiento = CalcularFechaVencimiento(fechaInicio, plan);
 
                 // Crear membresía
@@ -161,14 +155,14 @@ namespace VidaFit.Controllers.API
                     Id = Guid.NewGuid(),
                     ClienteId = clienteId,
                     PlanId = planId,
-                    FechaInicio = fechaInicio,           // 🔧 Ya está en UTC
-                    FechaVencimiento = fechaVencimiento, // 🔧 Ya está en UTC
+                    FechaInicio = fechaInicio,
+                    FechaVencimiento = fechaVencimiento,
                     Estado = "activa",
                     MontoPagado = montoPagado,
                     MetodoPago = metodoPago,
                     Notas = notas,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
                 };
 
                 _context.Membresias.Add(membresia);
@@ -180,18 +174,18 @@ namespace VidaFit.Controllers.API
                     ClienteId = clienteId,
                     MembresiaId = membresia.Id,
                     Monto = montoPagado,
-                    FechaPago = DateTime.UtcNow,
+                    FechaPago = DateTime.Now,
                     MetodoPago = metodoPago,
                     ReciboNumero = null,
                     Notas = montoPagado < plan.Precio ? "Pago parcial de membresía" : null,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.Now
                 };
 
                 _context.Pagos.Add(pago);
 
-                // SI HAY DEUDA (pago parcial), registrarla automáticamente
-                decimal saldoPendiente = plan.Precio - montoPagado;
+                // Manejar deuda si no se pagó completo
                 Guid? deudaId = null;
+                var saldoPendiente = plan.Precio - montoPagado;
 
                 if (saldoPendiente > 0)
                 {
@@ -199,15 +193,15 @@ namespace VidaFit.Controllers.API
                     {
                         Id = Guid.NewGuid(),
                         ClienteId = clienteId,
-                        Concepto = $"Saldo pendiente membresía {plan.Nombre}",
-                        MontoTotal = saldoPendiente,
-                        MontoPagado = 0,
+                        Concepto = $"Pago parcial membresía {plan.Nombre}",
+                        MontoTotal = plan.Precio,
+                        MontoPagado = montoPagado,
                         Saldo = saldoPendiente,
                         Estado = "pendiente",
-                        FechaCreacion = DateTime.UtcNow,
-                        FechaVencimiento = fechaVencimiento, // 🔧 Ya no necesita SpecifyKind, ya está en UTC
-                        Notas = $"Pago inicial: ${montoPagado:N2} de ${plan.Precio:N2}",
-                        CreatedAt = DateTime.UtcNow
+                        FechaCreacion = DateTime.Now,
+                        FechaVencimiento = fechaVencimiento,
+                        Notas = $"Membresía ID: {membresia.Id}",
+                        CreatedAt = DateTime.Now
                     };
 
                     _context.DeudasClientes.Add(deuda);
@@ -228,8 +222,8 @@ namespace VidaFit.Controllers.API
                         ReferenciaId = membresia.Id,
                         UsuarioId = usuarioId ?? Guid.Parse("00000000-0000-0000-0000-000000000000"),
                         MetodoPago = metodoPago,
-                        Fecha = DateTime.UtcNow,
-                        CreatedAt = DateTime.UtcNow
+                        Fecha = DateTime.Now.Date,
+                        CreatedAt = DateTime.Now
                     };
 
                     _context.MovimientosCaja.Add(movimientoCaja);
@@ -301,19 +295,24 @@ namespace VidaFit.Controllers.API
                 if (montoPagado != plan.Precio)
                     return Ok(new { success = false, message = $"Debe pagar el precio completo del plan: ${plan.Precio:N2}" });
 
-                // 🆕 Renovar membresía con cálculo correcto de fechas
-                bool cambioDePlan = planId != membresia.PlanId;
-                var fechaInicio = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
+                // CORRECCIÓN: SIEMPRE renovar desde la fecha de vencimiento actual
+                // Independientemente de si está vencida o no, la renovación debe partir
+                // de la fecha de vencimiento para mantener la continuidad del periodo
+                // Ejemplo: si vence el 7 de marzo y paga el 10 de marzo, renueva desde el 8 de marzo
+                DateTime fechaInicio = membresia.FechaVencimiento;
+
                 var fechaVencimiento = CalcularFechaVencimiento(fechaInicio, plan);
+
+                bool cambioDePlan = planId != membresia.PlanId;
 
                 membresia.PlanId = planId;
                 membresia.FechaInicio = fechaInicio;
-                membresia.FechaVencimiento = fechaVencimiento; // 🔧 Usando cálculo correcto
+                membresia.FechaVencimiento = fechaVencimiento;
                 membresia.Estado = "activa";
                 membresia.MontoPagado = montoPagado;
                 membresia.MetodoPago = metodoPago;
                 membresia.Notas = cambioDePlan ? $"Renovación con cambio a {plan.Nombre}" : (notas ?? "Renovación");
-                membresia.UpdatedAt = DateTime.UtcNow;
+                membresia.UpdatedAt = DateTime.Now;
 
                 // Registrar pago
                 var pago = new Pago
@@ -322,11 +321,11 @@ namespace VidaFit.Controllers.API
                     ClienteId = membresia.ClienteId,
                     MembresiaId = membresia.Id,
                     Monto = montoPagado,
-                    FechaPago = DateTime.UtcNow,
+                    FechaPago = DateTime.Now,
                     MetodoPago = metodoPago,
                     ReciboNumero = null,
                     Notas = "Renovación",
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.Now
                 };
 
                 _context.Pagos.Add(pago);
@@ -342,15 +341,15 @@ namespace VidaFit.Controllers.API
                     ReferenciaId = membresia.Id,
                     UsuarioId = usuarioId ?? Guid.Parse("00000000-0000-0000-0000-000000000000"),
                     MetodoPago = metodoPago,
-                    Fecha = DateTime.UtcNow,
-                    CreatedAt = DateTime.UtcNow
+                    Fecha = DateTime.Now.Date,
+                    CreatedAt = DateTime.Now
                 };
 
                 _context.MovimientosCaja.Add(movimientoCaja);
 
                 await _context.SaveChangesAsync();
 
-                // 🆕 Mensaje mejorado con información del tipo de plan
+                // Mensaje mejorado con información del tipo de plan
                 string tipoRenovacion = plan.TipoCalculoVencimiento.ToLower() switch
                 {
                     "meses" => $"{plan.CantidadUnidades} {(plan.CantidadUnidades == 1 ? "mes" : "meses")}",
