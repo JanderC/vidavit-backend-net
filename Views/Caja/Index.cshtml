@@ -618,6 +618,63 @@
         let fechaDiaCerrar = null;
 
         // ========================================
+        // FUNCIÓN HELPER PARA FECHAS
+        // ========================================
+        /**
+         * Convierte una fecha UTC del servidor y la muestra como está (sin convertir a zona horaria local)
+         * Esto muestra la hora real que tiene la fecha en UTC
+         */
+        function parsearFechaUTC(fechaString) {
+            const fecha = new Date(fechaString);
+            return fecha;
+        }
+
+        /**
+         * Formatea una fecha UTC mostrando la hora UTC (no la convierte a local)
+         * Ejemplo: "2026-02-06T11:19:11.703466Z" -> "6/2/2026 11:19"
+         */
+        function formatearFechaHoraUTC(fechaString) {
+            const fecha = new Date(fechaString);
+
+            // Obtener componentes UTC directamente
+            const dia = fecha.getUTCDate();
+            const mes = fecha.getUTCMonth() + 1;
+            const anio = fecha.getUTCFullYear();
+            const horas = String(fecha.getUTCHours()).padStart(2, '0');
+            const minutos = String(fecha.getUTCMinutes()).padStart(2, '0');
+
+            // Formatear como "DD/MM/YYYY HH:MM"
+            return `${dia}/${mes}/${anio} ${horas}:${minutos}`;
+        }
+
+        /**
+         * Formatea solo la fecha UTC (sin hora)
+         */
+        function formatearFechaUTC(fechaString) {
+            const fecha = new Date(fechaString);
+            const dia = fecha.getUTCDate();
+            const mes = fecha.getUTCMonth() + 1;
+            const anio = fecha.getUTCFullYear();
+            return `${dia}/${mes}/${anio}`;
+        }
+
+        /**
+         * Formatea fecha UTC con formato largo
+         * Ejemplo: "miércoles, 6 de febrero de 2026"
+         */
+        function formatearFechaLargaUTC(fechaString) {
+            const fecha = new Date(fechaString);
+            // Crear fecha local con los valores UTC para formatear correctamente
+            const fechaUTC = new Date(fecha.getUTCFullYear(), fecha.getUTCMonth(), fecha.getUTCDate());
+            return fechaUTC.toLocaleDateString('es-ES', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        // ========================================
         // GESTIÓN DE TABS
         // ========================================
         function cambiarTab(tab) {
@@ -785,7 +842,6 @@
 
                 if (data.success && data.data && data.data.length > 0) {
                     tbody.innerHTML = data.data.map(m => {
-                        const fecha = new Date(m.Fecha);
                         const tipoColor = m.Tipo === 'ingreso' ? 'text-green-600' : 'text-red-600';
                         const metodoBadge = m.MetodoPago === 'efectivo'
                             ? '<span class="px-2 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded">Efectivo</span>'
@@ -794,7 +850,7 @@
                         return `
                             <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="px-6 py-4 text-sm font-semibold text-gray-900">
-                                    ${fecha.toLocaleDateString('es-ES')} ${fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                                    ${formatearFechaHoraUTC(m.Fecha)}
                                 </td>
                                 <td class="px-6 py-4">
                                     <span class="px-3 py-1 ${tipoColor} bg-opacity-10 rounded-full text-xs font-black uppercase">${m.Tipo}</span>
@@ -853,12 +909,10 @@
                     // ========================================
                     // ACTUALIZAR PERÍODO
                     // ========================================
-                    const desde = new Date(data.periodo.desde);
-                    const hasta = new Date(data.periodo.hasta);
                     const periodoElement = document.getElementById('periodo-semanal');
                     if (periodoElement) {
                         periodoElement.textContent =
-                            `Semana del ${desde.toLocaleDateString('es-ES')} al ${hasta.toLocaleDateString('es-ES')}`;
+                            `Semana del ${formatearFechaUTC(data.periodo.desde)} al ${formatearFechaUTC(data.periodo.hasta)}`;
                     }
 
                     // ========================================
@@ -962,7 +1016,6 @@
 
                 if (data.success && data.data && Array.isArray(data.data) && data.data.length > 0) {
                     container.innerHTML = data.data.map(cierre => {
-                        const fecha = new Date(cierre.FechaCierre);
                         const tipoBadge = cierre.TipoCierre === 'automatico'
                             ? '<span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full">AUTOMÁTICO</span>'
                             : '<span class="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-full">MANUAL</span>';
@@ -971,8 +1024,8 @@
                             <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200 hover:shadow-2xl transition-all">
                                 <div class="flex items-center justify-between mb-4">
                                     <div>
-                                        <h4 class="text-lg font-black text-gray-900">${fecha.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h4>
-                                        <p class="text-sm text-gray-600 font-semibold">${fecha.toLocaleTimeString('es-ES')}</p>
+                                        <h4 class="text-lg font-black text-gray-900">${formatearFechaLargaUTC(cierre.FechaCierre)}</h4>
+                                        <p class="text-sm text-gray-600 font-semibold">${formatearFechaHoraUTC(cierre.FechaCierre)}</p>
                                     </div>
                                     ${tipoBadge}
                                 </div>
@@ -1368,11 +1421,7 @@
 
                                                   <p class="text-base text-gray-500 font-semibold mb-3">
                                             <i data-lucide="calendar" class="w-4 h-4 inline-block mr-1"></i>
-                                            Fecha: ${deuda.FechaCreacion ? new Date(deuda.FechaCreacion).toLocaleDateString('es-ES', {
-                                                year: 'numeric',
-                                                month: 'long',
-                                                day: 'numeric'
-                                            }) : 'Sin fecha'}
+                                            Fecha: ${deuda.FechaCreacion ? formatearFechaLargaUTC(deuda.FechaCreacion) : 'Sin fecha'}
                                         </p>
 
                             <div class="bg-gray-50 rounded-xl p-4 mb-4 border-2 border-gray-200">
@@ -1531,7 +1580,6 @@
 
                 if (data.success && data.diasPendientes && data.diasPendientes.length > 0) {
                     container.innerHTML = data.diasPendientes.map(dia => {
-                        const fecha = new Date(dia.fecha);
                         const balanceColor = dia.balance >= 0 ? 'text-emerald-600' : 'text-red-600';
 
                         return `
@@ -1539,7 +1587,7 @@
                                 <div class="flex items-center justify-between mb-4">
                                     <div>
                                         <h4 class="text-lg font-black text-gray-900">
-                                            ${fecha.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                            ${formatearFechaLargaUTC(dia.fecha)}
                                         </h4>
                                         <p class="text-sm text-gray-600 font-semibold">
                                             ${dia.cantidadMovimientos} movimientos sin cerrar

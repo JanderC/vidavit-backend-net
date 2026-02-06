@@ -986,7 +986,7 @@ namespace VidaFit.Controllers.API
                     Descripcion = "Transferencia desde Caja Fuerte",
                     ReferenciaId = null,
                     UsuarioId = usuarioId,
-                    Fecha = DateTime.Now,
+                    Fecha = DateTime.Now.Date,
                     Cerrado = false,
                     CierreCajaId = null,
                     CreatedAt = DateTime.Now
