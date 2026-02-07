@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "682jreKTBly6m0MBxrRo3sgFEKdBe4aB4t/icAzx9cs=",
+  "Hash": "rr3BxcvlFPiGQwmUujDAmuvHvuBKNP2J8THLgVBSpqE=",
   "Source": "VidaFit",
   "BasePath": "_content/VidaFit",
   "Mode": "Default",
@@ -99,6 +99,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\favicon.ico"
+    },
+    {
+      "Identity": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\images\\LogoElite.jpeg",
+      "SourceId": "VidaFit",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\",
+      "BasePath": "_content/VidaFit",
+      "RelativePath": "images/LogoElite#[.{fingerprint}]?.jpeg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "x6v7nhfafh",
+      "Integrity": "qWR7BqO7rNIBlwxiMYRVtSEa7QaTr7qjTmC2Fb08rgU=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\LogoElite.jpeg"
     },
     {
       "Identity": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\images\\tauro-gym-logo.png",
@@ -1502,6 +1523,88 @@
         {
           "Name": "integrity",
           "Value": "sha256-Jtxf9L+5ITKRc1gIRl4VbUpGkRNfOBXjYTdhJD4facM="
+        }
+      ]
+    },
+    {
+      "Route": "images/LogoElite.jpeg",
+      "AssetFile": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\images\\LogoElite.jpeg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "76531"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"qWR7BqO7rNIBlwxiMYRVtSEa7QaTr7qjTmC2Fb08rgU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 07 Feb 2026 15:50:13 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-qWR7BqO7rNIBlwxiMYRVtSEa7QaTr7qjTmC2Fb08rgU="
+        }
+      ]
+    },
+    {
+      "Route": "images/LogoElite.x6v7nhfafh.jpeg",
+      "AssetFile": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\images\\LogoElite.jpeg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "76531"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"qWR7BqO7rNIBlwxiMYRVtSEa7QaTr7qjTmC2Fb08rgU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 07 Feb 2026 15:50:13 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "x6v7nhfafh"
+        },
+        {
+          "Name": "label",
+          "Value": "images/LogoElite.jpeg"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-qWR7BqO7rNIBlwxiMYRVtSEa7QaTr7qjTmC2Fb08rgU="
         }
       ]
     },
