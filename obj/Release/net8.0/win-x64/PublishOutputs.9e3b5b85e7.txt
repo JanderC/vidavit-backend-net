@@ -1,0 +1,4 @@
+C:\d\SistemaPlanesCompleto\appsettings.Development.json
+C:\d\SistemaPlanesCompleto\appsettings.json
+C:\d\SistemaPlanesCompleto\VidaFit.pdb
+C:\d\SistemaPlanesCompleto\VidaFit.exe

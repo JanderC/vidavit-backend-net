@@ -17,6 +17,8 @@ using System.Threading.Tasks;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ✅ NECESARIO: Permite usar DateTime.Now sin conversiones a UTC
+// Esto hace que PostgreSQL acepte timestamps sin zona horaria (timestamp without time zone)
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 // ==================== CONFIGURACIÓN DE SERVICIOS ====================
@@ -44,9 +46,8 @@ builder.Services.AddCors(options =>
     });
 });
 
-// PostgreSQL
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? "Host=localhost;Port=5432;Database=vidafit;Username=postgres;Password=postgres";
+// ✅ PostgreSQL - Usar configuración del appsettings.json
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
@@ -77,9 +78,12 @@ builder.Services.AddAuthentication(x =>
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddSingleton<IFingerprintService, FingerprintService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
-builder.Services.AddHostedService<ConsolidacionMensualService>();
 
-// ⭐ NUEVO: HttpClient para comunicación entre controladores
+// ⚠️ SERVICIOS AUTOMÁTICOS REMOVIDOS - Causan problemas con zonas horarias
+// builder.Services.AddHostedService<ConsolidacionMensualService>();
+// builder.Services.AddHostedService<CierreCajaAutomaticoService>();
+
+// HttpClient para comunicación entre controladores
 builder.Services.AddHttpClient();
 
 // Sesiones para el panel admin
@@ -110,7 +114,11 @@ var app = builder.Build();
 var fingerprintService = app.Services.GetRequiredService<IFingerprintService>();
 fingerprintService.Initialize();
 
-// Mostrar banner DESPUÉS de la inicialización
+// Mostrar zona horaria del servidor
+var zonaHoraria = TimeZoneInfo.Local;
+var horaActual = DateTime.Now;
+
+// Mostrar banner
 Console.WriteLine("═══════════════════════════════════════════════════════");
 Console.WriteLine("   ████████╗ █████╗ ██╗   ██╗██████╗  ██████╗          ");
 Console.WriteLine("   ╚══██╔══╝██╔══██╗██║   ██║██╔══██╗██╔═══██╗         ");
@@ -124,13 +132,19 @@ Console.WriteLine("   Sistema de Gestión de Gimnasio TAURO GYM");
 Console.WriteLine("   Versión 1.0 - Sistema Integrado");
 Console.WriteLine("═══════════════════════════════════════════════════════");
 Console.WriteLine($"   ✓ Servidor iniciado en: http://localhost:5000");
-Console.WriteLine($"   ✓ Base de datos: PostgreSQL - Conectada");
+Console.WriteLine($"   ✓ Base de datos: PostgreSQL - {connectionString?.Split(';')[0]}");
+Console.WriteLine($"   ✓ Zona horaria: {zonaHoraria.DisplayName}");
+Console.WriteLine($"   ✓ Hora actual: {horaActual:dd/MM/yyyy HH:mm:ss}");
+Console.WriteLine($"   ✓ Timestamp mode: Legacy (DateTime.Now compatible)");
 Console.WriteLine($"   {(fingerprintService.IsReaderConnected() ? "✓" : "✗")} Lector de huellas: {(fingerprintService.IsReaderConnected() ? "Conectado ✓" : "No detectado ✗")}");
 Console.WriteLine("═══════════════════════════════════════════════════════");
 Console.WriteLine("   📱 Kiosko de Check-in: http://localhost:5000/kiosko");
 Console.WriteLine("   🎛️  Panel Admin: http://localhost:5000/admin");
 Console.WriteLine("   📊 API REST: http://localhost:5000/api");
 Console.WriteLine("   📚 Swagger: http://localhost:5000/swagger");
+Console.WriteLine("═══════════════════════════════════════════════════════");
+Console.WriteLine("   ⚠️  NOTA: Servicios automáticos deshabilitados");
+Console.WriteLine("   ℹ️  Cierres de caja y consolidaciones deben hacerse manualmente");
 Console.WriteLine("═══════════════════════════════════════════════════════");
 
 // ==================== CONFIGURACIÓN DEL PIPELINE HTTP ====================

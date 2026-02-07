@@ -222,7 +222,7 @@ namespace VidaFit.Controllers.API
                         ReferenciaId = membresia.Id,
                         UsuarioId = usuarioId ?? Guid.Parse("00000000-0000-0000-0000-000000000000"),
                         MetodoPago = metodoPago,
-                        Fecha = DateTime.Now.Date,
+                        Fecha = DateTime.Now,
                         CreatedAt = DateTime.Now
                     };
 
@@ -299,7 +299,7 @@ namespace VidaFit.Controllers.API
                 // Independientemente de si está vencida o no, la renovación debe partir
                 // de la fecha de vencimiento para mantener la continuidad del periodo
                 // Ejemplo: si vence el 7 de marzo y paga el 10 de marzo, renueva desde el 8 de marzo
-                DateTime fechaInicio = membresia.FechaVencimiento; 
+                DateTime fechaInicio = membresia.FechaVencimiento;
 
                 var fechaVencimiento = CalcularFechaVencimiento(fechaInicio, plan);
 
@@ -341,7 +341,7 @@ namespace VidaFit.Controllers.API
                     ReferenciaId = membresia.Id,
                     UsuarioId = usuarioId ?? Guid.Parse("00000000-0000-0000-0000-000000000000"),
                     MetodoPago = metodoPago,
-                    Fecha = DateTime.Now.Date,
+                    Fecha = DateTime.Now,
                     CreatedAt = DateTime.Now
                 };
 

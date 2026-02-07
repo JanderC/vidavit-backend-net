@@ -53,9 +53,9 @@ namespace VidaFit.Controllers.API
                 .Where(m => !m.Cerrado)
                 .ToListAsync();
 
-            // Filtrar en memoria por la fecha (solo día, mes, año)
+            // Filtrar en memoria por la fecha LOCAL (convertir UTC a local antes de comparar)
             var movimientosFiltrados = movimientos
-                .Where(m => m.Fecha.Date == fechaBuscar)
+                .Where(m => m.Fecha.ToLocalTime().Date == fechaBuscar)
                 .OrderBy(m => m.Fecha)
                 .ToList();
 
@@ -159,9 +159,12 @@ namespace VidaFit.Controllers.API
                     .FirstOrDefaultAsync();
 
                 // Verificar si hay movimientos pendientes de días anteriores
-                var movimientosPendientesAnteriores = await _context.MovimientosCaja
-                    .Where(m => !m.Cerrado && m.Fecha.Date < hoy)
-                    .CountAsync();
+                var todosPendientes = await _context.MovimientosCaja
+                    .Where(m => !m.Cerrado)
+                    .ToListAsync();
+
+                var movimientosPendientesAnteriores = todosPendientes
+                    .Count(m => m.Fecha.ToLocalTime().Date < hoy);
 
                 return Ok(new
                 {
@@ -225,10 +228,17 @@ namespace VidaFit.Controllers.API
                 var hoy = DateTime.Now.Date;
                 var hace7Dias = hoy.AddDays(-6); // Los últimos 7 días (incluyendo hoy)
 
-                // Obtener todos los movimientos de los últimos 7 días
+                // Obtener todos los movimientos (sin filtro de fecha en la query)
                 var movimientos = await _context.MovimientosCaja
-                    .Where(m => m.Fecha.Date >= hace7Dias && m.Fecha.Date <= hoy)
                     .ToListAsync();
+
+                // Filtrar en memoria por fecha local
+                var movimientosSemana = movimientos
+                    .Where(m => {
+                        var fechaLocal = m.Fecha.ToLocalTime().Date;
+                        return fechaLocal >= hace7Dias && fechaLocal <= hoy;
+                    })
+                    .ToList();
 
                 // Agrupar por día
                 var resumenPorDia = new List<object>();
@@ -237,8 +247,8 @@ namespace VidaFit.Controllers.API
                 {
                     var fecha = hace7Dias.AddDays(i);
 
-                    var movimientosDia = movimientos
-                        .Where(m => m.Fecha.Date == fecha)
+                    var movimientosDia = movimientosSemana
+                        .Where(m => m.Fecha.ToLocalTime().Date == fecha)
                         .ToList();
 
                     var ingresos = movimientosDia.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto);
@@ -443,29 +453,38 @@ namespace VidaFit.Controllers.API
         {
             try
             {
+                // Obtener todos los movimientos o solo pendientes
                 var query = _context.MovimientosCaja.AsQueryable();
 
-                // Filtrar por rango de fechas si se proporcionan
-                if (!string.IsNullOrEmpty(desde))
-                {
-                    var fechaDesde = DateTime.Parse(desde).Date;
-                    query = query.Where(m => m.Fecha.Date >= fechaDesde);
-                }
-
-                if (!string.IsNullOrEmpty(hasta))
-                {
-                    var fechaHasta = DateTime.Parse(hasta).Date;
-                    query = query.Where(m => m.Fecha.Date <= fechaHasta);
-                }
-
-                // Filtrar solo pendientes si se solicita
                 if (soloPendientes)
                 {
                     query = query.Where(m => !m.Cerrado);
                 }
 
-                var movimientos = await query
+                var todosMovimientos = await query
                     .OrderByDescending(m => m.Fecha)
+                    .ToListAsync();
+
+                // Filtrar por fechas en memoria usando fecha local
+                var movimientos = todosMovimientos;
+
+                if (!string.IsNullOrEmpty(desde))
+                {
+                    var fechaDesde = DateTime.Parse(desde).Date;
+                    movimientos = movimientos
+                        .Where(m => m.Fecha.ToLocalTime().Date >= fechaDesde)
+                        .ToList();
+                }
+
+                if (!string.IsNullOrEmpty(hasta))
+                {
+                    var fechaHasta = DateTime.Parse(hasta).Date;
+                    movimientos = movimientos
+                        .Where(m => m.Fecha.ToLocalTime().Date <= fechaHasta)
+                        .ToList();
+                }
+
+                var resultado = movimientos
                     .Select(m => new
                     {
                         m.Id,
@@ -478,7 +497,7 @@ namespace VidaFit.Controllers.API
                         m.Cerrado,
                         m.CierreCajaId
                     })
-                    .ToListAsync();
+                    .ToList();
 
                 return Ok(new
                 {
@@ -489,8 +508,8 @@ namespace VidaFit.Controllers.API
                         fechaFin = hasta,
                         soloPendientes = soloPendientes
                     },
-                    cantidad = movimientos.Count,
-                    data = movimientos
+                    cantidad = resultado.Count,
+                    data = resultado
                 });
             }
             catch (Exception ex)
@@ -986,7 +1005,7 @@ namespace VidaFit.Controllers.API
                     Descripcion = "Transferencia desde Caja Fuerte",
                     ReferenciaId = null,
                     UsuarioId = usuarioId,
-                    Fecha = DateTime.Now.Date,
+                    Fecha = DateTime.Now,
                     Cerrado = false,
                     CierreCajaId = null,
                     CreatedAt = DateTime.Now

@@ -153,11 +153,16 @@ namespace VidaFit.Controllers.API
         {
             try
             {
-                var today = DateTime.Now.Date;
-                var checkIns = await _context.CheckIns
+                // Obtener todos los check-ins sin cerrar (no filtrar por fecha en la query)
+                var todosCheckIns = await _context.CheckIns
                     .Include(c => c.Cliente)
-                    .Where(c => c.FechaHora.Date == today)
                     .OrderByDescending(c => c.FechaHora)
+                    .ToListAsync();
+
+                // Filtrar en memoria comparando la fecha UTC con la fecha local de hoy
+                var today = DateTime.Now.Date;
+                var checkIns = todosCheckIns
+                    .Where(c => c.FechaHora.ToLocalTime().Date == today)
                     .Select(c => new
                     {
                         c.Id,
@@ -168,7 +173,7 @@ namespace VidaFit.Controllers.API
                         c.Nota,
                         fotoCliente = c.Cliente.FotoBase64
                     })
-                    .ToListAsync();
+                    .ToList();
 
                 return Ok(new
                 {
@@ -196,19 +201,22 @@ namespace VidaFit.Controllers.API
         {
             try
             {
-                // Convertir fechas a UTC explícitamente
-                var fechaDesde = desde.HasValue
-                    ? DateTime.SpecifyKind(desde.Value.Date, DateTimeKind.Utc)
-                    : DateTime.Now.Date;
+                // Obtener fechas locales
+                var fechaDesde = desde?.Date ?? DateTime.Now.Date;
+                var fechaHasta = hasta?.Date ?? DateTime.Now.Date;
 
-                var fechaHasta = hasta.HasValue
-                    ? DateTime.SpecifyKind(hasta.Value.Date, DateTimeKind.Utc)
-                    : DateTime.Now.Date;
-
-                var checkIns = await _context.CheckIns
+                // Obtener todos los check-ins
+                var todosCheckIns = await _context.CheckIns
                     .Include(c => c.Cliente)
-                    .Where(c => c.FechaHora.Date >= fechaDesde && c.FechaHora.Date <= fechaHasta)
                     .OrderByDescending(c => c.FechaHora)
+                    .ToListAsync();
+
+                // Filtrar en memoria comparando fechas locales
+                var checkIns = todosCheckIns
+                    .Where(c => {
+                        var fechaLocal = c.FechaHora.ToLocalTime().Date;
+                        return fechaLocal >= fechaDesde && fechaLocal <= fechaHasta;
+                    })
                     .Select(c => new
                     {
                         c.Id,
@@ -219,7 +227,7 @@ namespace VidaFit.Controllers.API
                         c.Nota,
                         fotoCliente = c.Cliente.FotoBase64
                     })
-                    .ToListAsync();
+                    .ToList();
 
                 return Ok(new
                 {
