@@ -58,6 +58,17 @@
                     }
                 } catch (error) {
                     console.error('Error cargando datos de caja:', error);
+                    this.cajaHoyData = {
+                        success: true,
+                        ingresos: 0,
+                        egresos: 0,
+                        balance: 0,
+                        ingresosEfectivo: 0,
+                        egresosEfectivo: 0,
+                        ingresosTransferencia: 0,
+                        egresosTransferencia: 0,
+                        cantidadMovimientos: 0
+                    };
                 }
             }
 
@@ -175,7 +186,7 @@
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <p class="text-gray-600 text-sm font-semibold uppercase tracking-wide">Miembros Activos</p>
-                                        <p class="text-3xl font-black text-gray-900 mt-2">${resumen.miembrosActivos}</p>
+                                        <p class="text-3xl font-black text-gray-900 mt-2">${resumen.totalClientes || 0}</p>
                                     </div>
                                     <div class="w-16 h-16 bg-gradient-to-br from-orange-100 to-orange-200 rounded-2xl flex items-center justify-center">
                                         <i data-lucide="users" class="w-8 h-8 text-orange-600"></i>
@@ -187,7 +198,7 @@
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <p class="text-gray-600 text-sm font-semibold uppercase tracking-wide">Check-ins Hoy</p>
-                                        <p class="text-3xl font-black text-gray-900 mt-2">${resumen.checkInsHoy}</p>
+                                        <p class="text-3xl font-black text-gray-900 mt-2">${resumen.checkInsHoy || 0}</p>
                                     </div>
                                     <div class="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center">
                                         <i data-lucide="log-in" class="w-8 h-8 text-blue-600"></i>
@@ -199,7 +210,7 @@
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <p class="text-gray-600 text-sm font-semibold uppercase tracking-wide">Membresías Vencidas</p>
-                                        <p class="text-3xl font-black text-gray-900 mt-2">${alertas.membresiasVencidas}</p>
+                                        <p class="text-3xl font-black text-gray-900 mt-2">${alertas.membresiasVencidas || 0}</p>
                                     </div>
                                     <div class="w-16 h-16 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl flex items-center justify-center">
                                         <i data-lucide="alert-circle" class="w-8 h-8 text-purple-600"></i>
@@ -211,7 +222,7 @@
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <p class="text-gray-600 text-sm font-semibold uppercase tracking-wide">Por Vencer</p>
-                                        <p class="text-3xl font-black text-gray-900 mt-2">${alertas.membresiasPorVencer}</p>
+                                        <p class="text-3xl font-black text-gray-900 mt-2">${alertas.membresiasPorVencer || 0}</p>
                                     </div>
                                     <div class="w-16 h-16 bg-gradient-to-br from-amber-100 to-amber-200 rounded-2xl flex items-center justify-center">
                                         <i data-lucide="clock" class="w-8 h-8 text-amber-600"></i>
@@ -223,7 +234,7 @@
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <p class="text-gray-600 text-sm font-semibold uppercase tracking-wide">Movimientos</p>
-                                        <p class="text-3xl font-black text-gray-900 mt-2">${cantidadMovimientos}</p>
+                                        <p class="text-3xl font-black text-gray-900 mt-2">${cantidadMovimientos || 0}</p>
                                     </div>
                                     <div class="w-16 h-16 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-2xl flex items-center justify-center">
                                         <i data-lucide="zap" class="w-8 h-8 text-emerald-600"></i>
@@ -307,6 +318,11 @@
                         </div>
                     </div>
                 `;
+
+                // Inicializar iconos de lucide DESPUÉS de renderizar
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
             }
 
             renderTopClientes(topClientes) {
