@@ -377,6 +377,76 @@ namespace VidaFit.Controllers.API
             }
         }
 
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateMembresia(Guid id, [FromBody] JsonElement data)
+        {
+            try
+            {
+                var membresia = await _context.Membresias.FindAsync(id);
+                if (membresia == null)
+                    return NotFound(new { message = "Membresía no encontrada" });
+
+                // Extraer datos del JSON
+                var clienteId = Guid.Parse(data.GetProperty("clienteId").GetString());
+                var planId = Guid.Parse(data.GetProperty("planId").GetString());
+                var fechaInicioStr = data.GetProperty("fechaInicio").GetString();
+                var fechaVencimientoStr = data.GetProperty("fechaVencimiento").GetString();
+                var estado = data.GetProperty("estado").GetString();
+                var montoPagado = data.GetProperty("montoPagado").GetDecimal();
+                var metodoPago = data.GetProperty("metodoPago").GetString();
+                var notas = data.TryGetProperty("notas", out var notasEl) && !string.IsNullOrWhiteSpace(notasEl.GetString())
+                    ? notasEl.GetString()
+                    : null;
+
+                // Parsear fechas
+                var fechaInicio = DateTime.Parse(fechaInicioStr).Date;
+                var fechaVencimiento = DateTime.Parse(fechaVencimientoStr).Date;
+
+                // Validar cliente
+                var cliente = await _context.Clientes.FindAsync(clienteId);
+                if (cliente == null || !cliente.Activo)
+                {
+                    return BadRequest(new { message = "Cliente no válido" });
+                }
+
+                // Validar plan
+                var plan = await _context.Planes.FindAsync(planId);
+                if (plan == null || !plan.Activo)
+                {
+                    return BadRequest(new { message = "Plan no válido" });
+                }
+
+                // IMPORTANTE: Solo actualizar los datos, NO registrar movimientos en caja
+                membresia.ClienteId = clienteId;
+                membresia.PlanId = planId;
+                membresia.FechaInicio = fechaInicio;
+                membresia.FechaVencimiento = fechaVencimiento;
+                membresia.Estado = estado;
+                membresia.MontoPagado = montoPagado;
+                membresia.MetodoPago = metodoPago;
+                membresia.Notas = notas;
+                membresia.UpdatedAt = DateTime.Now;
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    success = true,
+                    data = membresia,
+                    message = "Membresía actualizada exitosamente"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Error al actualizar membresía",
+                    error = ex.Message
+                });
+            }
+        }
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMembresia(Guid id)
         {

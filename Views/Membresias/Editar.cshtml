@@ -1,0 +1,389 @@
+@model VidaFitBackend.Models.Membresia
+@{
+    ViewData["Title"] = "Editar Membresía";
+    ViewData["Subtitle"] = "Modificar información de la membresía - TAURO GYM";
+    Layout = "_AdminLayout";
+}
+
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
+        <div class="flex items-center gap-4 mb-8 pb-6 border-b-2 border-gray-200">
+            <div class="bg-gradient-to-br from-amber-600 to-amber-800 rounded-xl p-4">
+                <i data-lucide="edit" class="w-8 h-8 text-white"></i>
+            </div>
+            <div>
+                <h2 class="text-3xl font-black text-gray-900 uppercase tracking-wide">Editar Membresía</h2>
+                <p class="text-sm text-gray-600 font-semibold mt-1">
+                    Modificar datos sin afectar la caja
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-blue-100 text-blue-800 ml-2">
+                        <i data-lucide="info" class="w-3 h-3 mr-1"></i>
+                        NO REGISTRA INGRESO
+                    </span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Alerta informativa -->
+        <div class="mb-6 p-5 bg-blue-50 border-2 border-blue-500 rounded-xl">
+            <div class="flex items-start gap-4">
+                <div class="bg-blue-200 p-3 rounded-xl">
+                    <i data-lucide="alert-circle" class="w-6 h-6 text-blue-700"></i>
+                </div>
+                <div>
+                    <h4 class="font-black text-blue-900 text-lg uppercase tracking-wide mb-2">ℹ️ Importante</h4>
+                    <ul class="text-sm text-blue-800 font-bold space-y-1">
+                        <li>✏️ Esta función solo EDITA datos de la membresía</li>
+                        <li>🚫 NO registra movimientos en caja</li>
+                        <li>💰 Para renovar y registrar pago, use el botón "RENOVAR" del listado</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <form id="editForm" class="space-y-6">
+            <input type="hidden" id="membresiaId" value="@Model.Id" />
+            <input type="hidden" id="createdAt" value="@Model.CreatedAt.ToString("yyyy-MM-ddTHH:mm:ss")" />
+            <input type="hidden" id="montoPagadoOriginal" value="@Model.MontoPagado" />
+
+            <!-- CLIENTE (Solo lectura) -->
+            <div>
+                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Cliente</label>
+                <div class="p-5 bg-gray-50 border-2 border-gray-300 rounded-xl">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-gray-300 p-3 rounded-xl">
+                            <i data-lucide="user" class="w-6 h-6 text-gray-700"></i>
+                        </div>
+                        <div>
+                            <p class="font-black text-gray-900 text-lg uppercase tracking-wide">@Model.Cliente?.Nombre @Model.Cliente?.Apellido</p>
+                            <p class="text-sm text-gray-600 font-bold">@Model.Cliente?.Cedula</p>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" id="clienteId" value="@Model.ClienteId" />
+            </div>
+
+            <!-- PLAN -->
+            <div>
+                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Plan *</label>
+                <select id="planId" required
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-600 focus:border-amber-600 text-gray-900 bg-white font-semibold">
+                    @if (ViewBag.Planes != null)
+                    {
+                        foreach (var plan in ViewBag.Planes)
+                        {
+                            var isSelected = plan.Id == Model.PlanId;
+                            <option value="@plan.Id"
+                                    data-precio="@plan.Precio"
+                                    data-duracion="@plan.DuracionDias"
+                                    data-tipo="@plan.TipoCalculoVencimiento"
+                                    data-cantidad="@plan.CantidadUnidades"
+                                    selected="@isSelected">
+                                @plan.Nombre - $@plan.Precio (@plan.DuracionDias días)
+                            </option>
+                        }
+                    }
+                </select>
+                <div id="planInfo" class="mt-3 p-4 bg-blue-50 border-2 border-blue-500 rounded-xl text-sm text-blue-900 font-bold hidden"></div>
+            </div>
+
+            <!-- FECHAS -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Fecha Inicio *</label>
+                    <input type="date" id="fechaInicio" value="@Model.FechaInicio.ToString("yyyy-MM-dd")" required
+                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-600 focus:border-amber-600 text-gray-900 font-semibold">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Fecha Vencimiento *</label>
+                    <input type="date" id="fechaVencimiento" value="@Model.FechaVencimiento.ToString("yyyy-MM-dd")" required
+                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-600 focus:border-amber-600 text-gray-900 font-semibold">
+                    <p class="text-xs text-gray-600 font-bold mt-2">
+                        <i data-lucide="info" class="w-3 h-3 inline"></i>
+                        Se actualizará automáticamente al cambiar el plan o fecha de inicio
+                    </p>
+                </div>
+            </div>
+
+            <!-- INFORMACIÓN DE DURACIÓN -->
+            <div id="duracionInfo" class="hidden">
+                <div class="bg-emerald-50 border-2 border-emerald-500 rounded-xl p-5">
+                    <div class="flex items-center gap-2 mb-4">
+                        <i data-lucide="calendar" class="w-6 h-6 text-emerald-600"></i>
+                        <h4 class="font-black text-emerald-900 uppercase tracking-wide">Duración de la Membresía</h4>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <p class="text-emerald-700 font-bold uppercase tracking-wide">Total:</p>
+                            <p class="font-black text-emerald-900 text-2xl" id="totalDias">-</p>
+                        </div>
+                        <div>
+                            <p class="text-emerald-700 font-bold uppercase tracking-wide">Vence el:</p>
+                            <p class="font-black text-emerald-900 text-lg" id="fechaVencTexto">-</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ESTADO -->
+            <div>
+                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Estado *</label>
+                <select id="estado" required
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-600 focus:border-amber-600 text-gray-900 bg-white font-semibold">
+                    <option value="activa" selected="@(Model.Estado == "activa")">Activa</option>
+                    <option value="vencida" selected="@(Model.Estado == "vencida")">Vencida</option>
+                    <option value="suspendida" selected="@(Model.Estado == "suspendida")">Suspendida</option>
+                    <option value="cancelada" selected="@(Model.Estado == "cancelada")">Cancelada</option>
+                </select>
+            </div>
+
+            <!-- MÉTODO DE PAGO (Solo referencial) -->
+            <div>
+                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
+                    Método de Pago (Referencial)
+                    <span class="text-xs text-gray-500 normal-case font-normal ml-2">(No afecta la caja)</span>
+                </label>
+                <select id="metodoPago" required
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-600 focus:border-amber-600 text-gray-900 bg-white font-semibold">
+                    <option value="efectivo" selected="@(Model.MetodoPago == "efectivo")">Efectivo</option>
+                    <option value="tarjeta" selected="@(Model.MetodoPago == "tarjeta")">Tarjeta</option>
+                    <option value="transferencia" selected="@(Model.MetodoPago == "transferencia")">Transferencia</option>
+                </select>
+            </div>
+
+            <!-- INFORMACIÓN DE PAGO (Solo lectura) -->
+            <div class="p-5 bg-gray-50 border-2 border-gray-300 rounded-xl">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600 font-bold uppercase tracking-wide">Monto Pagado Originalmente:</p>
+                        <p class="text-2xl font-black text-gray-900">$@Model.MontoPagado.ToString("N2")</p>
+                        <p class="text-xs text-gray-500 font-bold mt-1">
+                            <i data-lucide="lock" class="w-3 h-3 inline"></i>
+                            Este campo no se puede editar desde aquí
+                        </p>
+                    </div>
+                    <div class="bg-gray-300 p-3 rounded-xl">
+                        <i data-lucide="dollar-sign" class="w-8 h-8 text-gray-700"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NOTAS -->
+            <div>
+                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Notas (Opcional)</label>
+                <textarea id="notas" rows="3"
+                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-600 focus:border-amber-600 text-gray-900 font-semibold resize-none"
+                          placeholder="Observaciones o comentarios adicionales...">@Model.Notas</textarea>
+            </div>
+
+            <!-- INFORMACIÓN DE TIMESTAMPS -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-5 bg-gray-50 border-2 border-gray-300 rounded-xl">
+                <div>
+                    <p class="text-xs text-gray-600 font-bold uppercase tracking-wide">Creado:</p>
+                    <p class="text-sm font-black text-gray-900">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-600 font-bold uppercase tracking-wide">Última Actualización:</p>
+                    <p class="text-sm font-black text-gray-900">@Model.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                </div>
+            </div>
+
+            <!-- BOTONES -->
+            <div class="flex gap-4 pt-6 border-t-2 border-gray-200">
+                <a href="/membresias"
+                   class="flex-1 px-6 py-4 bg-gray-200 text-gray-900 rounded-xl hover:bg-gray-300 font-black uppercase tracking-wide transition-all text-center flex items-center justify-center gap-2">
+                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    Cancelar
+                </a>
+                <button type="submit"
+                        class="flex-1 px-6 py-4 bg-gradient-to-r from-amber-600 to-amber-800 text-white rounded-xl hover:from-amber-700 hover:to-amber-900 font-black uppercase tracking-wide transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105">
+                    <i data-lucide="save" class="w-5 h-5"></i>
+                    Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let planesData = [];
+        let planSeleccionado = null;
+
+        // Cargar planes al inicio
+        async function cargarPlanes() {
+            try {
+                const response = await fetch('/api/Planes');
+                planesData = await response.json();
+                console.log('Planes cargados:', planesData.length);
+
+                // Establecer plan actual como seleccionado
+                const planActual = planesData.find(p => (p.id || p.Id) == '@Model.PlanId');
+                if (planActual) {
+                    planSeleccionado = {
+                        id: planActual.id || planActual.Id,
+                        precio: planActual.precio || planActual.Precio,
+                        duracionDias: planActual.duracionDias || planActual.DuracionDias,
+                        tipoCalculoVencimiento: planActual.tipoCalculoVencimiento || planActual.TipoCalculoVencimiento || 'dias',
+                        cantidadUnidades: planActual.cantidadUnidades || planActual.CantidadUnidades || planActual.duracionDias || planActual.DuracionDias
+                    };
+                    mostrarInfoPlan();
+                }
+            } catch (error) {
+                console.error('Error cargando planes:', error);
+            }
+        }
+
+        // Evento: cambio de plan
+        document.getElementById('planId').addEventListener('change', function() {
+            const option = this.options[this.selectedIndex];
+            if (!option.value) {
+                planSeleccionado = null;
+                document.getElementById('planInfo').classList.add('hidden');
+                document.getElementById('duracionInfo').classList.add('hidden');
+                return;
+            }
+
+            planSeleccionado = {
+                id: option.value,
+                precio: parseFloat(option.dataset.precio),
+                duracionDias: parseInt(option.dataset.duracion),
+                tipoCalculoVencimiento: option.dataset.tipo || 'dias',
+                cantidadUnidades: parseInt(option.dataset.cantidad || option.dataset.duracion)
+            };
+
+            mostrarInfoPlan();
+            recalcularFechaVencimiento();
+        });
+
+        // Evento: cambio de fecha inicio
+        document.getElementById('fechaInicio').addEventListener('change', function() {
+            if (planSeleccionado) {
+                recalcularFechaVencimiento();
+            }
+        });
+
+        function mostrarInfoPlan() {
+            if (!planSeleccionado) return;
+
+            const info = document.getElementById('planInfo');
+            info.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <i data-lucide="info" class="w-5 h-5"></i>
+                    <span>Precio: <strong>$${planSeleccionado.precio.toFixed(2)}</strong> | Duración: <strong>${planSeleccionado.duracionDias} días</strong></span>
+                </div>
+            `;
+            info.classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function recalcularFechaVencimiento() {
+            const fechaInicioStr = document.getElementById('fechaInicio').value;
+            if (!fechaInicioStr || !planSeleccionado) return;
+
+            const [year, month, day] = fechaInicioStr.split('-').map(Number);
+            const fechaInicio = new Date(year, month - 1, day);
+
+            let fechaVenc;
+            let duracionTexto;
+
+            switch (planSeleccionado.tipoCalculoVencimiento.toLowerCase()) {
+                case 'meses':
+                    fechaVenc = new Date(fechaInicio);
+                    fechaVenc.setMonth(fechaVenc.getMonth() + planSeleccionado.cantidadUnidades);
+                    duracionTexto = `${planSeleccionado.cantidadUnidades} ${planSeleccionado.cantidadUnidades === 1 ? 'mes' : 'meses'}`;
+                    break;
+
+                case 'semanas':
+                    fechaVenc = new Date(fechaInicio);
+                    fechaVenc.setDate(fechaVenc.getDate() + (planSeleccionado.cantidadUnidades * 7));
+                    duracionTexto = `${planSeleccionado.cantidadUnidades} ${planSeleccionado.cantidadUnidades === 1 ? 'semana' : 'semanas'}`;
+                    break;
+
+                case 'anios':
+                    fechaVenc = new Date(fechaInicio);
+                    fechaVenc.setFullYear(fechaVenc.getFullYear() + planSeleccionado.cantidadUnidades);
+                    duracionTexto = `${planSeleccionado.cantidadUnidades} ${planSeleccionado.cantidadUnidades === 1 ? 'año' : 'años'}`;
+                    break;
+
+                case 'dias':
+                default:
+                    fechaVenc = new Date(fechaInicio);
+                    fechaVenc.setDate(fechaVenc.getDate() + (planSeleccionado.duracionDias - 1));
+                    duracionTexto = `${planSeleccionado.duracionDias} días`;
+                    break;
+            }
+
+            // Formatear fecha para el input (YYYY-MM-DD)
+            const year2 = fechaVenc.getFullYear();
+            const month2 = String(fechaVenc.getMonth() + 1).padStart(2, '0');
+            const day2 = String(fechaVenc.getDate()).padStart(2, '0');
+            const fechaVencStr = `${year2}-${month2}-${day2}`;
+
+            // Actualizar UI
+            document.getElementById('fechaVencimiento').value = fechaVencStr;
+            document.getElementById('totalDias').textContent = duracionTexto;
+            document.getElementById('fechaVencTexto').textContent = fechaVenc.toLocaleDateString('es-ES', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            document.getElementById('duracionInfo').classList.remove('hidden');
+        }
+
+        // Validación y envío al API
+        document.getElementById('editForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            if (!confirm('⚠️ ¿Confirmar cambios en esta membresía?\n\n✏️ Solo se editarán los datos\n🚫 NO se registrará ningún movimiento en caja')) {
+                return false;
+            }
+
+            const membresiaId = document.getElementById('membresiaId').value;
+            const data = {
+                id: membresiaId,
+                clienteId: document.getElementById('clienteId').value,
+                planId: document.getElementById('planId').value,
+                fechaInicio: document.getElementById('fechaInicio').value,
+                fechaVencimiento: document.getElementById('fechaVencimiento').value,
+                estado: document.getElementById('estado').value,
+                montoPagado: parseFloat(document.getElementById('montoPagadoOriginal').value),
+                metodoPago: document.getElementById('metodoPago').value,
+                notas: document.getElementById('notas').value || null
+            };
+
+            try {
+                const response = await fetch(`/api/Membresias/${membresiaId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert('✅ Membresía actualizada exitosamente');
+                    window.location.href = '/membresias';
+                } else {
+                    const error = await response.text();
+                    alert('❌ Error al actualizar: ' + error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error al actualizar la membresía: ' + error.message);
+            }
+        });
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarPlanes();
+            lucide.createIcons();
+
+            // Mostrar info de duración inicial si hay fechas
+            if (planSeleccionado) {
+                recalcularFechaVencimiento();
+            }
+        });
+    </script>
+}
