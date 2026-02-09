@@ -1,7 +1,7 @@
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Reporte de Ingresos";
-    ViewData["Subtitle"] = "Análisis financiero completo - TAURO GYM";
+    ViewData["Subtitle"] = "Análisis financiero completo - JONEL GYM";
 }
 
 <div class="space-y-6">
@@ -58,7 +58,7 @@
     <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
         <div class="flex items-center justify-between mb-6">
             <h3 class="text-2xl font-black text-gray-900 uppercase tracking-wide">Ingresos Mensuales</h3>
-            <select id="meses-periodo" onchange="loadData()" class="px-4 py-2 border-2 border-gray-300 rounded-xl text-sm font-semibold bg-white focus:ring-2 focus:ring-red-600">
+            <select id="meses-periodo" onchange="loadData()" class="px-4 py-2 border-2 border-gray-300 rounded-xl text-sm font-semibold bg-white focus:ring-2 focus:ring-orange-600">
                 <option value="6">Últimos 6 meses</option>
                 <option value="12">Últimos 12 meses</option>
             </select>
@@ -163,51 +163,54 @@
                 .reduce((sum, v) => sum + (v.total || 0), 0);
 
             const pendienteCobro = ventasMes
-                .filter(v => v.estadoPago === 'pendiente')
+                .filter(v => v.estadoPago === 'fiado')
                 .reduce((sum, v) => sum + (v.total || 0), 0);
 
-            document.getElementById('ingresos-mes').textContent = `$${ingresosMembresias.toFixed(2)}`;
-            document.getElementById('ingresos-productos').textContent = `$${ingresosProductos.toFixed(2)}`;
-            document.getElementById('pendiente-cobro').textContent = `$${pendienteCobro.toFixed(2)}`;
+            const ingresosTotales = ingresosMembresias + ingresosProductos;
+
+            document.getElementById('ingresos-mes').textContent = '$' + ingresosMembresias.toFixed(2);
+            document.getElementById('ingresos-productos').textContent = '$' + ingresosProductos.toFixed(2);
+            document.getElementById('pendiente-cobro').textContent = '$' + pendienteCobro.toFixed(2);
         }
 
         function renderGrafica(membresias, ventas, meses) {
             const ctx = document.getElementById('chart-ingresos');
 
-            if (chartInstance) {
-                chartInstance.destroy();
-            }
-
-            const labels = [];
-            const datosMembresias = [];
-            const datosProductos = [];
+            const hoy = new Date();
+            const dataMap = {};
 
             for (let i = meses - 1; i >= 0; i--) {
-                const fecha = new Date();
-                fecha.setMonth(fecha.getMonth() - i);
+                const fecha = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1);
+                const mesLabel = fecha.toLocaleString('es-ES', { month: 'short', year: '2-digit' });
+                dataMap[mesLabel] = { membresias: 0, productos: 0 };
+            }
 
-                const mesLabel = fecha.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' });
-                labels.push(mesLabel);
+            membresias.forEach(m => {
+                if ((m.estado || m.Estado) === 'activa') {
+                    const fecha = new Date(m.fechaInicio || m.FechaInicio);
+                    const mesLabel = fecha.toLocaleString('es-ES', { month: 'short', year: '2-digit' });
+                    if (dataMap[mesLabel]) {
+                        dataMap[mesLabel].membresias += m.montoPagado || m.MontoPagado || 0;
+                    }
+                }
+            });
 
-                const primerDia = new Date(fecha.getFullYear(), fecha.getMonth(), 1);
-                const ultimoDia = new Date(fecha.getFullYear(), fecha.getMonth() + 1, 0);
+            ventas.forEach(v => {
+                if (v.estadoPago === 'pagado') {
+                    const fecha = new Date(v.fechaVenta || v.FechaVenta);
+                    const mesLabel = fecha.toLocaleString('es-ES', { month: 'short', year: '2-digit' });
+                    if (dataMap[mesLabel]) {
+                        dataMap[mesLabel].productos += v.total || 0;
+                    }
+                }
+            });
 
-                const ingresosM = membresias
-                    .filter(m => {
-                        const f = new Date(m.fechaInicio || m.FechaInicio);
-                        return f >= primerDia && f <= ultimoDia && (m.estado || m.Estado) === 'activa';
-                    })
-                    .reduce((sum, m) => sum + (m.montoPagado || m.MontoPagado || 0), 0);
+            const labels = Object.keys(dataMap);
+            const membresiasData = labels.map(l => dataMap[l].membresias);
+            const productosData = labels.map(l => dataMap[l].productos);
 
-                const ingresosP = ventas
-                    .filter(v => {
-                        const f = new Date(v.fechaVenta || v.FechaVenta);
-                        return f >= primerDia && f <= ultimoDia && v.estadoPago === 'pagado';
-                    })
-                    .reduce((sum, v) => sum + (v.total || 0), 0);
-
-                datosMembresias.push(ingresosM);
-                datosProductos.push(ingresosP);
+            if (chartInstance) {
+                chartInstance.destroy();
             }
 
             chartInstance = new Chart(ctx, {
@@ -217,19 +220,19 @@
                     datasets: [
                         {
                             label: 'Membresías',
-                            data: datosMembresias,
-                            borderColor: '#E31E24',
-                            backgroundColor: 'rgba(227, 30, 36, 0.1)',
-                            borderWidth: 3,
+                            data: membresiasData,
+                            borderColor: '#FF8C00',
+                            backgroundColor: 'rgba(255, 140, 0, 0.1)',
+                            borderWidth: 2,
                             fill: true,
                             tension: 0.4
                         },
                         {
                             label: 'Productos',
-                            data: datosProductos,
+                            data: productosData,
                             borderColor: '#3b82f6',
                             backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                            borderWidth: 3,
+                            borderWidth: 2,
                             fill: true,
                             tension: 0.4
                         }
@@ -293,16 +296,16 @@
             const porcP = total > 0 ? (ingresosP / total * 100) : 0;
 
             document.getElementById('resumen-tipo').innerHTML = `
-                <div class="p-4 bg-red-50 rounded-xl border-2 border-red-200">
+                <div class="p-4 bg-orange-50 rounded-xl border-2 border-orange-200">
                     <div class="flex items-center justify-between mb-2">
                         <div class="flex items-center gap-2">
-                            <i data-lucide="credit-card" class="w-5 h-5 text-red-600"></i>
+                            <i data-lucide="credit-card" class="w-5 h-5 text-orange-600"></i>
                             <span class="font-black text-gray-900 uppercase text-sm tracking-wide">Membresías</span>
                         </div>
-                        <span class="font-black text-red-600 text-lg">$${ingresosM.toFixed(2)}</span>
+                        <span class="font-black text-orange-600 text-lg">$${ingresosM.toFixed(2)}</span>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-2">
-                        <div class="bg-gradient-to-r from-red-600 to-red-800 h-2 rounded-full" style="width: ${porcM}%"></div>
+                        <div class="bg-gradient-to-r from-orange-500 to-orange-700 h-2 rounded-full" style="width: ${porcM}%"></div>
                     </div>
                     <p class="text-xs text-gray-600 mt-2 font-bold">${porcM.toFixed(1)}% del total</p>
                 </div>
@@ -340,7 +343,7 @@
                 const cliente = v.cliente || v.Cliente || {};
 
                 return `
-                    <div class="p-3 bg-gray-50 rounded-xl border-2 border-gray-200 hover:border-red-600 transition-all">
+                    <div class="p-3 bg-gray-50 rounded-xl border-2 border-gray-200 hover:border-orange-500 transition-all">
                         <div class="flex items-center justify-between">
                             <div class="flex-1">
                                 <p class="font-black text-gray-900 text-sm">${producto.nombre || producto.Nombre || 'Producto'}</p>
