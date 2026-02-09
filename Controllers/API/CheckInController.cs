@@ -55,6 +55,41 @@ namespace VidaFit.Controllers.API
                     });
                 }
 
+                // ========== VALIDACIÓN DE CHECK-IN DUPLICADO (12 HORAS) ==========
+                var hace12Horas = DateTime.Now.AddHours(-12);
+                var checkInReciente = await _context.CheckIns
+                    .Where(c => c.ClienteId == cliente.Id &&
+                                c.Exitoso &&
+                                c.FechaHora >= hace12Horas)
+                    .OrderByDescending(c => c.FechaHora)
+                    .FirstOrDefaultAsync();
+
+                if (checkInReciente != null)
+                {
+                    var horasTranscurridas = (DateTime.Now - checkInReciente.FechaHora).TotalHours;
+                    var horasRestantes = 12 - horasTranscurridas;
+
+                    return Ok(new
+                    {
+                        success = false,
+                        message = $"Ya realizaste check-in hoy a las {checkInReciente.FechaHora:hh:mm tt}",
+                        yaHizoCheckIn = true,
+                        ultimoCheckIn = new
+                        {
+                            fecha = checkInReciente.FechaHora,
+                            horaFormateada = checkInReciente.FechaHora.ToString("hh:mm tt"),
+                            horasTranscurridas = Math.Round(horasTranscurridas, 1),
+                            horasRestantes = Math.Round(horasRestantes, 1)
+                        },
+                        cliente = new
+                        {
+                            nombre = $"{cliente.Nombre} {cliente.Apellido}",
+                            fotoBase64 = cliente.FotoBase64
+                        }
+                    });
+                }
+                // ==================================================================
+
                 // Verificar deudas pendientes
                 var deudasPendientes = await _context.DeudasClientes
                     .Where(d => d.ClienteId == cliente.Id && d.Estado != "pagada")
@@ -284,6 +319,57 @@ namespace VidaFit.Controllers.API
                 {
                     success = false,
                     message = "Error al obtener historial",
+                    error = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// NUEVO: Obtener nombres de clientes que asistieron en una fecha específica
+        /// </summary>
+        [HttpGet("asistentes/{fecha}")]
+        public async Task<IActionResult> GetAsistentesPorFecha(DateTime fecha)
+        {
+            try
+            {
+                var fechaBuscada = fecha.Date;
+
+                // Obtener todos los check-ins exitosos
+                var todosCheckIns = await _context.CheckIns
+                    .Include(c => c.Cliente)
+                    .Where(c => c.Exitoso)
+                    .OrderBy(c => c.FechaHora)
+                    .ToListAsync();
+
+                // Filtrar por fecha en memoria
+                var asistentes = todosCheckIns
+                    .Where(c => c.FechaHora.ToLocalTime().Date == fechaBuscada)
+                    .Select(c => new
+                    {
+                        c.Id,
+                        clienteId = c.ClienteId,
+                        nombre = $"{c.Cliente.Nombre} {c.Cliente.Apellido}",
+                        cedula = c.Cliente.Cedula,
+                        hora = c.FechaHora.ToString("hh:mm tt"),
+                        metodo = c.Metodo,
+                        fotoBase64 = c.Cliente.FotoBase64
+                    })
+                    .ToList();
+
+                return Ok(new
+                {
+                    success = true,
+                    fecha = fechaBuscada,
+                    total = asistentes.Count,
+                    asistentes
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Error al obtener asistentes",
                     error = ex.Message
                 });
             }

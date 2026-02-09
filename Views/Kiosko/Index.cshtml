@@ -17,7 +17,8 @@
                     diasRestantes: null,
                     similarity: 0,
                     isProcessing: false,
-                    deuda: null
+                    deuda: null,
+                    ultimoCheckIn: null
                 };
                 this.fingerprintCheckInterval = null;
                 this.render();
@@ -29,7 +30,7 @@
                 this.state = { ...this.state, ...newState };
                 this.render();
 
-                if (this.state.mode === 'success' || this.state.mode === 'error') {
+                if (this.state.mode === 'success' || this.state.mode === 'error' || this.state.mode === 'already-checked-in') {
                     this.stopFingerprintDetection();
                     setTimeout(() => {
                         this.reset();
@@ -47,7 +48,8 @@
                     diasRestantes: null,
                     similarity: 0,
                     isProcessing: false,
-                    deuda: null
+                    deuda: null,
+                    ultimoCheckIn: null
                 });
             }
 
@@ -121,6 +123,21 @@
                     return;
                 }
 
+                // ========== NUEVO: MANEJAR CHECK-IN DUPLICADO ==========
+                if (data.yaHizoCheckIn && data.ultimoCheckIn) {
+                    this.setState({ mode: 'scanning', message: 'Verificando identidad...' });
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+
+                    this.setState({
+                        mode: 'already-checked-in',
+                        cliente: data.cliente,
+                        message: data.message,
+                        ultimoCheckIn: data.ultimoCheckIn
+                    });
+                    return;
+                }
+                // =======================================================
+
                 this.setState({ mode: 'scanning', message: 'Verificando identidad...' });
                 await new Promise(resolve => setTimeout(resolve, 1500));
 
@@ -155,13 +172,25 @@
                 this.setState({ mode: 'scanning', message: 'Consultando información...' });
 
                 try {
-                    const response = await fetch('/api/CheckIn/cedula', {
+                    const response = await fetch('/kiosko/checkin-cedula', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ cedula: this.state.cedula })
                     });
 
                     const data = await response.json();
+
+                    // ========== NUEVO: MANEJAR CHECK-IN DUPLICADO ==========
+                    if (data.yaHizoCheckIn && data.ultimoCheckIn) {
+                        this.setState({
+                            mode: 'already-checked-in',
+                            cliente: data.cliente,
+                            message: data.message,
+                            ultimoCheckIn: data.ultimoCheckIn
+                        });
+                        return;
+                    }
+                    // =======================================================
 
                     if (data.success && data.cliente) {
                         const diasRestantes = data.cliente?.diasRestantes ?? data.membresia?.diasRestantes ?? null;
@@ -200,33 +229,31 @@
                                 <img src="/images/tauro-gym-logo.png" alt="TAURO GYM" class="h-40 w-40 object-contain drop-shadow-2xl" />
                             </div>
 
-                            <h1 class="text-8xl font-black text-white mb-6 uppercase tracking-wider text-center">Bienvenido</h1>
-                            <p class="text-3xl mb-12 uppercase tracking-wide font-semibold text-center" style="color: #D12423;">TAURO GYM</p>
+                            <div class="text-center mb-12">
+                                <div id="clock-time" class="text-7xl font-black text-white mb-2 tracking-wider drop-shadow-2xl"></div>
+                                <div id="clock-date" class="text-2xl font-bold capitalize" style="color: #D12423;"></div>
+                            </div>
 
-                            <div class="backdrop-blur-sm rounded-3xl px-16 py-12 max-w-2xl" style="background: rgba(0,0,0,0.6); border: 3px solid #D12423;">
-                                <div class="flex items-center justify-center mb-8">
-                                    <div class="w-24 h-24 rounded-full flex items-center justify-center animate-pulse" style="background: #D12423;">
-                                        <svg class="w-14 h-14 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-                                        </svg>
-                                    </div>
+                            <div class="relative mb-12">
+                                <div class="w-48 h-48 rounded-full flex items-center justify-center shadow-2xl" style="background: linear-gradient(135deg, #D12423 0%, #8B0000 100%);">
+                                    <svg class="w-28 h-28 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path>
+                                    </svg>
                                 </div>
-                                <p class="text-4xl text-white font-bold text-center mb-4">Coloca tu huella</p>
-                                <p class="text-2xl text-center font-semibold" style="color: #D12423;">en el lector</p>
+                                <div class="absolute inset-0 w-48 h-48 rounded-full animate-ping opacity-20" style="background: #D12423;"></div>
                             </div>
 
-                            <div class="mt-16 text-center">
-                                <p class="text-xl text-white mb-4">¿No tienes huella registrada?</p>
-                                <button onclick="app.setState({ mode: 'cedula', cedula: '' })"
-                                    class="px-10 py-4 text-white rounded-xl text-lg font-bold transition-all duration-300 transform hover:scale-105" style="background: #D12423;">
-                                    INGRESAR CON CÉDULA
-                                </button>
-                            </div>
+                            <h1 class="text-6xl font-black text-white mb-6 text-center uppercase tracking-wider drop-shadow-2xl">
+                                Sistema de Check-In
+                            </h1>
+                            <p class="text-3xl font-bold mb-12" style="color: #D12423;">
+                                Coloca tu dedo en el lector
+                            </p>
 
-                            <div class="mt-16 text-center">
-                                <p id="clock-time" class="text-3xl text-white font-bold mb-2"></p>
-                                <p id="clock-date" class="text-lg font-semibold capitalize" style="color: #D12423;"></p>
-                            </div>
+                            <button onclick="app.setState({ mode: 'cedula' })"
+                                class="px-12 py-5 bg-white text-black rounded-xl text-xl font-black transition-all duration-300 transform hover:scale-105 shadow-2xl uppercase tracking-wide">
+                                USAR CÉDULA
+                            </button>
                         </div>
                     </div>
                 `;
@@ -242,34 +269,37 @@
 
                         <div class="relative z-10 flex flex-col items-center justify-center min-h-screen px-8">
                             <div class="mb-12">
-                                <img src="/images/tauro-gym-logo.png" alt="TAURO GYM" class="h-32 w-32 object-contain drop-shadow-2xl" />
+                                <img src="/images/tauro-gym-logo.png" alt="TAURO GYM" class="h-40 w-40 object-contain drop-shadow-2xl" />
                             </div>
 
-                            <h1 class="text-7xl font-black text-white mb-4 uppercase tracking-wider">Identificación</h1>
-                            <p class="text-2xl mb-12 uppercase tracking-wide font-semibold" style="color: #D12423;">Ingresa tu cédula</p>
+                            <h2 class="text-5xl font-black text-white mb-12 uppercase tracking-wider text-center">Ingresa tu Cédula</h2>
 
-                            <div class="backdrop-blur-sm rounded-3xl px-16 py-12 max-w-2xl" style="background: rgba(0,0,0,0.6); border: 3px solid #D12423;">
-                                <input id="cedula-input" type="text" placeholder="000-0000000-0"
+                            <div class="w-full max-w-2xl backdrop-blur-sm rounded-3xl p-10" style="background: rgba(0,0,0,0.4); border: 3px solid #D12423;">
+                                <input
+                                    type="text"
+                                    id="cedula-input"
                                     value="${this.state.cedula}"
-                                    oninput="app.setState({ cedula: this.value })"
+                                    oninput="app.setState({ cedula: event.target.value })"
                                     onkeypress="if(event.key === 'Enter') app.handleCedulaConsulta()"
-                                    class="w-full px-8 py-6 text-4xl text-center text-white rounded-xl font-bold focus:outline-none"
-                                    style="background: rgba(0,0,0,0.7); border: 2px solid #D12423;"
-                                    maxlength="13" />
+                                    placeholder="000-0000000-0"
+                                    class="w-full px-8 py-6 text-5xl font-black text-center bg-white rounded-xl focus:outline-none focus:ring-4"
+                                    style="color: #D12423; border: 3px solid #D12423;"
+                                    autofocus
+                                />
 
                                 ${this.state.message ? `
-                                    <p class="text-xl text-center mt-6 font-semibold" style="color: #FFA500;">
-                                        ${this.state.message}
-                                    </p>
+                                    <p class="text-2xl text-white mt-6 text-center font-bold">${this.state.message}</p>
                                 ` : ''}
 
-                                <div class="flex gap-4 mt-8">
+                                <div class="mt-10 flex gap-6">
                                     <button onclick="app.handleCedulaConsulta()"
-                                        class="flex-1 px-8 py-5 text-white rounded-xl text-2xl font-bold transition-all duration-300 transform hover:scale-105" style="background: #D12423;">
-                                        CONSULTAR
+                                        class="flex-1 px-10 py-6 text-white rounded-xl text-2xl font-black transition-all duration-300 transform hover:scale-105 shadow-xl uppercase"
+                                        style="background: linear-gradient(135deg, #D12423 0%, #8B0000 100%);">
+                                        VERIFICAR
                                     </button>
+
                                     <button onclick="app.reset(); app.startFingerprintDetection();"
-                                        class="flex-1 px-8 py-5 text-white rounded-xl text-2xl font-bold transition-all duration-300 transform hover:scale-105" style="background: #333;">
+                                        class="px-10 py-6 bg-gray-700 hover:bg-gray-600 text-white rounded-xl text-2xl font-black transition-all duration-300 uppercase">
                                         VOLVER
                                     </button>
                                 </div>
@@ -282,33 +312,27 @@
             renderScanning() {
                 return `
                     <div class="min-h-screen relative overflow-hidden" style="background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);">
-                        <div class="absolute inset-0 opacity-10">
+                        <div class="absolute inset-0 opacity-15">
                             <div class="absolute top-20 left-20 w-96 h-96 rounded-full filter blur-3xl animate-pulse" style="background: #D12423;"></div>
                             <div class="absolute bottom-20 right-20 w-96 h-96 rounded-full filter blur-3xl animate-pulse" style="background: #D12423;"></div>
                         </div>
 
-                        <div class="relative z-10 flex items-center justify-center min-h-screen px-8">
-                            <div class="text-center">
-                                <div class="mb-12 flex justify-center">
-                                    <div class="relative">
-                                        <div class="w-48 h-48 rounded-full flex items-center justify-center animate-spin" style="background: linear-gradient(45deg, #D12423, transparent);">
-                                            <div class="w-40 h-40 rounded-full" style="background: #000;"></div>
-                                        </div>
-                                        <div class="absolute inset-0 flex items-center justify-center">
-                                            <svg class="w-20 h-20 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-                                            </svg>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <h2 class="text-6xl font-black text-white mb-6 uppercase tracking-wider">${this.state.message}</h2>
-                                <div class="flex justify-center space-x-3">
-                                    <div class="w-4 h-4 rounded-full animate-bounce" style="background: #D12423; animation-delay: 0s;"></div>
-                                    <div class="w-4 h-4 rounded-full animate-bounce" style="background: #D12423; animation-delay: 0.2s;"></div>
-                                    <div class="w-4 h-4 rounded-full animate-bounce" style="background: #D12423; animation-delay: 0.4s;"></div>
-                                </div>
+                        <div class="relative z-10 flex flex-col items-center justify-center min-h-screen px-8">
+                            <div class="mb-12 animate-bounce">
+                                <img src="/images/tauro-gym-logo.png" alt="TAURO GYM" class="h-40 w-40 object-contain drop-shadow-2xl" />
                             </div>
+
+                            <div class="relative mb-12">
+                                <div class="w-48 h-48 rounded-full flex items-center justify-center shadow-2xl animate-pulse" style="background: linear-gradient(135deg, #D12423 0%, #8B0000 100%);">
+                                    <svg class="w-28 h-28 text-white animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                    </svg>
+                                </div>
+                                <div class="absolute inset-0 w-48 h-48 rounded-full animate-ping opacity-20" style="background: #D12423;"></div>
+                            </div>
+
+                            <h2 class="text-6xl font-black text-white mb-6 uppercase tracking-wider drop-shadow-2xl">${this.state.message}</h2>
+                            <p class="text-3xl font-bold" style="color: #D12423;">Por favor espera...</p>
                         </div>
                     </div>
                 `;
@@ -319,90 +343,66 @@
                 return `
                     <div class="min-h-screen relative overflow-hidden" style="background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);">
                         <div class="absolute inset-0 opacity-15">
-                            <div class="absolute top-10 left-10 w-96 h-96 rounded-full filter blur-3xl" style="background: #00FF00;"></div>
+                            <div class="absolute top-10 left-10 w-96 h-96 rounded-full filter blur-3xl" style="background: #00C851;"></div>
                             <div class="absolute bottom-10 right-10 w-96 h-96 rounded-full filter blur-3xl" style="background: #D12423;"></div>
                         </div>
 
-                        <div class="relative z-10 flex items-center justify-center min-h-screen px-8 py-12">
-                            <div class="max-w-6xl w-full flex gap-8">
-                                <!-- Foto del cliente -->
-                                <div class="flex-shrink-0">
-                                    ${cliente?.fotoBase64 ? `
-                                        <div class="w-80 h-80 rounded-3xl overflow-hidden shadow-2xl" style="border: 5px solid #00FF00;">
-                                            <img src="data:image/jpeg;base64,${cliente.fotoBase64}"
-                                                alt="${cliente.nombre}"
-                                                class="w-full h-full object-cover" />
-                                        </div>
-                                    ` : `
-                                        <div class="w-80 h-80 rounded-3xl flex items-center justify-center shadow-2xl" style="background: rgba(0,255,0,0.1); border: 5px solid #00FF00;">
-                                            <svg class="w-40 h-40" style="color: #00FF00;" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-                                            </svg>
-                                        </div>
-                                    `}
+                        <div class="relative z-10 flex items-center justify-center min-h-screen px-8">
+                            <div class="text-center max-w-4xl">
+                                <div class="mb-8 flex justify-center">
+                                    <img src="/images/tauro-gym-logo.png" alt="TAURO GYM" class="h-32 w-32 object-contain drop-shadow-2xl" />
                                 </div>
 
-                                <!-- Información -->
-                                <div class="flex-1">
-                                    <!-- Logo -->
-                                    <div class="mb-6 flex justify-center">
-                                        <img src="/images/tauro-gym-logo.png" alt="TAURO GYM" class="h-24 w-24 object-contain drop-shadow-2xl" />
-                                    </div>
-
-                                    <h2 class="text-7xl font-black mb-8 uppercase tracking-wider" style="color: #00FF00;">Acceso Permitido</h2>
-
-                                    <div class="backdrop-blur-sm rounded-3xl px-10 py-8" style="background: rgba(0,0,0,0.6); border: 3px solid #00FF00;">
-                                        <p class="text-5xl font-black text-white mb-6">${cliente?.nombre || 'Usuario'}</p>
-
-                                        <!-- Estado de Membresía -->
-                                        <div class="mb-6">
-                                            <p class="text-xl mb-3 uppercase tracking-wide font-semibold" style="color: #D12423;">Estado de Membresía</p>
-                                            <p class="text-4xl font-black ${
-                                                diasRestantes !== null && diasRestantes !== undefined ? 'text-white' : ''
-                                            }" style="${diasRestantes === null || diasRestantes === undefined ? 'color: #FFA500;' : ''}">
-                                                ${this.state.message}
-                                            </p>
+                                <div class="mb-10 flex justify-center">
+                                    <div class="relative">
+                                        <div class="w-40 h-40 rounded-full flex items-center justify-center shadow-2xl" style="background: linear-gradient(135deg, #00C851 0%, #007E33 100%);">
+                                            <svg class="w-24 h-24 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                                            </svg>
                                         </div>
+                                        <div class="absolute inset-0 w-40 h-40 rounded-full animate-ping opacity-20" style="background: #00C851;"></div>
+                                    </div>
+                                </div>
 
-                                        <!-- Días restantes -->
+                                <h2 class="text-6xl font-black text-white mb-8 uppercase tracking-wider">¡Acceso Autorizado!</h2>
+
+                                <div class="flex flex-col md:flex-row gap-8 items-center justify-center mb-8">
+                                    ${cliente.fotoBase64 ? `
+                                        <div class="flex-shrink-0">
+                                            <img src="data:image/jpeg;base64,${cliente.fotoBase64}"
+                                                 alt="${cliente.nombre}"
+                                                 class="w-56 h-56 rounded-full object-cover shadow-2xl"
+                                                 style="border: 6px solid #D12423;" />
+                                        </div>
+                                    ` : ''}
+
+                                    <div class="flex-1 text-left backdrop-blur-sm rounded-3xl px-12 py-10" style="background: rgba(0,0,0,0.6); border: 3px solid #00C851;">
+                                        <h3 class="text-5xl font-black text-white mb-6">${cliente.nombre}</h3>
+
                                         ${diasRestantes !== null && diasRestantes !== undefined ? `
-                                            <div class="pt-6 mt-6" style="border-top: 2px solid rgba(209, 36, 35, 0.3);">
-                                                <p class="text-lg mb-3 uppercase tracking-wide" style="color: #D12423;">
-                                                    ${diasRestantes <= 7 ? 'Tiempo Restante' : 'Vigencia'}
-                                                </p>
-                                                <p class="text-7xl font-black" style="color: ${
-                                                    diasRestantes <= 3 ? '#FFA500' : '#FFFFFF'
-                                                };">
+                                            <div class="mb-6 pb-6" style="border-bottom: 2px solid rgba(255, 255, 255, 0.2);">
+                                                <p class="text-lg mb-3 uppercase tracking-wide font-semibold" style="color: #00C851;">Días Restantes</p>
+                                                <p class="text-6xl font-black ${diasRestantes <= 3 ? 'text-yellow-400' : 'text-white'}">
                                                     ${diasRestantes} ${diasRestantes === 1 ? 'DÍA' : 'DÍAS'}
                                                 </p>
-                                                ${diasRestantes <= 7 ? `
-                                                    <p class="text-xl mt-4 font-semibold" style="color: #FFA500;">
-                                                        ⚠️ Renueva pronto tu membresía
-                                                    </p>
-                                                ` : ''}
                                             </div>
                                         ` : ''}
 
                                         <!-- Información de Deuda -->
                                         ${deuda && deuda.tieneDeuda ? `
-                                            <div class="pt-6 mt-6" style="border-top: 2px solid rgba(209, 36, 35, 0.3);">
+                                            <div class="pt-6" style="border-top: 2px solid rgba(209, 36, 35, 0.3);">
                                                 <div class="flex items-center gap-3 mb-3">
                                                     <svg class="w-8 h-8" style="color: #FFA500;" fill="currentColor" viewBox="0 0 20 20">
                                                         <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
                                                     </svg>
-                                                    <p class="text-xl uppercase tracking-wide font-semibold" style="color: #FFA500;">Tienes un monto pendiente</p>
+                                                    <p class="text-lg uppercase tracking-wide font-semibold" style="color: #FFA500;">Monto Pendiente</p>
                                                 </div>
-                                                <p class="text-6xl font-black mb-3" style="color: #FFA500;">
+                                                <p class="text-5xl font-black mb-2" style="color: #FFA500;">
                                                     $${deuda.montoTotal.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                                 </p>
-                                                <p class="text-lg font-semibold" style="color: #FFA500;">
-                                                    💰 Recuerda ponerte al día
+                                                <p class="text-base mt-2 text-white">
+                                                    (${deuda.cantidadDeudas} deudas pendientes)
                                                 </p>
-                                                ${deuda.cantidadDeudas > 1 ? `
-                                                    <p class="text-base mt-2 text-white">
-                                                        (${deuda.cantidadDeudas} deudas pendientes)
-                                                    </p>
-                                                ` : ''}
                                             </div>
                                         ` : ''}
 
@@ -428,6 +428,98 @@
                     </div>
                 `;
             }
+
+            // ========== NUEVA PANTALLA: CHECK-IN DUPLICADO ==========
+            renderAlreadyCheckedIn() {
+                const { cliente, message, ultimoCheckIn } = this.state;
+                return `
+                    <div class="min-h-screen relative overflow-hidden" style="background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);">
+                        <div class="absolute inset-0 opacity-15">
+                            <div class="absolute top-10 left-10 w-96 h-96 rounded-full filter blur-3xl" style="background: #FFA500;"></div>
+                            <div class="absolute bottom-10 right-10 w-96 h-96 rounded-full filter blur-3xl" style="background: #D12423;"></div>
+                        </div>
+
+                        <div class="relative z-10 flex items-center justify-center min-h-screen px-8">
+                            <div class="text-center max-w-3xl">
+                                <!-- Logo -->
+                                <div class="mb-8 flex justify-center">
+                                    <img src="/images/tauro-gym-logo.png" alt="TAURO GYM" class="h-32 w-32 object-contain drop-shadow-2xl" />
+                                </div>
+
+                                <!-- Icono de Advertencia -->
+                                <div class="mb-10 flex justify-center">
+                                    <div class="relative">
+                                        <div class="w-40 h-40 rounded-full flex items-center justify-center shadow-2xl" style="background: #FFA500;">
+                                            <svg class="w-24 h-24 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                                            </svg>
+                                        </div>
+                                        <div class="absolute inset-0 w-40 h-40 rounded-full animate-ping opacity-20" style="background: #FFA500;"></div>
+                                    </div>
+                                </div>
+
+                                <h2 class="text-6xl font-black text-white mb-8 uppercase tracking-wider">¡Ya Registrado!</h2>
+
+                                <div class="flex flex-col gap-8 items-center justify-center mb-8">
+                                    ${cliente?.fotoBase64 ? `
+                                        <div class="flex-shrink-0">
+                                            <img src="data:image/jpeg;base64,${cliente.fotoBase64}"
+                                                 alt="${cliente.nombre}"
+                                                 class="w-48 h-48 rounded-full object-cover shadow-2xl"
+                                                 style="border: 6px solid #FFA500;" />
+                                        </div>
+                                    ` : ''}
+
+                                    <div class="backdrop-blur-sm rounded-3xl px-12 py-10 w-full" style="background: rgba(0,0,0,0.6); border: 3px solid #FFA500;">
+                                        <h3 class="text-4xl font-black text-white mb-6">${cliente?.nombre || 'Usuario'}</h3>
+
+                                        <div class="mb-8 pb-8" style="border-bottom: 2px solid rgba(255, 255, 255, 0.2);">
+                                            <p class="text-3xl text-white mb-4 font-bold">${message}</p>
+                                        </div>
+
+                                        ${ultimoCheckIn ? `
+                                            <div class="mb-6">
+                                                <p class="text-xl mb-4 uppercase tracking-wide font-semibold" style="color: #FFA500;">
+                                                    <svg class="w-6 h-6 inline-block mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                                                    </svg>
+                                                    Último Check-In
+                                                </p>
+                                                <p class="text-7xl font-black mb-4" style="color: #FFA500;">
+                                                    ${ultimoCheckIn.horaFormateada}
+                                                </p>
+                                                <p class="text-xl text-gray-300 mb-2">
+                                                    Hace ${ultimoCheckIn.horasTranscurridas.toFixed(1)} horas
+                                                </p>
+                                                <p class="text-lg text-gray-400">
+                                                    Podrás registrar nuevamente en ${ultimoCheckIn.horasRestantes.toFixed(1)} horas
+                                                </p>
+                                            </div>
+                                        ` : ''}
+
+                                        <div class="mt-8 pt-6" style="border-top: 2px solid rgba(255, 165, 0, 0.5);">
+                                            <p class="text-2xl text-white font-semibold">¡Sigue con tu rutina! 💪</p>
+                                            <p class="text-lg text-gray-300 mt-2">Ya estás registrado para hoy</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Mensaje motivacional -->
+                                    <div class="mt-6 space-y-2">
+                                        <p class="text-2xl text-white font-bold">¡Sin prisa, pero con ¡DISCIPLINA!</p>
+                                        <p class="text-xl font-semibold" style="color: #D12423;">(Insiste, Persiste, Resiste)</p>
+                                    </div>
+                                </div>
+
+                                <button onclick="app.reset(); app.startFingerprintDetection();"
+                                    class="px-12 py-5 text-white rounded-xl text-xl font-bold transition-all duration-300 transform hover:scale-105" style="background: #FFA500;">
+                                    ENTENDIDO
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            // =========================================================
 
             renderError() {
                 const { diasRestantes, deuda } = this.state;
@@ -528,6 +620,7 @@
                     case 'scanning': html = this.renderScanning(); break;
                     case 'success': html = this.renderSuccess(); break;
                     case 'error': html = this.renderError(); break;
+                    case 'already-checked-in': html = this.renderAlreadyCheckedIn(); break; // NUEVO
                 }
 
                 container.innerHTML = html;

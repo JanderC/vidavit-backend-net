@@ -91,6 +91,42 @@ namespace VidaFit.Controllers.WEB
                     });
                 }
 
+                // ========== VALIDACIÓN DE CHECK-IN DUPLICADO (12 HORAS) ==========
+                var hace12Horas = DateTime.Now.AddHours(-12);
+                var checkInReciente = await _context.CheckIns
+                    .Where(c => c.ClienteId == clienteEncontrado.Id &&
+                                c.Exitoso &&
+                                c.FechaHora >= hace12Horas)
+                    .OrderByDescending(c => c.FechaHora)
+                    .FirstOrDefaultAsync();
+
+                if (checkInReciente != null)
+                {
+                    var horasTranscurridas = (DateTime.Now - checkInReciente.FechaHora).TotalHours;
+                    var horasRestantes = 12 - horasTranscurridas;
+
+                    return Json(new
+                    {
+                        success = false,
+                        message = $"Ya realizaste check-in hoy a las {checkInReciente.FechaHora:hh:mm tt}",
+                        alertType = "warning",
+                        yaHizoCheckIn = true,
+                        ultimoCheckIn = new
+                        {
+                            fecha = checkInReciente.FechaHora,
+                            horaFormateada = checkInReciente.FechaHora.ToString("hh:mm tt"),
+                            horasTranscurridas = Math.Round(horasTranscurridas, 1),
+                            horasRestantes = Math.Round(horasRestantes, 1)
+                        },
+                        cliente = new
+                        {
+                            nombre = $"{clienteEncontrado.Nombre} {clienteEncontrado.Apellido}",
+                            fotoBase64 = clienteEncontrado.FotoBase64
+                        }
+                    });
+                }
+                // ==================================================================
+
                 // Verificar membresía
                 var membresiaActiva = clienteEncontrado.Membresias
                     .Where(m => m.Estado == "activa")
@@ -212,6 +248,42 @@ namespace VidaFit.Controllers.WEB
                     alertType = "error"
                 });
             }
+
+            // ========== VALIDACIÓN DE CHECK-IN DUPLICADO (12 HORAS) ==========
+            var hace12Horas = DateTime.Now.AddHours(-12);
+            var checkInReciente = await _context.CheckIns
+                .Where(c => c.ClienteId == cliente.Id &&
+                            c.Exitoso &&
+                            c.FechaHora >= hace12Horas)
+                .OrderByDescending(c => c.FechaHora)
+                .FirstOrDefaultAsync();
+
+            if (checkInReciente != null)
+            {
+                var horasTranscurridas = (DateTime.Now - checkInReciente.FechaHora).TotalHours;
+                var horasRestantes = 12 - horasTranscurridas;
+
+                return Json(new
+                {
+                    success = false,
+                    message = $"Ya realizaste check-in hoy a las {checkInReciente.FechaHora:hh:mm tt}",
+                    alertType = "warning",
+                    yaHizoCheckIn = true,
+                    ultimoCheckIn = new
+                    {
+                        fecha = checkInReciente.FechaHora,
+                        horaFormateada = checkInReciente.FechaHora.ToString("hh:mm tt"),
+                        horasTranscurridas = Math.Round(horasTranscurridas, 1),
+                        horasRestantes = Math.Round(horasRestantes, 1)
+                    },
+                    cliente = new
+                    {
+                        nombre = $"{cliente.Nombre} {cliente.Apellido}",
+                        fotoBase64 = cliente.FotoBase64
+                    }
+                });
+            }
+            // ==================================================================
 
             var membresiaActiva = cliente.Membresias
                 .Where(m => m.Estado == "activa")

@@ -104,6 +104,7 @@
                         <th class="px-6 py-4 text-left text-xs font-black text-gray-600 uppercase tracking-wider">Día</th>
                         <th class="px-6 py-4 text-center text-xs font-black text-gray-600 uppercase tracking-wider">Check-ins</th>
                         <th class="px-6 py-4 text-center text-xs font-black text-gray-600 uppercase tracking-wider">Estado</th>
+                        <th class="px-6 py-4 text-center text-xs font-black text-gray-600 uppercase tracking-wider">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y-2 divide-gray-200">
@@ -111,6 +112,7 @@
                     {
                         var fecha = (DateTime)item.Fecha;
                         var total = (int)item.Total;
+                        var fechaStr = fecha.ToString("yyyy-MM-dd");
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="font-black text-gray-900">@fecha.ToString("dd/MM/yyyy")</span>
@@ -143,10 +145,59 @@
                                     </span>
                                 }
                             </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                <button onclick="verAsistentes('@fechaStr', '@total')"
+                                        class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-bold rounded-lg transition-all shadow-md hover:shadow-lg text-xs uppercase transform hover:scale-105">
+                                    <i data-lucide="users" class="w-4 h-4"></i>
+                                    Ver Asistentes
+                                </button>
+                            </td>
                         </tr>
                     }
                 </tbody>
             </table>
+        </div>
+    </div>
+</div>
+
+<!-- ========== MODAL PARA VER ASISTENTES ========== -->
+<div id="modal-asistentes" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+        <!-- Header del Modal -->
+        <div class="px-6 py-4 border-b-2 border-gray-200 bg-gradient-to-r from-red-600 to-red-800 flex items-center justify-between">
+            <div>
+                <h3 class="text-2xl font-black text-white uppercase tracking-wide">Asistentes del Día</h3>
+                <p class="text-sm text-red-100 font-semibold mt-1" id="modal-fecha"></p>
+            </div>
+            <button onclick="cerrarModal()" class="text-white hover:bg-red-900 rounded-full p-2 transition-colors">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+
+        <!-- Loading State -->
+        <div id="modal-loading" class="hidden px-6 py-12 text-center">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-red-600"></div>
+            <p class="mt-4 text-gray-600 font-semibold">Cargando asistentes...</p>
+        </div>
+
+        <!-- Content del Modal -->
+        <div id="modal-content" class="px-6 py-4 overflow-y-auto max-h-[calc(90vh-180px)]">
+            <div id="asistentes-lista">
+                <!-- Se llenará dinámicamente con JavaScript -->
+            </div>
+        </div>
+
+        <!-- Footer del Modal -->
+        <div class="px-6 py-4 border-t-2 border-gray-200 bg-gray-50 flex items-center justify-between">
+            <div>
+                <p class="text-sm font-bold text-gray-700">
+                    Total de asistentes: <span id="modal-total" class="text-red-600 text-lg font-black">0</span>
+                </p>
+            </div>
+            <button onclick="cerrarModal()"
+                    class="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white font-bold rounded-lg transition-all uppercase text-sm">
+                Cerrar
+            </button>
         </div>
     </div>
 </div>
@@ -227,6 +278,133 @@
                 }
             });
         }
+
+        // ========== NUEVA FUNCIONALIDAD: VER ASISTENTES ==========
+        async function verAsistentes(fecha, total) {
+            const modal = document.getElementById('modal-asistentes');
+            const modalFecha = document.getElementById('modal-fecha');
+            const modalTotal = document.getElementById('modal-total');
+            const modalLoading = document.getElementById('modal-loading');
+            const modalContent = document.getElementById('modal-content');
+            const asistentesLista = document.getElementById('asistentes-lista');
+
+            // Mostrar modal y loading
+            modal.classList.remove('hidden');
+            modalLoading.classList.remove('hidden');
+            modalContent.classList.add('hidden');
+
+            // Formatear fecha para mostrar
+            const fechaObj = new Date(fecha + 'T00:00:00');
+            const fechaFormateada = fechaObj.toLocaleDateString('es-ES', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            modalFecha.textContent = fechaFormateada;
+            modalTotal.textContent = total;
+
+            try {
+                // Llamar al API para obtener los asistentes
+                const response = await fetch(`/api/CheckIn/asistentes/${fecha}`);
+                const data = await response.json();
+
+                if (data.success && data.asistentes) {
+                    // Renderizar la lista de asistentes
+                    if (data.asistentes.length === 0) {
+                        asistentesLista.innerHTML = `
+                            <div class="text-center py-12">
+                                <i data-lucide="users" class="w-16 h-16 mx-auto text-gray-400 mb-4"></i>
+                                <p class="text-gray-600 font-semibold">No hay asistentes registrados para este día</p>
+                            </div>
+                        `;
+                    } else {
+                        let html = '<div class="grid grid-cols-1 md:grid-cols-2 gap-4">';
+
+                        data.asistentes.forEach((asistente, index) => {
+                            html += `
+                                <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors border-2 border-gray-200">
+                                    ${asistente.fotoBase64 ? `
+                                        <img src="data:image/jpeg;base64,${asistente.fotoBase64}"
+                                             alt="${asistente.nombre}"
+                                             class="w-16 h-16 rounded-full object-cover border-2 border-red-600" />
+                                    ` : `
+                                        <div class="w-16 h-16 rounded-full bg-gradient-to-r from-red-600 to-red-800 flex items-center justify-center text-white font-black text-xl">
+                                            ${asistente.nombre.charAt(0)}
+                                        </div>
+                                    `}
+                                    <div class="flex-1">
+                                        <h4 class="font-black text-gray-900 text-lg">${asistente.nombre}</h4>
+                                        <div class="flex items-center gap-3 mt-1">
+                                            <span class="text-sm text-gray-600 font-semibold">
+                                                <i data-lucide="clock" class="w-3 h-3 inline-block mr-1"></i>
+                                                ${asistente.hora}
+                                            </span>
+                                            <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full font-bold uppercase">
+                                                ${asistente.metodo}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="text-2xl font-black text-gray-400">
+                                        #${index + 1}
+                                    </div>
+                                </div>
+                            `;
+                        });
+
+                        html += '</div>';
+                        asistentesLista.innerHTML = html;
+                    }
+
+                    // Reiniciar iconos de Lucide
+                    setTimeout(() => {
+                        if (typeof lucide !== 'undefined') {
+                            lucide.createIcons();
+                        }
+                    }, 100);
+                } else {
+                    asistentesLista.innerHTML = `
+                        <div class="text-center py-12">
+                            <i data-lucide="alert-circle" class="w-16 h-16 mx-auto text-red-400 mb-4"></i>
+                            <p class="text-red-600 font-semibold">Error al cargar los asistentes</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error al obtener asistentes:', error);
+                asistentesLista.innerHTML = `
+                    <div class="text-center py-12">
+                        <i data-lucide="alert-circle" class="w-16 h-16 mx-auto text-red-400 mb-4"></i>
+                        <p class="text-red-600 font-semibold">Error al cargar los asistentes</p>
+                        <p class="text-sm text-gray-600 mt-2">${error.message}</p>
+                    </div>
+                `;
+            } finally {
+                // Ocultar loading y mostrar contenido
+                modalLoading.classList.add('hidden');
+                modalContent.classList.remove('hidden');
+            }
+        }
+
+        function cerrarModal() {
+            const modal = document.getElementById('modal-asistentes');
+            modal.classList.add('hidden');
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('modal-asistentes').addEventListener('click', function(e) {
+            if (e.target === this) {
+                cerrarModal();
+            }
+        });
+
+        // Cerrar modal con tecla ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                cerrarModal();
+            }
+        });
+        // =========================================================
 
         window.addEventListener('load', function() {
             renderChart();
