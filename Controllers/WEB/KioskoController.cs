@@ -46,6 +46,7 @@ namespace VidaFit.Controllers.WEB
                 // Obtener todos los clientes activos con huellas
                 var clientes = await _context.Clientes
                     .Include(c => c.Membresias)
+                        .ThenInclude(m => m.Plan)  // AGREGADO: Incluir Plan
                     .Where(c => c.Activo && c.HuellaTemplate != null)
                     .ToListAsync();
 
@@ -105,6 +106,12 @@ namespace VidaFit.Controllers.WEB
                     var horasTranscurridas = (DateTime.Now - checkInReciente.FechaHora).TotalHours;
                     var horasRestantes = 12 - horasTranscurridas;
 
+                    // MODIFICADO: Obtener membresía para incluir nombre del plan
+                    var membresiaParaDuplicado = clienteEncontrado.Membresias
+                        .Where(m => m.Estado == "activa")
+                        .OrderByDescending(m => m.FechaVencimiento)
+                        .FirstOrDefault();
+
                     return Json(new
                     {
                         success = false,
@@ -121,7 +128,8 @@ namespace VidaFit.Controllers.WEB
                         cliente = new
                         {
                             nombre = $"{clienteEncontrado.Nombre} {clienteEncontrado.Apellido}",
-                            fotoBase64 = clienteEncontrado.FotoBase64
+                            fotoBase64 = clienteEncontrado.FotoBase64,
+                            nombrePlan = membresiaParaDuplicado?.Plan?.Nombre  // AGREGADO
                         }
                     });
                 }
@@ -190,7 +198,8 @@ namespace VidaFit.Controllers.WEB
                     cliente = new
                     {
                         nombre = $"{clienteEncontrado.Nombre} {clienteEncontrado.Apellido}",
-                        fotoBase64 = clienteEncontrado.FotoBase64
+                        fotoBase64 = clienteEncontrado.FotoBase64,
+                        nombrePlan = membresiaActiva?.Plan?.Nombre  // AGREGADO
                     },
                     membresia = membresiaActiva != null ? new
                     {
@@ -200,7 +209,8 @@ namespace VidaFit.Controllers.WEB
                         fechaVencimiento = membresiaActiva.FechaVencimiento,
                         diasVencidos = membresiaActiva.FechaVencimiento < DateTime.Now
                             ? (DateTime.Now.Date - membresiaActiva.FechaVencimiento).Days
-                            : (int?)null
+                            : (int?)null,
+                        nombrePlan = membresiaActiva.Plan?.Nombre  // AGREGADO
                     } : null,
                     diasRestantes = diasRestantes,
                     fechaVencimiento = membresiaActiva?.FechaVencimiento,
@@ -237,6 +247,7 @@ namespace VidaFit.Controllers.WEB
 
             var cliente = await _context.Clientes
                 .Include(c => c.Membresias)
+                    .ThenInclude(m => m.Plan)  // AGREGADO: Incluir Plan
                 .FirstOrDefaultAsync(c => c.Cedula == request.Cedula && c.Activo);
 
             if (cliente == null)
@@ -263,6 +274,12 @@ namespace VidaFit.Controllers.WEB
                 var horasTranscurridas = (DateTime.Now - checkInReciente.FechaHora).TotalHours;
                 var horasRestantes = 12 - horasTranscurridas;
 
+                // MODIFICADO: Obtener membresía para incluir nombre del plan
+                var membresiaParaDuplicado = cliente.Membresias
+                    .Where(m => m.Estado == "activa")
+                    .OrderByDescending(m => m.FechaVencimiento)
+                    .FirstOrDefault();
+
                 return Json(new
                 {
                     success = false,
@@ -279,7 +296,8 @@ namespace VidaFit.Controllers.WEB
                     cliente = new
                     {
                         nombre = $"{cliente.Nombre} {cliente.Apellido}",
-                        fotoBase64 = cliente.FotoBase64
+                        fotoBase64 = cliente.FotoBase64,
+                        nombrePlan = membresiaParaDuplicado?.Plan?.Nombre  // AGREGADO
                     }
                 });
             }
@@ -347,7 +365,8 @@ namespace VidaFit.Controllers.WEB
                 cliente = new
                 {
                     nombre = $"{cliente.Nombre} {cliente.Apellido}",
-                    fotoBase64 = cliente.FotoBase64
+                    fotoBase64 = cliente.FotoBase64,
+                    nombrePlan = membresiaActiva?.Plan?.Nombre  // AGREGADO
                 },
                 membresia = membresiaActiva != null ? new
                 {
@@ -357,7 +376,8 @@ namespace VidaFit.Controllers.WEB
                     fechaVencimiento = membresiaActiva.FechaVencimiento,
                     diasVencidos = membresiaActiva.FechaVencimiento < DateTime.Now
                         ? (DateTime.Now.Date - membresiaActiva.FechaVencimiento).Days
-                        : (int?)null
+                        : (int?)null,
+                    nombrePlan = membresiaActiva.Plan?.Nombre  // AGREGADO
                 } : null,
                 diasRestantes = diasRestantes,
                 fechaVencimiento = membresiaActiva?.FechaVencimiento

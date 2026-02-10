@@ -366,7 +366,10 @@
                                     ` : ''}
 
                                     <div class="backdrop-blur-sm rounded-3xl px-12 py-10 w-full" style="background: rgba(0,0,0,0.6); border: 3px solid #00C851;">
-                                        <h3 class="text-5xl font-black text-white mb-6">${cliente.nombre}</h3>
+                                        <h3 class="text-5xl font-black text-white mb-2">${cliente.nombre}</h3>
+                                        ${cliente.nombrePlan ? `
+                                            <p class="text-2xl font-semibold mb-6" style="color: #FF8C00;">${cliente.nombrePlan}</p>
+                                        ` : '<div class="mb-6"></div>'}
 
                                         ${diasRestantes !== null && diasRestantes !== undefined ? `
                                             <div class="mb-6 pb-6" style="border-bottom: 2px solid rgba(255, 255, 255, 0.2);">
@@ -460,7 +463,10 @@
                                     ` : ''}
 
                                     <div class="backdrop-blur-sm rounded-3xl px-12 py-10 w-full" style="background: rgba(0,0,0,0.6); border: 3px solid #FFA500;">
-                                        <h3 class="text-4xl font-black text-white mb-6">${cliente?.nombre || 'Usuario'}</h3>
+                                        <h3 class="text-4xl font-black text-white mb-2">${cliente?.nombre || 'Usuario'}</h3>
+                                        ${cliente?.nombrePlan ? `
+                                            <p class="text-xl font-semibold mb-6" style="color: #FF8C00;">${cliente.nombrePlan}</p>
+                                        ` : '<div class="mb-6"></div>'}
 
                                         <div class="mb-8 pb-8" style="border-bottom: 2px solid rgba(255, 255, 255, 0.2);">
                                             <p class="text-3xl text-white mb-4 font-bold">${message}</p>
@@ -494,8 +500,9 @@
 
                                     <!-- Mensaje motivacional -->
                                     <div class="mt-6 space-y-2">
-                                        <p class="text-2xl text-white font-bold">¡Sin prisa, pero con ¡DISCIPLINA!</p>
-                                        <p class="text-xl font-semibold" style="color: #FF8C00;">(Insiste, Persiste, Resiste)</p>
+                                       <p class="text-2xl font-bold text-white uppercase tracking-wider">
+                                        🏋️ ¡Disfruta tu entrenamiento!
+                                    </p>
                                     </div>
                                 </div>
 
