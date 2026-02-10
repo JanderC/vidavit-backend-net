@@ -271,6 +271,13 @@ namespace VidaFit.Controllers.API
                     ? notasEl.GetString()
                     : null;
 
+                // NUEVA OPCIÓN: ¿Renovar desde hoy o desde fecha de vencimiento?
+                bool renovarDesdeHoy = false;
+                if (data.TryGetProperty("renovarDesdeHoy", out var renovarHoyEl))
+                {
+                    renovarDesdeHoy = renovarHoyEl.GetBoolean();
+                }
+
                 Guid? usuarioId = null;
                 if (data.TryGetProperty("usuarioId", out var userEl) && !string.IsNullOrWhiteSpace(userEl.GetString()))
                 {
@@ -295,11 +302,23 @@ namespace VidaFit.Controllers.API
                 if (montoPagado != plan.Precio)
                     return Ok(new { success = false, message = $"Debe pagar el precio completo del plan: ${plan.Precio:N2}" });
 
-                // CORRECCIÓN: SIEMPRE renovar desde la fecha de vencimiento actual
-                // Independientemente de si está vencida o no, la renovación debe partir
-                // de la fecha de vencimiento para mantener la continuidad del periodo
-                // Ejemplo: si vence el 7 de marzo y paga el 10 de marzo, renueva desde el 8 de marzo
-                DateTime fechaInicio = membresia.FechaVencimiento;
+                // LÓGICA DE FECHA DE INICIO SEGÚN OPCIÓN SELECCIONADA
+                DateTime fechaInicio;
+                string mensajeOpcion;
+
+                if (renovarDesdeHoy)
+                {
+                    // Opción 1: Renovar desde hoy (reiniciar membresía)
+                    fechaInicio = DateTime.Now.Date;
+                    mensajeOpcion = "Renovación desde hoy";
+                }
+                else
+                {
+                    // Opción 2: Renovar desde fecha de vencimiento (mantener continuidad)
+                    // La nueva membresía comienza el día siguiente al vencimiento actual
+                    fechaInicio = membresia.FechaVencimiento.Date;
+                    mensajeOpcion = "Renovación desde fecha de vencimiento";
+                }
 
                 var fechaVencimiento = CalcularFechaVencimiento(fechaInicio, plan);
 
@@ -311,7 +330,7 @@ namespace VidaFit.Controllers.API
                 membresia.Estado = "activa";
                 membresia.MontoPagado = montoPagado;
                 membresia.MetodoPago = metodoPago;
-                membresia.Notas = cambioDePlan ? $"Renovación con cambio a {plan.Nombre}" : (notas ?? "Renovación");
+                membresia.Notas = cambioDePlan ? $"Renovación con cambio a {plan.Nombre}" : (notas ?? mensajeOpcion);
                 membresia.UpdatedAt = DateTime.Now;
 
                 // Registrar pago
@@ -324,7 +343,7 @@ namespace VidaFit.Controllers.API
                     FechaPago = DateTime.Now,
                     MetodoPago = metodoPago,
                     ReciboNumero = null,
-                    Notas = "Renovación",
+                    Notas = mensajeOpcion,
                     CreatedAt = DateTime.Now
                 };
 
@@ -337,7 +356,7 @@ namespace VidaFit.Controllers.API
                     Tipo = "ingreso",
                     Categoria = "renovacion",
                     Monto = montoPagado,
-                    Descripcion = $"Renovación {plan.Nombre} - {membresia.Cliente.Nombre} {membresia.Cliente.Apellido}",
+                    Descripcion = $"Renovación {plan.Nombre} - {membresia.Cliente.Nombre} {membresia.Cliente.Apellido} ({mensajeOpcion})",
                     ReferenciaId = membresia.Id,
                     UsuarioId = usuarioId ?? Guid.Parse("00000000-0000-0000-0000-000000000000"),
                     MetodoPago = metodoPago,
@@ -349,7 +368,7 @@ namespace VidaFit.Controllers.API
 
                 await _context.SaveChangesAsync();
 
-                // Mensaje mejorado con información del tipo de plan
+                // Mensaje mejorado con información del tipo de plan y opción elegida
                 string tipoRenovacion = plan.TipoCalculoVencimiento.ToLower() switch
                 {
                     "meses" => $"{plan.CantidadUnidades} {(plan.CantidadUnidades == 1 ? "mes" : "meses")}",
@@ -358,11 +377,15 @@ namespace VidaFit.Controllers.API
                     _ => $"{plan.DuracionDias} días"
                 };
 
+                string mensajeRespuesta = renovarDesdeHoy
+                    ? $"✅ Membresía renovada desde HOY por {tipoRenovacion}. Vence el {fechaVencimiento:dd/MM/yyyy}"
+                    : $"✅ Membresía renovada desde fecha de vencimiento por {tipoRenovacion}. Vence el {fechaVencimiento:dd/MM/yyyy}";
+
                 return Ok(new
                 {
                     success = true,
                     data = membresia,
-                    message = $"Membresía renovada por {tipoRenovacion} (vence el {fechaVencimiento:dd/MM/yyyy})"
+                    message = mensajeRespuesta
                 });
             }
             catch (Exception ex)

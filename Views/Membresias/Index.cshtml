@@ -95,9 +95,9 @@
 </div>
 
 <!-- Modal de Renovación -->
-<div id="modalRenovar" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4">
-        <div class="bg-gradient-to-r from-red-600 to-red-800 text-white p-6 rounded-t-2xl">
+<div id="modalRenovar" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="bg-gradient-to-r from-red-600 to-red-800 text-white p-6 rounded-t-2xl sticky top-0 z-10">
             <div class="flex items-center justify-between">
                 <h3 class="text-2xl font-black uppercase tracking-wide">Renovar Membresía</h3>
                 <button onclick="cerrarModalRenovar()" class="text-white hover:text-gray-200">
@@ -110,6 +110,70 @@
             <div class="mb-4">
                 <p class="text-sm text-gray-600 font-bold uppercase mb-1">Cliente</p>
                 <p class="text-lg font-black text-gray-900" id="modal-cliente">-</p>
+            </div>
+
+            <!-- NUEVA SECCIÓN: OPCIONES DE FECHA DE RENOVACIÓN -->
+            <div class="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200">
+                <p class="text-sm font-black text-blue-900 uppercase mb-3 flex items-center gap-2">
+                    <i data-lucide="calendar" class="w-5 h-5"></i>
+                    ¿Desde cuándo renovar la membresía?
+                </p>
+
+                <div class="space-y-3">
+                    <!-- Opción 1: Desde fecha de vencimiento -->
+                    <label class="flex items-start gap-3 p-4 bg-white rounded-xl border-2 border-gray-200 cursor-pointer hover:border-blue-500 transition-all group">
+                        <input type="radio" name="fecha-renovacion" value="vencimiento" checked
+                               onchange="actualizarVistaPrevia()"
+                               class="mt-1 w-5 h-5 text-blue-600 focus:ring-blue-500">
+                        <div class="flex-1">
+                            <p class="font-black text-gray-900 group-hover:text-blue-600 transition-colors">
+                                Desde fecha de vencimiento (Mantener continuidad)
+                            </p>
+                            <p class="text-sm text-gray-600 mt-1">
+                                La nueva membresía se calculará desde la fecha de vencimiento actual
+                            </p>
+                            <div class="mt-2 p-3 bg-blue-50 rounded-lg">
+                                <p class="text-xs font-bold text-blue-800">
+                                    📅 Fecha de vencimiento actual: <span id="fecha-vencimiento-actual" class="font-black">-</span>
+                                </p>
+                            </div>
+                        </div>
+                    </label>
+
+                    <!-- Opción 2: Desde hoy -->
+                    <label class="flex items-start gap-3 p-4 bg-white rounded-xl border-2 border-gray-200 cursor-pointer hover:border-green-500 transition-all group">
+                        <input type="radio" name="fecha-renovacion" value="hoy"
+                               onchange="actualizarVistaPrevia()"
+                               class="mt-1 w-5 h-5 text-green-600 focus:ring-green-500">
+                        <div class="flex-1">
+                            <p class="font-black text-gray-900 group-hover:text-green-600 transition-colors">
+                                Desde hoy (Nueva fecha de inicio)
+                            </p>
+                            <p class="text-sm text-gray-600 mt-1">
+                                La membresía comenzará hoy y se reiniciará el conteo
+                            </p>
+                            <div class="mt-2 p-3 bg-green-50 rounded-lg">
+                                <p class="text-xs font-bold text-green-800">
+                                    📅 Fecha de hoy: <span id="fecha-hoy" class="font-black">-</span>
+                                </p>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Vista previa de nueva fecha de vencimiento -->
+                <div class="mt-4 p-4 bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl border-2 border-purple-300">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i data-lucide="check-circle" class="w-5 h-5 text-purple-600"></i>
+                        <p class="text-sm font-black text-purple-900 uppercase">Vista Previa</p>
+                    </div>
+                    <p class="text-lg font-black text-purple-700">
+                        Nueva fecha de vencimiento: <span id="preview-fecha-vencimiento" class="text-purple-900">-</span>
+                    </p>
+                    <p class="text-sm text-purple-600 mt-1" id="preview-duracion">
+                        -
+                    </p>
+                </div>
             </div>
 
             <div class="mb-4">
@@ -151,7 +215,7 @@
                 </button>
                 <button onclick="confirmarRenovacion()"
                         class="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-800 text-white rounded-xl hover:from-emerald-700 hover:to-emerald-900 font-black uppercase tracking-wide transition-all">
-                    Confirmar
+                    Confirmar Renovación
                 </button>
             </div>
         </div>
@@ -504,8 +568,116 @@
             filtrarMembresias();
         }
 
+        // ========================================
+        // FUNCIONES PARA RENOVACIÓN CON OPCIÓN DE FECHA
+        // ========================================
+
+        /**
+         * Formatea una fecha en formato legible: "Lunes, 10 de Febrero de 2026"
+         */
+        function formatearFecha(fecha) {
+            const opciones = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            };
+            return fecha.toLocaleDateString('es-ES', opciones);
+        }
+
+        /**
+         * Calcula la nueva fecha de vencimiento según el plan y fecha de inicio
+         */
+        function calcularFechaVencimiento(fechaInicio, plan) {
+            const inicio = new Date(fechaInicio);
+            let vencimiento = new Date(inicio);
+
+            const tipoCalculo = (plan.tipoCalculoVencimiento || plan.TipoCalculoVencimiento || 'dias').toLowerCase();
+            const cantidad = plan.cantidadUnidades || plan.CantidadUnidades || plan.duracionDias || plan.DuracionDias || 30;
+
+            switch (tipoCalculo) {
+                case 'meses':
+                    vencimiento.setMonth(vencimiento.getMonth() + cantidad);
+                    break;
+                case 'semanas':
+                    vencimiento.setDate(vencimiento.getDate() + (cantidad * 7));
+                    break;
+                case 'anios':
+                    vencimiento.setFullYear(vencimiento.getFullYear() + cantidad);
+                    break;
+                case 'dias':
+                default:
+                    vencimiento.setDate(vencimiento.getDate() + cantidad);
+                    break;
+            }
+
+            return vencimiento;
+        }
+
+        /**
+         * Actualiza la vista previa de fechas cuando cambia la opción de renovación
+         */
+        function actualizarVistaPrevia() {
+            if (!membresiaSeleccionada) return;
+
+            const opcionSeleccionada = document.querySelector('input[name="fecha-renovacion"]:checked').value;
+            const selectPlan = document.getElementById('select-plan');
+            const planId = selectPlan.value;
+            const plan = planesData.find(p => (p.id || p.Id) === planId);
+
+            if (!plan) return;
+
+            let fechaInicio;
+            if (opcionSeleccionada === 'vencimiento') {
+                // CORRECCIÓN: Renovar desde la MISMA fecha de vencimiento, no el día siguiente
+                fechaInicio = new Date(membresiaSeleccionada.fechaVencimiento);
+            } else {
+                // Renovar desde hoy
+                fechaInicio = new Date();
+            }
+
+            const fechaVencimiento = calcularFechaVencimiento(fechaInicio, plan);
+
+            // Actualizar vista previa
+            document.getElementById('preview-fecha-vencimiento').textContent = formatearFecha(fechaVencimiento);
+
+            // Mostrar duración
+            const tipoCalculo = (plan.tipoCalculoVencimiento || plan.TipoCalculoVencimiento || 'dias').toLowerCase();
+            const cantidad = plan.cantidadUnidades || plan.CantidadUnidades || plan.duracionDias || plan.DuracionDias || 30;
+
+            let duracionTexto = '';
+            switch (tipoCalculo) {
+                case 'meses':
+                    duracionTexto = `Duración: ${cantidad} ${cantidad === 1 ? 'mes' : 'meses'}`;
+                    break;
+                case 'semanas':
+                    duracionTexto = `Duración: ${cantidad} ${cantidad === 1 ? 'semana' : 'semanas'}`;
+                    break;
+                case 'anios':
+                    duracionTexto = `Duración: ${cantidad} ${cantidad === 1 ? 'año' : 'años'}`;
+                    break;
+                case 'dias':
+                default:
+                    duracionTexto = `Duración: ${cantidad} días`;
+                    break;
+            }
+
+            document.getElementById('preview-duracion').textContent = duracionTexto;
+        }
+
         async function abrirModalRenovar(id, clienteNombre, planNombre, precioPlan) {
             membresiaSeleccionada = { id, clienteNombre, planNombre, precioPlan };
+
+            // Obtener datos completos de la membresía
+            const membresia = membresiasData.find(m => (m.id || m.Id) === id);
+            if (!membresia) {
+                alert('❌ No se pudo cargar la información de la membresía');
+                return;
+            }
+
+            // Guardar fechas de la membresía
+            membresiaSeleccionada.fechaVencimiento = new Date(membresia.fechaVencimiento || membresia.FechaVencimiento);
+            membresiaSeleccionada.fechaInicio = new Date(membresia.fechaInicio || membresia.FechaInicio);
 
             // Cargar planes en el selector
             const selectPlan = document.getElementById('select-plan');
@@ -517,31 +689,48 @@
                 return `<option value="${planId}" data-precio="${precio}" ${selected}>${nombre} - $${precio}</option>`;
             }).join('');
 
-            // Verificar si hay deuda pendiente
+            // Mostrar fecha de hoy
+            const hoy = new Date();
+            document.getElementById('fecha-hoy').textContent = formatearFecha(hoy);
+
+            // Mostrar fecha de vencimiento actual
+            const fechaVenc = membresiaSeleccionada.fechaVencimiento;
+            document.getElementById('fecha-vencimiento-actual').textContent = formatearFecha(fechaVenc);
+
+            // Verificar si hay deuda pendiente (con manejo de errores mejorado)
+            deudaPendiente = null; // Inicializar
             try {
-                const membresia = membresiasData.find(m => (m.id || m.Id) === id);
-                const response = await fetch(`${API_URL}/DeudasClientes/cliente/${membresia.clienteId || membresia.ClienteId}`);
-                const deudas = await response.json();
+                const clienteId = membresia.clienteId || membresia.ClienteId;
+                const response = await fetch(`${API_URL}/DeudasClientes/cliente/${clienteId}`);
 
-                deudaPendiente = deudas.find(d => (d.estado || d.Estado) === 'pendiente');
+                // Solo procesar si la respuesta es exitosa
+                if (response.ok) {
+                    const deudas = await response.json();
+                    deudaPendiente = deudas.find(d => (d.estado || d.Estado) === 'pendiente');
 
-                if (deudaPendiente) {
-                    const saldoDeuda = deudaPendiente.saldo || deudaPendiente.Saldo;
-                    document.getElementById('deuda-info').classList.remove('hidden');
-                    document.getElementById('modal-deuda').textContent = `$${saldoDeuda.toFixed(2)}`;
+                    if (deudaPendiente) {
+                        const saldoDeuda = deudaPendiente.saldo || deudaPendiente.Saldo;
+                        document.getElementById('deuda-info').classList.remove('hidden');
+                        document.getElementById('modal-deuda').textContent = `$${saldoDeuda.toFixed(2)}`;
 
-                    // Sugerir monto que cubra deuda + plan
-                    const planActual = planesData.find(p => (p.id || p.Id) === selectPlan.value);
-                    const precioActual = planActual ? (planActual.precio || planActual.Precio) : precioPlan;
-                    const montoSugerido = saldoDeuda + precioActual;
-                    document.getElementById('input-monto').value = montoSugerido.toFixed(2);
+                        // Sugerir monto que cubra deuda + plan
+                        const planActual = planesData.find(p => (p.id || p.Id) === selectPlan.value);
+                        const precioActual = planActual ? (planActual.precio || planActual.Precio) : precioPlan;
+                        const montoSugerido = saldoDeuda + precioActual;
+                        document.getElementById('input-monto').value = montoSugerido.toFixed(2);
+                    } else {
+                        document.getElementById('deuda-info').classList.add('hidden');
+                        document.getElementById('input-monto').value = precioPlan.toFixed(2);
+                    }
                 } else {
+                    // Si el endpoint no existe o falla, simplemente ocultar deuda
+                    console.log('Endpoint de deudas no disponible o sin deudas');
                     document.getElementById('deuda-info').classList.add('hidden');
                     document.getElementById('input-monto').value = precioPlan.toFixed(2);
                 }
             } catch (error) {
-                console.error('Error verificando deudas:', error);
-                deudaPendiente = null;
+                // Error de red o endpoint no disponible - continuar sin mostrar deuda
+                console.log('No se pudo verificar deudas (normal si no existe el endpoint):', error.message);
                 document.getElementById('deuda-info').classList.add('hidden');
                 document.getElementById('input-monto').value = precioPlan.toFixed(2);
             }
@@ -549,6 +738,9 @@
             document.getElementById('modal-cliente').textContent = clienteNombre;
             const planSeleccionado = selectPlan.options[selectPlan.selectedIndex];
             document.getElementById('modal-precio').textContent = `$${parseFloat(planSeleccionado.dataset.precio).toFixed(2)}`;
+
+            // Actualizar vista previa inicial
+            actualizarVistaPrevia();
 
             document.getElementById('modalRenovar').classList.remove('hidden');
             lucide.createIcons();
@@ -569,6 +761,9 @@
             } else {
                 document.getElementById('input-monto').value = nuevoPrecio.toFixed(2);
             }
+
+            // Actualizar vista previa con el nuevo plan
+            actualizarVistaPrevia();
         }
 
         function cerrarModalRenovar() {
@@ -581,6 +776,7 @@
             const monto = parseFloat(document.getElementById('input-monto').value);
             const metodo = document.getElementById('input-metodo').value;
             const planId = document.getElementById('select-plan').value;
+            const opcionFecha = document.querySelector('input[name="fecha-renovacion"]:checked').value;
 
             if (isNaN(monto) || monto <= 0) {
                 alert('❌ Monto inválido');
@@ -592,7 +788,8 @@
                     montoPagado: monto,
                     metodoPago: metodo,
                     notas: '',
-                    usuarioId: null
+                    usuarioId: null,
+                    renovarDesdeHoy: opcionFecha === 'hoy' // Nueva opción
                 };
 
                 // Solo enviar planId si cambió de plan

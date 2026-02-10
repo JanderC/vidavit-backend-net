@@ -390,18 +390,21 @@
 
                                         <!-- Información de Deuda -->
                                         ${deuda && deuda.tieneDeuda ? `
-                                            <div class="pt-6" style="border-top: 2px solid rgba(209, 36, 35, 0.3);">
-                                                <div class="flex items-center gap-3 mb-3">
-                                                    <svg class="w-8 h-8" style="color: #FFA500;" fill="currentColor" viewBox="0 0 20 20">
+                                            <div class="pt-6 mt-6" style="border-top: 2px solid rgba(255, 165, 0, 0.5);">
+                                                <div class="flex items-center justify-center gap-3 mb-4">
+                                                    <svg class="w-10 h-10" style="color: #FFA500;" fill="currentColor" viewBox="0 0 20 20">
                                                         <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
                                                     </svg>
-                                                    <p class="text-lg uppercase tracking-wide font-semibold" style="color: #FFA500;">Monto Pendiente</p>
+                                                    <p class="text-2xl uppercase tracking-wide font-bold" style="color: #FFA500;">⚠️ DEUDA PENDIENTE ⚠️</p>
                                                 </div>
-                                                <p class="text-5xl font-black mb-2" style="color: #FFA500;">
+                                                <p class="text-7xl font-black mb-3 animate-pulse" style="color: #FFA500; text-shadow: 0 0 20px rgba(255, 165, 0, 0.5);">
                                                     $${deuda.montoTotal.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                                 </p>
-                                                <p class="text-base mt-2 text-white">
-                                                    (${deuda.cantidadDeudas} deudas pendientes)
+                                                <p class="text-xl font-semibold" style="color: #FFA500;">
+                                                    ${deuda.cantidadDeudas} ${deuda.cantidadDeudas === 1 ? 'pago pendiente' : 'pagos pendientes'}
+                                                </p>
+                                                <p class="text-lg text-white mt-3 font-semibold">
+                                                    Por favor, acércate a recepción
                                                 </p>
                                             </div>
                                         ` : ''}
@@ -575,16 +578,19 @@
                                     <!-- Información de Deuda en Error -->
                                     ${deuda && deuda.tieneDeuda ? `
                                         <div class="pt-6 mt-6" style="border-top: 2px solid rgba(209, 36, 35, 0.5);">
-                                            <div class="flex items-center justify-center gap-3 mb-3">
-                                                <svg class="w-8 h-8" style="color: #FFA500;" fill="currentColor" viewBox="0 0 20 20">
+                                            <div class="flex items-center justify-center gap-3 mb-4">
+                                                <svg class="w-10 h-10" style="color: #FFA500;" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
                                                 </svg>
-                                                <p class="text-lg uppercase tracking-wide font-semibold" style="color: #FFA500;">Monto Pendiente</p>
+                                                <p class="text-2xl uppercase tracking-wide font-bold" style="color: #FFA500;">⚠️ MONTO PENDIENTE ⚠️</p>
                                             </div>
-                                            <p class="text-5xl font-black mb-2" style="color: #FFA500;">
+                                            <p class="text-7xl font-black mb-3 animate-pulse" style="color: #FFA500; text-shadow: 0 0 20px rgba(255, 165, 0, 0.5);">
                                                 $${deuda.montoTotal.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                             </p>
-                                            <p class="text-base font-semibold" style="color: #FFA500;">
+                                            <p class="text-xl font-semibold" style="color: #FFA500;">
+                                                ${deuda.cantidadDeudas} ${deuda.cantidadDeudas === 1 ? 'pago pendiente' : 'pagos pendientes'}
+                                            </p>
+                                            <p class="text-lg text-white mt-3 font-semibold">
                                                 Recuerda ponerte al día
                                             </p>
                                         </div>

@@ -127,6 +127,13 @@ namespace VidaFit.Controllers.WEB
                 }
                 // ==================================================================
 
+                // Verificar deudas pendientes
+                var deudasPendientes = await _context.DeudasClientes
+                    .Where(d => d.ClienteId == clienteEncontrado.Id && d.Estado != "pagada")
+                    .ToListAsync();
+
+                var totalDeuda = deudasPendientes.Sum(d => d.Saldo);
+
                 // Verificar membresía
                 var membresiaActiva = clienteEncontrado.Membresias
                     .Where(m => m.Estado == "activa")
@@ -204,7 +211,13 @@ namespace VidaFit.Controllers.WEB
                     } : null,
                     diasRestantes = diasRestantes,
                     fechaVencimiento = membresiaActiva?.FechaVencimiento,
-                    similarity = similarity
+                    similarity = similarity,
+                    deuda = totalDeuda > 0 ? new
+                    {
+                        tieneDeuda = true,
+                        montoTotal = totalDeuda,
+                        cantidadDeudas = deudasPendientes.Count
+                    } : null
                 });
             }
             catch (Exception ex)
@@ -285,6 +298,13 @@ namespace VidaFit.Controllers.WEB
             }
             // ==================================================================
 
+            // Verificar deudas pendientes
+            var deudasPendientes = await _context.DeudasClientes
+                .Where(d => d.ClienteId == cliente.Id && d.Estado != "pagada")
+                .ToListAsync();
+
+            var totalDeuda = deudasPendientes.Sum(d => d.Saldo);
+
             var membresiaActiva = cliente.Membresias
                 .Where(m => m.Estado == "activa")
                 .OrderByDescending(m => m.FechaVencimiento)
@@ -360,7 +380,13 @@ namespace VidaFit.Controllers.WEB
                         : (int?)null
                 } : null,
                 diasRestantes = diasRestantes,
-                fechaVencimiento = membresiaActiva?.FechaVencimiento
+                fechaVencimiento = membresiaActiva?.FechaVencimiento,
+                deuda = totalDeuda > 0 ? new
+                {
+                    tieneDeuda = true,
+                    montoTotal = totalDeuda,
+                    cantidadDeudas = deudasPendientes.Count
+                } : null
             });
         }
 

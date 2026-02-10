@@ -673,10 +673,14 @@
                 day: 'numeric'
             });
         }
+        function obtenerFechaLocalISO() {
+            const hoy = new Date();
+            const year = hoy.getFullYear();
+            const month = String(hoy.getMonth() + 1).padStart(2, '0');
+            const day = String(hoy.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
 
-        // ========================================
-        // GESTIÓN DE TABS
-        // ========================================
         function cambiarTab(tab) {
             // Ocultar todos los contenidos
             document.querySelectorAll('.tab-content').forEach(content => {
@@ -1231,7 +1235,7 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        Fecha: new Date().toISOString().split('T')[0],
+                        Fecha: obtenerFechaLocalISO(),
                         observaciones: observaciones,
                         tipoCierre: 'manual'
                     })
@@ -1684,9 +1688,9 @@
         // INICIALIZACIÓN
         // ========================================
         window.addEventListener('load', function() {
-            // Establecer fecha de hoy en los filtros
-            const hoy = new Date();
-            const fechaHoy = hoy.toISOString().split('T')[0];
+            // Establecer fecha de hoy en los filtros (usando hora local, NO UTC)
+            const fechaHoy = obtenerFechaLocalISO();
+
             document.getElementById('fecha-desde').value = fechaHoy;
             document.getElementById('fecha-hasta').value = fechaHoy;
 
