@@ -1,17 +1,17 @@
 ﻿@{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Clientes";
-    ViewData["Subtitle"] = "Gestión de miembros de TAURO GYM";
+    ViewData["Subtitle"] = "Gestión de miembros de JONEL GYM";
 }
 
 <div class="mb-6 flex items-center justify-between gap-4">
     <div class="flex-1 max-w-md">
         <input type="text" id="search-input" placeholder="Buscar por nombre, apellido o cédula..."
-               class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+               class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-semibold">
     </div>
 
     <a href="/clientes/crear"
-       class="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
+       class="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-orange-500 to-orange-700 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
         <i data-lucide="user-plus" class="w-5 h-5"></i>
         Nuevo Cliente
     </a>
@@ -19,8 +19,57 @@
 
 <div id="clientes-container" class="bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-gray-200">
     <div class="p-8 text-center">
-        <div class="animate-spin w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+        <div class="animate-spin w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full mx-auto mb-4"></div>
         <p class="text-gray-600 font-bold">Cargando clientes...</p>
+    </div>
+</div>
+
+<!-- Controles de paginación -->
+<div id="pagination-container" class="mt-6 flex items-center justify-between bg-white rounded-xl shadow-lg p-4 border-2 border-gray-200">
+    <div class="text-gray-600 font-bold">
+        Mostrando <span id="showing-start">0</span> - <span id="showing-end">0</span> de <span id="total-items">0</span> clientes
+    </div>
+
+    <div class="flex items-center gap-2">
+        <button id="btn-first" onclick="goToPage(1)"
+                class="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Primera página">
+            <i data-lucide="chevrons-left" class="w-5 h-5"></i>
+        </button>
+
+        <button id="btn-prev" onclick="previousPage()"
+                class="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Página anterior">
+            <i data-lucide="chevron-left" class="w-5 h-5"></i>
+        </button>
+
+        <div id="page-numbers" class="flex gap-1">
+            <!-- Los números de página se generarán dinámicamente -->
+        </div>
+
+        <button id="btn-next" onclick="nextPage()"
+                class="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Página siguiente">
+            <i data-lucide="chevron-right" class="w-5 h-5"></i>
+        </button>
+
+        <button id="btn-last" onclick="goToLastPage()"
+                class="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Última página">
+            <i data-lucide="chevrons-right" class="w-5 h-5"></i>
+        </button>
+    </div>
+
+    <div class="flex items-center gap-2">
+        <label for="items-per-page" class="text-gray-600 font-bold">Items por página:</label>
+        <select id="items-per-page" onchange="changeItemsPerPage()"
+                class="px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-bold">
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+        </select>
     </div>
 </div>
 
@@ -28,33 +77,48 @@
     <script>
         const API_URL = '/api';
         let clientesData = [];
+        let filteredClientes = [];
+        let currentPage = 1;
+        let itemsPerPage = 10;
 
         async function loadClientes() {
             try {
                 const response = await fetch(`${API_URL}/Clientes`);
                 clientesData = await response.json();
-                renderClientes(clientesData);
+                filteredClientes = [...clientesData];
+                currentPage = 1;
+                renderCurrentPage();
             } catch (error) {
                 console.error('Error:', error);
                 document.getElementById('clientes-container').innerHTML = `
                     <div class="p-8 text-center">
-                        <i data-lucide="alert-circle" class="w-12 h-12 text-red-600 mx-auto mb-4"></i>
-                        <p class="text-red-600 font-bold">Error al cargar los clientes</p>
+                        <i data-lucide="alert-circle" class="w-12 h-12 text-orange-500 mx-auto mb-4"></i>
+                        <p class="text-orange-500 font-bold">Error al cargar los clientes</p>
                     </div>
                 `;
                 lucide.createIcons();
             }
         }
 
+        function renderCurrentPage() {
+            const totalPages = Math.ceil(filteredClientes.length / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageClientes = filteredClientes.slice(startIndex, endIndex);
+
+            renderClientes(pageClientes);
+            updatePagination(totalPages, startIndex, endIndex);
+        }
+
         function renderClientes(clientes) {
             const container = document.getElementById('clientes-container');
 
-            if (clientes.length === 0) {
+            if (filteredClientes.length === 0) {
                 container.innerHTML = `
                     <div class="p-12 text-center">
                         <i data-lucide="users" class="w-16 h-16 mx-auto mb-4 text-gray-400"></i>
-                        <p class="text-gray-500 text-lg font-bold">No hay clientes registrados</p>
-                        <a href="/clientes/crear" class="mt-4 inline-block text-red-600 hover:underline font-black uppercase tracking-wide">
+                        <p class="text-gray-500 text-lg font-bold">No hay clientes que coincidan con la búsqueda</p>
+                        <a href="/clientes/crear" class="mt-4 inline-block text-orange-500 hover:underline font-black uppercase tracking-wide">
                             Registrar primer cliente
                         </a>
                     </div>
@@ -65,7 +129,7 @@
 
             container.innerHTML = `
                 <table class="w-full">
-                    <thead class="bg-gradient-to-r from-gray-900 to-black border-b-2 border-red-600">
+                    <thead class="bg-gradient-to-r from-gray-900 to-black border-b-2 border-orange-500">
                         <tr>
                             <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-wider">Cliente</th>
                             <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-wider">Cédula</th>
@@ -81,7 +145,7 @@
                                     <div class="flex items-center gap-3">
                                         ${c.FotoBase64 ?
                                             `<img src="data:image/jpeg;base64,${c.FotoBase64}"
-                                                  class="w-12 h-12 rounded-full object-cover border-2 border-red-600">` :
+                                                  class="w-12 h-12 rounded-full object-cover border-2 border-orange-500">` :
                                             `<div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
                                                 <i data-lucide="user" class="w-6 h-6 text-gray-500"></i>
                                             </div>`
@@ -121,7 +185,7 @@
                                             <i data-lucide="eye" class="w-5 h-5"></i>
                                         </a>
                                         <a href="/clientes/editar/${c.Id}"
-                                           class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                                           class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                                            title="Editar">
                                             <i data-lucide="edit" class="w-5 h-5"></i>
                                         </a>
@@ -138,7 +202,7 @@
                                             <i data-lucide="plus-circle" class="w-5 h-5"></i>
                                         </a>
                                         <button onclick="deleteCliente('${c.Id}')"
-                                                class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                class="p-2 text-orange-500 hover:bg-orange-50 rounded-lg transition-colors"
                                                 title="Eliminar">
                                             <i data-lucide="trash-2" class="w-5 h-5"></i>
                                         </button>
@@ -153,14 +217,122 @@
             lucide.createIcons();
         }
 
+        function updatePagination(totalPages, startIndex, endIndex) {
+            const total = filteredClientes.length;
+
+            // Actualizar información de registros mostrados
+            document.getElementById('showing-start').textContent = total === 0 ? 0 : startIndex + 1;
+            document.getElementById('showing-end').textContent = Math.min(endIndex, total);
+            document.getElementById('total-items').textContent = total;
+
+            // Habilitar/deshabilitar botones
+            document.getElementById('btn-first').disabled = currentPage === 1;
+            document.getElementById('btn-prev').disabled = currentPage === 1;
+            document.getElementById('btn-next').disabled = currentPage === totalPages || totalPages === 0;
+            document.getElementById('btn-last').disabled = currentPage === totalPages || totalPages === 0;
+
+            // Generar números de página
+            renderPageNumbers(totalPages);
+
+            lucide.createIcons();
+        }
+
+        function renderPageNumbers(totalPages) {
+            const pageNumbersContainer = document.getElementById('page-numbers');
+            let html = '';
+
+            if (totalPages <= 7) {
+                // Mostrar todos los números si hay 7 o menos páginas
+                for (let i = 1; i <= totalPages; i++) {
+                    html += getPageButton(i);
+                }
+            } else {
+                // Mostrar con puntos suspensivos
+                if (currentPage <= 4) {
+                    for (let i = 1; i <= 5; i++) {
+                        html += getPageButton(i);
+                    }
+                    html += '<span class="px-3 py-2 text-gray-600 font-bold">...</span>';
+                    html += getPageButton(totalPages);
+                } else if (currentPage >= totalPages - 3) {
+                    html += getPageButton(1);
+                    html += '<span class="px-3 py-2 text-gray-600 font-bold">...</span>';
+                    for (let i = totalPages - 4; i <= totalPages; i++) {
+                        html += getPageButton(i);
+                    }
+                } else {
+                    html += getPageButton(1);
+                    html += '<span class="px-3 py-2 text-gray-600 font-bold">...</span>';
+                    for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                        html += getPageButton(i);
+                    }
+                    html += '<span class="px-3 py-2 text-gray-600 font-bold">...</span>';
+                    html += getPageButton(totalPages);
+                }
+            }
+
+            pageNumbersContainer.innerHTML = html;
+        }
+
+        function getPageButton(pageNum) {
+            const isActive = pageNum === currentPage;
+            const activeClass = isActive
+                ? 'bg-gradient-to-r from-orange-500 to-orange-700 text-white'
+                : 'text-gray-600 hover:bg-gray-100';
+
+            return `
+                <button onclick="goToPage(${pageNum})"
+                        class="px-4 py-2 ${activeClass} rounded-lg transition-colors font-bold min-w-[40px]">
+                    ${pageNum}
+                </button>
+            `;
+        }
+
+        function goToPage(page) {
+            const totalPages = Math.ceil(filteredClientes.length / itemsPerPage);
+            if (page >= 1 && page <= totalPages) {
+                currentPage = page;
+                renderCurrentPage();
+            }
+        }
+
+        function nextPage() {
+            const totalPages = Math.ceil(filteredClientes.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderCurrentPage();
+            }
+        }
+
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderCurrentPage();
+            }
+        }
+
+        function goToLastPage() {
+            const totalPages = Math.ceil(filteredClientes.length / itemsPerPage);
+            currentPage = totalPages;
+            renderCurrentPage();
+        }
+
+        function changeItemsPerPage() {
+            itemsPerPage = parseInt(document.getElementById('items-per-page').value);
+            currentPage = 1;
+            renderCurrentPage();
+        }
+
+        // Búsqueda en tiempo real que mantiene la paginación
         document.getElementById('search-input').addEventListener('input', function(e) {
             const search = e.target.value.toLowerCase();
-            const filtrados = clientesData.filter(c =>
+            filteredClientes = clientesData.filter(c =>
                 c.Nombre.toLowerCase().includes(search) ||
                 c.Apellido.toLowerCase().includes(search) ||
                 c.Cedula.toLowerCase().includes(search)
             );
-            renderClientes(filtrados);
+            currentPage = 1; // Volver a la primera página después de buscar
+            renderCurrentPage();
         });
 
         async function deleteCliente(id) {

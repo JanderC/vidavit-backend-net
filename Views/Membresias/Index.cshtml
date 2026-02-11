@@ -1,7 +1,7 @@
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Membresías";
-    ViewData["Subtitle"] = "Gestión de membresías - TAURO GYM";
+    ViewData["Subtitle"] = "Gestión de membresías - JONEL GYM";
 }
 
 <div class="mb-6">
@@ -26,7 +26,7 @@
         </div>
 
         <a href="/membresias/crear"
-           class="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
+           class="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-orange-500 to-orange-700 hover:from-orange-600 hover:to-orange-800 text-white font-black rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
             <i data-lucide="plus" class="w-5 h-5"></i>
             Nueva Membresía
         </a>
@@ -37,7 +37,7 @@
         <div class="flex items-center gap-3">
             <i data-lucide="search" class="w-5 h-5 text-gray-500"></i>
             <input type="text" id="searchInput" placeholder="Buscar por nombre de cliente..."
-                   class="flex-1 px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-red-600 focus:outline-none font-bold"
+                   class="flex-1 px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-orange-500 focus:outline-none font-bold"
                    onkeyup="filtrarMembresias()">
         </div>
     </div>
@@ -46,7 +46,7 @@
         <div class="flex items-center gap-3 flex-wrap">
             <span class="text-sm font-black text-gray-900 uppercase tracking-wide">Filtrar por plan:</span>
             <button onclick="filterByPlan(null)"
-                    class="plan-filter-btn px-4 py-2 bg-gradient-to-r from-red-600 to-red-800 text-white rounded-xl font-black uppercase text-xs tracking-wide"
+                    class="plan-filter-btn px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-700 text-white rounded-xl font-black uppercase text-xs tracking-wide"
                     data-plan="todos">
                 Todos los planes
             </button>
@@ -78,7 +78,7 @@
     <div id="membresias-container" class="p-6">
         <div class="flex items-center justify-center h-64">
             <div class="text-center">
-                <div class="animate-spin w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+                <div class="animate-spin w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full mx-auto mb-4"></div>
                 <p class="text-gray-600 font-bold">Cargando membresías...</p>
             </div>
         </div>
@@ -97,7 +97,7 @@
 <!-- Modal de Renovación -->
 <div id="modalRenovar" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
-        <div class="bg-gradient-to-r from-red-600 to-red-800 text-white p-6 rounded-t-2xl sticky top-0 z-10">
+        <div class="bg-gradient-to-r from-orange-500 to-orange-700 text-white p-6 rounded-t-2xl sticky top-0 z-10">
             <div class="flex items-center justify-between">
                 <h3 class="text-2xl font-black uppercase tracking-wide">Renovar Membresía</h3>
                 <button onclick="cerrarModalRenovar()" class="text-white hover:text-gray-200">
@@ -261,7 +261,7 @@
                     <div class="text-center py-12 text-red-600">
                         <i data-lucide="alert-circle" class="w-12 h-12 mx-auto mb-2"></i>
                         <p class="font-black text-xl uppercase tracking-wide">Error al cargar las membresías</p>
-                        <button onclick="loadMembresias()" class="mt-4 px-6 py-3 bg-gradient-to-r from-red-600 to-red-800 text-white rounded-xl hover:from-red-700 hover:to-red-900 font-black uppercase tracking-wide">
+                        <button onclick="loadMembresias()" class="mt-4 px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-700 text-white rounded-xl hover:from-orange-600 hover:to-orange-800 font-black uppercase tracking-wide">
                             Reintentar
                         </button>
                     </div>
@@ -476,12 +476,12 @@
                             </button>
                             ` : ''}
                             <a href="/membresias/editar/${m.id || m.Id}"
-                                    class="p-3 text-amber-600 hover:bg-amber-50 rounded-xl transition-colors"
+                                    class="p-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
                                     title="Editar membresía">
                                 <i data-lucide="edit" class="w-6 h-6"></i>
                             </a>
                             <button onclick="eliminarMembresia('${m.id || m.Id}', '${clienteNombre}')"
-                                    class="p-3 text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                                    class="p-3 text-orange-600 hover:bg-orange-50 rounded-xl transition-colors"
                                     title="Eliminar membresía">
                                 <i data-lucide="trash-2" class="w-6 h-6"></i>
                             </button>
@@ -512,7 +512,7 @@
             for (let i = 1; i <= totalPaginas; i++) {
                 if (i === 1 || i === totalPaginas || (i >= paginaActual - 2 && i <= paginaActual + 2)) {
                     buttonsHtml += `<button onclick="cambiarPagina(${i})"
-                        class="px-4 py-2 ${i === paginaActual ? 'bg-gradient-to-r from-red-600 to-red-800 text-white' : 'bg-gray-200 text-gray-900'} rounded-xl hover:bg-gray-300 font-bold">
+                        class="px-4 py-2 ${i === paginaActual ? 'bg-gradient-to-r from-orange-500 to-orange-700 text-white' : 'bg-gray-200 text-gray-900'} rounded-xl hover:bg-gray-300 font-bold">
                         ${i}
                     </button>`;
                 } else if (i === paginaActual - 3 || i === paginaActual + 3) {
@@ -542,10 +542,10 @@
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 if (btn.dataset.estado === estado) {
                     btn.classList.remove('bg-gray-200', 'text-gray-900');
-                    btn.classList.add('bg-gradient-to-r', 'from-red-600', 'to-red-800', 'text-white', 'shadow-lg');
+                    btn.classList.add('bg-gradient-to-r', 'from-orange-500', 'to-orange-700', 'text-white', 'shadow-lg');
                 } else {
                     btn.classList.add('bg-gray-200', 'text-gray-900');
-                    btn.classList.remove('bg-gradient-to-r', 'from-red-600', 'to-red-800', 'text-white', 'shadow-lg');
+                    btn.classList.remove('bg-gradient-to-r', 'from-orange-500', 'to-orange-700', 'text-white', 'shadow-lg');
                 }
             });
 
@@ -558,10 +558,10 @@
             document.querySelectorAll('.plan-filter-btn').forEach(btn => {
                 if (btn.dataset.plan === (planId || 'todos')) {
                     btn.classList.remove('bg-gray-200', 'text-gray-900');
-                    btn.classList.add('bg-gradient-to-r', 'from-red-600', 'to-red-800', 'text-white');
+                    btn.classList.add('bg-gradient-to-r', 'from-orange-500', 'to-orange-700', 'text-white');
                 } else {
                     btn.classList.add('bg-gray-200', 'text-gray-900');
-                    btn.classList.remove('bg-gradient-to-r', 'from-red-600', 'to-red-800', 'text-white');
+                    btn.classList.remove('bg-gradient-to-r', 'from-orange-500', 'to-orange-700', 'text-white');
                 }
             });
 

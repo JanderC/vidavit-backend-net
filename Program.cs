@@ -100,7 +100,7 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new()
     {
-        Title = "TAURO GYM API",
+        Title = "JONEL GYM API",
         Version = "v1",
         Description = "Sistema de Gestión de Gimnasio con Check-in Biométrico"
     });
@@ -120,16 +120,17 @@ var horaActual = DateTime.Now;
 
 // Mostrar banner
 Console.WriteLine("═══════════════════════════════════════════════════════");
-Console.WriteLine("   ████████╗ █████╗ ██╗   ██╗██████╗  ██████╗          ");
-Console.WriteLine("   ╚══██╔══╝██╔══██╗██║   ██║██╔══██╗██╔═══██╗         ");
-Console.WriteLine("      ██║   ███████║██║   ██║██████╔╝██║   ██║         ");
-Console.WriteLine("      ██║   ██╔══██║██║   ██║██╔══██╗██║   ██║         ");
-Console.WriteLine("      ██║   ██║  ██║╚██████╔╝██║  ██║╚██████╔╝         ");
-Console.WriteLine("      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝ ╚═════╝          ");
-Console.WriteLine("                    GYM SYSTEM                          ");
+Console.WriteLine("       ██╗ ██████╗ ███╗   ██╗███████╗██╗              ");
+Console.WriteLine("       ██║██╔═══██╗████╗  ██║██╔════╝██║              ");
+Console.WriteLine("       ██║██║   ██║██╔██╗ ██║█████╗  ██║              ");
+Console.WriteLine("  ██   ██║██║   ██║██║╚██╗██║██╔══╝  ██║              ");
+Console.WriteLine("  ╚█████╔╝╚██████╔╝██║ ╚████║███████╗███████╗         ");
+Console.WriteLine("   ╚════╝  ╚═════╝ ╚═╝  ╚═══╝╚══════╝╚══════╝         ");
+Console.WriteLine("                   GYM SYSTEM                          ");
 Console.WriteLine("═══════════════════════════════════════════════════════");
-Console.WriteLine("   Sistema de Gestión de Gimnasio TAURO GYM");
-Console.WriteLine("   Versión 1.0 - Sistema Integrado");
+Console.WriteLine("   Sistema de Gestión de Gimnasio JONEL GYM");
+Console.WriteLine("   👥 Propietarios: Joselin y Nelson");
+Console.WriteLine("   📦 Versión 1.0 - Sistema Integrado");
 Console.WriteLine("═══════════════════════════════════════════════════════");
 Console.WriteLine($"   ✓ Servidor iniciado en: http://localhost:5000");
 Console.WriteLine($"   ✓ Base de datos: PostgreSQL - {connectionString?.Split(';')[0]}");
@@ -153,7 +154,7 @@ Console.WriteLine("════════════════════�
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "TAURO GYM API v1"));
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "JONEL GYM API v1"));
 }
 
 // Archivos estáticos (CSS, JS, imágenes)

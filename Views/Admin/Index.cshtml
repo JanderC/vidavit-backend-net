@@ -4,10 +4,286 @@
     Layout = "_AdminLayout";
 }
 
+<style>
+    /* Estilos CSS embebidos para funcionar sin conexión a internet */
+    .dashboard-card {
+        background: linear-gradient(135deg, #FF8C00 0%, #FF7700 100%);
+        border-radius: 1rem;
+        box-shadow: 0 10px 30px rgba(255, 140, 0, 0.3);
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(255, 140, 0, 0.4);
+        }
+
+    .dashboard-card-green {
+        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+    }
+
+        .dashboard-card-green:hover {
+            box-shadow: 0 15px 40px rgba(16, 185, 129, 0.4);
+        }
+
+    .dashboard-card-orange {
+        background: linear-gradient(135deg, #FF8C00 0%, #FF7700 100%);
+        box-shadow: 0 10px 30px rgba(255, 140, 0, 0.3);
+    }
+
+        .dashboard-card-orange:hover {
+            box-shadow: 0 15px 40px rgba(255, 140, 0, 0.4);
+        }
+
+    .dashboard-card-purple {
+        background: linear-gradient(135deg, #8B8B8B 0%, #6B6B6B 100%);
+        box-shadow: 0 10px 30px rgba(139, 139, 139, 0.3);
+    }
+
+        .dashboard-card-purple:hover {
+            box-shadow: 0 15px 40px rgba(139, 139, 139, 0.4);
+        }
+
+    .card-icon-bg {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 0.75rem;
+        padding: 0.75rem;
+    }
+
+    .card-badge {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: bold;
+    }
+
+    .card-circle-decoration {
+        position: absolute;
+        top: -1rem;
+        right: -1rem;
+        width: 8rem;
+        height: 8rem;
+        background: white;
+        opacity: 0.1;
+        border-radius: 9999px;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: bold;
+        color: #1f2937;
+        margin-bottom: 1.25rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-title-icon {
+        width: 1.5rem;
+        height: 1.5rem;
+        color: #FF8C00;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 2rem;
+    }
+
+    .content-card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        border: 2px solid #e5e7eb;
+    }
+
+    .content-card-header {
+        background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        padding: 1.25rem 1.5rem;
+    }
+
+    .content-card-title {
+        color: white;
+        font-weight: 900;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1.125rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .alert-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem;
+        border-radius: 0.75rem;
+        font-size: 0.875rem;
+        transition: box-shadow 0.3s ease;
+    }
+
+        .alert-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+    .alert-item-warning {
+        background: linear-gradient(to right, #fef3c7, #fde68a);
+        border: 1px solid #f59e0b;
+    }
+
+    .alert-item-danger {
+        background: linear-gradient(to right, #fee2e2, #fecaca);
+        border: 1px solid #dc2626;
+    }
+
+    .alert-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 900;
+    }
+
+    .alert-badge-warning {
+        background: #FF8C00;
+        color: white;
+    }
+
+    .alert-badge-danger {
+        background: #dc2626;
+        color: white;
+    }
+
+    .alert-badge-critical {
+        background: #991b1b;
+        color: white;
+    }
+
+    .top-client-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem;
+        border-radius: 0.75rem;
+        transition: box-shadow 0.3s ease;
+    }
+
+        .top-client-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+    .top-client-gold {
+        background: linear-gradient(to right, #FFF4E6, #FFE4CC);
+        border: 2px solid #FF8C00;
+    }
+
+    .top-client-silver {
+        background: linear-gradient(to right, #f3f4f6, #e5e7eb);
+        border: 2px solid #9ca3af;
+    }
+
+    .top-client-bronze {
+        background: linear-gradient(to right, #fed7aa, #fdba74);
+        border: 2px solid #ea580c;
+    }
+
+    .top-client-regular {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+    }
+
+    .rank-badge {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 9999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 900;
+        font-size: 0.875rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .rank-badge-gold {
+        background: linear-gradient(to bottom right, #FF8C00, #FF7700);
+    }
+
+    .rank-badge-silver {
+        background: linear-gradient(to bottom right, #9ca3af, #6b7280);
+    }
+
+    .rank-badge-bronze {
+        background: linear-gradient(to bottom right, #fb923c, #f97316);
+    }
+
+    .rank-badge-regular {
+        background: #374151;
+    }
+
+    .loading-spinner {
+        animation: spin 1s linear infinite;
+        width: 3rem;
+        height: 3rem;
+        border: 4px solid #FF8C00;
+        border-top-color: transparent;
+        border-radius: 9999px;
+        margin: 0 auto 1rem;
+    }
+
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 0;
+        color: #6b7280;
+    }
+
+    .empty-state-icon {
+        width: 4rem;
+        height: 4rem;
+        margin: 0 auto 0.75rem;
+        color: #10B981;
+    }
+
+    .scroll-container {
+        max-height: 24rem;
+        overflow-y: auto;
+    }
+
+        .scroll-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .scroll-container::-webkit-scrollbar-track {
+            background: #f3f4f6;
+            border-radius: 4px;
+        }
+
+        .scroll-container::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 4px;
+        }
+
+            .scroll-container::-webkit-scrollbar-thumb:hover {
+                background: #9ca3af;
+            }
+</style>
+
 <div id="dashboard-app">
     <div class="flex items-center justify-center h-64">
         <div class="text-center">
-            <div class="animate-spin w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+            <div class="loading-spinner"></div>
             <p class="text-gray-600">Cargando estadísticas...</p>
         </div>
     </div>
@@ -89,295 +365,198 @@
                 document.getElementById('dashboard-app').innerHTML = `
                     <!-- Resumen de Caja Hoy -->
                     <div class="mb-8">
-                        <h3 class="text-xl font-bold text-gray-800 mb-5 uppercase tracking-wide flex items-center gap-2">
-                            <i data-lucide="wallet" class="w-6 h-6 text-emerald-600"></i>
+                        <h3 class="section-title">
+                            <i data-lucide="wallet" class="section-title-icon"></i>
                             Estado de Caja - Hoy
                         </h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                            <div class="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white rounded-2xl shadow-xl p-6 relative overflow-hidden transform hover:scale-105 transition-all">
-                                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-10 rounded-full"></div>
-                                <div class="relative z-10">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3">
-                                            <i data-lucide="trending-up" class="w-7 h-7"></i>
+                        <div class="stats-grid">
+                            <div class="dashboard-card dashboard-card-green">
+                                <div class="card-circle-decoration"></div>
+                                <div style="position: relative; z-index: 10;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+                                        <div class="card-icon-bg">
+                                            <i data-lucide="trending-up" style="width: 1.75rem; height: 1.75rem;"></i>
                                         </div>
-                                        <span class="text-xs font-bold bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">HOY</span>
+                                        <span class="card-badge">HOY</span>
                                     </div>
-                                    <p class="text-sm uppercase tracking-wider mb-1 text-emerald-100">Ingresos de Hoy</p>
-                                    <p class="text-3xl font-black">${this.formatCurrency(ingresos)}</p>
-                                    <p class="text-xs mt-2 text-emerald-100">
+                                    <p style="font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; color: rgba(255, 255, 255, 0.8);">Ingresos de Hoy</p>
+                                    <p style="font-size: 1.875rem; font-weight: 900; color: white;">${this.formatCurrency(ingresos)}</p>
+                                    <p style="font-size: 0.75rem; margin-top: 0.5rem; color: rgba(255, 255, 255, 0.8);">
                                         ${cantidadMovimientos} movimientos hoy
                                     </p>
                                 </div>
                             </div>
 
-                            <div class="bg-gradient-to-br from-blue-500 to-blue-700 text-white rounded-2xl shadow-xl p-6 relative overflow-hidden transform hover:scale-105 transition-all">
-                                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-10 rounded-full"></div>
-                                <div class="relative z-10">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3">
-                                            <i data-lucide="wallet" class="w-7 h-7"></i>
+                            <div class="dashboard-card">
+                                <div class="card-circle-decoration"></div>
+                                <div style="position: relative; z-index: 10;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+                                        <div class="card-icon-bg">
+                                            <i data-lucide="wallet" style="width: 1.75rem; height: 1.75rem;"></i>
                                         </div>
-                                        <span class="text-xs font-bold bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">EFECTIVO</span>
+                                        <span class="card-badge">EFECTIVO</span>
                                     </div>
-                                    <p class="text-sm uppercase tracking-wider mb-1 text-blue-100">Efectivo Hoy</p>
-                                    <p class="text-3xl font-black">${this.formatCurrency(ingresosEfectivo - egresosEfectivo)}</p>
-                                    <p class="text-xs mt-2 text-blue-100">
-                                        Ingresos: ${this.formatCurrency(ingresosEfectivo)}
+                                    <p style="font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; color: rgba(255, 255, 255, 0.8);">Efectivo Hoy</p>
+                                    <p style="font-size: 1.875rem; font-weight: 900; color: white;">${this.formatCurrency(ingresosEfectivo - egresosEfectivo)}</p>
+                                    <p style="font-size: 0.75rem; margin-top: 0.5rem; color: rgba(255, 255, 255, 0.8);">
+                                        In: ${this.formatCurrency(ingresosEfectivo)} | Out: ${this.formatCurrency(egresosEfectivo)}
                                     </p>
                                 </div>
                             </div>
 
-                            <div class="bg-gradient-to-br from-purple-500 to-purple-700 text-white rounded-2xl shadow-xl p-6 relative overflow-hidden transform hover:scale-105 transition-all">
-                                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-10 rounded-full"></div>
-                                <div class="relative z-10">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3">
-                                            <i data-lucide="credit-card" class="w-7 h-7"></i>
+                            <div class="dashboard-card dashboard-card-purple">
+                                <div class="card-circle-decoration"></div>
+                                <div style="position: relative; z-index: 10;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+                                        <div class="card-icon-bg">
+                                            <i data-lucide="credit-card" style="width: 1.75rem; height: 1.75rem;"></i>
                                         </div>
-                                        <span class="text-xs font-bold bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">TRANSF</span>
+                                        <span class="card-badge">TRANSFERENCIA</span>
                                     </div>
-                                    <p class="text-sm uppercase tracking-wider mb-1 text-purple-100">Transferencias Hoy</p>
-                                    <p class="text-3xl font-black">${this.formatCurrency(ingresosTransferencia - egresosTransferencia)}</p>
-                                    <p class="text-xs mt-2 text-purple-100">
-                                        Ingresos: ${this.formatCurrency(ingresosTransferencia)}
+                                    <p style="font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; color: rgba(255, 255, 255, 0.8);">Transferencias Hoy</p>
+                                    <p style="font-size: 1.875rem; font-weight: 900; color: white;">${this.formatCurrency(ingresosTransferencia - egresosTransferencia)}</p>
+                                    <p style="font-size: 0.75rem; margin-top: 0.5rem; color: rgba(255, 255, 255, 0.8);">
+                                        In: ${this.formatCurrency(ingresosTransferencia)} | Out: ${this.formatCurrency(egresosTransferencia)}
                                     </p>
                                 </div>
                             </div>
 
-                            <div class="bg-gradient-to-br from-red-500 to-red-700 text-white rounded-2xl shadow-xl p-6 relative overflow-hidden transform hover:scale-105 transition-all">
-                                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-10 rounded-full"></div>
-                                <div class="relative z-10">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3">
-                                            <i data-lucide="trending-down" class="w-7 h-7"></i>
+                            <div class="dashboard-card ${balance >= 0 ? 'dashboard-card-green' : 'dashboard-card-orange'}">
+                                <div class="card-circle-decoration"></div>
+                                <div style="position: relative; z-index: 10;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+                                        <div class="card-icon-bg">
+                                            <i data-lucide="dollar-sign" style="width: 1.75rem; height: 1.75rem;"></i>
                                         </div>
-                                        <span class="text-xs font-bold bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">HOY</span>
+                                        <span class="card-badge">${balance >= 0 ? 'POSITIVO' : 'NEGATIVO'}</span>
                                     </div>
-                                    <p class="text-sm uppercase tracking-wider mb-1 text-red-100">Egresos de Hoy</p>
-                                    <p class="text-3xl font-black">${this.formatCurrency(egresos)}</p>
-                                    <p class="text-xs mt-2 text-red-100">
-                                        Balance: ${this.formatCurrency(balance)}
+                                    <p style="font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; color: rgba(255, 255, 255, 0.8);">Balance Total Hoy</p>
+                                    <p style="font-size: 1.875rem; font-weight: 900; color: white;">${this.formatCurrency(balance)}</p>
+                                    <p style="font-size: 0.75rem; margin-top: 0.5rem; color: rgba(255, 255, 255, 0.8);">
+                                        Ingresos - Egresos
                                     </p>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- NUEVO: Ingresos del Mes Desglosados -->
-                    <div class="mb-8">
-                        <h3 class="text-xl font-bold text-gray-800 mb-5 uppercase tracking-wide flex items-center gap-2">
-                            <i data-lucide="bar-chart-3" class="w-6 h-6 text-blue-600"></i>
-                            Ingresos del Mes Desglosados
-                        </h3>
-                        <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-gray-100">
-                            <div class="overflow-x-auto">
-                                <table class="w-full">
-                                    <thead class="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-                                        <tr>
-                                            <th class="px-6 py-4 text-left text-sm font-black uppercase tracking-wider">Categoría</th>
-                                            <th class="px-6 py-4 text-right text-sm font-black uppercase tracking-wider">Monto</th>
-                                            <th class="px-6 py-4 text-right text-sm font-black uppercase tracking-wider">% del Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-gray-200">
-                                        ${this.renderFilaIngreso('Membresías', resumen.ingresosMes.membresias, resumen.ingresosMes.total, 'red')}
-                                        ${this.renderFilaIngreso('Productos', resumen.ingresosMes.productos, resumen.ingresosMes.total, 'amber')}
-                                        ${this.renderFilaIngreso('Abonos a Deudas', resumen.ingresosMes.abonos, resumen.ingresosMes.total, 'emerald')}
-                                        ${this.renderFilaIngreso('Otros', resumen.ingresosMes.otros, resumen.ingresosMes.total, 'blue')}
-                                    </tbody>
-                                    <tfoot class="bg-gray-50">
-                                        <tr class="border-t-2 border-gray-300">
-                                            <td class="px-6 py-4 text-left text-sm font-black uppercase text-gray-900">TOTAL</td>
-                                            <td class="px-6 py-4 text-right text-xl font-black text-blue-600">${this.formatCurrency(resumen.ingresosMes.total)}</td>
-                                            <td class="px-6 py-4 text-right text-sm font-bold text-gray-600">100%</td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- NUEVO: Egresos del Mes Desglosados -->
-                    <div class="mb-8">
-                        <h3 class="text-xl font-bold text-gray-800 mb-5 uppercase tracking-wide flex items-center gap-2">
-                            <i data-lucide="trending-down" class="w-6 h-6 text-red-600"></i>
-                            Egresos del Mes Desglosados
-                        </h3>
-                        <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-gray-100">
-                            <div class="overflow-x-auto">
-                                <table class="w-full">
-                                    <thead class="bg-gradient-to-r from-red-600 to-red-700 text-white">
-                                        <tr>
-                                            <th class="px-6 py-4 text-left text-sm font-black uppercase tracking-wider">Categoría</th>
-                                            <th class="px-6 py-4 text-right text-sm font-black uppercase tracking-wider">Monto</th>
-                                            <th class="px-6 py-4 text-right text-sm font-black uppercase tracking-wider">% del Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-gray-200">
-                                        ${this.renderFilaEgreso('Sueldos', resumen.egresosMes.sueldos, resumen.egresosMes.total, 'red')}
-                                        ${this.renderFilaEgreso('Servicios', resumen.egresosMes.servicios, resumen.egresosMes.total, 'orange')}
-                                        ${this.renderFilaEgreso('Mantenimiento', resumen.egresosMes.mantenimiento, resumen.egresosMes.total, 'yellow')}
-                                        ${this.renderFilaEgreso('Compras', resumen.egresosMes.compras, resumen.egresosMes.total, 'pink')}
-                                        ${this.renderFilaEgreso('Otros', resumen.egresosMes.otros, resumen.egresosMes.total, 'gray')}
-                                    </tbody>
-                                    <tfoot class="bg-gray-50">
-                                        <tr class="border-t-2 border-gray-300">
-                                            <td class="px-6 py-4 text-left text-sm font-black uppercase text-gray-900">TOTAL</td>
-                                            <td class="px-6 py-4 text-right text-xl font-black text-red-600">${this.formatCurrency(resumen.egresosMes.total)}</td>
-                                            <td class="px-6 py-4 text-right text-sm font-bold text-gray-600">100%</td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
                             </div>
                         </div>
                     </div>
 
                     <!-- Estadísticas Generales -->
                     <div class="mb-8">
-                        <h3 class="text-xl font-bold text-gray-800 mb-5 uppercase tracking-wide flex items-center gap-2">
-                            <i data-lucide="activity" class="w-6 h-6 text-blue-600"></i>
+                        <h3 class="section-title">
+                            <i data-lucide="bar-chart-3" class="section-title-icon"></i>
                             Estadísticas Generales
                         </h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                            <div class="bg-white rounded-2xl shadow-lg p-6 border-2 border-gray-100 transform hover:scale-105 transition-all">
-                                <div class="flex items-center justify-between mb-3">
-                                    <div class="w-14 h-14 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center">
-                                        <i data-lucide="users" class="w-8 h-8 text-blue-600"></i>
+                        <div class="stats-grid">
+                            <div class="dashboard-card">
+                                <div class="card-circle-decoration"></div>
+                                <div style="position: relative; z-index: 10;">
+                                    <div style="display: flex; align-items: center; justify-between; margin-bottom: 0.75rem;">
+                                        <div class="card-icon-bg">
+                                            <i data-lucide="users" style="width: 1.75rem; height: 1.75rem;"></i>
+                                        </div>
+                                        <span class="card-badge">TOTAL</span>
                                     </div>
-                                    <span class="text-3xl font-black text-blue-600">${resumen.totalClientes}</span>
+                                    <p style="font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; color: rgba(255, 255, 255, 0.8);">Clientes Totales</p>
+                                    <p style="font-size: 1.875rem; font-weight: 900; color: white;">${resumen.totalClientes.toLocaleString()}</p>
+                                    <p style="font-size: 0.75rem; margin-top: 0.5rem; color: rgba(255, 255, 255, 0.8);">
+                                        Registrados en el sistema
+                                    </p>
                                 </div>
-                                <p class="text-sm font-bold text-gray-700 uppercase tracking-wide">Clientes Activos</p>
                             </div>
 
-                            <div class="bg-white rounded-2xl shadow-lg p-6 border-2 border-gray-100 transform hover:scale-105 transition-all">
-                                <div class="flex items-center justify-between mb-3">
-                                    <div class="w-14 h-14 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-xl flex items-center justify-center">
-                                        <i data-lucide="check-circle" class="w-8 h-8 text-emerald-600"></i>
+                            <div class="dashboard-card dashboard-card-orange">
+                                <div class="card-circle-decoration"></div>
+                                <div style="position: relative; z-index: 10;">
+                                    <div style="display: flex; align-items: center; justify-between; margin-bottom: 0.75rem;">
+                                        <div class="card-icon-bg">
+                                            <i data-lucide="alert-circle" style="width: 1.75rem; height: 1.75rem;"></i>
+                                        </div>
+                                        <span class="card-badge">ALERTAS</span>
                                     </div>
-                                    <span class="text-3xl font-black text-emerald-600">${resumen.checkInsHoy}</span>
+                                    <p style="font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; color: rgba(255, 255, 255, 0.8);">Membresías por Vencer</p>
+                                    <p style="font-size: 1.875rem; font-weight: 900; color: white;">${resumen.membresiasPorVencer.toLocaleString()}</p>
+                                    <p style="font-size: 0.75rem; margin-top: 0.5rem; color: rgba(255, 255, 255, 0.8);">
+                                        Próximas a vencer
+                                    </p>
                                 </div>
-                                <p class="text-sm font-bold text-gray-700 uppercase tracking-wide">Check-ins Hoy</p>
                             </div>
 
-                            <div class="bg-white rounded-2xl shadow-lg p-6 border-2 border-gray-100 transform hover:scale-105 transition-all">
-                                <div class="flex items-center justify-between mb-3">
-                                    <div class="w-14 h-14 bg-gradient-to-br from-orange-100 to-orange-200 rounded-xl flex items-center justify-center">
-                                        <i data-lucide="alert-triangle" class="w-8 h-8 text-orange-600"></i>
+                            <div class="dashboard-card dashboard-card-purple">
+                                <div class="card-circle-decoration"></div>
+                                <div style="position: relative; z-index: 10;">
+                                    <div style="display: flex; align-items: center; justify-between; margin-bottom: 0.75rem;">
+                                        <div class="card-icon-bg">
+                                            <i data-lucide="user-check" style="width: 1.75rem; height: 1.75rem;"></i>
+                                        </div>
+                                        <span class="card-badge">HOY</span>
                                     </div>
-                                    <span class="text-3xl font-black text-orange-600">${resumen.membresiasPorVencer}</span>
+                                    <p style="font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; color: rgba(255, 255, 255, 0.8);">Check-ins de Hoy</p>
+                                    <p style="font-size: 1.875rem; font-weight: 900; color: white;">${resumen.checkInsHoy.toLocaleString()}</p>
+                                    <p style="font-size: 0.75rem; margin-top: 0.5rem; color: rgba(255, 255, 255, 0.8);">
+                                        Asistencias registradas
+                                    </p>
                                 </div>
-                                <p class="text-sm font-bold text-gray-700 uppercase tracking-wide">Por Vencer (7 días)</p>
                             </div>
 
-                            <div class="bg-white rounded-2xl shadow-lg p-6 border-2 border-gray-100 transform hover:scale-105 transition-all">
-                                <div class="flex items-center justify-between mb-3">
-                                    <div class="w-14 h-14 bg-gradient-to-br from-red-100 to-red-200 rounded-xl flex items-center justify-center">
-                                        <i data-lucide="x-circle" class="w-8 h-8 text-red-600"></i>
+                            <div class="dashboard-card dashboard-card-orange">
+                                <div class="card-circle-decoration"></div>
+                                <div style="position: relative; z-index: 10;">
+                                    <div style="display: flex; align-items: center; justify-between; margin-bottom: 0.75rem;">
+                                        <div class="card-icon-bg">
+                                            <i data-lucide="x-circle" style="width: 1.75rem; height: 1.75rem;"></i>
+                                        </div>
+                                        <span class="card-badge">VENCIDAS</span>
                                     </div>
-                                    <span class="text-3xl font-black text-red-600">${resumen.membresiasVencidas}</span>
+                                    <p style="font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; color: rgba(255, 255, 255, 0.8);">Membresías Vencidas</p>
+                                    <p style="font-size: 1.875rem; font-weight: 900; color: white;">${resumen.membresiasVencidas.toLocaleString()}</p>
+                                    <p style="font-size: 0.75rem; margin-top: 0.5rem; color: rgba(255, 255, 255, 0.8);">
+                                        Requieren renovación
+                                    </p>
                                 </div>
-                                <p class="text-sm font-bold text-gray-700 uppercase tracking-wide">Membresías Vencidas</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Alertas y Top Clientes -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <!-- Grid de 2 columnas para Alertas y Top Clientes -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.25rem;">
                         ${this.renderAlertas(alertas)}
                         ${this.renderTopClientes(topClientes)}
                     </div>
                 `;
 
-                lucide.createIcons();
-            }
-
-            renderFilaIngreso(nombre, monto, total, color) {
-                const porcentaje = total > 0 ? ((monto / total) * 100).toFixed(1) : 0;
-                const colorClasses = {
-                    'red': 'bg-red-50 text-red-700',
-                    'amber': 'bg-amber-50 text-amber-700',
-                    'emerald': 'bg-emerald-50 text-emerald-700',
-                    'blue': 'bg-blue-50 text-blue-700'
-                };
-
-                return `
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-2">
-                                <span class="px-3 py-1 ${colorClasses[color]} rounded-full text-xs font-bold uppercase">${nombre}</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-right text-lg font-black text-gray-900">${this.formatCurrency(monto)}</td>
-                        <td class="px-6 py-4 text-right">
-                            <div class="flex items-center justify-end gap-2">
-                                <div class="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
-                                    <div class="h-full bg-${color}-500" style="width: ${porcentaje}%"></div>
-                                </div>
-                                <span class="text-sm font-bold text-gray-700">${porcentaje}%</span>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }
-
-            renderFilaEgreso(nombre, monto, total, color) {
-                const porcentaje = total > 0 ? ((monto / total) * 100).toFixed(1) : 0;
-                const colorClasses = {
-                    'red': 'bg-red-50 text-red-700',
-                    'orange': 'bg-orange-50 text-orange-700',
-                    'yellow': 'bg-yellow-50 text-yellow-700',
-                    'pink': 'bg-pink-50 text-pink-700',
-                    'gray': 'bg-gray-50 text-gray-700'
-                };
-
-                return `
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-2">
-                                <span class="px-3 py-1 ${colorClasses[color]} rounded-full text-xs font-bold uppercase">${nombre}</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-right text-lg font-black text-gray-900">${this.formatCurrency(monto)}</td>
-                        <td class="px-6 py-4 text-right">
-                            <div class="flex items-center justify-end gap-2">
-                                <div class="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
-                                    <div class="h-full bg-${color}-500" style="width: ${porcentaje}%"></div>
-                                </div>
-                                <span class="text-sm font-bold text-gray-700">${porcentaje}%</span>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                // Reinicializar iconos de Lucide
+                if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                    lucide.createIcons();
+                }
             }
 
             renderAlertas(alertas) {
                 return `
-                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-gray-100">
-                        <div class="bg-gradient-to-r from-orange-600 to-red-600 px-6 py-5">
-                            <h3 class="text-white font-black flex items-center gap-3 text-lg uppercase tracking-wide">
-                                <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+                    <div class="content-card">
+                        <div class="content-card-header">
+                            <h3 class="content-card-title">
+                                <i data-lucide="alert-triangle" style="width: 1.5rem; height: 1.5rem;"></i>
                                 Alertas de Membresías
                             </h3>
                         </div>
-                        <div class="p-6">
+                        <div style="padding: 1.5rem;">
                             ${alertas.membresiasPorVencer > 0 || alertas.membresiasVencidas > 0 ? `
-                                <div class="space-y-5">
+                                <div style="display: flex; flex-direction: column; gap: 1.25rem;">
                                     ${alertas.membresiasPorVencer > 0 ? `
                                         <div>
-                                            <div class="flex items-center justify-between mb-3">
-                                                <h4 class="font-bold text-gray-800 uppercase text-sm tracking-wide">Por Vencer (${alertas.membresiasPorVencer})</h4>
-                                                <a href="/membresias" class="text-xs text-orange-600 hover:text-orange-800 font-bold uppercase">Ver todas →</a>
+                                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+                                                <h4 style="font-weight: bold; color: #1f2937; text-transform: uppercase; font-size: 0.875rem; letter-spacing: 0.05em;">Por Vencer (${alertas.membresiasPorVencer})</h4>
+                                                <a href="/membresias" style="font-size: 0.75rem; color: #FF8C00; font-weight: bold; text-transform: uppercase; text-decoration: none;">Ver todas →</a>
                                             </div>
-                                            <div class="space-y-2 max-h-48 overflow-y-auto">
+                                            <div class="scroll-container" style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 12rem;">
                                                 ${alertas.detalleProximasVencer.slice(0, 3).map(m => `
-                                                    <div class="flex items-center justify-between p-3 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border border-orange-200 text-sm hover:shadow-md transition-shadow">
+                                                    <div class="alert-item ${m.diasRestantes <= 3 ? 'alert-item-danger' : 'alert-item-warning'}">
                                                         <div>
-                                                            <p class="font-bold text-gray-800">${m.clienteNombre}</p>
-                                                            <p class="text-xs text-gray-600">${m.planNombre}</p>
+                                                            <p style="font-weight: bold; color: #1f2937;">${m.clienteNombre}</p>
+                                                            <p style="font-size: 0.75rem; color: #4b5563;">${m.planNombre}</p>
                                                         </div>
-                                                        <span class="px-3 py-1 rounded-full text-xs font-black ${
-                                                            m.diasRestantes <= 3 ? 'bg-red-600 text-white' : 'bg-orange-500 text-white'
+                                                        <span class="alert-badge ${
+                                                            m.diasRestantes <= 3 ? 'alert-badge-critical' : 'alert-badge-warning'
                                                         }">
                                                             ${m.diasRestantes}d
                                                         </span>
@@ -388,19 +567,19 @@
                                     ` : ''}
 
                                     ${alertas.membresiasVencidas > 0 ? `
-                                        <div class="${alertas.membresiasPorVencer > 0 ? 'pt-5 border-t-2 border-gray-200' : ''}">
-                                            <div class="flex items-center justify-between mb-3">
-                                                <h4 class="font-bold text-gray-800 uppercase text-sm tracking-wide">Vencidas (${alertas.membresiasVencidas})</h4>
-                                                <a href="/membresias" class="text-xs text-red-600 hover:text-red-800 font-bold uppercase">Ver todas →</a>
+                                        <div ${alertas.membresiasPorVencer > 0 ? 'style="padding-top: 1.25rem; border-top: 2px solid #e5e7eb;"' : ''}>
+                                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+                                                <h4 style="font-weight: bold; color: #1f2937; text-transform: uppercase; font-size: 0.875rem; letter-spacing: 0.05em;">Vencidas (${alertas.membresiasVencidas})</h4>
+                                                <a href="/membresias" style="font-size: 0.75rem; color: #dc2626; font-weight: bold; text-transform: uppercase; text-decoration: none;">Ver todas →</a>
                                             </div>
-                                            <div class="space-y-2 max-h-32 overflow-y-auto">
+                                            <div class="scroll-container" style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 8rem;">
                                                 ${alertas.detalleVencidas.slice(0, 3).map(m => `
-                                                    <div class="flex items-center justify-between p-3 bg-gradient-to-r from-red-50 to-pink-50 rounded-xl border border-red-200 text-sm hover:shadow-md transition-shadow">
+                                                    <div class="alert-item alert-item-danger">
                                                         <div>
-                                                            <p class="font-bold text-gray-800">${m.clienteNombre}</p>
-                                                            <p class="text-xs text-gray-600">${m.planNombre}</p>
+                                                            <p style="font-weight: bold; color: #1f2937;">${m.clienteNombre}</p>
+                                                            <p style="font-size: 0.75rem; color: #4b5563;">${m.planNombre}</p>
                                                         </div>
-                                                        <span class="px-3 py-1 bg-red-600 text-white rounded-full text-xs font-black">
+                                                        <span class="alert-badge alert-badge-danger">
                                                             ${m.diasVencido > 0 ? '-' + m.diasVencido : 'HOY'}d
                                                         </span>
                                                     </div>
@@ -410,10 +589,10 @@
                                     ` : ''}
                                 </div>
                             ` : `
-                                <div class="text-center py-12 text-gray-500">
-                                    <i data-lucide="check-circle" class="w-16 h-16 mx-auto mb-3 text-emerald-500"></i>
-                                    <p class="font-bold text-gray-700">No hay alertas pendientes</p>
-                                    <p class="text-sm text-gray-500 mt-1">Todo en orden</p>
+                                <div class="empty-state">
+                                    <i data-lucide="check-circle" class="empty-state-icon"></i>
+                                    <p style="font-weight: bold; color: #374151;">No hay alertas pendientes</p>
+                                    <p style="font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem;">Todo en orden</p>
                                 </div>
                             `}
                         </div>
@@ -423,51 +602,51 @@
 
             renderTopClientes(topClientes) {
                 return `
-                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-gray-100">
-                        <div class="bg-gradient-to-r from-gray-800 to-black px-6 py-5">
-                            <h3 class="text-white font-black flex items-center gap-3 text-lg uppercase tracking-wide">
-                                <i data-lucide="trophy" class="w-6 h-6"></i>
+                    <div class="content-card">
+                        <div class="content-card-header">
+                            <h3 class="content-card-title">
+                                <i data-lucide="trophy" style="width: 1.5rem; height: 1.5rem;"></i>
                                 Top 10 Clientes del Mes
                             </h3>
                         </div>
-                        <div class="p-6">
+                        <div style="padding: 1.5rem;">
                             ${topClientes && topClientes.length > 0 ? `
-                                <div class="space-y-2 max-h-96 overflow-y-auto">
+                                <div class="scroll-container" style="display: flex; flex-direction: column; gap: 0.5rem;">
                                     ${topClientes.map((cliente, index) => `
-                                        <div class="flex items-center justify-between p-3 rounded-xl transition-all hover:shadow-md ${
-                                            index === 0 ? 'bg-gradient-to-r from-yellow-100 to-amber-100 border-2 border-yellow-400' :
-                                            index === 1 ? 'bg-gradient-to-r from-gray-100 to-slate-100 border-2 border-gray-400' :
-                                            index === 2 ? 'bg-gradient-to-r from-orange-100 to-amber-100 border-2 border-orange-400' :
-                                            'bg-gray-50 border border-gray-200'
+                                        <div class="top-client-item ${
+                                            index === 0 ? 'top-client-gold' :
+                                            index === 1 ? 'top-client-silver' :
+                                            index === 2 ? 'top-client-bronze' :
+                                            'top-client-regular'
                                         }">
-                                            <div class="flex items-center gap-3">
-                                                <div class="w-10 h-10 rounded-full ${
-                                                    index === 0 ? 'bg-gradient-to-br from-yellow-400 to-amber-500' :
-                                                    index === 1 ? 'bg-gradient-to-br from-gray-400 to-slate-500' :
-                                                    index === 2 ? 'bg-gradient-to-br from-orange-400 to-amber-500' :
-                                                    'bg-gray-700'
-                                                } flex items-center justify-center text-white font-black text-sm shadow-lg">
+                                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                                <div class="rank-badge ${
+                                                    index === 0 ? 'rank-badge-gold' :
+                                                    index === 1 ? 'rank-badge-silver' :
+                                                    index === 2 ? 'rank-badge-bronze' :
+                                                    'rank-badge-regular'
+                                                }">
                                                     ${index + 1}
                                                 </div>
                                                 <div>
-                                                    <p class="font-bold text-gray-900 text-sm">${cliente.nombre}</p>
-                                                    <p class="text-xs text-gray-600 font-semibold">${cliente.totalCheckIns} visitas</p>
+                                                    <p style="font-weight: bold; color: #111827; font-size: 0.875rem;">${cliente.nombre}</p>
+                                                    <p style="font-size: 0.75rem; color: #4b5563; font-weight: 600;">${cliente.totalCheckIns} visitas</p>
                                                 </div>
                                             </div>
                                             ${index < 3 ? `
-                                                <i data-lucide="award" class="w-6 h-6 ${
-                                                    index === 0 ? 'text-yellow-500' :
-                                                    index === 1 ? 'text-gray-500' :
-                                                    'text-orange-500'
-                                                }"></i>
+                                                <i data-lucide="award" style="width: 1.5rem; height: 1.5rem; color: ${
+                                                    index === 0 ? '#FF8C00' :
+                                                    index === 1 ? '#6b7280' :
+                                                    '#ea580c'
+                                                };"></i>
                                             ` : ''}
                                         </div>
                                     `).join('')}
                                 </div>
                             ` : `
-                                <div class="text-center py-12 text-gray-500">
-                                    <i data-lucide="users" class="w-16 h-16 mx-auto mb-3 text-gray-400"></i>
-                                    <p class="font-bold text-gray-700">No hay datos disponibles</p>
+                                <div class="empty-state">
+                                    <i data-lucide="users" style="width: 4rem; height: 4rem; margin: 0 auto 0.75rem; color: #9ca3af;"></i>
+                                    <p style="font-weight: bold; color: #374151;">No hay datos disponibles</p>
                                 </div>
                             `}
                         </div>

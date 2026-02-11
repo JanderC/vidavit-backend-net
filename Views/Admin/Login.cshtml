@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Login - Tauro GYM Admin";
+    ViewData["Title"] = "Login - JONEL GYM Admin";
 }
 
 <!DOCTYPE html>
@@ -7,7 +7,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Iniciar Sesión - TAURO GYM</title>
+    <title>Iniciar Sesión - JONEL GYM</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -16,10 +16,10 @@
             theme: {
                 extend: {
                     colors: {
-                        'tauro-red': '#E31E24',
-                        'tauro-dark': '#000000',
-                        'tauro-gray': '#1a1a1a',
-                        'tauro-accent': '#C41E23'
+                        'jonel-orange': '#FF8C00',
+                        'jonel-dark': '#111827',
+                        'jonel-gray': '#8B8B8B',
+                        'jonel-accent': '#FF7700'
                     }
                 }
             }
@@ -35,16 +35,296 @@
             letter-spacing: 3px;
         }
 
-
         .logo-container {
             animation: pulse-glow 3s ease-in-out infinite;
         }
 
         .grid-pattern {
-            background-image:
-                linear-gradient(rgba(227, 30, 36, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(227, 30, 36, 0.05) 1px, transparent 1px);
+            background-image: linear-gradient(rgba(255, 140, 0, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 140, 0, 0.05) 1px, transparent 1px);
             background-size: 50px 50px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid #374151;
+            border-radius: 0.75rem;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+            .input-field::placeholder {
+                color: #6b7280;
+            }
+
+            .input-field:focus {
+                outline: none;
+                border-color: #FF8C00;
+                box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.1);
+            }
+
+        .label-text {
+            display: block;
+            color: #d1d5db;
+            font-size: 0.875rem;
+            font-weight: bold;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .label-icon {
+            width: 1rem;
+            height: 1rem;
+            display: inline;
+            margin-right: 0.5rem;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 1.25rem;
+            background: linear-gradient(to right, #FF8C00, #FF7700);
+            color: white;
+            font-weight: 900;
+            font-size: 1.125rem;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+            transform: scale(1);
+            box-shadow: 0 10px 30px rgba(255, 140, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: none;
+            cursor: pointer;
+        }
+
+            .login-button:hover {
+                background: linear-gradient(to right, #FF7700, #FF6600);
+                transform: scale(1.02);
+                box-shadow: 0 15px 40px rgba(255, 140, 0, 0.5);
+            }
+
+        .error-box {
+            background: rgba(153, 27, 27, 0.4);
+            border: 2px solid #dc2626;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .error-icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            color: #fca5a5;
+        }
+
+        .error-text {
+            color: #fecaca;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .credentials-box {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            font-family: monospace;
+            font-size: 0.75rem;
+            text-align: center;
+            border: 2px solid #374151;
+        }
+
+        .credential-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+            .credential-row:last-child {
+                margin-bottom: 0;
+            }
+
+        .credential-label {
+            color: #9ca3af;
+        }
+
+        .credential-value {
+            color: #FF8C00;
+            font-weight: bold;
+        }
+
+        .back-link {
+            color: #9ca3af;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+            .back-link:hover {
+                color: #FF8C00;
+            }
+
+        .back-icon {
+            width: 1rem;
+            height: 1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .back-link:hover .back-icon {
+            transform: translateX(-4px);
+        }
+
+        .footer-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 9999px;
+        }
+
+        .footer-text {
+            color: #6b7280;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .floating-orb {
+            position: absolute;
+            border-radius: 9999px;
+            filter: blur(80px);
+            opacity: 0.2;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .card-container {
+            background: linear-gradient(to bottom right, #1f2937, #000000);
+            backdrop-filter: blur(16px);
+            border-radius: 1.5rem;
+            border: 2px solid #FF8C00;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-glow {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 10rem;
+            height: 10rem;
+            background: #FF8C00;
+            border-radius: 9999px;
+            filter: blur(80px);
+            opacity: 0.2;
+            transform: translate(50%, -50%);
+        }
+
+        .icon-container {
+            width: 6rem;
+            height: 6rem;
+            background: linear-gradient(to bottom right, #FF8C00, #FF7700);
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.25rem;
+            box-shadow: 0 10px 30px rgba(255, 140, 0, 0.4);
+            transition: transform 0.3s ease;
+        }
+
+            .icon-container:hover {
+                transform: rotate(3deg);
+            }
+
+        .shield-icon {
+            width: 3rem;
+            height: 3rem;
+            color: white;
+        }
+
+        .title-text {
+            font-size: 2.25rem;
+            font-weight: 900;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            text-align: center;
+        }
+
+        .subtitle-text {
+            color: #9ca3af;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            text-align: center;
+        }
+
+        .admin-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background: #1f2937;
+            border: 1px solid #FF8C00;
+            border-radius: 9999px;
+        }
+
+        .admin-text {
+            color: #FF8C00;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-size: 0.875rem;
+            font-weight: bold;
+        }
+
+        .logo-box {
+            display: inline-block;
+            padding: 1.25rem 2.5rem;
+            background: linear-gradient(to right, #FF8C00, #FF7700);
+            border-radius: 1rem;
+            transform: scale(1);
+            transition: transform 0.3s ease;
+        }
+
+            .logo-box:hover {
+                transform: scale(1.05);
+            }
+
+        .logo-title {
+            font-size: 3.75rem;
+            font-weight: 900;
+            color: white;
+            letter-spacing: 0.1em;
+        }
+
+        .credentials-title {
+            font-size: 0.75rem;
+            color: #6b7280;
+            text-align: center;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -52,98 +332,93 @@
     <div class="min-h-screen bg-black relative overflow-hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 grid-pattern"></div>
 
-        <div class="absolute inset-0 opacity-20">
-            <div class="absolute top-0 left-1/4 w-96 h-96 bg-red-600 rounded-full blur-3xl animate-pulse"></div>
-            <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-red-800 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
-        </div>
+        <div class="floating-orb" style="top: 0; left: 25%; width: 24rem; height: 24rem; background: #FF8C00;"></div>
+        <div class="floating-orb" style="bottom: 0; right: 25%; width: 24rem; height: 24rem; background: #FF7700; animation-delay: 1s;"></div>
 
         <div class="w-full max-w-md relative z-10">
             <div class="text-center mb-10">
                 <div class="mb-8 flex justify-center">
-                    <div class="logo-container inline-block px-10 py-5 bg-gradient-to-r from-red-600 to-red-800 rounded-2xl transform hover:scale-105 transition-transform duration-300">
-                        <h1 class="text-6xl font-black text-white tracking-widest">
-                            TAURO GYM
+                    <div class="logo-box logo-container">
+                        <h1 class="logo-title">
+                            JONEL GYM
                         </h1>
                     </div>
                 </div>
-                <div class="inline-block px-6 py-2 bg-gray-900 border border-red-600 rounded-full">
-                    <p class="text-red-500 uppercase tracking-widest text-sm font-bold">Panel Administrativo</p>
+                <div class="admin-badge">
+                    <p class="admin-text">Panel Administrativo</p>
                 </div>
             </div>
 
-            <div class="bg-gradient-to-br from-gray-900 to-black backdrop-blur-lg rounded-3xl border-2 border-red-600 shadow-2xl p-8 relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-40 h-40 bg-red-600 rounded-full blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"></div>
+            <div class="card-container">
+                <div class="card-glow"></div>
 
-                <div class="text-center mb-8 relative z-10">
-                    <div class="w-24 h-24 bg-gradient-to-br from-red-600 to-red-800 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-2xl transform hover:rotate-3 transition-transform">
-                        <i data-lucide="shield-check" class="w-12 h-12 text-white"></i>
+                <div class="text-center mb-8" style="position: relative; z-index: 10;">
+                    <div class="icon-container">
+                        <i data-lucide="shield-check" class="shield-icon"></i>
                     </div>
-                    <h2 class="text-4xl font-black text-white uppercase tracking-wider">Iniciar Sesión</h2>
-                    <p class="text-gray-400 text-sm mt-2 font-semibold uppercase tracking-wide">Acceso al Sistema</p>
+                    <h2 class="title-text">Iniciar Sesión</h2>
+                    <p class="subtitle-text">Acceso al Sistema</p>
                 </div>
 
                 @if (ViewBag.Error != null)
                 {
-                    <div class="bg-red-900/40 border-2 border-red-500 rounded-xl p-4 mb-6 flex items-center gap-3 backdrop-blur-sm">
-                        <i data-lucide="alert-circle" class="w-6 h-6 text-red-400"></i>
-                        <p class="text-red-300 text-sm font-semibold">@ViewBag.Error</p>
+                    <div class="error-box">
+                        <i data-lucide="alert-circle" class="error-icon"></i>
+                        <p class="error-text">@ViewBag.Error</p>
                     </div>
                 }
 
-                <form method="post" action="/admin/login" class="space-y-6 relative z-10">
+                <form method="post" action="/admin/login" style="display: flex; flex-direction: column; gap: 1.5rem; position: relative; z-index: 10;">
                     @Html.AntiForgeryToken()
 
                     <div>
-                        <label class="block text-gray-300 text-sm font-bold mb-3 uppercase tracking-wide">
-                            <i data-lucide="mail" class="w-4 h-4 inline mr-2"></i>
+                        <label class="label-text">
+                            <i data-lucide="mail" class="label-icon"></i>
                             Correo Electrónico
                         </label>
-                        <input type="email" name="email" required placeholder="admin@taurogym.com"
-                               class="w-full px-5 py-4 bg-black/60 border-2 border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-red-600 transition-all font-semibold" />
+                        <input type="email" name="email" required placeholder="admin@jonelgym.com" class="input-field" />
                     </div>
 
                     <div>
-                        <label class="block text-gray-300 text-sm font-bold mb-3 uppercase tracking-wide">
-                            <i data-lucide="lock" class="w-4 h-4 inline mr-2"></i>
+                        <label class="label-text">
+                            <i data-lucide="lock" class="label-icon"></i>
                             Contraseña
                         </label>
-                        <input type="password" name="password" required placeholder="••••••••"
-                               class="w-full px-5 py-4 bg-black/60 border-2 border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-red-600 transition-all font-semibold" />
+                        <input type="password" name="password" required placeholder="••••••••" class="input-field" />
                     </div>
 
-                    <button type="submit"
-                            class="w-full py-5 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black text-lg rounded-xl transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-red-600/50 flex items-center justify-center gap-3 uppercase tracking-wider">
-                        <i data-lucide="log-in" class="w-6 h-6"></i>
+                    <button type="submit" class="login-button">
+                        <i data-lucide="log-in" style="width: 1.5rem; height: 1.5rem;"></i>
                         <span>Ingresar al Sistema</span>
                     </button>
                 </form>
 
-                <div class="mt-8 pt-6 border-t-2 border-gray-800 relative z-10">
-                    <p class="text-xs text-gray-500 text-center mb-3 uppercase tracking-wide font-bold">Credenciales por defecto:</p>
-                    <div class="bg-black/70 rounded-xl p-4 font-mono text-xs text-center border-2 border-gray-800">
-                        <div class="flex items-center justify-center gap-2 mb-2">
-                            <span class="text-gray-400">Email:</span>
-                            <span class="text-red-500 font-bold">admin@taurogym.com</span>
+                <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 2px solid #374151; position: relative; z-index: 10;">
+                    <p class="credentials-title">Credenciales por defecto:</p>
+                    <div class="credentials-box">
+                        <div class="credential-row">
+                            <span class="credential-label">Email:</span>
+                            <span class="credential-value">admin@jonel.com</span>
                         </div>
-                        <div class="flex items-center justify-center gap-2">
-                            <span class="text-gray-400">Password:</span>
-                            <span class="text-red-500 font-bold">admin123</span>
+                        <div class="credential-row">
+                            <span class="credential-label">Password:</span>
+                            <span class="credential-value">admin123</span>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="text-center mt-8">
-                <a href="/kiosko" class="text-gray-400 hover:text-red-500 transition-colors inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wide group">
-                    <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i>
+                <a href="/kiosko" class="back-link">
+                    <i data-lucide="arrow-left" class="back-icon"></i>
                     Volver al Kiosko
                 </a>
             </div>
 
             <div class="mt-10 text-center">
-                <div class="inline-block px-6 py-2 bg-gray-900 border border-gray-800 rounded-full">
-                    <p class="text-gray-600 text-xs font-bold uppercase tracking-wider">
-                        TAURO GYM © 2024
+                <div class="footer-badge">
+                    <p class="footer-text">
+                        JONEL GYM © 2026
                     </p>
                 </div>
             </div>

@@ -2,7 +2,7 @@
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Reporte de Asistencia";
-    ViewData["Subtitle"] = "Control de check-ins - TAURO GYM";
+    ViewData["Subtitle"] = "Control de check-ins - JONEL GYM";
 
     int totalCheckins = 0;
     foreach (var item in Model)
@@ -18,15 +18,15 @@
             <div class="flex-1 min-w-[200px]">
                 <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Fecha Desde</label>
                 <input type="date" id="fecha-desde" value="@ViewBag.FechaInicio.ToString("yyyy-MM-dd")"
-                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-semibold">
             </div>
             <div class="flex-1 min-w-[200px]">
                 <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Fecha Hasta</label>
                 <input type="date" id="fecha-hasta" value="@ViewBag.FechaFin.ToString("yyyy-MM-dd")"
-                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-semibold">
             </div>
             <button onclick="filtrarPorFecha()"
-                    class="px-8 py-3 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
+                    class="px-8 py-3 bg-gradient-to-r from-orange-500 to-orange-700 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
                 <i data-lucide="filter" class="w-4 h-4 inline-block mr-2"></i>
                 Filtrar
             </button>
@@ -79,7 +79,7 @@
                     <p class="text-4xl font-black text-gray-900">@Model.Count()</p>
                 </div>
                 <div class="w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center">
-                    <i data-lucide="calendar" class="w-7 h-7 text-amber-600"></i>
+                    <i data-lucide="calendar" class="w-7 h-7 text-gray-600"></i>
                 </div>
             </div>
         </div>
@@ -140,14 +140,14 @@
                                 }
                                 else
                                 {
-                                    <span class="inline-flex items-center gap-1 px-3 py-2 bg-red-100 text-red-800 font-black rounded-full uppercase text-xs tracking-wide">
+                                    <span class="inline-flex items-center gap-1 px-3 py-2 bg-orange-100 text-orange-800 font-black rounded-full uppercase text-xs tracking-wide">
                                         <i data-lucide="trending-down" class="w-3 h-3"></i> Bajo
                                     </span>
                                 }
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <button onclick="verAsistentes('@fechaStr', '@total')"
-                                        class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-bold rounded-lg transition-all shadow-md hover:shadow-lg text-xs uppercase transform hover:scale-105">
+                                        class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-700 hover:from-red-700 hover:to-red-900 text-white font-bold rounded-lg transition-all shadow-md hover:shadow-lg text-xs uppercase transform hover:scale-105">
                                     <i data-lucide="users" class="w-4 h-4"></i>
                                     Ver Asistentes
                                 </button>
@@ -164,7 +164,7 @@
 <div id="modal-asistentes" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
         <!-- Header del Modal -->
-        <div class="px-6 py-4 border-b-2 border-gray-200 bg-gradient-to-r from-red-600 to-red-800 flex items-center justify-between">
+        <div class="px-6 py-4 border-b-2 border-gray-200 bg-gradient-to-r from-orange-500 to-orange-700 flex items-center justify-between">
             <div>
                 <h3 class="text-2xl font-black text-white uppercase tracking-wide">Asistentes del Día</h3>
                 <p class="text-sm text-red-100 font-semibold mt-1" id="modal-fecha"></p>
@@ -176,7 +176,7 @@
 
         <!-- Loading State -->
         <div id="modal-loading" class="hidden px-6 py-12 text-center">
-            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-red-600"></div>
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-orange-500"></div>
             <p class="mt-4 text-gray-600 font-semibold">Cargando asistentes...</p>
         </div>
 
@@ -191,7 +191,7 @@
         <div class="px-6 py-4 border-t-2 border-gray-200 bg-gray-50 flex items-center justify-between">
             <div>
                 <p class="text-sm font-bold text-gray-700">
-                    Total de asistentes: <span id="modal-total" class="text-red-600 text-lg font-black">0</span>
+                    Total de asistentes: <span id="modal-total" class="text-orange-500 text-lg font-black">0</span>
                 </p>
             </div>
             <button onclick="cerrarModal()"
@@ -327,9 +327,9 @@
                                     ${asistente.fotoBase64 ? `
                                         <img src="data:image/jpeg;base64,${asistente.fotoBase64}"
                                              alt="${asistente.nombre}"
-                                             class="w-16 h-16 rounded-full object-cover border-2 border-red-600" />
+                                             class="w-16 h-16 rounded-full object-cover border-2 border-orange-500" />
                                     ` : `
-                                        <div class="w-16 h-16 rounded-full bg-gradient-to-r from-red-600 to-red-800 flex items-center justify-center text-white font-black text-xl">
+                                        <div class="w-16 h-16 rounded-full bg-gradient-to-r from-orange-500 to-orange-700 flex items-center justify-center text-white font-black text-xl">
                                             ${asistente.nombre.charAt(0)}
                                         </div>
                                     `}
@@ -366,7 +366,7 @@
                     asistentesLista.innerHTML = `
                         <div class="text-center py-12">
                             <i data-lucide="alert-circle" class="w-16 h-16 mx-auto text-red-400 mb-4"></i>
-                            <p class="text-red-600 font-semibold">Error al cargar los asistentes</p>
+                            <p class="text-orange-500 font-semibold">Error al cargar los asistentes</p>
                         </div>
                     `;
                 }
@@ -375,7 +375,7 @@
                 asistentesLista.innerHTML = `
                     <div class="text-center py-12">
                         <i data-lucide="alert-circle" class="w-16 h-16 mx-auto text-red-400 mb-4"></i>
-                        <p class="text-red-600 font-semibold">Error al cargar los asistentes</p>
+                        <p class="text-orange-500 font-semibold">Error al cargar los asistentes</p>
                         <p class="text-sm text-gray-600 mt-2">${error.message}</p>
                     </div>
                 `;
