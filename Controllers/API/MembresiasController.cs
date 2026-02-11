@@ -47,8 +47,9 @@ namespace VidaFit.Controllers.API
 
                 case "dias":
                 default:
-                    // Sumar días corridos
-                    vencimiento = inicio.AddDays(plan.CantidadUnidades - 1);
+                    // Sumar días corridos (DuracionDias incluye el día de inicio)
+                    // Por ejemplo: 25 días significa día 1 (inicio) + 24 días más = día 25 (vencimiento)
+                    vencimiento = inicio.AddDays(plan.DuracionDias - 1);
                     break;
             }
 
