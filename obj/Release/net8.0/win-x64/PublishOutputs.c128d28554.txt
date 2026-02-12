@@ -1,0 +1,4 @@
+C:\d\GYMJONELVERSION11\appsettings.Development.json
+C:\d\GYMJONELVERSION11\appsettings.json
+C:\d\GYMJONELVERSION11\VidaFit.pdb
+C:\d\GYMJONELVERSION11\VidaFit.exe

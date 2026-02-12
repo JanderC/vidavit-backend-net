@@ -1,0 +1,4 @@
+C:\d\GYMTAUROVERSION11\appsettings.Development.json
+C:\d\GYMTAUROVERSION11\appsettings.json
+C:\d\GYMTAUROVERSION11\VidaFit.pdb
+C:\d\GYMTAUROVERSION11\VidaFit.exe
