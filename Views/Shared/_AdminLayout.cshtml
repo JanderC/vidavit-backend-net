@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ELIT GYM Admin</title>
+    <title>@ViewData["Title"] - ELITE GYM Admin</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -13,11 +13,11 @@
             theme: {
                 extend: {
                     colors: {
-                        'elit-red': '#E31E24',
-                        'elit-dark': '#000000',
-                        'elit-gray': '#1a1a1a',
-                        'elit-light': '#FFFFFF',
-                        'elit-accent': '#FF0000'
+                        'elite-red': '#E31E24',
+                        'elite-dark': '#000000',
+                        'elite-gray': '#1a1a1a',
+                        'elite-light-red': '#FF4448',
+                        'elite-accent': '#C41E23'
                     }
                 }
             }
@@ -26,58 +26,53 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@500;600;700&family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Montserrat', sans-serif;
-            background: #f5f5f5;
+            font-family: 'Inter', sans-serif;
         }
 
         h1, h2, h3, h4, h5, h6 {
             font-family: 'Bebas Neue', sans-serif;
-            letter-spacing: 2px;
-        }
-
-        .elit-logo-text {
-            font-family: 'Rajdhani', sans-serif;
-            font-weight: 700;
-            letter-spacing: 4px;
+            letter-spacing: 3px;
         }
 
         /* Scrollbar personalizado */
         ::-webkit-scrollbar {
-            width: 10px;
+            width: 8px;
+            height: 8px;
         }
 
         ::-webkit-scrollbar-track {
-            background: #000;
+            background: #1a1a1a;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #E31E24;
-            border-radius: 5px;
+            background: linear-gradient(180deg, #E31E24 0%, #C41E23 100%);
+            border-radius: 10px;
         }
 
             ::-webkit-scrollbar-thumb:hover {
-                background: #FF0000;
+                background: linear-gradient(180deg, #FF4448 0%, #E31E24 100%);
             }
 
-        /* Transiciones */
-        .sidebar {
-            transition: transform 0.3s ease-in-out;
+        /* Logo con efecto glow */
+        .logo-glow {
+            filter: drop-shadow(0 0 15px rgba(227, 30, 36, 0.5));
+            transition: filter 0.3s ease;
         }
 
+            .logo-glow:hover {
+                filter: drop-shadow(0 0 25px rgba(227, 30, 36, 0.8));
+            }
+
+        /* Nav item con animaciones */
         .nav-item {
             position: relative;
+            overflow: hidden;
             transition: all 0.3s ease;
         }
 
@@ -88,8 +83,9 @@
                 top: 0;
                 height: 100%;
                 width: 3px;
-                background: #E31E24;
+                background: linear-gradient(180deg, #E31E24 0%, #FF4448 100%);
                 transform: scaleY(0);
+                transform-origin: top;
                 transition: transform 0.3s ease;
             }
 
@@ -100,184 +96,204 @@
 
             .nav-item:hover {
                 background: rgba(227, 30, 36, 0.1);
-                padding-left: 1.25rem;
+                transform: translateX(4px);
             }
 
-        .logo-glow {
-            filter: drop-shadow(0 0 15px rgba(227, 30, 36, 0.5));
+        /* Mobile menu overlay */
+        .mobile-menu-overlay {
+            backdrop-filter: blur(10px);
+            transition: opacity 0.3s ease;
         }
 
-        /* Overlay para cerrar sidebar en móvil */
-        .sidebar-overlay {
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease-in-out;
+
+        .mobile-sidebar-enter {
+            animation: slideInLeft 0.3s ease-out;
         }
 
-            .sidebar-overlay.active {
-                opacity: 1;
-                pointer-events: auto;
-            }
 
-        /* Animación del botón hamburguesa */
-        .hamburger span {
-            transition: all 0.3s ease;
+        .notification-pulse {
+            animation: pulse-glow 2s ease-in-out infinite;
         }
 
-        .hamburger.active span:nth-child(1) {
-            transform: rotate(45deg) translate(5px, 5px);
+        /* Efectos para el header */
+        .header-gradient {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
         }
 
-        .hamburger.active span:nth-child(2) {
-            opacity: 0;
+        /* Patrón de fondo sutil */
+        .sidebar-pattern {
+            background-image: repeating-linear-gradient( 45deg, transparent, transparent 10px, rgba(227, 30, 36, 0.03) 10px, rgba(227, 30, 36, 0.03) 20px );
         }
 
-        .hamburger.active span:nth-child(3) {
-            transform: rotate(-45deg) translate(7px, -6px);
-        }
     </style>
 
     @RenderSection("Styles", required: false)
 </head>
-<body>
-    <!-- OVERLAY PARA MÓVIL -->
-    <div class="sidebar-overlay fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" id="sidebarOverlay"></div>
+<body class="bg-gray-50">
+    <!-- Mobile Menu Button -->
+    <button id="mobile-menu-btn" class="lg:hidden fixed top-4 left-4 z-[60] p-3 bg-gradient-to-r from-red-600 to-red-800 rounded-xl shadow-2xl text-white">
+        <i data-lucide="menu" class="w-6 h-6"></i>
+    </button>
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar fixed left-0 top-0 h-screen w-64 bg-black text-white z-50 shadow-2xl" id="sidebar">
-        <!-- Logo Header -->
-        <div class="p-6 border-b-2 border-elit-red bg-gradient-to-b from-elit-gray to-black">
-            <div class="flex flex-col items-center gap-3">
-                <img src="/images/LogoElite.png" alt="ELIT GYM" class="w-32 h-32 object-contain logo-glow" />
+    <!-- Mobile Overlay -->
+    <div id="mobile-overlay" class="lg:hidden fixed inset-0 bg-black/60 mobile-menu-overlay z-[45] hidden"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="desktop-sidebar fixed left-0 top-0 h-screen w-72 bg-gradient-to-b from-black via-elite-gray to-black text-white shadow-2xl z-50 border-r-2 border-red-600/50 lg:translate-x-0 transition-transform duration-300">
+        <!-- Close button (solo mobile) -->
+        <button id="close-sidebar-btn" class="lg:hidden absolute top-4 right-4 p-2 text-gray-400 hover:text-white transition-colors">
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+
+        <!-- Logo Section -->
+        <div class="p-6 border-b-2 border-red-600/50">
+            <div class="flex flex-col items-center gap-4">
+                <div class="logo-glow">
+                    <img src="/images/LogoElite.png" alt="ELITE GYM" class="h-24 w-auto object-contain" />
+                </div>
                 <div class="text-center">
-                    <h1 class="text-3xl font-black text-white elit-logo-text">ELIT GYM</h1>
-                    <div class="inline-block px-4 py-1 bg-elit-red rounded-full mt-2">
-                        <p class="text-xs text-white uppercase tracking-widest font-bold">Panel Admin</p>
+                    <div class="inline-block px-4 py-1.5 bg-gradient-to-r from-red-600/20 via-red-600/30 to-red-600/20 border border-red-600/50 rounded-full">
+                        <p class="text-xs text-red-400 uppercase tracking-[0.2em] font-bold">Panel Admin</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Navigation -->
-        <nav class="p-4 space-y-1 overflow-y-auto h-[calc(100vh-320px)]">
+        <nav class="p-4 space-y-1 overflow-y-auto h-[calc(100vh-340px)] sidebar-pattern">
             <!-- Dashboard -->
-            <a href="/admin/dashboard" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg transition-all group">
-                <i data-lucide="layout-dashboard" class="w-5 h-5 text-elit-red"></i>
-                <span class="font-semibold">Dashboard</span>
+            <a href="/admin/dashboard" class="nav-item flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all group">
+                <div class="w-10 h-10 rounded-lg bg-red-600/20 flex items-center justify-center group-hover:bg-red-600/30 transition-colors">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5 text-red-500 group-hover:scale-110 transition-transform"></i>
+                </div>
+                <span class="font-semibold text-sm">Dashboard</span>
             </a>
 
             <!-- Clientes -->
-            <a href="/clientes" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg transition-all group">
-                <i data-lucide="users" class="w-5 h-5 text-elit-red"></i>
-                <span class="font-semibold">Clientes</span>
+            <a href="/clientes" class="nav-item flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all group">
+                <div class="w-10 h-10 rounded-lg bg-red-600/20 flex items-center justify-center group-hover:bg-red-600/30 transition-colors">
+                    <i data-lucide="users" class="w-5 h-5 text-red-500 group-hover:scale-110 transition-transform"></i>
+                </div>
+                <span class="font-semibold text-sm">Clientes</span>
             </a>
 
             <!-- Membresías -->
-            <a href="/membresias" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg transition-all group">
-                <i data-lucide="credit-card" class="w-5 h-5 text-elit-red"></i>
-                <span class="font-semibold">Membresías</span>
+            <a href="/membresias" class="nav-item flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all group">
+                <div class="w-10 h-10 rounded-lg bg-red-600/20 flex items-center justify-center group-hover:bg-red-600/30 transition-colors">
+                    <i data-lucide="credit-card" class="w-5 h-5 text-red-500 group-hover:scale-110 transition-transform"></i>
+                </div>
+                <span class="font-semibold text-sm">Membresías</span>
             </a>
 
             <!-- Planes -->
-            <a href="/membresias/planes" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg transition-all group">
-                <i data-lucide="star" class="w-5 h-5 text-elit-red"></i>
-                <span class="font-semibold">Planes</span>
+            <a href="/membresias/planes" class="nav-item flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all group">
+                <div class="w-10 h-10 rounded-lg bg-red-600/20 flex items-center justify-center group-hover:bg-red-600/30 transition-colors">
+                    <i data-lucide="star" class="w-5 h-5 text-red-500 group-hover:scale-110 transition-transform"></i>
+                </div>
+                <span class="font-semibold text-sm">Planes</span>
             </a>
 
             <!-- Tienda -->
-            <a href="/productos" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg transition-all group">
-                <i data-lucide="package" class="w-5 h-5 text-elit-red"></i>
-                <span class="font-semibold">Tienda</span>
+            <a href="/productos" class="nav-item flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all group">
+                <div class="w-10 h-10 rounded-lg bg-red-600/20 flex items-center justify-center group-hover:bg-red-600/30 transition-colors">
+                    <i data-lucide="package" class="w-5 h-5 text-red-500 group-hover:scale-110 transition-transform"></i>
+                </div>
+                <span class="font-semibold text-sm">Tienda</span>
             </a>
 
-            <!-- Sección Financiera -->
-            <div class="pt-4 mt-4 border-t border-gray-800">
-                <p class="text-xs text-gray-500 uppercase font-bold mb-3 px-4 tracking-wider">Gestión Financiera</p>
+            <!-- SECCIÓN DE GESTIÓN FINANCIERA -->
+            <div class="pt-4 pb-2">
+                <div class="flex items-center gap-2 px-4 mb-2">
+                    <div class="h-px flex-1 bg-gradient-to-r from-transparent via-gray-700 to-transparent"></div>
+                    <p class="text-[10px] text-gray-500 uppercase font-black tracking-wider">Finanzas</p>
+                    <div class="h-px flex-1 bg-gradient-to-r from-transparent via-gray-700 to-transparent"></div>
+                </div>
 
-                <a href="/caja" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg transition-all group">
-                    <i data-lucide="wallet" class="w-5 h-5 text-elit-red"></i>
-                    <span class="font-semibold">Caja Diaria</span>
-                </a>
-
-                <a href="/cajafuerte" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg transition-all group">
-                    <i data-lucide="vault" class="w-5 h-5 text-yellow-400"></i>
-                    <span class="font-semibold">Caja Fuerte</span>
+                <a href="/caja" class="nav-item flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-600/20 flex items-center justify-center group-hover:bg-emerald-600/30 transition-colors">
+                        <i data-lucide="wallet" class="w-5 h-5 text-emerald-500 group-hover:scale-110 transition-transform"></i>
+                    </div>
+                    <span class="font-semibold text-sm">Caja Diaria</span>
                 </a>
             </div>
 
-            <!-- Sección Reportes -->
-            <div class="pt-4 mt-4 border-t border-gray-800">
-                <p class="text-xs text-gray-500 uppercase font-bold mb-3 px-4 tracking-wider">Reportes</p>
+            <!-- SECCIÓN DE REPORTES -->
+            <div class="pt-4 pb-2">
+                <div class="flex items-center gap-2 px-4 mb-2">
+                    <div class="h-px flex-1 bg-gradient-to-r from-transparent via-gray-700 to-transparent"></div>
+                    <p class="text-[10px] text-gray-500 uppercase font-black tracking-wider">Reportes</p>
+                    <div class="h-px flex-1 bg-gradient-to-r from-transparent via-gray-700 to-transparent"></div>
+                </div>
 
-                <a href="/reportes/ingresos-membresias" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-sm group">
-                    <i data-lucide="trending-up" class="w-4 h-4 text-elit-red"></i>
-                    <span class="font-medium">Ingresos Membresías</span>
+                <a href="/reportes/ingresos-membresias" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm group">
+                    <div class="w-9 h-9 rounded-lg bg-blue-600/20 flex items-center justify-center group-hover:bg-blue-600/30 transition-colors">
+                        <i data-lucide="trending-up" class="w-4 h-4 text-blue-500 group-hover:scale-110 transition-transform"></i>
+                    </div>
+                    <span class="text-sm">Ing. Membresías</span>
                 </a>
 
-                <a href="/reportes/asistencia" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-sm group">
-                    <i data-lucide="calendar-check" class="w-4 h-4 text-elit-red"></i>
-                    <span class="font-medium">Asistencia</span>
+                <a href="/reportes/asistencia" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm group">
+                    <div class="w-9 h-9 rounded-lg bg-blue-600/20 flex items-center justify-center group-hover:bg-blue-600/30 transition-colors">
+                        <i data-lucide="calendar-check" class="w-4 h-4 text-blue-500 group-hover:scale-110 transition-transform"></i>
+                    </div>
+                    <span class="text-sm">Asistencia</span>
                 </a>
 
-                <a href="/reportes/productos-mas-vendidos" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-sm group">
-                    <i data-lucide="shopping-cart" class="w-4 h-4 text-elit-red"></i>
-                    <span class="font-medium">Productos Vendidos</span>
+                <a href="/reportes/productos-mas-vendidos" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm group">
+                    <div class="w-9 h-9 rounded-lg bg-blue-600/20 flex items-center justify-center group-hover:bg-blue-600/30 transition-colors">
+                        <i data-lucide="shopping-cart" class="w-4 h-4 text-blue-500 group-hover:scale-110 transition-transform"></i>
+                    </div>
+                    <span class="text-sm">Productos</span>
                 </a>
 
-                <a href="/reportes/clientes-inactivos" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-sm group">
-                    <i data-lucide="user-x" class="w-4 h-4 text-elit-red"></i>
-                    <span class="font-medium">Clientes Inactivos</span>
+                <a href="/reportes/clientes-inactivos" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm group">
+                    <div class="w-9 h-9 rounded-lg bg-blue-600/20 flex items-center justify-center group-hover:bg-blue-600/30 transition-colors">
+                        <i data-lucide="user-x" class="w-4 h-4 text-blue-500 group-hover:scale-110 transition-transform"></i>
+                    </div>
+                    <span class="text-sm">Inactivos</span>
                 </a>
             </div>
         </nav>
 
         <!-- User Section -->
-        <div class="absolute bottom-0 left-0 right-0 p-4 border-t-2 border-elit-red bg-gradient-to-t from-elit-gray to-black">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-12 h-12 rounded-lg bg-elit-red flex items-center justify-center text-white font-black text-xl shadow-lg">
-                    A
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t-2 border-gray-800/50 bg-gradient-to-t from-black via-elite-gray to-transparent">
+            <div class="flex items-center gap-3 mb-3 px-2">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-600 to-red-900 flex items-center justify-center text-white font-black text-lg shadow-lg border-2 border-red-500/30">
+                    <i data-lucide="user-circle" class="w-7 h-7"></i>
                 </div>
-                <div class="flex-1">
-                    <p class="text-sm font-bold text-white">Administrador</p>
-                    <p class="text-xs text-gray-400 uppercase tracking-wide font-semibold">ELIT GYM</p>
+                <div class="flex-1 overflow-hidden">
+                    <p class="text-sm font-bold truncate">Administrador</p>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-wide font-bold">ELITE GYM</p>
                 </div>
             </div>
             <form action="/admin/logout" method="post" class="w-full">
                 @Html.AntiForgeryToken()
-                <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-elit-red hover:bg-red-700 rounded-lg transition-all font-bold shadow-lg uppercase tracking-wide">
+                <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 rounded-xl transition-all font-bold text-sm shadow-xl hover:shadow-2xl transform hover:scale-[1.02] border border-red-500/30">
                     <i data-lucide="log-out" class="w-5 h-5"></i>
-                    Cerrar Sesión
+                    <span>Cerrar Sesión</span>
                 </button>
             </form>
         </div>
     </aside>
 
-    <!-- MAIN CONTENT -->
-    <main class="lg:ml-64 min-h-screen bg-gray-50">
+    <!-- Main Content -->
+    <main class="lg:ml-72 min-h-screen transition-all duration-300">
         <!-- Header -->
-        <header class="bg-white shadow-md border-b-4 border-elit-red sticky top-0 z-30">
-            <div class="px-4 sm:px-8 py-4 sm:py-6">
-                <div class="flex items-center justify-between">
-                    <!-- Botón Hamburguesa (solo móvil) -->
-                    <button class="lg:hidden hamburger flex flex-col gap-1.5 p-2 rounded-lg hover:bg-gray-100 transition-colors" id="hamburgerBtn">
-                        <span class="block w-6 h-0.5 bg-gray-900"></span>
-                        <span class="block w-6 h-0.5 bg-gray-900"></span>
-                        <span class="block w-6 h-0.5 bg-gray-900"></span>
-                    </button>
-
-                    <div class="flex-1 lg:flex-none">
-                        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900 uppercase tracking-wide">
+        <header class="header-gradient shadow-lg border-b-4 border-red-600 sticky top-0 z-40">
+            <div class="px-4 sm:px-6 lg:px-8 py-4 lg:py-5">
+                <div class="flex items-center justify-between gap-4">
+                    <div class="flex-1 min-w-0 ml-0 lg:ml-0 pl-14 lg:pl-0">
+                        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent uppercase tracking-wide truncate">
                             @ViewData["Title"]
                         </h2>
                         @if (ViewData["Subtitle"] != null)
                         {
-                            <p class="text-xs sm:text-sm text-gray-600 mt-1 sm:mt-2 font-semibold">@ViewData["Subtitle"]</p>
+                            <p class="text-xs sm:text-sm text-gray-600 mt-1 font-semibold">@ViewData["Subtitle"]</p>
                         }
                     </div>
-
-                    <div class="hidden sm:flex items-center gap-4">
-                        <div class="text-right px-4 lg:px-6 py-2 lg:py-3 bg-black rounded-lg border-2 border-elit-red shadow-lg">
-                            <p class="text-xs text-gray-400 uppercase tracking-wide font-bold hidden lg:block">Última actualización</p>
+                    <div class="hidden sm:flex items-center gap-3">
+                        <div class="text-right px-4 lg:px-6 py-2 lg:py-3 bg-gradient-to-br from-gray-900 to-black rounded-xl border border-gray-800 shadow-lg">
+                            <p class="text-[9px] lg:text-xs text-gray-400 uppercase tracking-wide font-bold">Última actualización</p>
                             <p class="text-xs lg:text-sm text-white font-bold" id="current-time"></p>
                         </div>
                     </div>
@@ -285,17 +301,73 @@
             </div>
         </header>
 
-        <!-- Content -->
+        <!-- Content Area -->
         <div class="p-4 sm:p-6 lg:p-8">
             @RenderBody()
         </div>
+
+        <!-- Footer -->
+        <footer class="mt-12 border-t-2 border-gray-200 bg-white/50">
+            <div class="px-4 sm:px-6 lg:px-8 py-6">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <img src="/images/LogoElite.jpeg" alt="ELITE GYM" class="h-10 w-auto opacity-70" />
+                        <div class="border-l-2 border-gray-300 pl-3">
+                            <p class="text-xs font-black text-gray-700 uppercase tracking-wider">ELITE GYM</p>
+                            <p class="text-[10px] text-gray-500">Sistema de Gestión</p>
+                        </div>
+                    </div>
+                    <div class="text-center sm:text-right">
+                        <p class="text-xs text-gray-600 font-semibold">© 2024 ELITE GYM. Todos los derechos reservados.</p>
+                        <p class="text-[10px] text-gray-500 mt-1">Versión 2.0</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
     </main>
 
     <script>
-        // Inicializar iconos de Lucide
         lucide.createIcons();
 
-        // Actualizar reloj
+        // Mobile menu functionality
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const closeSidebarBtn = document.getElementById('close-sidebar-btn');
+        const mobileOverlay = document.getElementById('mobile-overlay');
+        const sidebar = document.getElementById('sidebar');
+
+        function openSidebar() {
+            sidebar.classList.remove('desktop-sidebar');
+            sidebar.classList.add('mobile-sidebar-enter');
+            mobileOverlay.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebar() {
+            sidebar.classList.add('desktop-sidebar');
+            mobileOverlay.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', openSidebar);
+        }
+
+        if (closeSidebarBtn) {
+            closeSidebarBtn.addEventListener('click', closeSidebar);
+        }
+
+        if (mobileOverlay) {
+            mobileOverlay.addEventListener('click', closeSidebar);
+        }
+
+        // Close sidebar on window resize to desktop
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 1024) {
+                closeSidebar();
+            }
+        });
+
+        // Update time
         function updateTime() {
             const now = new Date();
             const timeStr = now.toLocaleString('es-ES', {
@@ -313,73 +385,16 @@
         updateTime();
         setInterval(updateTime, 60000);
 
-        // Marcar elemento activo en navegación
-        document.addEventListener('DOMContentLoaded', function() {
-            const currentPath = window.location.pathname;
-            const navItems = document.querySelectorAll('.nav-item');
-
-            navItems.forEach(item => {
-                if (item.getAttribute('href') === currentPath) {
-                    item.classList.add('active');
-                    item.style.background = 'rgba(227, 30, 36, 0.15)';
-                    item.style.paddingLeft = '1.25rem';
-                }
-            });
-
-            // Control del menú hamburguesa
-            const hamburgerBtn = document.getElementById('hamburgerBtn');
-            const sidebar = document.getElementById('sidebar');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
-
-            function toggleSidebar() {
-                sidebar.classList.toggle('active');
-                sidebarOverlay.classList.toggle('active');
-                hamburgerBtn.classList.toggle('active');
-
-                // Prevenir scroll del body cuando el menú está abierto
-                if (sidebar.classList.contains('active')) {
-                    document.body.style.overflow = 'hidden';
-                } else {
-                    document.body.style.overflow = '';
-                }
+        // Active nav item detection
+        const currentPath = window.location.pathname;
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => {
+            if (item.getAttribute('href') === currentPath) {
+                item.classList.add('active');
             }
-
-            function closeSidebar() {
-                sidebar.classList.remove('active');
-                sidebarOverlay.classList.remove('active');
-                hamburgerBtn.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-
-            // Toggle sidebar al hacer click en hamburguesa
-            if (hamburgerBtn) {
-                hamburgerBtn.addEventListener('click', toggleSidebar);
-            }
-
-            // Cerrar sidebar al hacer click en overlay
-            if (sidebarOverlay) {
-                sidebarOverlay.addEventListener('click', closeSidebar);
-            }
-
-            // Cerrar sidebar al hacer click en un link (solo en móvil)
-            navItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    if (window.innerWidth < 1024) {
-                        closeSidebar();
-                    }
-                });
-            });
-
-            // Cerrar sidebar al cambiar a desktop
-            window.addEventListener('resize', function() {
-                if (window.innerWidth >= 1024) {
-                    closeSidebar();
-                }
-            });
         });
     </script>
 
     @RenderSection("Scripts", required: false)
 </body>
 </html>
-    
