@@ -249,6 +249,88 @@
       ]
     },
     {
+      "Route": "images/LogoElite.png",
+      "AssetFile": "images/LogoElite.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "76531"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"qWR7BqO7rNIBlwxiMYRVtSEa7QaTr7qjTmC2Fb08rgU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 12 Feb 2026 15:39:43 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-qWR7BqO7rNIBlwxiMYRVtSEa7QaTr7qjTmC2Fb08rgU="
+        }
+      ]
+    },
+    {
+      "Route": "images/LogoElite.x6v7nhfafh.png",
+      "AssetFile": "images/LogoElite.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "76531"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"qWR7BqO7rNIBlwxiMYRVtSEa7QaTr7qjTmC2Fb08rgU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 12 Feb 2026 15:39:43 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "x6v7nhfafh"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-qWR7BqO7rNIBlwxiMYRVtSEa7QaTr7qjTmC2Fb08rgU="
+        },
+        {
+          "Name": "label",
+          "Value": "images/LogoElite.png"
+        }
+      ]
+    },
+    {
       "Route": "images/tauro-gym-logo.png",
       "AssetFile": "images/tauro-gym-logo.png",
       "Selectors": [],

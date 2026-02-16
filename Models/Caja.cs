@@ -165,4 +165,27 @@ namespace VidaFitBackend.Models
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
     }
+
+    /// <summary>
+    /// Registro de movimientos eliminados de Caja Fuerte
+    /// </summary>
+    public class MovimientoEliminado
+    {
+        public Guid Id { get; set; }
+        public Guid MovimientoOriginalId { get; set; }
+        public string Tipo { get; set; } // ingreso/egreso
+        public string Origen { get; set; }
+        public string MetodoPago { get; set; }
+        public decimal Monto { get; set; }
+        public string Descripcion { get; set; }
+        public string Categoria { get; set; }
+        public DateTime FechaOriginal { get; set; }
+        public DateTime FechaEliminacion { get; set; }
+        public Guid UsuarioEliminacion { get; set; }
+        public string MotivoEliminacion { get; set; }
+        public DateTime CreatedAt { get; set; }
+
+        // Navegación
+        public Usuario Usuario { get; set; }
+    }
 }

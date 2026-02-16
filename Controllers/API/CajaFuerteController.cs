@@ -302,21 +302,40 @@ namespace VidaFit.Controllers.API
                 }
 
                 var movimientos = await _context.MovimientosCajaFuerte
+                    .Include(m => m.CierreCaja)
                     .Where(m => m.Fecha >= fechaDesde && m.Fecha < fechaHasta)
                     .OrderByDescending(m => m.Fecha)
-                    .Select(m => new
-                    {
-                        m.Id,
-                        m.Tipo,
-                        m.Origen,
-                        m.MetodoPago,
-                        m.Monto,
-                        m.Descripcion,
-                        m.Categoria,
-                        m.Fecha,
-                        m.CreatedAt
-                    })
                     .ToListAsync();
+
+                // Obtener detalles de ventas y deudas para movimientos relacionados
+                var detallesMovimientos = new List<object>();
+
+                foreach (var mov in movimientos)
+                {
+                    var detalle = new
+                    {
+                        mov.Id,
+                        mov.Tipo,
+                        mov.Origen,
+                        mov.MetodoPago,
+                        mov.Monto,
+                        mov.Descripcion,
+                        mov.Categoria,
+                        mov.Fecha,
+                        mov.CreatedAt,
+                        CierreCaja = mov.CierreCaja != null ? new
+                        {
+                            mov.CierreCaja.Id,
+                            mov.CierreCaja.FechaCierre,
+                            mov.CierreCaja.TotalIngresos,
+                            mov.CierreCaja.TotalEgresos,
+                            mov.CierreCaja.CantidadMovimientos
+                        } : null,
+                        DetalleOrigen = await ObtenerDetalleOrigenMovimiento(mov)
+                    };
+
+                    detallesMovimientos.Add(detalle);
+                }
 
                 var totalIngresos = movimientos.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto);
                 var totalEgresos = movimientos.Where(m => m.Tipo == "egreso").Sum(m => m.Monto);
@@ -330,7 +349,7 @@ namespace VidaFit.Controllers.API
                         desde = fechaDesde,
                         hasta = fechaHasta
                     },
-                    movimientos,
+                    movimientos = detallesMovimientos,
                     totales = new
                     {
                         ingresos = totalIngresos,
@@ -344,6 +363,78 @@ namespace VidaFit.Controllers.API
             {
                 _logger.LogError(ex, "Error al obtener movimientos de Caja Fuerte");
                 return StatusCode(500, new { success = false, message = "Error al obtener movimientos" });
+            }
+        }
+
+        /// <summary>
+        /// Obtener detalle del origen de un movimiento (ventas, deudas, etc.)
+        /// </summary>
+        private async Task<object> ObtenerDetalleOrigenMovimiento(MovimientoCajaFuerte movimiento)
+        {
+            try
+            {
+                if (movimiento.CierreCajaId != null)
+                {
+                    // Es un cierre de caja, obtener movimientos de ese cierre
+                    var movimientosCaja = await _context.MovimientosCaja
+                        .Where(m => m.CierreCajaId == movimiento.CierreCajaId)
+                        .ToListAsync();
+
+                    var ventas = new List<object>();
+                    var deudasPagadas = new List<object>();
+                    var otros = new List<object>();
+
+                    foreach (var movCaja in movimientosCaja)
+                    {
+                        if (movCaja.Categoria?.Contains("venta") == true || movCaja.Categoria?.Contains("membresia") == true)
+                        {
+                            ventas.Add(new
+                            {
+                                movCaja.Descripcion,
+                                movCaja.Monto,
+                                movCaja.MetodoPago,
+                                movCaja.Fecha
+                            });
+                        }
+                        else if (movCaja.Categoria?.Contains("deuda") == true || movCaja.Categoria?.Contains("abono") == true)
+                        {
+                            deudasPagadas.Add(new
+                            {
+                                movCaja.Descripcion,
+                                movCaja.Monto,
+                                movCaja.MetodoPago,
+                                movCaja.Fecha
+                            });
+                        }
+                        else
+                        {
+                            otros.Add(new
+                            {
+                                movCaja.Descripcion,
+                                movCaja.Monto,
+                                movCaja.MetodoPago,
+                                movCaja.Categoria,
+                                movCaja.Fecha
+                            });
+                        }
+                    }
+
+                    return new
+                    {
+                        TipoDetalle = "cierre_caja",
+                        Ventas = ventas,
+                        DeudasPagadas = deudasPagadas,
+                        Otros = otros,
+                        TotalMovimientos = movimientosCaja.Count
+                    };
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener detalle de origen de movimiento");
+                return null;
             }
         }
 
@@ -792,6 +883,176 @@ namespace VidaFit.Controllers.API
                 return StatusCode(500, new { success = false, message = "Error al consolidar mes" });
             }
         }
+
+        // =============================================
+        // ELIMINACIÓN DE MOVIMIENTOS
+        // =============================================
+
+        [HttpPost("eliminar-movimiento")]
+        public async Task<IActionResult> EliminarMovimiento([FromBody] EliminarMovimientoRequest request)
+        {
+            try
+            {
+                // Verificar contraseña
+                var config = await ObtenerOCrearConfiguracionAsync();
+                var passwordHash = HashPassword(request.Password);
+
+                if (passwordHash != config.PasswordHash)
+                {
+                    return Ok(new { success = false, message = "Contraseña incorrecta" });
+                }
+
+                // Buscar el movimiento
+                var movimiento = await _context.MovimientosCajaFuerte.FindAsync(request.MovimientoId);
+
+                if (movimiento == null)
+                {
+                    return NotFound(new { success = false, message = "Movimiento no encontrado" });
+                }
+
+                var usuarioId = await ObtenerUsuarioSistemaAsync();
+                var cajaFuerte = await ObtenerOCrearCajaFuerteAsync();
+
+                // Guardar registro de eliminación
+                var movimientoEliminado = new MovimientoEliminado
+                {
+                    Id = Guid.NewGuid(),
+                    MovimientoOriginalId = movimiento.Id,
+                    Tipo = movimiento.Tipo,
+                    Origen = movimiento.Origen,
+                    MetodoPago = movimiento.MetodoPago,
+                    Monto = movimiento.Monto,
+                    Descripcion = movimiento.Descripcion,
+                    Categoria = movimiento.Categoria,
+                    FechaOriginal = movimiento.Fecha,
+                    FechaEliminacion = DateTime.Now,
+                    UsuarioEliminacion = usuarioId,
+                    MotivoEliminacion = request.Motivo,
+                    CreatedAt = DateTime.Now
+                };
+
+                _context.MovimientosEliminados.Add(movimientoEliminado);
+
+                // Revertir el efecto del movimiento en Caja Fuerte
+                if (movimiento.Tipo == "ingreso")
+                {
+                    // Si era un ingreso, lo restamos del balance
+                    if (movimiento.MetodoPago == "efectivo")
+                    {
+                        cajaFuerte.BalanceEfectivo -= movimiento.Monto;
+                    }
+                    else
+                    {
+                        cajaFuerte.BalanceTransferencias -= movimiento.Monto;
+                    }
+                }
+                else if (movimiento.Tipo == "egreso")
+                {
+                    // Si era un egreso, lo sumamos al balance
+                    if (movimiento.MetodoPago == "efectivo")
+                    {
+                        cajaFuerte.BalanceEfectivo += movimiento.Monto;
+                    }
+                    else
+                    {
+                        cajaFuerte.BalanceTransferencias += movimiento.Monto;
+                    }
+                }
+
+                cajaFuerte.BalanceTotal = cajaFuerte.BalanceEfectivo + cajaFuerte.BalanceTransferencias;
+                cajaFuerte.UltimaActualizacion = DateTime.Now;
+                cajaFuerte.UpdatedAt = DateTime.Now;
+
+                // Eliminar el movimiento
+                _context.MovimientosCajaFuerte.Remove(movimiento);
+
+                await _context.SaveChangesAsync();
+
+                _logger.LogWarning($"Movimiento eliminado: {movimiento.Id} - {movimiento.Descripcion} - ${movimiento.Monto} - Motivo: {request.Motivo}");
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Movimiento eliminado correctamente",
+                    balanceActual = new
+                    {
+                        efectivo = cajaFuerte.BalanceEfectivo,
+                        transferencias = cajaFuerte.BalanceTransferencias,
+                        total = cajaFuerte.BalanceTotal
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al eliminar movimiento");
+                return StatusCode(500, new { success = false, message = "Error al eliminar movimiento" });
+            }
+        }
+
+        [HttpGet("movimientos-eliminados")]
+        public async Task<IActionResult> GetMovimientosEliminados([FromQuery] DateTime? fechaDesde = null, [FromQuery] DateTime? fechaHasta = null)
+        {
+            try
+            {
+                var query = _context.MovimientosEliminados
+                    .Include(m => m.Usuario)
+                    .AsQueryable();
+
+                if (fechaDesde.HasValue)
+                {
+                    var desde = DateTime.SpecifyKind(fechaDesde.Value.Date, DateTimeKind.Utc);
+                    query = query.Where(m => m.FechaEliminacion >= desde);
+                }
+
+                if (fechaHasta.HasValue)
+                {
+                    var hasta = DateTime.SpecifyKind(fechaHasta.Value.Date.AddDays(1), DateTimeKind.Utc);
+                    query = query.Where(m => m.FechaEliminacion < hasta);
+                }
+
+                var movimientos = await query
+                    .OrderByDescending(m => m.FechaEliminacion)
+                    .Select(m => new
+                    {
+                        m.Id,
+                        m.MovimientoOriginalId,
+                        m.Tipo,
+                        m.Origen,
+                        m.MetodoPago,
+                        m.Monto,
+                        m.Descripcion,
+                        m.Categoria,
+                        m.FechaOriginal,
+                        m.FechaEliminacion,
+                        m.MotivoEliminacion,
+                        Usuario = new
+                        {
+                            m.Usuario.Id,
+                            m.Usuario.Nombre,
+                            m.Usuario.Email
+                        }
+                    })
+                    .ToListAsync();
+
+                var totalEliminado = movimientos.Sum(m => m.Monto);
+
+                return Ok(new
+                {
+                    success = true,
+                    movimientos,
+                    total = new
+                    {
+                        cantidad = movimientos.Count,
+                        montoTotal = totalEliminado
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener movimientos eliminados");
+                return StatusCode(500, new { success = false, message = "Error al obtener movimientos eliminados" });
+            }
+        }
     }
 
     // ===== REQUEST MODELS =====
@@ -832,5 +1093,12 @@ namespace VidaFit.Controllers.API
     {
         public int Mes { get; set; }
         public int Anio { get; set; }
+    }
+
+    public class EliminarMovimientoRequest
+    {
+        public Guid MovimientoId { get; set; }
+        public string Password { get; set; }
+        public string Motivo { get; set; }
     }
 }

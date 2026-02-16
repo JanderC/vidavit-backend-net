@@ -37,6 +37,7 @@ namespace VidaFit.Data
         public DbSet<MovimientoCajaFuerte> MovimientosCajaFuerte { get; set; }
         public DbSet<ConsolidadoMensual> ConsolidadosMensuales { get; set; }
         public DbSet<ConfiguracionCajaFuerte> ConfiguracionesCajaFuerte { get; set; }
+        public DbSet<MovimientoEliminado> MovimientosEliminados { get; set; }
 
         // ✅ No necesitamos OnConfiguring adicional
         // La configuración de la conexión se hace en Program.cs con EnableLegacyTimestampBehavior
@@ -359,6 +360,27 @@ namespace VidaFit.Data
                 entity.Property(e => e.PasswordHash).IsRequired().HasMaxLength(255);
             });
 
+            modelBuilder.Entity<MovimientoEliminado>(entity =>
+            {
+                entity.ToTable("movimientos_eliminados");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Monto).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.Tipo).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.MetodoPago).IsRequired().HasMaxLength(50);
+
+                // ✅ Configurar relación con Usuario que eliminó
+                entity.HasOne(m => m.Usuario)
+                    .WithMany()
+                    .HasForeignKey(m => m.UsuarioEliminacion)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Índices para búsqueda eficiente
+                entity.HasIndex(m => m.FechaEliminacion);
+                entity.HasIndex(m => m.FechaOriginal);
+                entity.HasIndex(m => m.MovimientoOriginalId);
+                entity.HasIndex(m => m.UsuarioEliminacion);
+            });
+
             // ==================== CONVERSIÓN DE NOMBRES A SNAKE_CASE ====================
             foreach (var entity in modelBuilder.Model.GetEntityTypes())
             {
@@ -467,6 +489,11 @@ namespace VidaFit.Data
                         "Anio" => "anio",
                         "RequiereCambioPassword" => "requiere_cambio_password",
                         "Peso" => "peso",
+                        "MovimientoOriginalId" => "movimiento_original_id",
+                        "FechaOriginal" => "fecha_original",
+                        "FechaEliminacion" => "fecha_eliminacion",
+                        "UsuarioEliminacion" => "usuario_eliminacion",
+                        "MotivoEliminacion" => "motivo_eliminacion",
                         _ => property.Name.ToLower()
                     };
 

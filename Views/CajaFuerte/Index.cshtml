@@ -167,6 +167,12 @@
                     <i data-lucide="calendar" class="w-4 h-4 inline-block mr-2"></i>
                     Mensual
                 </button>
+                <button onclick="cambiarVista('eliminados')"
+                        id="tab-eliminados"
+                        class="tab-button flex-1 px-6 py-3 font-black uppercase text-sm tracking-wide rounded-lg transition-all text-gray-600 hover:bg-gray-200">
+                    <i data-lucide="trash-2" class="w-4 h-4 inline-block mr-2"></i>
+                    Eliminados
+                </button>
                 <button onclick="cambiarVista('historico')"
                         id="tab-historico"
                         class="tab-button flex-1 px-6 py-3 font-black uppercase text-sm tracking-wide rounded-lg transition-all text-gray-600 hover:bg-gray-200">
@@ -196,6 +202,36 @@
 
                 <div id="lista-movimientos" class="space-y-3">
                     <!-- Los movimientos se cargarán aquí dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Vista Movimientos Eliminados -->
+            <div id="vista-eliminados" class="hidden">
+                <div class="mb-6">
+                    <h4 class="text-xl font-black text-gray-800 uppercase tracking-wide mb-2 flex items-center gap-2">
+                        <i data-lucide="trash-2" class="w-5 h-5 text-red-600"></i>
+                        Movimientos Eliminados
+                    </h4>
+                    <p class="text-sm text-gray-600 font-semibold">Historial de movimientos que han sido eliminados del sistema</p>
+                </div>
+
+                <div class="mb-4 grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Desde</label>
+                        <input type="date"
+                               id="filtro-eliminados-desde"
+                               class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-red-500 focus:outline-none font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Hasta</label>
+                        <input type="date"
+                               id="filtro-eliminados-hasta"
+                               class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-red-500 focus:outline-none font-semibold">
+                    </div>
+                </div>
+
+                <div id="lista-movimientos-eliminados" class="space-y-3">
+                    <!-- Los movimientos eliminados se cargarán aquí dinámicamente -->
                 </div>
             </div>
 
@@ -355,6 +391,75 @@
     </div>
 </div>
 
+<!-- Modal: Detalle de Movimiento -->
+<div id="modalDetalleMovimiento" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-overlay">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-3xl w-full mx-4 border-4 border-blue-500 max-h-[90vh] overflow-y-auto">
+        <div class="p-8">
+            <div class="flex justify-between items-start mb-6">
+                <h3 class="text-2xl font-black text-gray-900 uppercase tracking-wide">Detalle del Movimiento</h3>
+                <button onclick="cerrarModalDetalleMovimiento()" class="text-gray-500 hover:text-gray-700">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <div id="contenido-detalle-movimiento" class="space-y-4">
+                <!-- El contenido se carga dinámicamente -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Eliminar Movimiento -->
+<div id="modalEliminarMovimiento" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-overlay">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full mx-4 border-4 border-red-500">
+        <div class="p-8">
+            <h3 class="text-2xl font-black text-red-600 mb-6 uppercase tracking-wide flex items-center gap-2">
+                <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+                Eliminar Movimiento
+            </h3>
+
+            <div class="bg-red-50 border-2 border-red-300 rounded-xl p-4 mb-4">
+                <p class="text-sm font-bold text-red-800">
+                    <i data-lucide="info" class="w-4 h-4 inline-block mr-1"></i>
+                    Esta acción eliminará el movimiento y ajustará el balance de Caja Fuerte.
+                </p>
+            </div>
+
+            <div id="info-movimiento-eliminar" class="mb-4 p-4 bg-gray-50 rounded-xl">
+                <!-- Información del movimiento a eliminar -->
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Contraseña de Caja Fuerte</label>
+                    <input type="password"
+                           id="password-eliminar"
+                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-red-500 focus:outline-none font-semibold"
+                           placeholder="Ingrese la contraseña">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Motivo de Eliminación</label>
+                    <textarea id="motivo-eliminar"
+                              rows="3"
+                              class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-red-500 focus:outline-none font-semibold"
+                              placeholder="Explique por qué se elimina este movimiento..."></textarea>
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-6">
+                <button onclick="cerrarModalEliminarMovimiento()"
+                        class="flex-1 px-6 py-3 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold rounded-xl transition-all">
+                    Cancelar
+                </button>
+                <button onclick="confirmarEliminarMovimiento()"
+                        class="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-all">
+                    Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal: Detalle de Consolidado -->
 <div id="modalDetalleConsolidado" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-overlay">
     <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full mx-4 border-4 border-purple-500">
@@ -501,13 +606,27 @@
                                                 </p>
                                             </div>
                                         </div>
-                                        <div class="text-right">
-                                            <p class="text-2xl font-black ${iconColor}">
-                                                ${esIngreso ? '+' : '-'}$${mov.monto.toLocaleString('es-CO', { minimumFractionDigits: 2 })}
-                                            </p>
-                                            <p class="text-xs text-gray-500 font-semibold">
-                                                ${fecha.toLocaleDateString('es-ES')} ${fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
-                                            </p>
+                                        <div class="flex items-center gap-3">
+                                            <div class="text-right">
+                                                <p class="text-2xl font-black ${iconColor}">
+                                                    ${esIngreso ? '+' : '-'}$${mov.monto.toLocaleString('es-CO', { minimumFractionDigits: 2 })}
+                                                </p>
+                                                <p class="text-xs text-gray-500 font-semibold">
+                                                    ${fecha.toLocaleDateString('es-ES')} ${fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                                                </p>
+                                            </div>
+                                            <div class="flex flex-col gap-1">
+                                                <button onclick="verDetalleMovimiento('${mov.id}')"
+                                                        class="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded transition-all"
+                                                        title="Ver detalle">
+                                                    <i data-lucide="eye" class="w-3 h-3"></i>
+                                                </button>
+                                                <button onclick="abrirModalEliminarMovimiento('${mov.id}', '${(mov.descripcion || 'Sin descripción').replace(/'/g, "\\'")}', ${mov.monto}, '${mov.tipo}', '${mov.metodoPago}')"
+                                                        class="px-2 py-1 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded transition-all"
+                                                        title="Eliminar">
+                                                    <i data-lucide="trash-2" class="w-3 h-3"></i>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -547,13 +666,21 @@
             document.getElementById(`tab-${vista}`).classList.add('bg-gradient-to-r', 'from-blue-600', 'to-blue-700', 'text-white', 'shadow-lg');
 
             // Mostrar/ocultar vistas
+            document.getElementById('vista-movimientos').classList.add('hidden');
+            document.getElementById('vista-eliminados').classList.add('hidden');
+            document.getElementById('vista-historico').classList.add('hidden');
+
             if (vista === 'historico') {
-                document.getElementById('vista-movimientos').classList.add('hidden');
                 document.getElementById('vista-historico').classList.remove('hidden');
                 cargarConsolidados();
+            } else if (vista === 'eliminados') {
+                document.getElementById('vista-eliminados').classList.remove('hidden');
+                const hoy = new Date().toISOString().split('T')[0];
+                document.getElementById('filtro-eliminados-desde').value = hoy;
+                document.getElementById('filtro-eliminados-hasta').value = hoy;
+                cargarMovimientosEliminados();
             } else {
                 document.getElementById('vista-movimientos').classList.remove('hidden');
-                document.getElementById('vista-historico').classList.add('hidden');
                 cargarMovimientos();
             }
         }
@@ -875,5 +1002,298 @@
         window.abrirModalTransferirACaja = abrirModalTransferirACaja;
         window.cerrarModalTransferirACaja = cerrarModalTransferirACaja;
         window.confirmarTransferirACaja = confirmarTransferirACaja;
+        window.verDetalleMovimiento = verDetalleMovimiento;
+        window.cerrarModalDetalleMovimiento = cerrarModalDetalleMovimiento;
+        window.abrirModalEliminarMovimiento = abrirModalEliminarMovimiento;
+        window.cerrarModalEliminarMovimiento = cerrarModalEliminarMovimiento;
+        window.confirmarEliminarMovimiento = confirmarEliminarMovimiento;
+        window.cargarMovimientosEliminados = cargarMovimientosEliminados;
+
+        // =============================================
+        // DETALLE Y ELIMINACIÓN DE MOVIMIENTOS
+        // =============================================
+
+        let movimientoAEliminar = null;
+
+        async function verDetalleMovimiento(movimientoId) {
+            try {
+                const response = await fetch(`${API_URL}/cajafuerte/movimientos?vista=${vistaActual}&fecha=${document.getElementById('filtro-fecha').value}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const movimiento = data.movimientos.find(m => m.id === movimientoId);
+
+                    if (!movimiento) {
+                        alert('No se encontró el movimiento');
+                        return;
+                    }
+
+                    const fecha = new Date(movimiento.fecha);
+                    let contenidoDetalle = `
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-xs text-gray-600 font-bold uppercase">Tipo</p>
+                                    <p class="text-sm font-black ${movimiento.tipo === 'ingreso' ? 'text-green-600' : 'text-red-600'}">${movimiento.tipo.toUpperCase()}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-600 font-bold uppercase">Monto</p>
+                                    <p class="text-lg font-black">${movimiento.tipo === 'ingreso' ? '+' : '-'}$${movimiento.monto.toLocaleString('es-CO', { minimumFractionDigits: 2 })}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-600 font-bold uppercase">Origen</p>
+                                    <p class="text-sm font-bold">${movimiento.origen.replace(/_/g, ' ').toUpperCase()}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-600 font-bold uppercase">Método de Pago</p>
+                                    <p class="text-sm font-bold">${movimiento.metodoPago.toUpperCase()}</p>
+                                </div>
+                                ${movimiento.categoria ? `
+                                <div>
+                                    <p class="text-xs text-gray-600 font-bold uppercase">Categoría</p>
+                                    <p class="text-sm font-bold">${movimiento.categoria.replace(/_/g, ' ').toUpperCase()}</p>
+                                </div>
+                                ` : ''}
+                                <div>
+                                    <p class="text-xs text-gray-600 font-bold uppercase">Fecha</p>
+                                    <p class="text-sm font-bold">${fecha.toLocaleDateString('es-ES')} ${fecha.toLocaleTimeString('es-ES')}</p>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-600 font-bold uppercase">Descripción</p>
+                                <p class="text-sm font-semibold bg-gray-50 p-3 rounded">${movimiento.descripcion || 'Sin descripción'}</p>
+                            </div>
+                    `;
+
+                    // Si hay detalles del origen (cierre de caja con ventas/deudas)
+                    if (movimiento.detalleOrigen) {
+                        const detalle = movimiento.detalleOrigen;
+                        contenidoDetalle += `
+                            <div class="mt-4 p-4 bg-blue-50 rounded-xl border-2 border-blue-200">
+                                <p class="text-sm font-black text-blue-900 mb-3 uppercase">Detalles del ${detalle.tipoDetalle === 'cierre_caja' ? 'Cierre de Caja' : 'Movimiento'}</p>
+                                ${detalle.ventas && detalle.ventas.length > 0 ? `
+                                    <div class="mb-3">
+                                        <p class="text-xs text-blue-700 font-bold uppercase mb-2">Ventas (${detalle.ventas.length})</p>
+                                        <div class="space-y-1">
+                                            ${detalle.ventas.map(v => `
+                                                <div class="bg-white p-2 rounded text-xs">
+                                                    <p class="font-bold">${v.descripcion}</p>
+                                                    <p class="text-gray-600">${v.metodoPago.toUpperCase()} - $${v.monto.toFixed(2)}</p>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+                                ${detalle.deudasPagadas && detalle.deudasPagadas.length > 0 ? `
+                                    <div class="mb-3">
+                                        <p class="text-xs text-blue-700 font-bold uppercase mb-2">Deudas Pagadas (${detalle.deudasPagadas.length})</p>
+                                        <div class="space-y-1">
+                                            ${detalle.deudasPagadas.map(d => `
+                                                <div class="bg-white p-2 rounded text-xs">
+                                                    <p class="font-bold">${d.descripcion}</p>
+                                                    <p class="text-gray-600">${d.metodoPago.toUpperCase()} - $${d.monto.toFixed(2)}</p>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+                                ${detalle.otros && detalle.otros.length > 0 ? `
+                                    <div>
+                                        <p class="text-xs text-blue-700 font-bold uppercase mb-2">Otros Movimientos (${detalle.otros.length})</p>
+                                        <div class="space-y-1">
+                                            ${detalle.otros.map(o => `
+                                                <div class="bg-white p-2 rounded text-xs">
+                                                    <p class="font-bold">${o.descripcion}</p>
+                                                    <p class="text-gray-600">${o.categoria ? o.categoria.toUpperCase() + ' - ' : ''}${o.metodoPago.toUpperCase()} - $${o.monto.toFixed(2)}</p>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    }
+
+                    contenidoDetalle += '</div>';
+                    document.getElementById('contenido-detalle-movimiento').innerHTML = contenidoDetalle;
+                    document.getElementById('modalDetalleMovimiento').classList.remove('hidden');
+                    lucide.createIcons();
+                }
+            } catch (error) {
+                console.error('Error al cargar detalle de movimiento:', error);
+                alert('Error al cargar el detalle del movimiento');
+            }
+        }
+
+        function cerrarModalDetalleMovimiento() {
+            document.getElementById('modalDetalleMovimiento').classList.add('hidden');
+        }
+
+        function abrirModalEliminarMovimiento(id, descripcion, monto, tipo, metodoPago) {
+            movimientoAEliminar = { id, descripcion, monto, tipo, metodoPago };
+
+            document.getElementById('info-movimiento-eliminar').innerHTML = `
+                <p class="text-sm font-bold text-gray-800 mb-2">${descripcion}</p>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                        <span class="text-gray-600">Tipo:</span>
+                        <span class="font-bold ${tipo === 'ingreso' ? 'text-green-600' : 'text-red-600'}">${tipo.toUpperCase()}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600">Monto:</span>
+                        <span class="font-bold">$${monto.toLocaleString('es-CO', { minimumFractionDigits: 2 })}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600">Método:</span>
+                        <span class="font-bold">${metodoPago.toUpperCase()}</span>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('password-eliminar').value = '';
+            document.getElementById('motivo-eliminar').value = '';
+            document.getElementById('modalEliminarMovimiento').classList.remove('hidden');
+        }
+
+        function cerrarModalEliminarMovimiento() {
+            document.getElementById('modalEliminarMovimiento').classList.add('hidden');
+            movimientoAEliminar = null;
+        }
+
+        async function confirmarEliminarMovimiento() {
+            const password = document.getElementById('password-eliminar').value;
+            const motivo = document.getElementById('motivo-eliminar').value;
+
+            if (!password) {
+                alert('❌ Por favor ingrese la contraseña');
+                return;
+            }
+
+            if (!motivo || motivo.trim().length < 10) {
+                alert('❌ Por favor explique el motivo de eliminación (mínimo 10 caracteres)');
+                return;
+            }
+
+            if (!confirm(`¿Está seguro que desea eliminar este movimiento?\n\n${movimientoAEliminar.descripcion}\nMonto: $${movimientoAEliminar.monto.toFixed(2)}\n\nEsta acción NO se puede deshacer.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/cajafuerte/eliminar-movimiento`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        movimientoId: movimientoAEliminar.id,
+                        password: password,
+                        motivo: motivo
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(`✅ ${data.message}`);
+                    cerrarModalEliminarMovimiento();
+                    cargarDashboard();
+                    cargarMovimientos();
+                } else {
+                    alert(`❌ ${data.message}`);
+                }
+            } catch (error) {
+                console.error('Error al eliminar movimiento:', error);
+                alert('❌ Error al eliminar movimiento');
+            }
+        }
+
+        // =============================================
+        // MOVIMIENTOS ELIMINADOS
+        // =============================================
+
+        async function cargarMovimientosEliminados() {
+            try {
+                const desde = document.getElementById('filtro-eliminados-desde').value;
+                const hasta = document.getElementById('filtro-eliminados-hasta').value;
+
+                const response = await fetch(`${API_URL}/cajafuerte/movimientos-eliminados?fechaDesde=${desde}&fechaHasta=${hasta}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const container = document.getElementById('lista-movimientos-eliminados');
+
+                    if (data.movimientos && data.movimientos.length > 0) {
+                        container.innerHTML = data.movimientos.map(mov => {
+                            const fechaOriginal = new Date(mov.fechaOriginal);
+                            const fechaEliminacion = new Date(mov.fechaEliminacion);
+                            const esIngreso = mov.tipo === 'ingreso';
+                            const colorClass = esIngreso ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50';
+                            const iconColor = esIngreso ? 'text-green-600' : 'text-red-600';
+
+                            return `
+                                <div class="border-l-4 ${colorClass} rounded-xl p-4 shadow hover:shadow-lg transition-all opacity-75">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div>
+                                            <p class="font-black text-gray-900">${mov.descripcion || 'Sin descripción'}</p>
+                                            <p class="text-sm text-gray-600 font-semibold">
+                                                ${mov.origen.replace(/_/g, ' ').toUpperCase()} • ${mov.metodoPago.toUpperCase()}
+                                                ${mov.categoria ? ' • ' + mov.categoria.replace(/_/g, ' ').toUpperCase() : ''}
+                                            </p>
+                                        </div>
+                                        <p class="text-2xl font-black ${iconColor}">
+                                            ${esIngreso ? '+' : '-'}$${mov.monto.toLocaleString('es-CO', { minimumFractionDigits: 2 })}
+                                        </p>
+                                    </div>
+                                    <div class="bg-red-100 border border-red-300 rounded p-3 text-xs">
+                                        <div class="grid grid-cols-2 gap-2 mb-2">
+                                            <div>
+                                                <span class="text-gray-700 font-semibold">Fecha original:</span>
+                                                <span class="font-bold">${fechaOriginal.toLocaleDateString('es-ES')} ${fechaOriginal.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-gray-700 font-semibold">Eliminado:</span>
+                                                <span class="font-bold">${fechaEliminacion.toLocaleDateString('es-ES')} ${fechaEliminacion.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span class="text-gray-700 font-semibold">Motivo:</span>
+                                            <p class="font-bold text-red-800 mt-1">${mov.motivoEliminacion}</p>
+                                        </div>
+                                        <div class="mt-2">
+                                            <span class="text-gray-700 font-semibold">Usuario:</span>
+                                            <span class="font-bold">${mov.usuario.nombre} (${mov.usuario.email})</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+
+                        lucide.createIcons();
+                    } else {
+                        container.innerHTML = `
+                            <div class="bg-gray-50 rounded-2xl p-12 text-center border-2 border-gray-200">
+                                <i data-lucide="check-circle" class="w-16 h-16 text-emerald-500 mx-auto mb-4"></i>
+                                <h3 class="text-xl font-black text-gray-600 mb-2">No hay movimientos eliminados</h3>
+                                <p class="text-gray-500 font-semibold">No se han eliminado movimientos en este período</p>
+                            </div>
+                        `;
+                        lucide.createIcons();
+                    }
+                }
+            } catch (error) {
+                console.error('Error al cargar movimientos eliminados:', error);
+            }
+        }
+
+        // Agregar listeners para filtros de movimientos eliminados
+        document.addEventListener('DOMContentLoaded', function() {
+            const filtroDesde = document.getElementById('filtro-eliminados-desde');
+            const filtroHasta = document.getElementById('filtro-eliminados-hasta');
+
+            if (filtroDesde) {
+                filtroDesde.addEventListener('change', cargarMovimientosEliminados);
+            }
+            if (filtroHasta) {
+                filtroHasta.addEventListener('change', cargarMovimientosEliminados);
+            }
+        });
     </script>
 }

@@ -1,0 +1,4 @@
+C:\d\EliteGym\appsettings.Development.json
+C:\d\EliteGym\appsettings.json
+C:\d\EliteGym\VidaFit.pdb
+C:\d\EliteGym\VidaFit.exe
