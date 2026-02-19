@@ -10,11 +10,20 @@
                class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
     </div>
 
-    <a href="/clientes/crear"
-       class="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
-        <i data-lucide="user-plus" class="w-5 h-5"></i>
-        Nuevo Cliente
-    </a>
+    <div class="flex items-center gap-3">
+        <!-- Botón orden asc/desc -->
+        <button id="sort-btn" onclick="toggleSort()"
+                class="inline-flex items-center gap-2 px-5 py-3 bg-white border-2 border-gray-300 hover:border-red-600 text-gray-700 hover:text-red-600 font-black rounded-xl transition-all uppercase tracking-wide">
+            <i data-lucide="arrow-down-wide-narrow" id="sort-icon" class="w-5 h-5"></i>
+            <span id="sort-label">Más recientes</span>
+        </button>
+
+        <a href="/clientes/crear"
+           class="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
+            <i data-lucide="user-plus" class="w-5 h-5"></i>
+            Nuevo Cliente
+        </a>
+    </div>
 </div>
 
 <div id="clientes-container" class="bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-gray-200">
@@ -28,28 +37,64 @@
     <script>
         const API_URL = '/api';
         let clientesData = [];
+        let clientesFiltrados = [];
+        let ordenDesc = true;       // true = más recientes primero
+        let paginaActual = 1;
+        const POR_PAGINA = 10;
 
+        // ── Carga inicial ──────────────────────────────────────────
         async function loadClientes() {
             try {
                 const response = await fetch(`${API_URL}/Clientes`);
                 clientesData = await response.json();
-                renderClientes(clientesData);
+                // El API ya devuelve ordenado desc; aplicamos el resto
+                aplicarFiltroYOrden();
             } catch (error) {
                 console.error('Error:', error);
                 document.getElementById('clientes-container').innerHTML = `
                     <div class="p-8 text-center">
                         <i data-lucide="alert-circle" class="w-12 h-12 text-red-600 mx-auto mb-4"></i>
                         <p class="text-red-600 font-bold">Error al cargar los clientes</p>
-                    </div>
-                `;
+                    </div>`;
                 lucide.createIcons();
             }
         }
 
-        function renderClientes(clientes) {
-            const container = document.getElementById('clientes-container');
+        // ── Filtro + orden + resetear página ──────────────────────
+        function aplicarFiltroYOrden() {
+            const q = document.getElementById('search-input').value.toLowerCase();
 
-            if (clientes.length === 0) {
+            let resultado = clientesData.filter(c =>
+                c.Nombre.toLowerCase().includes(q) ||
+                c.Apellido.toLowerCase().includes(q) ||
+                c.Cedula.toLowerCase().includes(q)
+            );
+
+            resultado.sort((a, b) => {
+                const diff = new Date(b.CreatedAt) - new Date(a.CreatedAt);
+                return ordenDesc ? diff : -diff;
+            });
+
+            clientesFiltrados = resultado;
+            paginaActual = 1;
+            renderClientes();
+        }
+
+        // ── Toggle asc / desc ────────────────────────────────────
+        function toggleSort() {
+            ordenDesc = !ordenDesc;
+            document.getElementById('sort-label').textContent = ordenDesc ? 'Más recientes' : 'Más antiguos';
+            document.getElementById('sort-icon').setAttribute('data-lucide', ordenDesc ? 'arrow-down-wide-narrow' : 'arrow-up-wide-narrow');
+            lucide.createIcons();
+            aplicarFiltroYOrden();
+        }
+
+        // ── Render principal ─────────────────────────────────────
+        function renderClientes() {
+            const container = document.getElementById('clientes-container');
+            const total = clientesFiltrados.length;
+
+            if (total === 0) {
                 container.innerHTML = `
                     <div class="p-12 text-center">
                         <i data-lucide="users" class="w-16 h-16 mx-auto mb-4 text-gray-400"></i>
@@ -57,11 +102,15 @@
                         <a href="/clientes/crear" class="mt-4 inline-block text-red-600 hover:underline font-black uppercase tracking-wide">
                             Registrar primer cliente
                         </a>
-                    </div>
-                `;
+                    </div>`;
                 lucide.createIcons();
                 return;
             }
+
+            const totalPaginas = Math.ceil(total / POR_PAGINA);
+            paginaActual = Math.min(paginaActual, totalPaginas);
+            const inicio = (paginaActual - 1) * POR_PAGINA;
+            const pagina = clientesFiltrados.slice(inicio, inicio + POR_PAGINA);
 
             container.innerHTML = `
                 <table class="w-full">
@@ -75,20 +124,21 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y-2 divide-gray-200">
-                        ${clientes.map(c => `
+                        ${pagina.map(c => `
                             <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center gap-3">
-                                        ${c.FotoBase64 ?
-                                            `<img src="data:image/jpeg;base64,${c.FotoBase64}"
-                                                  class="w-12 h-12 rounded-full object-cover border-2 border-red-600">` :
-                                            `<div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-                                                <i data-lucide="user" class="w-6 h-6 text-gray-500"></i>
-                                            </div>`
+                                        ${c.FotoBase64
+                                            ? `<img src="data:image/jpeg;base64,${c.FotoBase64}" class="w-12 h-12 rounded-full object-cover border-2 border-red-600">`
+                                            : `<div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+                                                   <i data-lucide="user" class="w-6 h-6 text-gray-500"></i>
+                                               </div>`
                                         }
                                         <div>
                                             <div class="font-black text-gray-900 text-xl">${c.Nombre} ${c.Apellido}</div>
-                                            <div class="text-sm text-gray-500 font-semibold">Registrado: ${new Date(c.CreatedAt).toLocaleDateString('es-ES')}</div>
+                                            <div class="text-sm text-gray-500 font-semibold">
+                                                Registrado: ${new Date(c.CreatedAt).toLocaleDateString('es-ES')}
+                                            </div>
                                         </div>
                                     </div>
                                 </td>
@@ -103,43 +153,34 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex flex-col gap-1">
-                                        ${c.Activo ?
-                                            '<span class="inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-800 font-black rounded-full uppercase text-xs"><i data-lucide="check-circle" class="w-3 h-3"></i> Activo</span>' :
-                                            '<span class="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-800 font-black rounded-full uppercase text-xs"><i data-lucide="x-circle" class="w-3 h-3"></i> Inactivo</span>'
+                                        ${c.Activo
+                                            ? '<span class="inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-800 font-black rounded-full uppercase text-xs"><i data-lucide="check-circle" class="w-3 h-3"></i> Activo</span>'
+                                            : '<span class="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-800 font-black rounded-full uppercase text-xs"><i data-lucide="x-circle" class="w-3 h-3"></i> Inactivo</span>'
                                         }
-                                        ${c.HuellaTemplate ?
-                                            '<span class="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-800 font-black rounded-full uppercase text-xs"><i data-lucide="fingerprint" class="w-3 h-3"></i> Con huella</span>' :
-                                            '<span class="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 font-black rounded-full uppercase text-xs"><i data-lucide="fingerprint" class="w-3 h-3"></i> Sin huella</span>'
+                                        ${c.HuellaTemplate
+                                            ? '<span class="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-800 font-black rounded-full uppercase text-xs"><i data-lucide="fingerprint" class="w-3 h-3"></i> Con huella</span>'
+                                            : '<span class="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 font-black rounded-full uppercase text-xs"><i data-lucide="fingerprint" class="w-3 h-3"></i> Sin huella</span>'
                                         }
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right">
                                     <div class="flex items-center justify-end gap-2">
-                                        <a href="/clientes/detalle/${c.Id}"
-                                           class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                           title="Ver detalles">
+                                        <a href="/clientes/detalle/${c.Id}" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Ver detalles">
                                             <i data-lucide="eye" class="w-5 h-5"></i>
                                         </a>
-                                        <a href="/clientes/editar/${c.Id}"
-                                           class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
-                                           title="Editar">
+                                        <a href="/clientes/editar/${c.Id}" class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Editar">
                                             <i data-lucide="edit" class="w-5 h-5"></i>
                                         </a>
-                                        ${!c.HuellaTemplate ?
-                                            `<a href="/clientes/capturar-huella/${c.Id}"
-                                                class="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
-                                                title="Capturar huella">
-                                                <i data-lucide="fingerprint" class="w-5 h-5"></i>
-                                            </a>` : ''
+                                        ${!c.HuellaTemplate
+                                            ? `<a href="/clientes/capturar-huella/${c.Id}" class="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors" title="Capturar huella">
+                                                   <i data-lucide="fingerprint" class="w-5 h-5"></i>
+                                               </a>`
+                                            : ''
                                         }
-                                        <a href="/membresias/crear?clienteId=${c.Id}"
-                                           class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
-                                           title="Nueva membresía">
+                                        <a href="/membresias/crear?clienteId=${c.Id}" class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Nueva membresía">
                                             <i data-lucide="plus-circle" class="w-5 h-5"></i>
                                         </a>
-                                        <button onclick="deleteCliente('${c.Id}')"
-                                                class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                                title="Eliminar">
+                                        <button onclick="deleteCliente('${c.Id}')" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Eliminar">
                                             <i data-lucide="trash-2" class="w-5 h-5"></i>
                                         </button>
                                     </div>
@@ -148,24 +189,89 @@
                         `).join('')}
                     </tbody>
                 </table>
+
+                <!-- Footer: conteo + paginación -->
+                <div class="px-6 py-4 bg-gray-50 border-t-2 border-gray-200 flex items-center justify-between gap-4 flex-wrap">
+                    <p class="text-sm font-semibold text-gray-600">
+                        Mostrando
+                        <span class="font-black text-gray-900">${inicio + 1}–${Math.min(inicio + POR_PAGINA, total)}</span>
+                        de
+                        <span class="font-black text-gray-900">${total}</span>
+                        cliente${total !== 1 ? 's' : ''}
+                    </p>
+
+                    ${totalPaginas > 1 ? `
+                    <div class="flex items-center gap-1">
+                        <!-- Anterior -->
+                        <button onclick="irPagina(${paginaActual - 1})" ${paginaActual === 1 ? 'disabled' : ''}
+                                class="p-2 rounded-lg border-2 font-black transition-all
+                                       ${paginaActual === 1
+                                           ? 'border-gray-200 text-gray-300 cursor-not-allowed'
+                                           : 'border-gray-300 text-gray-600 hover:border-red-600 hover:text-red-600'}">
+                            <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                        </button>
+
+                        <!-- Números de página con elipsis -->
+                        ${paginasVisibles(paginaActual, totalPaginas)
+                            .map(p => p === '...'
+                                ? `<span class="px-2 text-gray-400 font-bold select-none">…</span>`
+                                : `<button onclick="irPagina(${p})"
+                                           class="w-10 h-10 rounded-lg border-2 font-black transition-all
+                                                  ${p === paginaActual
+                                                      ? 'border-red-600 bg-red-600 text-white'
+                                                      : 'border-gray-300 text-gray-600 hover:border-red-600 hover:text-red-600'}">
+                                       ${p}
+                                   </button>`
+                            ).join('')}
+
+                        <!-- Siguiente -->
+                        <button onclick="irPagina(${paginaActual + 1})" ${paginaActual === totalPaginas ? 'disabled' : ''}
+                                class="p-2 rounded-lg border-2 font-black transition-all
+                                       ${paginaActual === totalPaginas
+                                           ? 'border-gray-200 text-gray-300 cursor-not-allowed'
+                                           : 'border-gray-300 text-gray-600 hover:border-red-600 hover:text-red-600'}">
+                            <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                    ` : ''}
+                </div>
             `;
 
             lucide.createIcons();
         }
 
-        document.getElementById('search-input').addEventListener('input', function(e) {
-            const search = e.target.value.toLowerCase();
-            const filtrados = clientesData.filter(c =>
-                c.Nombre.toLowerCase().includes(search) ||
-                c.Apellido.toLowerCase().includes(search) ||
-                c.Cedula.toLowerCase().includes(search)
-            );
-            renderClientes(filtrados);
-        });
+        // ── Genera los números de página a mostrar (con elipsis) ─
+        function paginasVisibles(actual, total) {
+            const pages = [];
+            for (let i = 1; i <= total; i++) {
+                if (i === 1 || i === total || Math.abs(i - actual) <= 1) {
+                    pages.push(i);
+                }
+            }
+            // Insertar elipsis donde haya saltos
+            const result = [];
+            for (let i = 0; i < pages.length; i++) {
+                if (i > 0 && pages[i] - pages[i - 1] > 1) result.push('...');
+                result.push(pages[i]);
+            }
+            return result;
+        }
 
+        // ── Ir a página ──────────────────────────────────────────
+        function irPagina(pagina) {
+            const totalPaginas = Math.ceil(clientesFiltrados.length / POR_PAGINA);
+            if (pagina < 1 || pagina > totalPaginas) return;
+            paginaActual = pagina;
+            renderClientes();
+            document.getElementById('clientes-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // ── Búsqueda en tiempo real ──────────────────────────────
+        document.getElementById('search-input').addEventListener('input', aplicarFiltroYOrden);
+
+        // ── Eliminar cliente ─────────────────────────────────────
         async function deleteCliente(id) {
             if (!confirm('¿Estás seguro de eliminar este cliente? Esta acción no se puede deshacer.')) return;
-
             try {
                 const response = await fetch(`${API_URL}/Clientes/${id}`, { method: 'DELETE' });
                 if (response.ok) {
