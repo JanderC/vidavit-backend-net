@@ -127,6 +127,7 @@ namespace VidaFitBackend.Models
         public string Descripcion { get; set; }
         public string? Categoria { get; set; } // Para egresos: pago_proveedores, servicios_publicos, mantenimiento, nomina, otros
         public Guid? CierreCajaId { get; set; } // Si viene de un cierre
+        public Guid? MovimientoCajaId { get; set; } // Referencia al movimiento original de caja diaria
         public Guid UsuarioId { get; set; }
         public DateTime Fecha { get; set; }
         public DateTime CreatedAt { get; set; }
@@ -134,6 +135,7 @@ namespace VidaFitBackend.Models
         // Navegación
         public Usuario Usuario { get; set; }
         public CierreCaja CierreCaja { get; set; }
+        public MovimientoCaja MovimientoCaja { get; set; }
     }
 
     /// <summary>
@@ -164,5 +166,28 @@ namespace VidaFitBackend.Models
         public bool RequiereCambioPassword { get; set; } // True si es primera vez (123456)
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+    }
+
+    /// <summary>
+    /// Registro de movimientos eliminados de Caja Fuerte
+    /// </summary>
+    public class MovimientoEliminado
+    {
+        public Guid Id { get; set; }
+        public Guid MovimientoOriginalId { get; set; }
+        public string Tipo { get; set; } // ingreso/egreso
+        public string Origen { get; set; }
+        public string MetodoPago { get; set; }
+        public decimal Monto { get; set; }
+        public string Descripcion { get; set; }
+        public string Categoria { get; set; }
+        public DateTime FechaOriginal { get; set; }
+        public DateTime FechaEliminacion { get; set; }
+        public Guid UsuarioEliminacion { get; set; }
+        public string MotivoEliminacion { get; set; }
+        public DateTime CreatedAt { get; set; }
+
+        // Navegación
+        public Usuario Usuario { get; set; }
     }
 }

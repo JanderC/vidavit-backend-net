@@ -5,112 +5,515 @@
     Layout = "_AdminLayout";
 }
 
+<style>
+    /* ===== MODAL OVERLAY ===== */
+    #modalExito {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: rgba(0, 0, 0, 0.65);
+        backdrop-filter: blur(4px);
+        align-items: center;
+        justify-content: center;
+        animation: fadeInOverlay 0.2s ease;
+    }
+
+        #modalExito.show {
+            display: flex;
+        }
+
+    @@keyframes fadeInOverlay {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    .modal-card {
+        background: #fff;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 520px;
+        margin: 16px;
+        box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+        overflow: hidden;
+        animation: slideUpModal 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @@keyframes slideUpModal {
+        from {
+            opacity: 0;
+            transform: translateY(30px) scale(0.96);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, #dc2626, #991b1b);
+        padding: 28px 32px 24px;
+        text-align: center;
+        position: relative;
+    }
+
+    .modal-checkmark {
+        width: 64px;
+        height: 64px;
+        background: rgba(255,255,255,0.15);
+        border: 3px solid rgba(255,255,255,0.4);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 14px;
+        font-size: 28px;
+        animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+    }
+
+    @@keyframes popIn {
+        from {
+            transform: scale(0);
+            opacity: 0;
+        }
+
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    .modal-title {
+        font-size: 22px;
+        font-weight: 900;
+        color: #fff;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .modal-subtitle {
+        font-size: 13px;
+        color: rgba(255,255,255,0.75);
+        margin-top: 4px;
+        font-weight: 600;
+    }
+
+    .modal-cliente-nombre {
+        display: inline-block;
+        margin-top: 10px;
+        background: rgba(255,255,255,0.18);
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 8px;
+        padding: 6px 18px;
+        color: #fff;
+        font-weight: 800;
+        font-size: 15px;
+        letter-spacing: 0.5px;
+    }
+
+    .modal-body {
+        padding: 28px 32px;
+    }
+
+    .modal-pregunta {
+        text-align: center;
+        font-size: 15px;
+        font-weight: 700;
+        color: #374151;
+        margin-bottom: 20px;
+    }
+
+        .modal-pregunta span {
+            display: block;
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
+    /* Opciones del modal */
+    .modal-opciones {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .opcion-btn {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 16px 20px;
+        border-radius: 14px;
+        border: 2px solid transparent;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.18s ease;
+        text-align: left;
+        width: 100%;
+        font-family: inherit;
+    }
+
+        .opcion-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+
+    /* Opción 1: Registrar huella (principal) */
+    .opcion-huella {
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
+        color: #fff;
+    }
+
+        .opcion-huella:hover {
+            background: linear-gradient(135deg, #b91c1c, #991b1b);
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(220,38,38,0.4);
+        }
+
+    /* Opción 2: Ir a clientes */
+    .opcion-lista {
+        background: #f9fafb;
+        border-color: #e5e7eb;
+        color: #374151;
+    }
+
+        .opcion-lista:hover {
+            background: #f3f4f6;
+            border-color: #d1d5db;
+        }
+
+    /* Opción 3: Crear otro */
+    .opcion-nuevo {
+        background: #fff;
+        border-color: #e5e7eb;
+        color: #6b7280;
+    }
+
+        .opcion-nuevo:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+            color: #374151;
+        }
+
+    .opcion-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+    }
+
+    .opcion-huella .opcion-icon {
+        background: rgba(255,255,255,0.2);
+    }
+
+    .opcion-lista .opcion-icon {
+        background: #e5e7eb;
+    }
+
+    .opcion-nuevo .opcion-icon {
+        background: #f3f4f6;
+    }
+
+    .opcion-texto strong {
+        display: block;
+        font-size: 14px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .opcion-texto small {
+        font-size: 12px;
+        opacity: 0.75;
+        font-weight: 500;
+    }
+
+    .opcion-arrow {
+        margin-left: auto;
+        font-size: 18px;
+        opacity: 0.6;
+        flex-shrink: 0;
+    }
+
+    /* Badge Node.js */
+    .node-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: #ecfdf5;
+        border: 1px solid #6ee7b7;
+        color: #065f46;
+        border-radius: 6px;
+        padding: 3px 8px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        margin-top: 4px;
+    }
+
+        .node-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #10b981;
+            display: inline-block;
+        }
+
+    /* ===== ERROR TOAST ===== */
+    #toastError {
+        display: none;
+        position: fixed;
+        top: 24px;
+        right: 24px;
+        z-index: 10000;
+        background: #fff;
+        border: 2px solid #fca5a5;
+        border-left: 5px solid #dc2626;
+        border-radius: 12px;
+        padding: 16px 20px;
+        max-width: 380px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+        animation: slideInToast 0.3s ease;
+    }
+
+        #toastError.show {
+            display: block;
+        }
+
+    @@keyframes slideInToast {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .toast-title {
+        font-weight: 800;
+        color: #dc2626;
+        font-size: 14px;
+        margin-bottom: 4px;
+    }
+
+    .toast-msg {
+        font-size: 13px;
+        color: #374151;
+        font-weight: 500;
+    }
+
+    /* ===== SPINNER EN BOTÓN ===== */
+    .btn-spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255,255,255,0.4);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+        flex-shrink: 0;
+    }
+
+    @@keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+
+<!-- ===================================================
+     MODAL DE ÉXITO — aparece tras crear el cliente
+     =================================================== -->
+<div id="modalExito">
+    <div class="modal-card">
+
+        <div class="modal-header">
+            <div class="modal-checkmark">✓</div>
+            <div class="modal-title">¡Cliente Creado!</div>
+            <div class="modal-subtitle">El registro se guardó correctamente</div>
+            <div class="modal-cliente-nombre" id="modalNombreCliente">—</div>
+        </div>
+
+        <div class="modal-body">
+            <div class="modal-pregunta">
+                ¿Qué deseas hacer ahora?
+                <span>Puedes registrar la huella digital del cliente de inmediato</span>
+            </div>
+
+            <div class="modal-opciones">
+
+                <!-- OPCIÓN 1: Registrar huella (Node.js) — ACCIÓN PRINCIPAL -->
+                <a id="btnRegistrarHuella"
+                   href="#"
+                   target="_blank"
+                   class="opcion-btn opcion-huella">
+                    <div class="opcion-icon">✋</div>
+                    <div class="opcion-texto">
+                        <strong>Registrar Huella Digital</strong>
+                        <small>Abre el sistema biométrico con los datos pre-cargados</small>
+                        <div class="node-badge">Sistema Node.js activo</div>
+                    </div>
+                    <div class="opcion-arrow">→</div>
+                </a>
+
+                <!-- OPCIÓN 2: Ver listado de clientes -->
+                <a href="/clientes" class="opcion-btn opcion-lista">
+                    <div class="opcion-icon">👥</div>
+                    <div class="opcion-texto">
+                        <strong>Ir al Listado de Clientes</strong>
+                        <small>Ver todos los clientes registrados</small>
+                    </div>
+                    <div class="opcion-arrow">→</div>
+                </a>
+
+                <!-- OPCIÓN 3: Crear otro cliente -->
+                <button type="button"
+                        class="opcion-btn opcion-nuevo"
+                        onclick="resetFormulario()">
+                    <div class="opcion-icon">➕</div>
+                    <div class="opcion-texto">
+                        <strong>Crear Otro Cliente</strong>
+                        <small>Registrar un nuevo miembro</small>
+                    </div>
+                    <div class="opcion-arrow">↩</div>
+                </button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================================================
+     TOAST DE ERROR
+     =================================================== -->
+<div id="toastError">
+    <div class="toast-title">❌ Error al crear el cliente</div>
+    <div class="toast-msg" id="toastMensaje">—</div>
+</div>
+
+<!-- ===================================================
+     FORMULARIO PRINCIPAL
+     =================================================== -->
 <div class="max-w-4xl mx-auto">
     <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
+
         <div class="flex items-center gap-4 mb-8 pb-6 border-b-2 border-gray-200">
             <div class="bg-gradient-to-br from-red-600 to-red-800 rounded-xl p-4">
                 <i data-lucide="user-plus" class="w-8 h-8 text-white"></i>
             </div>
             <div>
                 <h2 class="text-3xl font-black text-gray-900 uppercase tracking-wide">Nuevo Cliente</h2>
-                <p class="text-sm text-gray-600 font-semibold mt-1">Complete el formulario. Después podrá registrar su huella digital.</p>
+                <p class="text-sm text-gray-600 font-semibold mt-1">
+                    Complete el formulario. Al guardar podrás registrar la huella digital del cliente.
+                </p>
             </div>
         </div>
 
-        <form asp-action="Crear" method="post" enctype="multipart/form-data" class="space-y-6">
-            @Html.AntiForgeryToken()
-
-            <div class="bg-red-50 border-l-4 border-red-600 rounded-xl p-5">
-                <div class="flex items-start gap-3">
-                    <i data-lucide="alert-circle" class="w-6 h-6 text-red-600 mt-0.5"></i>
-                    <div>
-                        <h4 class="font-black text-red-900 mb-1 uppercase tracking-wide">Campos Obligatorios</h4>
-                        <p class="text-sm text-red-900 font-semibold">
-                            Solo se requieren: <span class="font-black">Nombre, Apellido y Cédula</span>.
-                            Todos los demás campos son opcionales.
-                        </p>
-                    </div>
+        <!-- Aviso campos obligatorios -->
+        <div class="bg-red-50 border-l-4 border-red-600 rounded-xl p-5 mb-6">
+            <div class="flex items-start gap-3">
+                <i data-lucide="alert-circle" class="w-6 h-6 text-red-600 mt-0.5"></i>
+                <div>
+                    <h4 class="font-black text-red-900 mb-1 uppercase tracking-wide">Campos Obligatorios</h4>
+                    <p class="text-sm text-red-900 font-semibold">
+                        Solo se requieren: <span class="font-black">Nombre, Apellido y Cédula</span>.
+                        Todos los demás campos son opcionales.
+                    </p>
                 </div>
             </div>
+        </div>
+
+        <!-- Formulario — SIN asp-action, lo manejamos con AJAX -->
+        <form id="formCrearCliente" class="space-y-6" novalidate>
+            @Html.AntiForgeryToken()
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
                 <div>
-                    <label asp-for="Nombre" class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
+                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
                         Nombre <span class="text-red-600">*</span>
                     </label>
-                    <input asp-for="Nombre"
+                    <input id="inputNombre" name="nombre" type="text"
                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
                            placeholder="Ingrese el nombre"
                            required />
-                    <span asp-validation-for="Nombre" class="text-red-600 text-sm font-bold"></span>
+                    <span class="text-red-600 text-sm font-bold" id="errNombre"></span>
                 </div>
 
                 <div>
-                    <label asp-for="Apellido" class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
+                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
                         Apellido <span class="text-red-600">*</span>
                     </label>
-                    <input asp-for="Apellido"
+                    <input id="inputApellido" name="apellido" type="text"
                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
                            placeholder="Ingrese el apellido"
                            required />
-                    <span asp-validation-for="Apellido" class="text-red-600 text-sm font-bold"></span>
+                    <span class="text-red-600 text-sm font-bold" id="errApellido"></span>
                 </div>
 
                 <div>
-                    <label asp-for="Cedula" class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
+                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
                         Cédula <span class="text-red-600">*</span>
                     </label>
-                    <input asp-for="Cedula"
+                    <input id="inputCedula" name="cedula" type="text"
                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
                            placeholder="Ej: 001-1234567-8"
                            required />
-                    <span asp-validation-for="Cedula" class="text-red-600 text-sm font-bold"></span>
+                    <span class="text-red-600 text-sm font-bold" id="errCedula"></span>
                 </div>
 
                 <div>
-                    <label asp-for="Telefono" class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
+                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
                         Teléfono (Opcional)
                     </label>
-                    <input asp-for="Telefono"
-                           type="tel"
+                    <input id="inputTelefono" name="telefono" type="tel"
                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
                            placeholder="Ej: 809-555-1234" />
-                    <span asp-validation-for="Telefono" class="text-red-600 text-sm font-bold"></span>
                 </div>
 
                 <div>
-                    <label asp-for="Email" class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
+                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
                         Email (Opcional)
                     </label>
-                    <input asp-for="Email"
-                           type="email"
+                    <input id="inputEmail" name="email" type="email"
                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
                            placeholder="cliente@ejemplo.com" />
-                    <span asp-validation-for="Email" class="text-red-600 text-sm font-bold"></span>
                 </div>
 
                 <div>
-                    <label asp-for="FechaNacimiento" class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
+                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
                         Fecha de Nacimiento (Opcional)
                     </label>
-                    <input asp-for="FechaNacimiento"
-                           type="date"
+                    <input id="inputFechaNac" name="fechaNacimiento" type="date"
                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold" />
-                    <span asp-validation-for="FechaNacimiento" class="text-red-600 text-sm font-bold"></span>
                 </div>
             </div>
 
             <div>
-                <label asp-for="Direccion" class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
+                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
                     Dirección (Opcional)
                 </label>
-                <textarea asp-for="Direccion"
-                          rows="2"
+                <textarea id="inputDireccion" name="direccion" rows="2"
                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
                           placeholder="Calle, número, sector, ciudad"></textarea>
-                <span asp-validation-for="Direccion" class="text-red-600 text-sm font-bold"></span>
             </div>
 
+            <!-- Foto -->
             <div>
                 <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
                     Foto del Cliente (Opcional)
@@ -127,32 +530,38 @@
                         <p class="text-xs text-gray-500 mt-2 font-semibold">Formatos: JPG, PNG (máx. 5MB)</p>
                     </div>
                 </div>
-                <input asp-for="FotoBase64" type="hidden" id="fotoBase64Input" />
+                <input type="hidden" id="fotoBase64Input" />
             </div>
 
-            <div class="bg-blue-50 border-l-4 border-blue-600 p-5 rounded-xl">
+            <!-- Info huella -->
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-600 p-5 rounded-xl">
                 <div class="flex items-start gap-3">
-                    <i data-lucide="info" class="w-6 h-6 text-blue-600 mt-0.5"></i>
+                    <i data-lucide="fingerprint" class="w-6 h-6 text-blue-600 mt-0.5"></i>
                     <div>
                         <h4 class="font-black text-blue-900 mb-1 uppercase tracking-wide">Registro de Huella Digital</h4>
                         <p class="text-sm text-blue-900 font-semibold">
-                            Después de crear el cliente, será redirigido automáticamente a la pantalla de captura de huella digital.
+                            Al guardar el cliente, se abrirá una ventana para registrar su huella en el
+                            <strong>sistema biométrico</strong>. Los datos se pre-cargan automáticamente.
                         </p>
                     </div>
                 </div>
             </div>
 
+            <!-- Botones -->
             <div class="flex gap-4 pt-6 border-t-2 border-gray-200">
-                <button type="submit"
+
+                <button type="submit" id="btnGuardar"
                         class="flex-1 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black py-4 px-6 rounded-xl transition-all shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 uppercase tracking-wide transform hover:scale-105">
-                    <i data-lucide="save" class="w-5 h-5"></i>
-                    Crear Cliente y Continuar
+                    <i data-lucide="save" class="w-5 h-5" id="iconGuardar"></i>
+                    <span id="textoGuardar">Crear Cliente</span>
                 </button>
+
                 <a href="/clientes"
-                   class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 font-black py-4 px-6 rounded-xl transition-all text-center flex items-center justify-center gap-2 uppercase tracking-wide">
+                   class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-black py-4 px-6 rounded-xl transition-all text-center flex items-center justify-center gap-2 uppercase tracking-wide">
                     <i data-lucide="x" class="w-5 h-5"></i>
                     Cancelar
                 </a>
+
             </div>
         </form>
     </div>
@@ -162,6 +571,10 @@
     <script>
         lucide.createIcons();
 
+        // URL del sistema Node.js de huellas
+        const NODE_URL = 'http://localhost:3000';
+
+        // ===== FOTO PREVIEW =====
         const fotoInput = document.getElementById('fotoInput');
         const fotoBase64Input = document.getElementById('fotoBase64Input');
         const preview = document.getElementById('foto-preview');
@@ -169,25 +582,185 @@
 
         fotoInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
-            if (file) {
-                if (file.size > 5 * 1024 * 1024) {
-                    alert('La imagen es muy grande. El tamaño máximo es 5MB.');
-                    fotoInput.value = '';
+            if (!file) {
+                previewContainer.classList.add('hidden');
+                fotoBase64Input.value = '';
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                mostrarToastError('La imagen es muy grande. El tamaño máximo es 5MB.');
+                fotoInput.value = '';
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64 = e.target.result;
+                fotoBase64Input.value = base64;
+                preview.src = base64;
+                previewContainer.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // ===== VALIDACIÓN CLIENT-SIDE =====
+        function validarFormulario() {
+            let ok = true;
+
+            const campos = [
+                { id: 'inputNombre',   err: 'errNombre',   msg: 'El nombre es obligatorio.' },
+                { id: 'inputApellido', err: 'errApellido', msg: 'El apellido es obligatorio.' },
+                { id: 'inputCedula',   err: 'errCedula',   msg: 'La cédula es obligatoria.' },
+            ];
+
+            campos.forEach(c => {
+                const input = document.getElementById(c.id);
+                const errEl = document.getElementById(c.err);
+                if (!input.value.trim()) {
+                    errEl.textContent = c.msg;
+                    input.classList.add('border-red-500');
+                    ok = false;
+                } else {
+                    errEl.textContent = '';
+                    input.classList.remove('border-red-500');
+                }
+            });
+
+            return ok;
+        }
+
+        // ===== SUBMIT AJAX =====
+        document.getElementById('formCrearCliente').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            if (!validarFormulario()) return;
+
+            setBtnLoading(true);
+
+            const payload = {
+                nombre:          document.getElementById('inputNombre').value.trim(),
+                apellido:        document.getElementById('inputApellido').value.trim(),
+                cedula:          document.getElementById('inputCedula').value.trim(),
+                telefono:        document.getElementById('inputTelefono').value.trim() || null,
+                email:           document.getElementById('inputEmail').value.trim() || null,
+                fechaNacimiento: document.getElementById('inputFechaNac').value || null,
+                direccion:       document.getElementById('inputDireccion').value.trim() || null,
+                fotoBase64:      document.getElementById('fotoBase64Input').value || null,
+                activo:          true
+            };
+
+            try {
+                const response = await fetch('/api/clientes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.status === 400) {
+                    const txt = await response.text();
+                    mostrarToastError(txt || 'Ya existe un cliente con esa cédula.');
+                    setBtnLoading(false);
                     return;
                 }
 
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const base64 = e.target.result;
-                    fotoBase64Input.value = base64;
-                    preview.src = base64;
-                    previewContainer.classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
-            } else {
-                previewContainer.classList.add('hidden');
-                fotoBase64Input.value = '';
+                if (!response.ok) {
+                    throw new Error(`Error del servidor: ${response.status}`);
+                }
+
+                // ✅ Cliente creado — mostrar modal
+                const cliente = await response.json();
+                mostrarModalExito(cliente);
+
+            } catch (err) {
+                console.error('Error al crear cliente:', err);
+                mostrarToastError(err.message || 'Error inesperado. Intenta de nuevo.');
+            } finally {
+                setBtnLoading(false);
             }
+        });
+
+        // ===== MODAL ÉXITO =====
+        function mostrarModalExito(cliente) {
+            const nombre = `${cliente.Nombre || cliente.nombre} ${cliente.Apellido || cliente.apellido}`;
+            const cedula = cliente.Cedula || cliente.cedula;
+
+            // Nombre en el modal
+            document.getElementById('modalNombreCliente').textContent = nombre;
+
+            // URL del sistema Node.js con datos pre-cargados
+            const nodeUrl = `${NODE_URL}/register?cedula=${encodeURIComponent(cedula)}&nombre=${encodeURIComponent(nombre)}`;
+            document.getElementById('btnRegistrarHuella').href = nodeUrl;
+
+            // Mostrar modal
+            const modal = document.getElementById('modalExito');
+            modal.classList.add('show');
+
+            // Evitar scroll del body
+            document.body.style.overflow = 'hidden';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalExito').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        // Cerrar modal al hacer click en el overlay (fuera de la card)
+        document.getElementById('modalExito').addEventListener('click', function(e) {
+            if (e.target === this) cerrarModal();
+        });
+
+        // ===== RESET FORMULARIO (opción "Crear Otro") =====
+        function resetFormulario() {
+            cerrarModal();
+            document.getElementById('formCrearCliente').reset();
+            fotoBase64Input.value = '';
+            previewContainer.classList.add('hidden');
+            ['errNombre','errApellido','errCedula'].forEach(id => {
+                document.getElementById(id).textContent = '';
+            });
+            ['inputNombre','inputApellido','inputCedula'].forEach(id => {
+                document.getElementById(id).classList.remove('border-red-500');
+            });
+            document.getElementById('inputNombre').focus();
+        }
+
+        // ===== ESTADO DEL BOTÓN =====
+        function setBtnLoading(loading) {
+            const btn    = document.getElementById('btnGuardar');
+            const icono  = document.getElementById('iconGuardar');
+            const texto  = document.getElementById('textoGuardar');
+
+            btn.disabled = loading;
+
+            if (loading) {
+                icono.outerHTML = '<div class="btn-spinner" id="iconGuardar"></div>';
+                texto.textContent = 'Guardando...';
+            } else {
+                const spinnerEl = document.getElementById('iconGuardar');
+                if (spinnerEl) {
+                    spinnerEl.outerHTML = '<i data-lucide="save" class="w-5 h-5" id="iconGuardar"></i>';
+                    lucide.createIcons();
+                }
+                texto.textContent = 'Crear Cliente';
+            }
+        }
+
+        // ===== TOAST DE ERROR =====
+        let toastTimer = null;
+
+        function mostrarToastError(msg) {
+            document.getElementById('toastMensaje').textContent = msg;
+            const toast = document.getElementById('toastError');
+            toast.classList.add('show');
+
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.remove('show'), 5000);
+        }
+
+        // Limpiar errores al tipear
+        ['inputNombre','inputApellido','inputCedula'].forEach(id => {
+            document.getElementById(id).addEventListener('input', function() {
+                this.classList.remove('border-red-500');
+            });
         });
     </script>
 }
