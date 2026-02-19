@@ -59,16 +59,15 @@
         <!-- Efectivo -->
         <div class="bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-2xl shadow-xl p-6 text-white">
             <div class="flex items-center justify-between mb-4">
-                <p class="text-emerald-200 font-bold uppercase text-xs tracking-widest">Efectivo en Caja</p>
+                <p class="text-emerald-200 font-bold uppercase text-xs tracking-widest">Efectivo en Caja Fuerte</p>
                 <div class="w-10 h-10 bg-emerald-500/50 rounded-full flex items-center justify-center">
                     <i data-lucide="banknote" class="w-5 h-5 text-white"></i>
                 </div>
             </div>
-            <p class="text-4xl font-black" id="balance-efectivo">$0.00</p>
-            <div class="mt-3 pt-3 border-t border-emerald-500/50 flex justify-between text-xs text-emerald-200">
-                <span>↑ Ingresos hoy: <span id="ing-ef-hoy" class="font-bold text-white">$0</span></span>
-                <span>↓ Egresos hoy: <span id="egr-ef-hoy" class="font-bold text-white">$0</span></span>
-            </div>
+            <p class="text-4xl font-black" id="balance-efectivo">$0</p>
+            <p class="mt-3 pt-3 border-t border-emerald-500/50 text-xs text-emerald-200">
+                Dinero físico acumulado de cierres y ajustes
+            </p>
         </div>
 
         <!-- Transferencias -->
@@ -79,11 +78,10 @@
                     <i data-lucide="credit-card" class="w-5 h-5 text-white"></i>
                 </div>
             </div>
-            <p class="text-4xl font-black" id="balance-transferencias">$0.00</p>
-            <div class="mt-3 pt-3 border-t border-blue-500/50 flex justify-between text-xs text-blue-200">
-                <span>↑ Ingresos hoy: <span id="ing-tr-hoy" class="font-bold text-white">$0</span></span>
-                <span>↓ Egresos hoy: <span id="egr-tr-hoy" class="font-bold text-white">$0</span></span>
-            </div>
+            <p class="text-4xl font-black" id="balance-transferencias">$0</p>
+            <p class="mt-3 pt-3 border-t border-blue-500/50 text-xs text-blue-200">
+                Registro contable de pagos por transferencia
+            </p>
         </div>
 
         <!-- Total -->
@@ -94,11 +92,10 @@
                     <i data-lucide="vault" class="w-5 h-5 text-white"></i>
                 </div>
             </div>
-            <p class="text-4xl font-black" id="balance-total">$0.00</p>
-            <div class="mt-3 pt-3 border-t border-amber-400/50 flex justify-between text-xs text-amber-100">
-                <span>Ingresos mes: <span id="ing-mes" class="font-bold text-white">$0</span></span>
-                <span>Egresos mes: <span id="egr-mes" class="font-bold text-white">$0</span></span>
-            </div>
+            <p class="text-4xl font-black" id="balance-total">$0</p>
+            <p class="mt-3 pt-3 border-t border-amber-400/50 text-xs text-amber-100">
+                Efectivo + Transferencias acumulados
+            </p>
         </div>
     </div>
 
@@ -512,34 +509,32 @@
         }
 
         // =========================================================
-        // DASHBOARD
+        // BALANCES (reemplaza al dashboard)
         // =========================================================
         async function cargarDashboard() {
+            // Alias para compatibilidad - llama a cargarBalances
+            return cargarBalances();
+        }
+
+        async function cargarBalances() {
             try {
-                const res = await fetch('/api/cajafuerte/dashboard');
+                const res = await fetch('/api/cajafuerte/balances');
                 const data = await res.json();
                 if (!data.success) return;
 
-                balanceEfectivoActual = data.balances.efectivo;
+                balanceEfectivoActual = data.efectivo;
 
-                document.getElementById('balance-efectivo').textContent = fmt(data.balances.efectivo);
-                document.getElementById('balance-transferencias').textContent = fmt(data.balances.transferencias);
-                document.getElementById('balance-total').textContent = fmt(data.balances.total);
-                document.getElementById('ultima-actualizacion').textContent = fmtFecha(data.balances.ultimaActualizacion);
-
-                document.getElementById('ing-ef-hoy').textContent = fmt(data.hoy.efectivo.ingresos);
-                document.getElementById('egr-ef-hoy').textContent = fmt(data.hoy.efectivo.egresos);
-                document.getElementById('ing-tr-hoy').textContent = fmt(data.hoy.transferencias.ingresos);
-                document.getElementById('egr-tr-hoy').textContent = fmt(data.hoy.transferencias.egresos);
-                document.getElementById('ing-mes').textContent = fmt(data.mes.totalIngresos);
-                document.getElementById('egr-mes').textContent = fmt(data.mes.totalEgresos);
+                document.getElementById('balance-efectivo').textContent = fmt(data.efectivo);
+                document.getElementById('balance-transferencias').textContent = fmt(data.transferencias);
+                document.getElementById('balance-total').textContent = fmt(data.total);
+                document.getElementById('ultima-actualizacion').textContent = fmtFecha(data.ultimaActualizacion);
 
                 // Actualizar disponible en modal transferencia
-                document.getElementById('disp-efectivo-transfer').textContent = fmt(data.balances.efectivo);
+                document.getElementById('disp-efectivo-transfer').textContent = fmt(data.efectivo);
 
                 lucide.createIcons();
             } catch (e) {
-                console.error('Error cargando dashboard CF:', e);
+                console.error('Error cargando balances CF:', e);
             }
         }
 
@@ -635,20 +630,36 @@
                                         <th class="px-4 py-2 text-left">Categoría</th>
                                         <th class="px-4 py-2 text-right">Monto</th>
                                         <th class="px-4 py-2 text-center">Hora</th>
+                                        <th class="px-4 py-2 text-center">Acción</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-50">`;
 
-                    for (const m of dia.movimientos) {
+                    for (const _m of dia.movimientos) {
+                        // Normalizar PascalCase → camelCase (el backend puede enviar ambos)
+                        const m = {
+                            id:           (_m.Id          ?? _m.id          ?? '').toString(),
+                            tipo:         (_m.Tipo        ?? _m.tipo        ?? '').toLowerCase(),
+                            origen:       (_m.Origen      ?? _m.origen      ?? ''),
+                            origenLabel:  (_m.origenLabel ?? _m.OrigenLabel ?? ''),
+                            metodoPago:   (_m.MetodoPago  ?? _m.metodoPago  ?? '').toLowerCase(),
+                            monto:        (_m.Monto       ?? _m.monto       ?? 0),
+                            descripcion:  (_m.Descripcion ?? _m.descripcion ?? ''),
+                            categoria:    (_m.Categoria   ?? _m.categoria   ?? null),
+                            fecha:        (_m.fecha       ?? _m.Fecha       ?? ''),
+                            esCierreCaja: (_m.esCierreCaja ?? false),
+                            cierreCajaId: (_m.cierreCajaId ?? _m.CierreCajaId ?? null),
+                        };
                         const esIngreso = m.tipo === 'ingreso';
                         const tipoClass = esIngreso ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700';
                         const metodoClass = m.metodoPago === 'efectivo' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700';
                         const metodoIcon = m.metodoPago === 'efectivo' ? 'banknote' : 'credit-card';
                         const montoClass = esIngreso ? 'text-emerald-700 font-black' : 'text-red-600 font-black';
                         const hora = new Date(m.fecha).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+                        const detalleId = `detalle-cierre-${m.id.replace(/-/g,'').substring(0,8)}`;
 
                         html += `
-                                    <tr class="hover:bg-gray-50/70 transition-all">
+                                    <tr class="hover:bg-amber-50/40 transition-all ${m.esCierreCaja ? 'border-l-4 border-amber-400' : ''}">
                                         <td class="px-4 py-3">
                                             <span class="px-2 py-1 rounded-lg text-xs font-bold ${tipoClass}">
                                                 ${esIngreso ? '↑ INGRESO' : '↓ EGRESO'}
@@ -663,7 +674,7 @@
                                                 ${m.metodoPago === 'efectivo' ? 'Efectivo' : 'Transferencia'}
                                             </span>
                                         </td>
-                                        <td class="px-4 py-3 text-gray-700 text-xs max-w-[200px] truncate" title="${m.descripcion || ''}">
+                                        <td class="px-4 py-3 text-gray-700 text-xs max-w-[180px] truncate" title="${m.descripcion || ''}">
                                             ${m.descripcion || '—'}
                                         </td>
                                         <td class="px-4 py-3 text-gray-500 text-xs">
@@ -673,14 +684,46 @@
                                             ${esIngreso ? '+' : '-'}${fmt(m.monto)}
                                         </td>
                                         <td class="px-4 py-3 text-center text-xs text-gray-400 font-mono">${hora}</td>
-                                    </tr>`;
+                                        <td class="px-4 py-3 text-center">
+                                            ${m.esCierreCaja
+                                                ? `<button onclick="toggleDetalleCierre('${detalleId}', '${m.id}')"
+                                                    class="px-2 py-1 text-xs font-bold text-amber-700 bg-amber-50 border border-amber-300 hover:bg-amber-100 rounded-lg transition-all flex items-center gap-1"
+                                                    id="btn-${detalleId}"
+                                                    data-cierre-id="${m.cierreCajaId || ''}"
+                                                    title="Ver ventas del día">
+                                                    <i data-lucide="receipt-text" class="w-3 h-3"></i> Ver ventas
+                                                </button>`
+                                                : `<button onclick="eliminarMovimiento('${m.id}', '${(m.descripcion || 'Sin descripcion').replace(/'/g, '')}')"
+                                                    class="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-all" title="Eliminar">
+                                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                                </button>`
+                                            }
+                                        </td>
+                                    </tr>
+                                    ${m.esCierreCaja ? `
+                                    <tr id="${detalleId}" class="hidden">
+                                        <td colspan="8" class="px-0 py-0 bg-amber-50/30">
+                                            <div class="border-t border-amber-200 px-6 py-4">
+                                                <p class="text-xs font-black text-amber-800 uppercase mb-3 flex items-center gap-2">
+                                                    <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+                                                    Detalle de ventas del día (Caja Diaria)
+                                                </p>
+                                                <div id="contenido-${detalleId}" class="text-xs text-gray-500">
+                                                    <div class="flex items-center gap-2">
+                                                        <div class="animate-spin w-3 h-3 border-2 border-amber-500 border-t-transparent rounded-full"></div>
+                                                        Cargando...
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>` : ''}`;
                     }
 
                     html += `
                                 </tbody>
                                 <tfoot>
                                     <tr class="bg-gray-50 border-t-2 border-gray-200">
-                                        <td colspan="5" class="px-4 py-2 text-xs font-black text-gray-600 uppercase">Totales del día</td>
+                                        <td colspan="6" class="px-4 py-2 text-xs font-black text-gray-600 uppercase">Totales del día</td>
                                         <td class="px-4 py-2 text-right">
                                             <span class="text-xs text-emerald-600 font-bold block">+${fmt(dia.totalIngresos)}</span>
                                             <span class="text-xs text-red-600 font-bold block">-${fmt(dia.totalEgresos)}</span>
@@ -1018,6 +1061,178 @@
             }
         }
 
+        // =========================================================
+        // DETALLE DE VENTAS DEL DÍA (desde Caja Diaria por CierreCajaId)
+        // =========================================================
+        const _detalleCierreCache = {}; // evitar recargar si ya se cargó
+
+        async function toggleDetalleCierre(detalleId, movimientoId) {
+            const fila = document.getElementById(detalleId);
+            const btn  = document.getElementById(`btn-${detalleId}`);
+            if (!fila) return;
+
+            const estaOculto = fila.classList.contains('hidden');
+            fila.classList.toggle('hidden');
+            lucide.createIcons();
+
+            if (!estaOculto) {
+                // Se está ocultando, nada más que hacer
+                btn.innerHTML = '<i data-lucide="receipt-text" class="w-3 h-3"></i> Ver ventas';
+                lucide.createIcons();
+                return;
+            }
+
+            btn.innerHTML = '<i data-lucide="chevron-up" class="w-3 h-3"></i> Ocultar';
+            lucide.createIcons();
+
+            // Si ya cargamos este cierre, no volver a pedir
+            if (_detalleCierreCache[movimientoId]) {
+                renderDetalleVentas(detalleId, _detalleCierreCache[movimientoId]);
+                return;
+            }
+
+            // Buscar el CierreCajaId relacionado al MovimientoCajaFuerte
+            // El movimiento de CF tiene CierreCajaId = al cierre que originó este movimiento.
+            // Pero en el API de movimientos CF solo tenemos el Id del mov CF, no el CierreCajaId directamente.
+            // Solución: usar la descripción que contiene la fecha, o mejor: llamar a movimientos-diarios
+            // con el id del movimiento CF para que el backend resuelva el CierreCajaId.
+            // Como el endpoint acepta cierreId, necesitamos el CierreCajaId.
+            // Lo resolvemos llamando a /api/cajafuerte/movimientos-diarios?cierreId= con el id del cierre
+            // que viene en m.cierreCajaId (añadido abajo en el render)
+            // NOTA: movimientoId aquí es el Id del MovimientoCajaFuerte (m.Id del CF).
+            // En el render añadimos m.cierreCajaId como atributo data-* en el botón.
+            const cierreId = btn.dataset.cierreId;
+            if (!cierreId) {
+                renderDetalleVentas(detalleId, null, 'No se encontró el ID del cierre');
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/cajafuerte/movimientos-diarios?cierreId=${cierreId}`);
+                const data = await res.json();
+                _detalleCierreCache[movimientoId] = data;
+                renderDetalleVentas(detalleId, data);
+            } catch (e) {
+                renderDetalleVentas(detalleId, null, 'Error al cargar ventas');
+            }
+        }
+
+        function renderDetalleVentas(detalleId, data, errorMsg = null) {
+            const container = document.getElementById(`contenido-${detalleId}`);
+            if (!container) return;
+
+            if (errorMsg || !data || !data.success) {
+                container.innerHTML = `<p class="text-red-500 text-xs font-semibold">${errorMsg || 'Sin datos'}</p>`;
+                return;
+            }
+
+            if (!data.data || data.data.length === 0) {
+                container.innerHTML = '<p class="text-gray-400 text-xs italic">No se encontraron movimientos de caja diaria para este cierre.</p>';
+                return;
+            }
+
+            const catMap = {
+                membresia: 'Membresía', renovacion: 'Renovación', producto: 'Producto',
+                abono_deuda: 'Abono Deuda', transferencia_cajafuerte: 'Desde Caja Fuerte',
+                otro: 'Otro'
+            };
+
+            let html = `
+            <div class="overflow-x-auto rounded-xl border border-amber-200">
+                <table class="w-full text-xs">
+                    <thead>
+                        <tr class="bg-amber-100 text-amber-800 font-black uppercase">
+                            <th class="px-3 py-2 text-left">Tipo</th>
+                            <th class="px-3 py-2 text-left">Categoría</th>
+                            <th class="px-3 py-2 text-left">Método</th>
+                            <th class="px-3 py-2 text-left">Descripción</th>
+                            <th class="px-3 py-2 text-right">Monto</th>
+                            <th class="px-3 py-2 text-center">Hora</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-amber-100 bg-white">`;
+
+            for (const _v of data.data) {
+                // Normalizar PascalCase → camelCase
+                const v = {
+                    tipo:       (_v.Tipo       ?? _v.tipo       ?? '').toLowerCase(),
+                    monto:      (_v.Monto      ?? _v.monto      ?? 0),
+                    descripcion:(_v.Descripcion?? _v.descripcion?? ''),
+                    categoria:  (_v.Categoria  ?? _v.categoria  ?? null),
+                    metodoPago: (_v.MetodoPago ?? _v.metodoPago ?? '').toLowerCase(),
+                    fecha:      (_v.Fecha      ?? _v.fecha      ?? ''),
+                };
+                const esIng = v.tipo === 'ingreso';
+                const montoClass = esIng ? 'text-emerald-700 font-black' : 'text-red-600 font-black';
+                const tipoClass  = esIng ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700';
+                const metClass   = v.metodoPago === 'efectivo' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700';
+                const hora = new Date(v.fecha).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+                const cat  = catMap[v.categoria] || v.categoria || '—';
+
+                html += `
+                        <tr class="hover:bg-amber-50/50">
+                            <td class="px-3 py-2">
+                                <span class="px-1.5 py-0.5 rounded font-bold ${tipoClass}">${esIng ? '↑ Ingreso' : '↓ Egreso'}</span>
+                            </td>
+                            <td class="px-3 py-2 text-gray-600">${cat}</td>
+                            <td class="px-3 py-2">
+                                <span class="px-1.5 py-0.5 rounded font-bold ${metClass}">${v.metodoPago === 'efectivo' ? 'Efectivo' : 'Transferencia'}</span>
+                            </td>
+                            <td class="px-3 py-2 text-gray-700 max-w-[220px] truncate" title="${v.descripcion || ''}">${v.descripcion || '—'}</td>
+                            <td class="px-3 py-2 text-right ${montoClass}">${esIng ? '+' : '-'}${fmt(v.monto)}</td>
+                            <td class="px-3 py-2 text-center text-gray-400 font-mono">${hora}</td>
+                        </tr>`;
+            }
+
+            html += `
+                    </tbody>
+                    <tfoot>
+                        <tr class="bg-amber-50 font-black text-amber-800">
+                            <td colspan="4" class="px-3 py-2 text-xs uppercase">Totales del cierre</td>
+                            <td class="px-3 py-2 text-right text-xs">
+                                <span class="block text-emerald-700">+${fmt(data.totalIngresos)}</span>
+                                <span class="block text-red-600">-${fmt(data.totalEgresos)}</span>
+                            </td>
+                            <td class="px-3 py-2 text-center text-xs font-black ${data.balance >= 0 ? 'text-emerald-700' : 'text-red-600'}">
+                                ${data.balance >= 0 ? '+' : ''}${fmt(data.balance)}
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>`;
+
+            container.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        // =========================================================
+        // ELIMINAR MOVIMIENTO
+        // =========================================================
+        async function eliminarMovimiento(id, descripcion) {
+            if (!confirm(`¿Eliminar el movimiento "${descripcion}"?\nEsta acción revertirá el monto del balance.`)) return;
+
+            const motivo = prompt('Motivo de eliminación (opcional):') || 'Sin motivo especificado';
+
+            try {
+                const res = await fetch(`/api/cajafuerte/movimientos/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ motivo })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    showToast('Movimiento eliminado y balance actualizado', 'success');
+                    cargarDashboard();
+                    cargarMovimientos();
+                } else {
+                    showToast(data.message || 'Error al eliminar', 'error');
+                }
+            } catch (e) {
+                showToast('Error de conexión al eliminar', 'error');
+            }
+        }
+
         async function consolidarMes() {
             const mes = parseInt(document.getElementById('consolidar-mes').value);
             const anio = parseInt(document.getElementById('consolidar-anio').value);
@@ -1136,4 +1351,3 @@
         }
     </script>
 }
-    

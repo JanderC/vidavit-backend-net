@@ -12,11 +12,14 @@ namespace VidaFit.Controllers.API
     {
         private readonly AppDbContext _context;
         private readonly ILogger<CajaController> _logger;
+        // ✅ Inyectar CajaFuerteController para llamar directamente sin HTTP interno
+        private readonly CajaFuerteController _cajaFuerteController;
 
-        public CajaController(AppDbContext context, ILogger<CajaController> logger)
+        public CajaController(AppDbContext context, ILogger<CajaController> logger, CajaFuerteController cajaFuerteController)
         {
             _context = context;
             _logger = logger;
+            _cajaFuerteController = cajaFuerteController;
         }
 
         /// <summary>
@@ -878,33 +881,28 @@ namespace VidaFit.Controllers.API
 
                 await _context.SaveChangesAsync();
 
-                // Enviar a Caja Fuerte si hay dinero para transferir
-                if (efectivoACajaFuerte > 0 || (ingresosTransferencia - egresosTransferencia) > 0)
+                // ✅ CORRECCIÓN: Llamar directamente al método interno de CajaFuerteController
+                // en vez de hacer HTTP a sí mismo (que puede fallar por HTTPS/localhost)
+                var montoTransferenciaNetoACF = ingresosTransferencia - egresosTransferencia;
+                if (efectivoACajaFuerte > 0 || montoTransferenciaNetoACF > 0)
                 {
                     try
                     {
-                        var cajaFuerteRequest = new RecibirDesdeCajaRequest
-                        {
-                            MontoEfectivo = efectivoACajaFuerte,
-                            MontoTransferencia = ingresosTransferencia - egresosTransferencia,
-                            FechaCierre = fechaCierre,
-                            CierreCajaId = cierre.Id
-                        };
-
-                        var httpClient = new HttpClient();
-                        var response = await httpClient.PostAsJsonAsync(
-                            $"{Request.Scheme}://{Request.Host}/api/cajafuerte/recibir-desde-caja",
-                            cajaFuerteRequest
+                        var enviado = await _cajaFuerteController.RecibirDesdeCajaInternoAsync(
+                            montoEfectivo: efectivoACajaFuerte,
+                            montoTransferencia: montoTransferenciaNetoACF,
+                            fechaCierre: fechaCierre,
+                            cierreCajaId: cierre.Id
                         );
 
-                        if (!response.IsSuccessStatusCode)
-                        {
-                            _logger.LogWarning($"No se pudo enviar dinero a Caja Fuerte: {response.StatusCode}");
-                        }
+                        if (enviado)
+                            _logger.LogInformation($"✅ Dinero enviado a Caja Fuerte: Efectivo=${efectivoACajaFuerte}, Transferencias={montoTransferenciaNetoACF}");
+                        else
+                            _logger.LogWarning($"⚠️ El cierre {cierre.Id} no pudo enviarse a Caja Fuerte (posible duplicado)");
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Error al enviar dinero a Caja Fuerte");
+                        _logger.LogError(ex, "Error al enviar dinero a Caja Fuerte desde cierre");
                     }
                 }
 
@@ -1052,12 +1050,5 @@ namespace VidaFit.Controllers.API
             public decimal Monto { get; set; }
         }
 
-        public class RecibirDesdeCajaRequest
-        {
-            public decimal MontoEfectivo { get; set; }
-            public decimal MontoTransferencia { get; set; }
-            public DateTime FechaCierre { get; set; }
-            public Guid CierreCajaId { get; set; }
-        }
     }
 }

@@ -46,7 +46,7 @@ namespace VidaFit.Controllers.API
             return Convert.ToBase64String(hash);
         }
 
-        private async Task<CajaFuerte> ObtenerOCrearCajaFuerteAsync()
+        public async Task<CajaFuerte> ObtenerOCrearCajaFuerteAsync()
         {
             var cajaFuerte = await _context.CajasFuertes.FirstOrDefaultAsync();
 
@@ -90,6 +90,85 @@ namespace VidaFit.Controllers.API
             }
 
             return config;
+        }
+
+        // ✅ MÉTODO PÚBLICO para que CajaController lo llame directamente
+        // Recibe el monto neto de efectivo y transferencias de un cierre y lo acredita a Caja Fuerte
+        public async Task<bool> RecibirDesdeCajaInternoAsync(
+            decimal montoEfectivo, decimal montoTransferencia,
+            DateTime fechaCierre, Guid cierreCajaId)
+        {
+            try
+            {
+                var cajaFuerte = await ObtenerOCrearCajaFuerteAsync();
+                var usuarioId = await ObtenerUsuarioSistemaAsync();
+
+                // Verificar duplicado
+                var yaExiste = await _context.MovimientosCajaFuerte
+                    .AnyAsync(m => m.CierreCajaId == cierreCajaId && m.Origen == "cierre_caja");
+
+                if (yaExiste)
+                {
+                    _logger.LogWarning($"El cierre {cierreCajaId} ya fue procesado en Caja Fuerte");
+                    return false;
+                }
+
+                int creados = 0;
+
+                if (montoEfectivo > 0)
+                {
+                    _context.MovimientosCajaFuerte.Add(new MovimientoCajaFuerte
+                    {
+                        Id = Guid.NewGuid(),
+                        Tipo = "ingreso",
+                        Origen = "cierre_caja",
+                        MetodoPago = "efectivo",
+                        Monto = montoEfectivo,
+                        Descripcion = $"Cierre de caja del {fechaCierre:dd/MM/yyyy} - Efectivo",
+                        CierreCajaId = cierreCajaId,
+                        UsuarioId = usuarioId,
+                        Fecha = fechaCierre == default ? DateTime.Now : fechaCierre,
+                        CreatedAt = DateTime.Now
+                    });
+                    cajaFuerte.BalanceEfectivo += montoEfectivo;
+                    creados++;
+                }
+
+                if (montoTransferencia > 0)
+                {
+                    _context.MovimientosCajaFuerte.Add(new MovimientoCajaFuerte
+                    {
+                        Id = Guid.NewGuid(),
+                        Tipo = "ingreso",
+                        Origen = "cierre_caja",
+                        MetodoPago = "transferencia",
+                        Monto = montoTransferencia,
+                        Descripcion = $"Cierre de caja del {fechaCierre:dd/MM/yyyy} - Transferencias",
+                        CierreCajaId = cierreCajaId,
+                        UsuarioId = usuarioId,
+                        Fecha = fechaCierre == default ? DateTime.Now : fechaCierre,
+                        CreatedAt = DateTime.Now
+                    });
+                    cajaFuerte.BalanceTransferencias += montoTransferencia;
+                    creados++;
+                }
+
+                cajaFuerte.BalanceTotal = cajaFuerte.BalanceEfectivo + cajaFuerte.BalanceTransferencias;
+                cajaFuerte.UltimaActualizacion = DateTime.Now;
+                cajaFuerte.UpdatedAt = DateTime.Now;
+
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation(
+                    $"✅ Cierre recibido en Caja Fuerte | Efectivo: ${montoEfectivo} | Transferencias: ${montoTransferencia} | Balance total: ${cajaFuerte.BalanceTotal} | Movimientos creados: {creados}");
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error en RecibirDesdeCajaInternoAsync");
+                return false;
+            }
         }
 
         private static string ObtenerNombreMes(int mes) => mes switch
@@ -176,78 +255,131 @@ namespace VidaFit.Controllers.API
         }
 
         // =============================================
-        // DASHBOARD
+        // BALANCES (reemplaza al dashboard eliminado)
         // =============================================
 
-        [HttpGet("dashboard")]
-        public async Task<IActionResult> GetDashboard()
+        /// <summary>
+        /// Devuelve solo los balances acumulados de la Caja Fuerte.
+        /// Endpoint: GET /api/cajafuerte/balances
+        /// </summary>
+        [HttpGet("balances")]
+        public async Task<IActionResult> GetBalances()
         {
             try
             {
                 var cajaFuerte = await ObtenerOCrearCajaFuerteAsync();
 
-                var hoy = DateTime.Now.Date;
-                var primerDiaMes = new DateTime(hoy.Year, hoy.Month, 1);
-
-                // Movimientos del mes actual (en memoria, comparando fecha local)
-                var todosMovimientos = await _context.MovimientosCajaFuerte.ToListAsync();
-
-                var movimientosMes = todosMovimientos
-                    .Where(m => m.Fecha.ToLocalTime().Date >= primerDiaMes && m.Fecha.ToLocalTime().Date <= hoy)
-                    .ToList();
-
-                var movimientosHoy = todosMovimientos
-                    .Where(m => m.Fecha.ToLocalTime().Date == hoy)
-                    .ToList();
-
                 return Ok(new
                 {
                     success = true,
-                    balances = new
-                    {
-                        efectivo = cajaFuerte.BalanceEfectivo,
-                        transferencias = cajaFuerte.BalanceTransferencias,
-                        total = cajaFuerte.BalanceTotal,
-                        ultimaActualizacion = cajaFuerte.UltimaActualizacion
-                    },
-                    hoy = new
-                    {
-                        efectivo = new
-                        {
-                            ingresos = movimientosHoy.Where(m => m.Tipo == "ingreso" && m.MetodoPago == "efectivo").Sum(m => m.Monto),
-                            egresos = movimientosHoy.Where(m => m.Tipo == "egreso" && m.MetodoPago == "efectivo").Sum(m => m.Monto)
-                        },
-                        transferencias = new
-                        {
-                            ingresos = movimientosHoy.Where(m => m.Tipo == "ingreso" && m.MetodoPago == "transferencia").Sum(m => m.Monto),
-                            egresos = movimientosHoy.Where(m => m.Tipo == "egreso" && m.MetodoPago == "transferencia").Sum(m => m.Monto)
-                        },
-                        totalIngresos = movimientosHoy.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto),
-                        totalEgresos = movimientosHoy.Where(m => m.Tipo == "egreso").Sum(m => m.Monto),
-                        cantidad = movimientosHoy.Count
-                    },
-                    mes = new
-                    {
-                        efectivo = new
-                        {
-                            ingresos = movimientosMes.Where(m => m.Tipo == "ingreso" && m.MetodoPago == "efectivo").Sum(m => m.Monto),
-                            egresos = movimientosMes.Where(m => m.Tipo == "egreso" && m.MetodoPago == "efectivo").Sum(m => m.Monto)
-                        },
-                        transferencias = new
-                        {
-                            ingresos = movimientosMes.Where(m => m.Tipo == "ingreso" && m.MetodoPago == "transferencia").Sum(m => m.Monto),
-                            egresos = movimientosMes.Where(m => m.Tipo == "egreso" && m.MetodoPago == "transferencia").Sum(m => m.Monto)
-                        },
-                        totalIngresos = movimientosMes.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto),
-                        totalEgresos = movimientosMes.Where(m => m.Tipo == "egreso").Sum(m => m.Monto),
-                        cantidad = movimientosMes.Count
-                    }
+                    efectivo = cajaFuerte.BalanceEfectivo,
+                    transferencias = cajaFuerte.BalanceTransferencias,
+                    total = cajaFuerte.BalanceTotal,
+                    ultimaActualizacion = cajaFuerte.UltimaActualizacion
                 });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al obtener dashboard de Caja Fuerte");
-                return StatusCode(500, new { success = false, message = "Error al obtener dashboard" });
+                _logger.LogError(ex, "Error al obtener balances de Caja Fuerte");
+                return StatusCode(500, new { success = false, message = "Error al obtener balances" });
+            }
+        }
+
+        // =============================================
+        // MOVIMIENTOS DE CAJA DIARIA (detalle de ventas)
+        // =============================================
+
+        /// <summary>
+        /// Devuelve los movimientos de Caja Diaria (ventas reales) para un rango de fechas o por cierre.
+        /// Se usa para mostrar el detalle de lo vendido dentro del acordeón de cada cierre en Caja Fuerte.
+        /// Endpoint: GET /api/cajafuerte/movimientos-diarios?desde=&hasta=
+        ///           GET /api/cajafuerte/movimientos-diarios?cierreId=
+        /// </summary>
+        [HttpGet("movimientos-diarios")]
+        public async Task<IActionResult> GetMovimientosDiarios(
+            [FromQuery] string? desde = null,
+            [FromQuery] string? hasta = null,
+            [FromQuery] Guid? cierreId = null)
+        {
+            try
+            {
+                var query = _context.MovimientosCaja.AsQueryable();
+
+                if (cierreId.HasValue)
+                {
+                    // Filtrar exactamente por CierreCajaId
+                    query = query.Where(m => m.CierreCajaId == cierreId.Value);
+                }
+                else
+                {
+                    // Filtrar por rango de fechas en memoria
+                    var todos = await query.ToListAsync();
+
+                    if (!string.IsNullOrEmpty(desde))
+                    {
+                        var fechaDesde = DateTime.Parse(desde).Date;
+                        todos = todos.Where(m => m.Fecha.ToLocalTime().Date >= fechaDesde).ToList();
+                    }
+                    if (!string.IsNullOrEmpty(hasta))
+                    {
+                        var fechaHasta = DateTime.Parse(hasta).Date;
+                        todos = todos.Where(m => m.Fecha.ToLocalTime().Date <= fechaHasta).ToList();
+                    }
+
+                    var totalIngresos = todos.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto);
+                    var totalEgresos = todos.Where(m => m.Tipo == "egreso").Sum(m => m.Monto);
+
+                    return Ok(new
+                    {
+                        success = true,
+                        cantidad = todos.Count,
+                        totalIngresos,
+                        totalEgresos,
+                        balance = totalIngresos - totalEgresos,
+                        data = todos.OrderBy(m => m.Fecha).Select(m => new
+                        {
+                            m.Id,
+                            m.Tipo,
+                            categoria = m.Categoria,
+                            m.Monto,
+                            m.Descripcion,
+                            metodoPago = m.MetodoPago,
+                            fecha = m.Fecha.ToLocalTime().ToString("yyyy-MM-ddTHH:mm:ss"),
+                            m.Cerrado,
+                            cierreCajaId = m.CierreCajaId
+                        })
+                    });
+                }
+
+                var movs = await query.OrderBy(m => m.Fecha).ToListAsync();
+                var ingr = movs.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto);
+                var egr = movs.Where(m => m.Tipo == "egreso").Sum(m => m.Monto);
+
+                return Ok(new
+                {
+                    success = true,
+                    cantidad = movs.Count,
+                    totalIngresos = ingr,
+                    totalEgresos = egr,
+                    balance = ingr - egr,
+                    data = movs.Select(m => new
+                    {
+                        m.Id,
+                        m.Tipo,
+                        categoria = m.Categoria,
+                        m.Monto,
+                        m.Descripcion,
+                        metodoPago = m.MetodoPago,
+                        fecha = m.Fecha.ToLocalTime().ToString("yyyy-MM-ddTHH:mm:ss"),
+                        m.Cerrado,
+                        cierreCajaId = m.CierreCajaId
+                    })
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener movimientos diarios para Caja Fuerte");
+                return StatusCode(500, new { success = false, message = "Error al obtener movimientos diarios" });
             }
         }
 
@@ -255,9 +387,6 @@ namespace VidaFit.Controllers.API
         // MOVIMIENTOS - LISTADO CON FILTROS
         // =============================================
 
-        /// <summary>
-        /// Obtener movimientos con filtros: diario, semanal, mensual o rango personalizado
-        /// </summary>
         [HttpGet("movimientos")]
         public async Task<IActionResult> GetMovimientos(
             [FromQuery] string vista = "mensual",
@@ -272,7 +401,6 @@ namespace VidaFit.Controllers.API
                 var fechaBase = (fecha ?? DateTime.Now).ToLocalTime().Date;
                 DateTime fechaDesde, fechaHasta;
 
-                // Si se especifica rango personalizado, tiene prioridad
                 if (desde.HasValue && hasta.HasValue)
                 {
                     fechaDesde = desde.Value.Date;
@@ -300,7 +428,6 @@ namespace VidaFit.Controllers.API
                     }
                 }
 
-                // Obtener todos y filtrar en memoria (para manejar UTC/Local correctamente)
                 var query = await _context.MovimientosCajaFuerte.ToListAsync();
 
                 var movimientosFiltrados = query
@@ -311,14 +438,12 @@ namespace VidaFit.Controllers.API
                     })
                     .ToList();
 
-                // Aplicar filtros adicionales
                 if (!string.IsNullOrEmpty(tipo))
                     movimientosFiltrados = movimientosFiltrados.Where(m => m.Tipo == tipo).ToList();
 
                 if (!string.IsNullOrEmpty(metodoPago))
                     movimientosFiltrados = movimientosFiltrados.Where(m => m.MetodoPago == metodoPago).ToList();
 
-                // Calcular totales
                 var ingresosEfectivo = movimientosFiltrados.Where(m => m.Tipo == "ingreso" && m.MetodoPago == "efectivo").Sum(m => m.Monto);
                 var egresosEfectivo = movimientosFiltrados.Where(m => m.Tipo == "egreso" && m.MetodoPago == "efectivo").Sum(m => m.Monto);
                 var ingresosTransferencia = movimientosFiltrados.Where(m => m.Tipo == "ingreso" && m.MetodoPago == "transferencia").Sum(m => m.Monto);
@@ -326,7 +451,8 @@ namespace VidaFit.Controllers.API
                 var totalIngresos = ingresosEfectivo + ingresosTransferencia;
                 var totalEgresos = egresosEfectivo + egresosTransferencia;
 
-                // Proyectar movimientos individuales con detalle
+                // ✅ CORRECCIÓN: serializar fecha como string "yyyy-MM-dd" para evitar
+                // problemas de parseo UTC/Local en el frontend
                 var movimientosProyectados = movimientosFiltrados
                     .OrderByDescending(m => m.Fecha)
                     .Select(m => new
@@ -339,16 +465,18 @@ namespace VidaFit.Controllers.API
                         m.Monto,
                         m.Descripcion,
                         m.Categoria,
-                        fecha = m.Fecha.ToLocalTime(),
+                        fecha = m.Fecha.ToLocalTime().ToString("yyyy-MM-ddTHH:mm:ss"),
+                        esCierreCaja = m.Origen == "cierre_caja",
+                        cierreCajaId = m.CierreCajaId, // ✅ Para cargar detalle de ventas
                         m.CreatedAt
                     }).ToList();
 
-                // Agrupar por día para la vista agrupada
+                // ✅ CORRECCIÓN: fecha del grupo como string "yyyy-MM-dd"
                 var movimientosPorDia = movimientosFiltrados
                     .GroupBy(m => m.Fecha.ToLocalTime().Date)
                     .Select(g => new
                     {
-                        fecha = g.Key,
+                        fecha = g.Key.ToString("yyyy-MM-dd"), // ✅ string puro, sin ambigüedad UTC
                         movimientos = g.OrderByDescending(m => m.Fecha).Select(m => new
                         {
                             m.Id,
@@ -359,7 +487,9 @@ namespace VidaFit.Controllers.API
                             m.Monto,
                             m.Descripcion,
                             m.Categoria,
-                            fecha = m.Fecha.ToLocalTime(),
+                            fecha = m.Fecha.ToLocalTime().ToString("yyyy-MM-ddTHH:mm:ss"),
+                            esCierreCaja = m.Origen == "cierre_caja",
+                            cierreCajaId = m.CierreCajaId // ✅ Para cargar detalle de ventas del cierre
                         }).ToList(),
                         ingresosEfectivo = g.Where(m => m.Tipo == "ingreso" && m.MetodoPago == "efectivo").Sum(m => m.Monto),
                         egresosEfectivo = g.Where(m => m.Tipo == "egreso" && m.MetodoPago == "efectivo").Sum(m => m.Monto),
@@ -379,8 +509,8 @@ namespace VidaFit.Controllers.API
                     vista,
                     periodo = new
                     {
-                        desde = fechaDesde,
-                        hasta = fechaHasta.AddDays(-1)
+                        desde = fechaDesde.ToString("yyyy-MM-dd"),
+                        hasta = fechaHasta.AddDays(-1).ToString("yyyy-MM-dd")
                     },
                     movimientos = movimientosProyectados,
                     movimientosPorDia,
@@ -416,26 +546,17 @@ namespace VidaFit.Controllers.API
         {
             try
             {
+                if (request.Monto <= 0)
+                    return BadRequest(new { success = false, message = "El monto debe ser mayor a 0" });
+
                 var cajaFuerte = await ObtenerOCrearCajaFuerteAsync();
                 var usuarioId = await ObtenerUsuarioSistemaAsync();
 
                 if (request.MetodoPago == "efectivo" && cajaFuerte.BalanceEfectivo < request.Monto)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = $"Saldo insuficiente en efectivo. Disponible: ${cajaFuerte.BalanceEfectivo:N2}"
-                    });
-                }
+                    return BadRequest(new { success = false, message = $"Saldo insuficiente en efectivo. Disponible: ${cajaFuerte.BalanceEfectivo:N0}" });
 
                 if (request.MetodoPago == "transferencia" && cajaFuerte.BalanceTransferencias < request.Monto)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = $"Saldo insuficiente en transferencias. Disponible: ${cajaFuerte.BalanceTransferencias:N2}"
-                    });
-                }
+                    return BadRequest(new { success = false, message = $"Saldo insuficiente en transferencias. Disponible: ${cajaFuerte.BalanceTransferencias:N0}" });
 
                 var movimiento = new MovimientoCajaFuerte
                 {
@@ -464,7 +585,7 @@ namespace VidaFit.Controllers.API
 
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation($"Egreso registrado en Caja Fuerte: ${request.Monto} ({request.MetodoPago}) - {request.Categoria}");
+                _logger.LogInformation($"Egreso CF: ${request.Monto} ({request.MetodoPago}) - {request.Categoria}");
 
                 return Ok(new
                 {
@@ -495,6 +616,9 @@ namespace VidaFit.Controllers.API
         {
             try
             {
+                if (request.Monto <= 0)
+                    return BadRequest(new { success = false, message = "El monto debe ser mayor a 0" });
+
                 var cajaFuerte = await ObtenerOCrearCajaFuerteAsync();
                 var usuarioId = await ObtenerUsuarioSistemaAsync();
 
@@ -525,6 +649,8 @@ namespace VidaFit.Controllers.API
 
                 await _context.SaveChangesAsync();
 
+                _logger.LogInformation($"Ingreso CF manual: ${request.Monto} ({request.MetodoPago})");
+
                 return Ok(new
                 {
                     success = true,
@@ -553,19 +679,16 @@ namespace VidaFit.Controllers.API
         {
             try
             {
+                if (request.Monto <= 0)
+                    return BadRequest(new { success = false, message = "El monto debe ser mayor a 0" });
+
                 var cajaFuerte = await ObtenerOCrearCajaFuerteAsync();
                 var usuarioId = await ObtenerUsuarioSistemaAsync();
 
                 if (cajaFuerte.BalanceEfectivo < request.Monto)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = $"Saldo insuficiente en efectivo. Disponible: ${cajaFuerte.BalanceEfectivo:N2}"
-                    });
-                }
+                    return BadRequest(new { success = false, message = $"Saldo insuficiente en efectivo. Disponible: ${cajaFuerte.BalanceEfectivo:N0}" });
 
-                // Crear movimiento de EGRESO en Caja Fuerte
+                // EGRESO en Caja Fuerte
                 var movimientoCF = new MovimientoCajaFuerte
                 {
                     Id = Guid.NewGuid(),
@@ -578,7 +701,6 @@ namespace VidaFit.Controllers.API
                     Fecha = DateTime.Now,
                     CreatedAt = DateTime.Now
                 };
-
                 _context.MovimientosCajaFuerte.Add(movimientoCF);
 
                 cajaFuerte.BalanceEfectivo -= request.Monto;
@@ -586,9 +708,7 @@ namespace VidaFit.Controllers.API
                 cajaFuerte.UltimaActualizacion = DateTime.Now;
                 cajaFuerte.UpdatedAt = DateTime.Now;
 
-                await _context.SaveChangesAsync();
-
-                // Crear movimiento de INGRESO en Caja Diaria
+                // INGRESO en Caja Diaria
                 var movimientoCaja = new MovimientoCaja
                 {
                     Id = Guid.NewGuid(),
@@ -604,16 +724,16 @@ namespace VidaFit.Controllers.API
                     CierreCajaId = null,
                     CreatedAt = DateTime.Now
                 };
-
                 _context.MovimientosCaja.Add(movimientoCaja);
+
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation($"Transferencia Caja Fuerte → Caja Diaria: ${request.Monto}");
+                _logger.LogInformation($"Transferencia CF → Caja Diaria: ${request.Monto}");
 
                 return Ok(new
                 {
                     success = true,
-                    message = $"${request.Monto:N2} transferidos a Caja Diaria exitosamente",
+                    message = $"${request.Monto:N0} transferidos a Caja Diaria exitosamente",
                     balanceActual = new
                     {
                         efectivo = cajaFuerte.BalanceEfectivo,
@@ -625,14 +745,13 @@ namespace VidaFit.Controllers.API
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al transferir a Caja Diaria");
-                return StatusCode(500, new { success = false, message = "Error al realizar transferencia", error = ex.Message });
+                return StatusCode(500, new { success = false, message = "Error al realizar transferencia" });
             }
         }
 
         // =============================================
-        // ✅ CORREGIDO: RECIBIR DESDE CAJA (Cierre → Caja Fuerte)
-        // En vez de copiar todos los movimientos individuales,
-        // registra UN movimiento neto de efectivo y UN movimiento neto de transferencias.
+        // RECIBIR DESDE CAJA (endpoint HTTP - respaldo)
+        // El método principal es RecibirDesdeCajaInternoAsync
         // =============================================
 
         [HttpPost("recibir-desde-caja")]
@@ -640,80 +759,20 @@ namespace VidaFit.Controllers.API
         {
             try
             {
+                var ok = await RecibirDesdeCajaInternoAsync(
+                    request.MontoEfectivo,
+                    request.MontoTransferencia,
+                    request.FechaCierre,
+                    request.CierreCajaId);
+
+                if (!ok)
+                    return Ok(new { success = false, message = "Este cierre ya fue procesado anteriormente en Caja Fuerte o no hubo montos que transferir." });
+
                 var cajaFuerte = await ObtenerOCrearCajaFuerteAsync();
-                var usuarioId = await ObtenerUsuarioSistemaAsync();
-
-                // Verificar que no se haya procesado ya este cierre
-                var yaExiste = await _context.MovimientosCajaFuerte
-                    .AnyAsync(m => m.CierreCajaId == request.CierreCajaId && m.Origen == "cierre_caja");
-
-                if (yaExiste)
-                {
-                    _logger.LogWarning($"El cierre {request.CierreCajaId} ya fue enviado a Caja Fuerte anteriormente");
-                    return Ok(new { success = false, message = "Este cierre ya fue procesado anteriormente en Caja Fuerte" });
-                }
-
-                int movimientosCreados = 0;
-
-                // ✅ CORRECCIÓN: Registrar UN movimiento neto de EFECTIVO (si > 0)
-                // El monto de efectivo enviado a Caja Fuerte es lo que decidió mandar el operador al cerrar
-                if (request.MontoEfectivo > 0)
-                {
-                    var movEfectivo = new MovimientoCajaFuerte
-                    {
-                        Id = Guid.NewGuid(),
-                        Tipo = "ingreso",
-                        Origen = "cierre_caja",
-                        MetodoPago = "efectivo",
-                        Monto = request.MontoEfectivo,
-                        Descripcion = $"Cierre de caja del {request.FechaCierre:dd/MM/yyyy} - Efectivo",
-                        CierreCajaId = request.CierreCajaId,
-                        UsuarioId = usuarioId,
-                        Fecha = request.FechaCierre == default ? DateTime.Now : request.FechaCierre,
-                        CreatedAt = DateTime.Now
-                    };
-
-                    _context.MovimientosCajaFuerte.Add(movEfectivo);
-                    cajaFuerte.BalanceEfectivo += request.MontoEfectivo;
-                    movimientosCreados++;
-                }
-
-                // ✅ CORRECCIÓN: Registrar UN movimiento neto de TRANSFERENCIAS (si > 0)
-                // Las transferencias netas del día se acreditan como contable
-                if (request.MontoTransferencia > 0)
-                {
-                    var movTransferencia = new MovimientoCajaFuerte
-                    {
-                        Id = Guid.NewGuid(),
-                        Tipo = "ingreso",
-                        Origen = "cierre_caja",
-                        MetodoPago = "transferencia",
-                        Monto = request.MontoTransferencia,
-                        Descripcion = $"Cierre de caja del {request.FechaCierre:dd/MM/yyyy} - Transferencias",
-                        CierreCajaId = request.CierreCajaId,
-                        UsuarioId = usuarioId,
-                        Fecha = request.FechaCierre == default ? DateTime.Now : request.FechaCierre,
-                        CreatedAt = DateTime.Now
-                    };
-
-                    _context.MovimientosCajaFuerte.Add(movTransferencia);
-                    cajaFuerte.BalanceTransferencias += request.MontoTransferencia;
-                    movimientosCreados++;
-                }
-
-                cajaFuerte.BalanceTotal = cajaFuerte.BalanceEfectivo + cajaFuerte.BalanceTransferencias;
-                cajaFuerte.UltimaActualizacion = DateTime.Now;
-                cajaFuerte.UpdatedAt = DateTime.Now;
-
-                await _context.SaveChangesAsync();
-
-                _logger.LogInformation($"✅ Cierre recibido en Caja Fuerte | Efectivo: ${request.MontoEfectivo} | Transferencias: ${request.MontoTransferencia} | Balance total: ${cajaFuerte.BalanceTotal}");
-
                 return Ok(new
                 {
                     success = true,
-                    message = $"Cierre recibido: Efectivo ${request.MontoEfectivo:N2}, Transferencias ${request.MontoTransferencia:N2}",
-                    movimientosCreados,
+                    message = $"Cierre recibido: Efectivo ${request.MontoEfectivo:N0}, Transferencias ${request.MontoTransferencia:N0}",
                     balanceActual = new
                     {
                         efectivo = cajaFuerte.BalanceEfectivo,
@@ -743,14 +802,18 @@ namespace VidaFit.Controllers.API
                 if (movimiento == null)
                     return NotFound(new { success = false, message = "Movimiento no encontrado" });
 
-                // No permitir eliminar movimientos de cierre de caja (son registros contables)
+                // No se pueden eliminar movimientos de cierre de caja (son contables)
                 if (movimiento.Origen == "cierre_caja")
-                    return BadRequest(new { success = false, message = "No se pueden eliminar movimientos de cierre de caja. Para corregir, realice un ajuste manual." });
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "No se pueden eliminar movimientos de cierre de caja. Para corregir, realice un ajuste manual."
+                    });
 
                 var cajaFuerte = await ObtenerOCrearCajaFuerteAsync();
                 var usuarioId = await ObtenerUsuarioSistemaAsync();
 
-                // Revertir el balance
+                // ✅ Revertir el balance correctamente
                 if (movimiento.Tipo == "ingreso")
                 {
                     if (movimiento.MetodoPago == "efectivo")
@@ -758,7 +821,7 @@ namespace VidaFit.Controllers.API
                     else
                         cajaFuerte.BalanceTransferencias -= movimiento.Monto;
                 }
-                else
+                else // egreso
                 {
                     if (movimiento.MetodoPago == "efectivo")
                         cajaFuerte.BalanceEfectivo += movimiento.Monto;
@@ -769,7 +832,7 @@ namespace VidaFit.Controllers.API
                 cajaFuerte.BalanceTotal = cajaFuerte.BalanceEfectivo + cajaFuerte.BalanceTransferencias;
                 cajaFuerte.UpdatedAt = DateTime.Now;
 
-                // Registrar eliminación
+                // Registrar en historial de eliminados
                 var eliminado = new MovimientoEliminado
                 {
                     Id = Guid.NewGuid(),
@@ -791,6 +854,8 @@ namespace VidaFit.Controllers.API
                 _context.MovimientosCajaFuerte.Remove(movimiento);
 
                 await _context.SaveChangesAsync();
+
+                _logger.LogInformation($"Movimiento CF eliminado: ${movimiento.Monto} ({movimiento.Tipo}/{movimiento.MetodoPago}). Nuevo balance: ${cajaFuerte.BalanceTotal}");
 
                 return Ok(new
                 {
@@ -895,9 +960,6 @@ namespace VidaFit.Controllers.API
                 };
 
                 _context.ConsolidadosMensuales.Add(consolidado);
-                // NOTA: NO eliminar los movimientos al consolidar, solo archivarlos
-                // Si se desea eliminar: _context.MovimientosCajaFuerte.RemoveRange(movimientos);
-
                 await _context.SaveChangesAsync();
 
                 return Ok(new

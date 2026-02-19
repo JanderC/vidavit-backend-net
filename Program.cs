@@ -79,6 +79,10 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddSingleton<IFingerprintService, FingerprintService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
+// ✅ Registrar CajaFuerteController como servicio para inyección directa en CajaController
+// (evita el HttpClient interno que causaba fallos al enviar cierres a Caja Fuerte)
+builder.Services.AddScoped<VidaFit.Controllers.API.CajaFuerteController>();
+
 // ⚠️ SERVICIOS AUTOMÁTICOS REMOVIDOS - Causan problemas con zonas horarias
 // builder.Services.AddHostedService<ConsolidacionMensualService>();
 // builder.Services.AddHostedService<CierreCajaAutomaticoService>();
