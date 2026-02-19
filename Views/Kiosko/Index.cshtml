@@ -15,6 +15,8 @@
                     message: '',
                     cedula: '',
                     diasRestantes: null,
+                    diasVencidos: null,
+                    membresia: null,
                     similarity: 0,
                     isProcessing: false,
                     deuda: null,
@@ -46,6 +48,8 @@
                     message: '',
                     cedula: '',
                     diasRestantes: null,
+                    diasVencidos: null,
+                    membresia: null,
                     similarity: 0,
                     isProcessing: false,
                     deuda: null,
@@ -147,6 +151,8 @@
                         mode: 'success',
                         cliente: data.cliente,
                         diasRestantes: diasRestantes,
+                        diasVencidos: null,
+                        membresia: data.membresia || null,
                         message: data.message,
                         similarity: data.similarity,
                         deuda: data.deuda || null
@@ -157,6 +163,8 @@
                         mode: 'error',
                         message: data.message || 'No se pudo verificar la huella',
                         diasRestantes: diasRestantes,
+                        diasVencidos: data.membresia?.diasVencidos ?? null,
+                        membresia: data.membresia || null,
                         deuda: data.deuda || null
                     });
                 }
@@ -198,6 +206,8 @@
                             mode: 'success',
                             cliente: data.cliente,
                             diasRestantes: diasRestantes,
+                            diasVencidos: null,
+                            membresia: data.membresia || null,
                             message: data.message,
                             deuda: data.deuda || null
                         });
@@ -205,6 +215,8 @@
                         this.setState({
                             mode: 'error',
                             message: data.message || 'No se pudo verificar la cédula',
+                            diasVencidos: data.membresia?.diasVencidos ?? null,
+                            membresia: data.membresia || null,
                             deuda: data.deuda || null
                         });
                     }
@@ -339,7 +351,7 @@
             }
 
             renderSuccess() {
-                const { cliente, diasRestantes, similarity, deuda } = this.state;
+                const { cliente, diasRestantes, similarity, deuda, membresia } = this.state;
                 return `
                     <div class="min-h-screen relative overflow-hidden" style="background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);">
                         <div class="absolute inset-0 opacity-15">
@@ -377,7 +389,15 @@
                                     ` : ''}
 
                                     <div class="flex-1 text-left backdrop-blur-sm rounded-3xl px-12 py-10" style="background: rgba(0,0,0,0.6); border: 3px solid #00C851;">
-                                        <h3 class="text-5xl font-black text-white mb-6">${cliente.nombre}</h3>
+                                        <h3 class="text-5xl font-black text-white mb-4">${cliente.nombre}</h3>
+
+                                        <!-- Plan de membresía -->
+                                        ${membresia?.tipoPlan ? `
+                                            <div class="mb-6 inline-block px-5 py-2 rounded-xl" style="background: rgba(209,36,35,0.2); border: 2px solid #D12423;">
+                                                <p class="text-sm uppercase tracking-widest font-bold" style="color: #D12423;">Plan</p>
+                                                <p class="text-2xl font-black text-white">${membresia.tipoPlan}</p>
+                                            </div>
+                                        ` : ''}
 
                                         ${diasRestantes !== null && diasRestantes !== undefined ? `
                                             <div class="mb-6 pb-6" style="border-bottom: 2px solid rgba(255, 255, 255, 0.2);">
@@ -523,7 +543,7 @@
             // =========================================================
 
             renderError() {
-                const { diasRestantes, deuda } = this.state;
+                const { diasVencidos, deuda, membresia } = this.state;
                 return `
                     <div class="min-h-screen relative overflow-hidden" style="background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);">
                         <div class="absolute inset-0 opacity-15">
@@ -540,7 +560,7 @@
 
                                 <!-- Error Icon -->
                                 <div class="mb-10 flex justify-center">
-                                    <div class="relative¡Sin prisa, pero con ¡DISCIPLINA!
+                                    <div class="relative">
                                         <div class="w-40 h-40 rounded-full flex items-center justify-center shadow-2xl" style="background: #D12423;">
                                             <svg class="w-24 h-24 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
@@ -561,15 +581,24 @@
                                         </div>
                                     </div>
 
-                                    <p class="text-3xl text-white mb-4 font-bold">${this.state.message}</p>
+                                    <p class="text-3xl text-white mb-6 font-bold">${this.state.message}</p>
 
-                                    ${diasRestantes !== null && diasRestantes !== undefined && diasRestantes < 0 ? `
+                                    <!-- Último plan (siempre que exista) -->
+                                    ${membresia?.tipoPlan ? `
+                                        <div class="mb-4 inline-block px-5 py-2 rounded-xl" style="background: rgba(209,36,35,0.15); border: 2px solid rgba(209,36,35,0.5);">
+                                            <p class="text-sm uppercase tracking-widest font-bold" style="color: #D12423;">Último plan</p>
+                                            <p class="text-2xl font-black text-white">${membresia.tipoPlan}</p>
+                                        </div>
+                                    ` : ''}
+
+                                    <!-- Días vencidos -->
+                                    ${diasVencidos !== null && diasVencidos !== undefined && diasVencidos > 0 ? `
                                         <div class="pt-6 mt-6" style="border-top: 2px solid rgba(209, 36, 35, 0.5);">
-                                            <p class="text-lg mb-3 uppercase tracking-wide font-semibold" style="color: #D12423;">Membresía Vencida</p>
-                                            <p class="text-5xl font-black" style="color: #FFA500;">
-                                                ${Math.abs(diasRestantes)} ${Math.abs(diasRestantes) === 1 ? 'DÍA' : 'DÍAS'}
+                                            <p class="text-lg mb-3 uppercase tracking-wide font-semibold" style="color: #D12423;">Membresía vencida hace</p>
+                                            <p class="text-7xl font-black" style="color: #FFA500;">
+                                                ${diasVencidos} ${diasVencidos === 1 ? 'DÍA' : 'DÍAS'}
                                             </p>
-                                            <p class="text-white text-lg mt-3">desde su vencimiento</p>
+                                            <p class="text-white text-lg mt-3">Renueva en recepción para volver a entrenar</p>
                                         </div>
                                     ` : ''}
 

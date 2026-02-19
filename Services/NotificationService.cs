@@ -100,7 +100,7 @@ namespace VidaFit.Services
                     // Crear notificación de membresía vencida
                     await CrearNotificacion(
                         tipo: "membresia_vencida",
-                        titulo: "Membresía Vencida",
+                        titulo: "Mensualidad Vencida",
                         mensaje: $"La membresía de {membresia.Cliente.Nombre} {membresia.Cliente.Apellido} ha vencido el {membresia.FechaVencimiento:dd/MM/yyyy}",
                         clienteId: membresia.ClienteId,
                         prioridad: "alta"

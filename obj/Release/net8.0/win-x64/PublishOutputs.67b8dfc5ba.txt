@@ -1,0 +1,4 @@
+C:\d\EliteDiasVencidos\appsettings.Development.json
+C:\d\EliteDiasVencidos\appsettings.json
+C:\d\EliteDiasVencidos\VidaFit.pdb
+C:\d\EliteDiasVencidos\VidaFit.exe
