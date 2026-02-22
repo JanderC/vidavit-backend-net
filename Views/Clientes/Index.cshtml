@@ -172,10 +172,12 @@
                                             <i data-lucide="edit" class="w-5 h-5"></i>
                                         </a>
                                         ${!c.HuellaTemplate
-                                            ? `<a href="/clientes/capturar-huella/${c.Id}" class="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors" title="Capturar huella">
-                                                   <i data-lucide="fingerprint" class="w-5 h-5"></i>
-                                               </a>`
-                                            : ''
+                                           ? `<button onclick="abrirRegistroHuella('${c.Cedula}')"
+                                               class="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                                               title="Registrar huella">
+                                               <i data-lucide="fingerprint" class="w-5 h-5"></i>
+                                               </button>`
+                                           : ''
                                         }
                                         <a href="/membresias/crear?clienteId=${c.Id}" class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Nueva membresía">
                                             <i data-lucide="plus-circle" class="w-5 h-5"></i>
@@ -238,6 +240,16 @@
             `;
 
             lucide.createIcons();
+        }
+
+        // Funcion para abrir la pagina para registrar la huella
+        function abrirRegistroHuella(cedula) {
+            if (!cedula) {
+                alert('No se encontró la cédula del cliente.');
+                return;
+            }
+
+            window.open(`http://localhost:3000/register?cedula=${cedula}`, '_blank');
         }
 
         // ── Genera los números de página a mostrar (con elipsis) ─

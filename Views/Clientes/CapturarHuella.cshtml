@@ -97,6 +97,7 @@
     <script>
         const API_URL = '/api';
         const clienteId = '@ViewBag.ClienteId';
+        const cedula = '@ViewBag.Cedula';
         let readerConnected = false;
 
         window.addEventListener('load', async function() {
@@ -144,77 +145,13 @@
                 return;
             }
 
-            document.getElementById('capture-area').classList.add('hidden');
-            document.getElementById('loading-area').classList.remove('hidden');
-
-            simulateProgress();
-
-            try {
-                const response = await fetch(`${API_URL}/Fingerprint/capture/${clienteId}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-
-                const data = await response.json();
-
-                document.getElementById('loading-area').classList.add('hidden');
-                document.getElementById('result-area').classList.remove('hidden');
-
-                const resultIcon = document.getElementById('result-icon');
-                const resultTitle = document.getElementById('result-title');
-                const resultMessage = document.getElementById('result-message');
-
-                if (data.success) {
-                    resultIcon.innerHTML = `
-                        <div class="relative">
-                            <div class="absolute inset-0 bg-emerald-500 rounded-full blur-3xl opacity-30"></div>
-                            <div class="relative w-40 h-40 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-full flex items-center justify-center shadow-2xl">
-                                <i data-lucide="check" class="w-24 h-24 text-white" stroke-width="2"></i>
-                            </div>
-                        </div>
-                    `;
-                    resultTitle.textContent = '¡HUELLA CAPTURADA!';
-                    resultTitle.className = 'text-4xl font-black mb-4 text-emerald-700 uppercase tracking-wide';
-                    resultMessage.textContent = 'La huella digital se registró correctamente. El cliente ya puede usar el sistema de check-in biométrico.';
-                } else {
-                    resultIcon.innerHTML = `
-                        <div class="relative">
-                            <div class="absolute inset-0 bg-red-500 rounded-full blur-3xl opacity-30"></div>
-                            <div class="relative w-40 h-40 bg-gradient-to-br from-red-500 to-red-700 rounded-full flex items-center justify-center shadow-2xl">
-                                <i data-lucide="alert-circle" class="w-24 h-24 text-white" stroke-width="2"></i>
-                            </div>
-                        </div>
-                    `;
-                    resultTitle.textContent = 'ERROR AL CAPTURAR';
-                    resultTitle.className = 'text-4xl font-black mb-4 text-red-700 uppercase tracking-wide';
-                    resultMessage.textContent = data.message || 'No se pudo capturar la huella. Por favor intenta nuevamente.';
-                    document.getElementById('btn-retry').classList.remove('hidden');
-                }
-
-                lucide.createIcons();
-            } catch (error) {
-                document.getElementById('loading-area').classList.add('hidden');
-                document.getElementById('result-area').classList.remove('hidden');
-
-                const resultIcon = document.getElementById('result-icon');
-                const resultTitle = document.getElementById('result-title');
-                const resultMessage = document.getElementById('result-message');
-
-                resultIcon.innerHTML = `
-                    <div class="relative">
-                        <div class="absolute inset-0 bg-red-500 rounded-full blur-3xl opacity-30"></div>
-                        <div class="relative w-40 h-40 bg-gradient-to-br from-red-500 to-red-700 rounded-full flex items-center justify-center shadow-2xl">
-                            <i data-lucide="x" class="w-24 h-24 text-white" stroke-width="2"></i>
-                        </div>
-                    </div>
-                `;
-                resultTitle.textContent = 'ERROR DE CONEXIÓN';
-                resultTitle.className = 'text-4xl font-black mb-4 text-red-700 uppercase tracking-wide';
-                resultMessage.textContent = 'No se pudo conectar con el servidor. Verifica tu conexión e intenta nuevamente.';
-                document.getElementById('btn-retry').classList.remove('hidden');
-
-                lucide.createIcons();
+            if (!cedula || cedula.trim() === '') {
+                alert('No se encontró la cédula del cliente.');
+                return;
             }
+
+            // Abre el nuevo servicio en otra pestaña
+            window.open(`http://localhost:3000/register?cedula=${cedula}`, '_blank');
         }
 
         function simulateProgress() {
