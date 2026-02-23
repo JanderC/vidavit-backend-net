@@ -1,78 +1,209 @@
 ﻿@{
     ViewData["Title"] = "Crear Producto";
-    ViewData["Subtitle"] = "Nuevo producto - TAURO GYM";
+    ViewData["Subtitle"] = "Nuevo producto - VidaFit";
     Layout = "_AdminLayout";
 }
 
-<div class="max-w-4xl mx-auto">
-    <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
-        <div class="flex items-center gap-4 mb-8 pb-6 border-b-2 border-gray-200">
-            <div class="bg-gradient-to-br from-red-600 to-red-800 rounded-xl p-4">
-                <i data-lucide="package-plus" class="w-8 h-8 text-white"></i>
+<style>
+    :root {
+        --vf-green: #39FF14;
+        --vf-green-dark: #28c40f;
+        --vf-border: #d1fac8;
+        --vf-text: #0f1f0a;
+        --vf-muted: #4a7a3a;
+        --vf-white: #ffffff;
+    }
+
+    .vf-page {
+        background: linear-gradient(135deg, #f7fff5 0%, #edfce8 100%);
+        min-height: 100vh;
+        padding: 1.5rem;
+    }
+
+    .vf-card {
+        background: var(--vf-white);
+        border: 1px solid var(--vf-border);
+        border-radius: 1rem;
+        box-shadow: 0 2px 12px rgba(57,255,20,0.08);
+    }
+
+    .vf-label {
+        display: block;
+        font-size: .78rem;
+        font-weight: 800;
+        color: var(--vf-muted);
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        margin-bottom: .5rem;
+    }
+
+    .vf-input {
+        width: 100%;
+        background: #f7fff5;
+        border: 2px solid var(--vf-border);
+        color: var(--vf-text);
+        border-radius: .6rem;
+        padding: .75rem 1rem;
+        outline: none;
+        font-weight: 600;
+        transition: border-color .2s, box-shadow .2s;
+    }
+
+        .vf-input:focus {
+            border-color: var(--vf-green-dark);
+            box-shadow: 0 0 0 3px rgba(57,255,20,0.15);
+        }
+
+        .vf-input::placeholder {
+            color: #94b890;
+        }
+
+    select.vf-input option {
+        background: #fff;
+        color: var(--vf-text);
+    }
+
+    .vf-btn-primary {
+        background: var(--vf-green);
+        color: #0a1f04;
+        font-weight: 900;
+        padding: .9rem 1.5rem;
+        border-radius: .6rem;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        transition: opacity .2s, transform .1s;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        flex: 1;
+        box-shadow: 0 4px 14px rgba(57,255,20,0.3);
+    }
+
+        .vf-btn-primary:hover {
+            opacity: .85;
+            transform: translateY(-1px);
+        }
+
+    .vf-btn-secondary {
+        background: #f3f4f6;
+        color: #374151;
+        font-weight: 800;
+        padding: .9rem 1.5rem;
+        border-radius: .6rem;
+        border: 1px solid #d1d5db;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        transition: background .2s;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        flex: 1;
+        text-decoration: none;
+    }
+
+        .vf-btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+    .vf-file-input {
+        width: 100%;
+        background: #f7fff5;
+        border: 2px dashed var(--vf-border);
+        color: var(--vf-text);
+        border-radius: .6rem;
+        padding: .6rem 1rem;
+    }
+
+        .vf-file-input::file-selector-button {
+            background: var(--vf-green);
+            color: #0a1f04;
+            font-weight: 800;
+            padding: .4rem 1rem;
+            border-radius: .4rem;
+            border: none;
+            cursor: pointer;
+            margin-right: 1rem;
+            text-transform: uppercase;
+            font-size: .78rem;
+        }
+</style>
+
+<div class="vf-page">
+    <div class="max-w-4xl mx-auto">
+        <div class="vf-card p-8">
+
+            <!-- Header -->
+            <div style="display:flex;align-items:center;gap:1rem;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--vf-border);">
+                <div style="background:var(--vf-green);border-radius:.75rem;padding:1rem;box-shadow:0 4px 14px rgba(57,255,20,0.3);">
+                    <i data-lucide="package-plus" style="width:2rem;height:2rem;color:#0a1f04;display:block;"></i>
+                </div>
+                <div>
+                    <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.2rem;">
+                        <h2 style="font-size:1.6rem;font-weight:900;color:var(--vf-text);text-transform:uppercase;letter-spacing:.05em;">Nuevo Producto</h2>
+                        <span style="background:var(--vf-green);color:#0a1f04;font-size:.65rem;font-weight:900;padding:.15rem .55rem;border-radius:9999px;letter-spacing:.1em;">VIDAFIT</span>
+                    </div>
+                    <p style="color:var(--vf-muted);font-size:.875rem;font-weight:600;">Agregar producto al inventario</p>
+                </div>
             </div>
-            <div>
-                <h2 class="text-3xl font-black text-gray-900 uppercase tracking-wide">Nuevo Producto</h2>
-                <p class="text-sm text-gray-600 font-semibold mt-1">Agregar producto al inventario</p>
-            </div>
+
+            <form id="productoForm" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="vf-label">Nombre *</label>
+                        <input type="text" name="nombre" required class="vf-input" placeholder="Nombre del producto">
+                    </div>
+                    <div>
+                        <label class="vf-label">Categoría</label>
+                        <select name="categoria" class="vf-input">
+                            <option value="suplementos">Suplementos</option>
+                            <option value="bebidas">Bebidas</option>
+                            <option value="snacks">Snacks</option>
+                            <option value="accesorios">Accesorios</option>
+                            <option value="otros">Otros</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="vf-label">Precio *</label>
+                        <div style="position:relative;">
+                            <span style="position:absolute;left:1rem;top:.85rem;color:var(--vf-green-dark);font-weight:800;">$</span>
+                            <input type="number" step="0.01" name="precio" required class="vf-input" style="padding-left:2rem;" placeholder="0.00">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="vf-label">Stock *</label>
+                        <input type="number" name="stock" required class="vf-input" placeholder="0">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="vf-label">Descripción</label>
+                    <textarea name="descripcion" rows="3" class="vf-input" style="resize:none;" placeholder="Descripción del producto..."></textarea>
+                </div>
+
+                <div>
+                    <label class="vf-label">Imagen del Producto</label>
+                    <input type="file" id="imagenInput" accept="image/*" class="vf-file-input">
+                    <input type="hidden" name="imagenBase64" id="imagenBase64">
+                </div>
+
+                <div style="display:flex;gap:1rem;padding-top:1.5rem;border-top:1px solid var(--vf-border);">
+                    <button type="submit" class="vf-btn-primary">
+                        <i data-lucide="check" style="width:1.25rem;height:1.25rem;"></i>
+                        Crear Producto
+                    </button>
+                    <a href="/productos" class="vf-btn-secondary">
+                        <i data-lucide="x" style="width:1.25rem;height:1.25rem;"></i>
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+
         </div>
-
-        <form id="productoForm" class="space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Nombre *</label>
-                    <input type="text" name="nombre" required
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Categoría</label>
-                    <select name="categoria"
-                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold bg-white">
-                        <option value="suplementos">Suplementos</option>
-                        <option value="bebidas">Bebidas</option>
-                        <option value="snacks">Snacks</option>
-                        <option value="accesorios">Accesorios</option>
-                        <option value="otros">Otros</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Precio *</label>
-                    <input type="number" step="0.01" name="precio" required
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Stock *</label>
-                    <input type="number" name="stock" required
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
-                </div>
-            </div>
-
-            <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Descripción</label>
-                <textarea name="descripcion" rows="3"
-                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"></textarea>
-            </div>
-
-            <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Imagen del Producto</label>
-                <input type="file" id="imagenInput" accept="image/*"
-                       class="w-full px-4 py-2 border-2 border-gray-300 rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-gradient-to-r file:from-red-600 file:to-red-800 file:text-white file:font-bold hover:file:from-red-700 hover:file:to-red-900">
-                <input type="hidden" name="imagenBase64" id="imagenBase64">
-            </div>
-
-            <div class="flex gap-4 pt-6 border-t-2 border-gray-200">
-                <button type="submit"
-                        class="flex-1 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black py-4 px-6 rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
-                    Crear Producto
-                </button>
-                <a href="/productos"
-                   class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 font-black py-4 px-6 rounded-xl transition-all text-center uppercase tracking-wide">
-                    Cancelar
-                </a>
-            </div>
-        </form>
     </div>
 </div>
 
@@ -91,7 +222,6 @@
 
         document.getElementById('productoForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-
             const formData = new FormData(e.target);
             const data = {
                 nombre: formData.get('nombre'),
@@ -101,14 +231,12 @@
                 categoria: formData.get('categoria'),
                 imagenBase64: formData.get('imagenBase64') || null
             };
-
             try {
                 const response = await fetch('/api/Productos', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
-
                 if (response.ok) {
                     alert('✓ Producto creado exitosamente');
                     window.location.href = '/productos';
