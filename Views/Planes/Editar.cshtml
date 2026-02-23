@@ -3,156 +3,248 @@
     ViewData["Title"] = "Editar Plan";
 }
 
-<div class="max-w-4xl mx-auto p-6">
-    <!-- Header con el color del plan -->
-    <div class="rounded-xl shadow-lg overflow-hidden mb-6" style="border: 3px solid @Model.Color">
-        <div class="p-6 text-white relative overflow-hidden" style="background: linear-gradient(135deg, @Model.Color 0%, @Model.Color 100%);">
-            <div class="absolute top-0 right-0 w-40 h-40 bg-white opacity-10 rounded-full -mr-20 -mt-20"></div>
-            <div class="absolute bottom-0 left-0 w-32 h-32 bg-white opacity-10 rounded-full -ml-16 -mb-16"></div>
+<style>
+    :root {
+        --vf-green: #39FF14;
+        --vf-dark: #0a0a0a;
+        --vf-card: #111111;
+        --vf-border: #1f1f1f;
+        --vf-text: #e5e5e5;
+        --vf-muted: #6b7280;
+    }
 
-            <div class="relative z-10 flex items-center justify-between">
-                <div>
-                    <div class="flex items-center gap-3 mb-2">
-                        <i data-lucide="edit-3" class="w-8 h-8"></i>
-                        <h2 class="text-3xl font-bold">Editar Plan</h2>
+    .vf-page {
+        background-color: var(--vf-dark);
+        min-height: 100vh;
+        padding: 1.5rem;
+    }
+
+    .vf-card {
+        background-color: var(--vf-card);
+        border: 1px solid var(--vf-border);
+        border-radius: 1rem;
+    }
+
+    .vf-label {
+        color: var(--vf-text);
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .vf-input {
+        width: 100%;
+        background-color: #1a1a1a;
+        border: 2px solid var(--vf-border);
+        color: var(--vf-text);
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        outline: none;
+    }
+
+        .vf-input:focus {
+            border-color: @Model.Color;
+            box-shadow: 0 0 0 3px @(Model.Color) 22;
+        }
+
+        .vf-input::placeholder {
+            color: var(--vf-muted);
+        }
+
+    .vf-btn-primary {
+        font-weight: 700;
+        padding: 1rem 1.5rem;
+        border-radius: 0.5rem;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: opacity 0.2s, transform 0.1s;
+        flex: 1;
+        background-color: @Model.Color;
+    }
+
+        .vf-btn-primary:hover {
+            opacity: 0.85;
+            transform: translateY(-1px);
+        }
+
+    .vf-btn-secondary {
+        background-color: #1f1f1f;
+        color: var(--vf-text);
+        font-weight: 700;
+        padding: 1rem 1.5rem;
+        border-radius: 0.5rem;
+        border: 1px solid var(--vf-border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: background-color 0.2s;
+        flex: 1;
+        text-decoration: none;
+    }
+
+        .vf-btn-secondary:hover {
+            background-color: #2a2a2a;
+        }
+
+    select.vf-input option {
+        background-color: #1a1a1a;
+    }
+</style>
+
+<div class="vf-page">
+    <div class="max-w-4xl mx-auto space-y-6">
+
+        <!-- Header con el color del plan + branding VidaFit -->
+        <div class="vf-card overflow-hidden" style="border: 2px solid @Model.Color;">
+            <div class="p-6 relative overflow-hidden" style="background: linear-gradient(135deg, @Model.Color 0%, @Model.Color 100%); color: #0a0a0a;">
+                <div style="position:absolute;top:0;right:0;width:10rem;height:10rem;background:rgba(0,0,0,0.1);border-radius:50%;transform:translate(2.5rem,-2.5rem);"></div>
+                <div style="position:absolute;bottom:0;left:0;width:8rem;height:8rem;background:rgba(0,0,0,0.1);border-radius:50%;transform:translate(-2rem,2rem);"></div>
+                <div style="position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;">
+                    <div>
+                        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
+                            <i data-lucide="edit-3" class="w-8 h-8"></i>
+                            <h2 style="font-size:1.75rem;font-weight:900;">Editar Plan</h2>
+                        </div>
+                        <p style="opacity:0.75;margin-left:2.75rem;font-size:0.9rem;">Modifica la información del plan de membresía</p>
+                        <div style="margin-top:0.75rem;margin-left:2.75rem;">
+                            <span style="font-size:0.7rem;font-weight:900;letter-spacing:0.15em;opacity:0.5;background:rgba(0,0,0,0.15);padding:0.2rem 0.6rem;border-radius:9999px;">VIDAFIT GYM</span>
+                        </div>
                     </div>
-                    <p class="text-white text-opacity-90 ml-11">Modifica la información del plan de membresía</p>
+                    <a href="/membresias/planes"
+                       style="padding:0.6rem 1.25rem;background:rgba(0,0,0,0.2);color:#0a0a0a;font-weight:700;border-radius:0.5rem;display:flex;align-items:center;gap:0.5rem;transition:background 0.2s;text-decoration:none;">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                        Volver
+                    </a>
                 </div>
-                <a href="/membresias/planes"
-                   class="px-5 py-2.5 bg-white bg-opacity-20 hover:bg-opacity-30 text-white font-bold rounded-lg transition-all backdrop-blur-sm flex items-center gap-2">
-                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                    Volver
-                </a>
             </div>
         </div>
-    </div>
 
-    <!-- Formulario -->
-    <div class="bg-white rounded-xl shadow-lg p-8">
-        <form id="planForm" class="space-y-6">
-            <input type="hidden" id="planId" value="@Model.Id">
+        <!-- Formulario -->
+        <div class="vf-card p-8">
+            <form id="planForm" class="space-y-6">
+                <input type="hidden" id="planId" value="@Model.Id">
 
-            <!-- Nombre -->
-            <div class="group">
-                <label class="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
-                    <i data-lucide="tag" class="w-4 h-4" style="color: @Model.Color"></i>
-                    Nombre del Plan <span class="text-red-500">*</span>
-                </label>
-                <input type="text" id="nombre" value="@Model.Nombre" required
-                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:border-transparent text-gray-800 transition-all"
-                       style="focus:ring-color: @Model.Color;">
-            </div>
-
-            <!-- Descripción -->
-            <div class="group">
-                <label class="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
-                    <i data-lucide="align-left" class="w-4 h-4" style="color: @Model.Color"></i>
-                    Descripción
-                </label>
-                <textarea id="descripcion" rows="3"
-                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:border-transparent text-gray-800 resize-none transition-all">@Model.Descripcion</textarea>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Tipo -->
-                <div class="group">
-                    <label class="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
-                        <i data-lucide="layers" class="w-4 h-4" style="color: @Model.Color"></i>
-                        Tipo <span class="text-red-500">*</span>
+                <!-- Nombre -->
+                <div>
+                    <label class="vf-label">
+                        <i data-lucide="tag" class="w-4 h-4" style="color: @Model.Color"></i>
+                        Nombre del Plan <span style="color:#ef4444;">*</span>
                     </label>
-                    <div class="relative">
-                        <select id="tipo" required
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:border-transparent text-gray-800 appearance-none cursor-pointer transition-all">
-                            <option value="semanal" selected="@(Model.Tipo == "semanal" ? "selected" : null)">📅 Semanal</option>
-                            <option value="mensual" selected="@(Model.Tipo == "mensual" ? "selected" : null)">📆 Mensual</option>
-                            <option value="personalizado" selected="@(Model.Tipo == "personalizado" ? "selected" : null)">⚙️ Personalizado</option>
-                            <option value="diario" selected="@(Model.Tipo == "diario" ? "selected" : null)">☀️ Diario</option>
-                            <option value="trimestral" selected="@(Model.Tipo == "trimestral" ? "selected" : null)">📊 Trimestral</option>
-                            <option value="semestral" selected="@(Model.Tipo == "semestral" ? "selected" : null)">📈 Semestral</option>
-                            <option value="anual" selected="@(Model.Tipo == "anual" ? "selected" : null)">🎯 Anual</option>
-                            <option value="otro" selected="@(Model.Tipo == "otro" ? "selected" : null)">➕ Otro</option>
-                        </select>
-                        <i data-lucide="chevron-down" class="w-5 h-5 absolute right-3 top-3.5 pointer-events-none text-gray-500"></i>
-                    </div>
+                    <input type="text" id="nombre" value="@Model.Nombre" required class="vf-input">
                 </div>
 
-                <!-- Duración -->
-                <div class="group">
-                    <label class="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
-                        <i data-lucide="calendar-days" class="w-4 h-4" style="color: @Model.Color"></i>
-                        Duración (días) <span class="text-red-500">*</span>
+                <!-- Descripción -->
+                <div>
+                    <label class="vf-label">
+                        <i data-lucide="align-left" class="w-4 h-4" style="color: @Model.Color"></i>
+                        Descripción
                     </label>
-                    <div class="relative">
-                        <input type="number" id="duracionDias" value="@Model.DuracionDias" required min="1"
-                               class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:border-transparent text-gray-800 transition-all">
-                        <span class="absolute right-4 top-3.5 text-gray-400 font-medium">días</span>
-                    </div>
+                    <textarea id="descripcion" rows="3" class="vf-input" style="resize:none;">@Model.Descripcion</textarea>
                 </div>
 
-                <!-- Precio -->
-                <div class="group">
-                    <label class="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
-                        <i data-lucide="dollar-sign" class="w-4 h-4" style="color: @Model.Color"></i>
-                        Precio <span class="text-red-500">*</span>
-                    </label>
-                    <div class="relative">
-                        <span class="absolute left-4 top-3.5 text-gray-500 font-bold text-lg">$</span>
-                        <input type="number" id="precio" value="@Model.Precio" required min="0" step="0.01"
-                               class="w-full pl-9 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:border-transparent text-gray-800 font-semibold transition-all">
-                    </div>
-                </div>
-
-                <!-- Color -->
-                <div class="group">
-                    <label class="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
-                        <i data-lucide="palette" class="w-4 h-4" style="color: @Model.Color"></i>
-                        Color de Identificación
-                    </label>
-                    <div class="flex gap-3">
-                        <div class="relative">
-                            <input type="color" id="color" value="@Model.Color"
-                                   class="h-12 w-16 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-gray-400 transition-all">
-                            <div class="absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 border-white shadow-lg" style="background-color: @Model.Color"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Tipo -->
+                    <div>
+                        <label class="vf-label">
+                            <i data-lucide="layers" class="w-4 h-4" style="color: @Model.Color"></i>
+                            Tipo <span style="color:#ef4444;">*</span>
+                        </label>
+                        <div style="position:relative;">
+                            <select id="tipo" required class="vf-input" style="appearance:none;cursor:pointer;">
+                                <option value="semanal" selected="@(Model.Tipo == "semanal" ? "selected" : null)">📅 Semanal</option>
+                                <option value="mensual" selected="@(Model.Tipo == "mensual" ? "selected" : null)">📆 Mensual</option>
+                                <option value="personalizado" selected="@(Model.Tipo == "personalizado" ? "selected" : null)">⚙️ Personalizado</option>
+                                <option value="diario" selected="@(Model.Tipo == "diario" ? "selected" : null)">☀️ Diario</option>
+                                <option value="trimestral" selected="@(Model.Tipo == "trimestral" ? "selected" : null)">📊 Trimestral</option>
+                                <option value="semestral" selected="@(Model.Tipo == "semestral" ? "selected" : null)">📈 Semestral</option>
+                                <option value="anual" selected="@(Model.Tipo == "anual" ? "selected" : null)">🎯 Anual</option>
+                                <option value="otro" selected="@(Model.Tipo == "otro" ? "selected" : null)">➕ Otro</option>
+                            </select>
+                            <i data-lucide="chevron-down" style="width:1.25rem;height:1.25rem;position:absolute;right:1rem;top:0.9rem;pointer-events:none;color:var(--vf-muted);"></i>
                         </div>
-                        <input type="text" id="colorHex" value="@Model.Color" placeholder="#00FF00"
-                               class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:border-transparent text-gray-800 font-mono font-bold uppercase transition-all">
+                    </div>
+
+                    <!-- Duración -->
+                    <div>
+                        <label class="vf-label">
+                            <i data-lucide="calendar-days" class="w-4 h-4" style="color: @Model.Color"></i>
+                            Duración (días) <span style="color:#ef4444;">*</span>
+                        </label>
+                        <div style="position:relative;">
+                            <input type="number" id="duracionDias" value="@Model.DuracionDias" required min="1" class="vf-input">
+                            <span style="position:absolute;right:1rem;top:0.85rem;color:var(--vf-muted);font-weight:500;">días</span>
+                        </div>
+                    </div>
+
+                    <!-- Precio -->
+                    <div>
+                        <label class="vf-label">
+                            <i data-lucide="dollar-sign" class="w-4 h-4" style="color: @Model.Color"></i>
+                            Precio <span style="color:#ef4444;">*</span>
+                        </label>
+                        <div style="position:relative;">
+                            <span style="position:absolute;left:1rem;top:0.8rem;color:@Model.Color;font-weight:700;font-size:1.1rem;">$</span>
+                            <input type="number" id="precio" value="@Model.Precio" required min="0" step="0.01"
+                                   class="vf-input" style="padding-left:2rem;font-weight:600;">
+                        </div>
+                    </div>
+
+                    <!-- Color -->
+                    <div>
+                        <label class="vf-label">
+                            <i data-lucide="palette" class="w-4 h-4" style="color: @Model.Color"></i>
+                            Color de Identificación
+                        </label>
+                        <div style="display:flex;gap:0.75rem;">
+                            <div style="position:relative;">
+                                <input type="color" id="color" value="@Model.Color"
+                                       style="height:3rem;width:4.5rem;border:2px solid var(--vf-border);border-radius:0.5rem;cursor:pointer;background:#1a1a1a;padding:0.2rem;">
+                                <div style="position:absolute;top:-0.25rem;right:-0.25rem;width:1rem;height:1rem;border-radius:50%;border:2px solid #1a1a1a;background-color:@Model.Color;"></div>
+                            </div>
+                            <input type="text" id="colorHex" value="@Model.Color" placeholder="#39FF14"
+                                   class="vf-input" style="flex:1;font-family:monospace;font-weight:700;text-transform:uppercase;">
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Estado con diseño mejorado -->
-            <div class="p-5 rounded-lg border-2 transition-all" style="border-color: @Model.Color; background-color: @(Model.Color)10;">
-                <label class="flex items-center gap-3 cursor-pointer">
-                    <div class="relative">
+                <!-- Estado activo -->
+                <div style="padding:1.25rem;border-radius:0.75rem;border:2px solid @Model.Color;background:@(Model.Color)18;">
+                    <label style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;">
                         <input type="checkbox" id="activo" @(Model.Activo ? "checked" : "")
-                               class="w-6 h-6 border-2 rounded focus:ring-2 cursor-pointer transition-all"
-                               style="color: @Model.Color; border-color: @Model.Color;">
-                    </div>
-                    <div class="flex-1">
-                        <span class="text-base font-bold text-gray-800 flex items-center gap-2">
-                            <i data-lucide="check-circle" class="w-5 h-5" style="color: @Model.Color"></i>
-                            Plan Activo
-                        </span>
-                        <p class="text-sm text-gray-600 mt-1">Los planes inactivos no estarán disponibles para crear nuevas membresías</p>
-                    </div>
-                </label>
-            </div>
+                               style="width:1.35rem;height:1.35rem;accent-color:@Model.Color;border-radius:0.25rem;">
+                        <div>
+                            <span style="color:var(--vf-text);font-weight:700;display:flex;align-items:center;gap:0.5rem;font-size:1rem;">
+                                <i data-lucide="check-circle" class="w-5 h-5" style="color:@Model.Color"></i>
+                                Plan Activo
+                            </span>
+                            <p style="color:var(--vf-muted);font-size:0.8rem;margin-top:0.25rem;">Los planes inactivos no estarán disponibles para crear nuevas membresías</p>
+                        </div>
+                    </label>
+                </div>
 
-            <!-- Botones con el color del plan -->
-            <div class="flex gap-4 pt-6 border-t-2 border-gray-200">
-                <button type="submit" id="btnGuardar"
-                        class="flex-1 font-bold py-4 px-6 rounded-lg transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 transform hover:scale-105"
-                        style="background-color: @Model.Color;">
-                    <i data-lucide="save" class="w-5 h-5"></i>
-                    <span>Guardar Cambios</span>
-                </button>
-                <a href="/membresias/planes"
-                   class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold py-4 px-6 rounded-lg transition-all text-center flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
-                    <i data-lucide="x-circle" class="w-5 h-5"></i>
-                    Cancelar
-                </a>
-            </div>
-        </form>
+                <!-- Botones -->
+                <div style="display:flex;gap:1rem;padding-top:1.5rem;border-top:1px solid var(--vf-border);">
+                    <button type="submit" id="btnGuardar" class="vf-btn-primary" style="color:#0a0a0a;">
+                        <i data-lucide="save" class="w-5 h-5"></i>
+                        <span>Guardar Cambios</span>
+                    </button>
+                    <a href="/membresias/planes" class="vf-btn-secondary">
+                        <i data-lucide="x-circle" class="w-5 h-5"></i>
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+
     </div>
 </div>
 
@@ -160,34 +252,22 @@
     <script>
         const planColor = '@Model.Color';
 
-        // Función para determinar si un color es claro u oscuro
         function getContrastColor(hexColor) {
-            // Convertir hex a RGB
             const r = parseInt(hexColor.substr(1, 2), 16);
             const g = parseInt(hexColor.substr(3, 2), 16);
             const b = parseInt(hexColor.substr(5, 2), 16);
-
-            // Calcular luminosidad
             const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-
-            // Si es claro, usar texto oscuro; si es oscuro, usar texto claro
-            return luminance > 0.5 ? '#1f2937' : '#ffffff';
+            return luminance > 0.5 ? '#0a0a0a' : '#ffffff';
         }
 
-        // Aplicar color de texto al botón
         function aplicarColorTextoBoton() {
             const btn = document.getElementById('btnGuardar');
             const textColor = getContrastColor(planColor);
             btn.style.color = textColor;
-
-            // También aplicar a los iconos dentro del botón
             const icon = btn.querySelector('[data-lucide]');
-            if (icon) {
-                icon.style.color = textColor;
-            }
+            if (icon) icon.style.color = textColor;
         }
 
-        // Sincronizar color picker con input hex
         const colorPicker = document.getElementById('color');
         const colorHex = document.getElementById('colorHex');
 
@@ -205,41 +285,28 @@
         });
 
         function actualizarVistaPreviaColor(color) {
-            // Actualizar el botón con el nuevo color
             const btn = document.getElementById('btnGuardar');
             btn.style.backgroundColor = color;
-
             const textColor = getContrastColor(color);
             btn.style.color = textColor;
-
-            // Actualizar icono del botón
             const btnIcon = btn.querySelector('[data-lucide]');
-            if (btnIcon) {
-                btnIcon.style.color = textColor;
-            }
-
-            // Actualizar iconos de etiquetas con el nuevo color
+            if (btnIcon) btnIcon.style.color = textColor;
             document.querySelectorAll('label [data-lucide]').forEach(icon => {
-                if (icon.style.color) {
-                    icon.style.color = color;
-                }
+                if (icon.style.color) icon.style.color = color;
             });
         }
 
-        // Añadir efecto focus a los inputs
         document.querySelectorAll('input:not([type="checkbox"]):not([type="color"]), textarea, select').forEach(input => {
             input.addEventListener('focus', function() {
                 this.style.borderColor = planColor;
-                this.style.boxShadow = `0 0 0 3px ${planColor}20`;
+                this.style.boxShadow = `0 0 0 3px ${planColor}22`;
             });
-
             input.addEventListener('blur', function() {
                 this.style.borderColor = '';
                 this.style.boxShadow = '';
             });
         });
 
-        // Submit formulario
         document.getElementById('planForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -250,26 +317,10 @@
             const precioVal = parseFloat(document.getElementById('precio').value);
             const colorVal = document.getElementById('color').value;
 
-            // Validaciones
-            if (!nombreVal) {
-                alert('⚠️ El nombre del plan es requerido');
-                return;
-            }
-
-            if (!tipoVal) {
-                alert('⚠️ El tipo de plan es requerido');
-                return;
-            }
-
-            if (isNaN(duracionVal) || duracionVal <= 0) {
-                alert('⚠️ La duración debe ser mayor a 0');
-                return;
-            }
-
-            if (isNaN(precioVal) || precioVal <= 0) {
-                alert('⚠️ El precio debe ser mayor a 0');
-                return;
-            }
+            if (!nombreVal) { alert('⚠️ El nombre del plan es requerido'); return; }
+            if (!tipoVal) { alert('⚠️ El tipo de plan es requerido'); return; }
+            if (isNaN(duracionVal) || duracionVal <= 0) { alert('⚠️ La duración debe ser mayor a 0'); return; }
+            if (isNaN(precioVal) || precioVal <= 0) { alert('⚠️ El precio debe ser mayor a 0'); return; }
 
             const data = {
                 id: planId,
@@ -291,36 +342,25 @@
             try {
                 const response = await fetch(`/api/Planes/${planId}`, {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                     body: JSON.stringify(data)
                 });
 
                 if (response.ok || response.status === 204) {
-                    // Mostrar mensaje de éxito con el color del plan
                     const successDiv = document.createElement('div');
                     successDiv.className = 'fixed top-4 right-4 px-6 py-4 rounded-lg shadow-2xl font-bold z-50 animate-bounce';
                     successDiv.style.backgroundColor = colorVal;
-
-                    const successTextColor = getContrastColor(colorVal);
-                    successDiv.style.color = successTextColor;
+                    successDiv.style.color = getContrastColor(colorVal);
                     successDiv.innerHTML = '<i data-lucide="check-circle" class="w-5 h-5 inline mr-2"></i>Plan actualizado exitosamente';
                     document.body.appendChild(successDiv);
                     lucide.createIcons();
-
-                    setTimeout(() => {
-                        window.location.href = '/membresias/planes';
-                    }, 1000);
+                    setTimeout(() => { window.location.href = '/membresias/planes'; }, 1000);
                 } else {
                     let errorMsg = 'Error desconocido';
                     try {
                         const errorData = await response.json();
                         errorMsg = errorData.mensaje || errorData.title || JSON.stringify(errorData);
-                    } catch {
-                        errorMsg = await response.text();
-                    }
+                    } catch { errorMsg = await response.text(); }
                     alert('❌ Error: ' + errorMsg);
                     btn.disabled = false;
                     btn.innerHTML = btnTexto;
@@ -337,7 +377,6 @@
             }
         });
 
-        // Inicializar iconos y colores cuando el DOM esté listo
         document.addEventListener('DOMContentLoaded', function() {
             lucide.createIcons();
             aplicarColorTextoBoton();

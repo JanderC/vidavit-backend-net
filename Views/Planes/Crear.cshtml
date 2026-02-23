@@ -3,119 +3,244 @@
     Layout = "_AdminLayout";
 }
 
-<div class="max-w-4xl mx-auto p-6">
-    <div class="bg-white rounded-xl shadow-lg p-8">
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-2xl font-bold text-gray-800">📋 Crear Nuevo Plan</h2>
-            <a href="/membresias/planes" class="text-gray-600 hover:text-gray-800">
+<style>
+    :root {
+        --vf-green: #39FF14;
+        --vf-green-dark: #28c40f;
+        --vf-border: #d1fac8;
+        --vf-text: #0f1f0a;
+        --vf-muted: #4a7a3a;
+        --vf-white: #ffffff;
+    }
+
+    .vf-page {
+        background: linear-gradient(135deg, #f7fff5 0%, #edfce8 100%);
+        min-height: 100vh;
+        padding: 1.5rem;
+    }
+
+    .vf-card {
+        background: var(--vf-white);
+        border: 1px solid var(--vf-border);
+        border-radius: 1rem;
+        box-shadow: 0 2px 12px rgba(57,255,20,0.08);
+    }
+
+    .vf-label {
+        color: var(--vf-muted);
+        font-size: .78rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        margin-bottom: .5rem;
+        display: block;
+    }
+
+    .vf-input {
+        width: 100%;
+        background: #f7fff5;
+        border: 2px solid var(--vf-border);
+        color: var(--vf-text);
+        border-radius: .5rem;
+        padding: .75rem 1rem;
+        transition: border-color .2s, box-shadow .2s;
+        outline: none;
+        font-weight: 600;
+    }
+
+        .vf-input:focus {
+            border-color: var(--vf-green-dark);
+            box-shadow: 0 0 0 3px rgba(57,255,20,0.15);
+        }
+
+        .vf-input::placeholder {
+            color: #94b890;
+        }
+
+    select.vf-input option {
+        background: #fff;
+        color: var(--vf-text);
+    }
+
+    .vf-btn-primary {
+        background: var(--vf-green);
+        color: #0a1f04;
+        font-weight: 800;
+        padding: .85rem 1.5rem;
+        border-radius: .5rem;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        transition: opacity .2s, transform .1s;
+        width: 100%;
+        box-shadow: 0 4px 14px rgba(57,255,20,0.3);
+        text-transform: uppercase;
+        letter-spacing: .06em;
+    }
+
+        .vf-btn-primary:hover {
+            opacity: .88;
+            transform: translateY(-1px);
+        }
+
+    .vf-btn-secondary {
+        background: #f3f4f6;
+        color: #374151;
+        font-weight: 700;
+        padding: .85rem 1.5rem;
+        border-radius: .5rem;
+        border: 1px solid #d1d5db;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        transition: background .2s;
+        width: 100%;
+        text-decoration: none;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+    }
+
+        .vf-btn-secondary:hover {
+            background: #e5e7eb;
+        }
+</style>
+
+<div class="vf-page">
+    <div class="max-w-4xl mx-auto space-y-6">
+
+        <!-- Header -->
+        <div class="vf-card p-6" style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:1rem;">
+                <div style="background:var(--vf-green);border-radius:.5rem;padding:.5rem 1rem;box-shadow:0 4px 14px rgba(57,255,20,0.3);">
+                    <span style="color:#0a1f04;font-size:1.25rem;font-weight:900;letter-spacing:.05em;">VIDAFIT</span>
+                </div>
+                <div>
+                    <h2 style="color:var(--vf-text);font-size:1.5rem;font-weight:800;">Crear Nuevo Plan</h2>
+                    <p style="color:var(--vf-muted);font-size:.875rem;">Define un nuevo plan de membresía</p>
+                </div>
+            </div>
+            <a href="/membresias/planes" style="color:var(--vf-muted);display:flex;align-items:center;padding:.5rem;border-radius:.5rem;transition:background .2s;" onmouseover="this.style.background='#f0fff0'" onmouseout="this.style.background='transparent'">
                 <i data-lucide="x" class="w-6 h-6"></i>
             </a>
         </div>
 
-        <form id="planForm" class="space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Plan *</label>
-                    <input type="text" name="nombre" required
-                           placeholder="Ej: Plan Mensual, Plan Trimestral, etc."
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-vida-primary">
+        <!-- Formulario -->
+        <div class="vf-card p-8">
+            <form id="planForm" class="space-y-6">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="md:col-span-2">
+                        <label class="vf-label">Nombre del Plan *</label>
+                        <input type="text" name="nombre" required
+                               placeholder="Ej: Plan Mensual, Plan Trimestral, etc."
+                               class="vf-input">
+                    </div>
+
+                    <div>
+                        <label class="vf-label">Tipo de Plan *</label>
+                        <select name="tipo" required class="vf-input">
+                            <option value="">Seleccione un tipo...</option>
+                            <option value="diario">Diario</option>
+                            <option value="semanal">Semanal</option>
+                            <option value="mensual">Mensual</option>
+                            <option value="trimestral">Trimestral</option>
+                            <option value="semestral">Semestral</option>
+                            <option value="anual">Anual</option>
+                            <option value="personalizado">Personalizado</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="vf-label">Color del Plan *</label>
+                        <div style="display:flex;gap:.5rem;">
+                            <input type="color" name="color" value="#39FF14" id="colorPicker"
+                                   style="height:3rem;width:5rem;border:2px solid var(--vf-border);border-radius:.5rem;cursor:pointer;background:#f7fff5;padding:.2rem;">
+                            <input type="text" id="colorValue" value="#39FF14" readonly
+                                   style="flex:1;padding:.75rem 1rem;border:2px solid var(--vf-border);border-radius:.5rem;background:#f7fff5;color:var(--vf-text);font-family:monospace;font-size:.875rem;font-weight:700;outline:none;">
+                        </div>
+                        <p style="color:var(--vf-muted);font-size:.75rem;margin-top:.25rem;">El color identifica visualmente el plan</p>
+                    </div>
+
+                    <div>
+                        <label class="vf-label">Duración (días) *</label>
+                        <input type="number" name="duracionDias" required min="1" value="30"
+                               placeholder="30" class="vf-input">
+                        <p style="color:var(--vf-muted);font-size:.75rem;margin-top:.25rem;">Duración del plan en días</p>
+                    </div>
+
+                    <div>
+                        <label class="vf-label">Precio *</label>
+                        <div style="position:relative;">
+                            <span style="position:absolute;left:1rem;top:.85rem;color:var(--vf-green-dark);font-weight:800;">$</span>
+                            <input type="number" name="precio" required min="0" step="0.01" value="0"
+                                   placeholder="0.00" style="padding-left:2rem;" class="vf-input">
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="vf-label">Descripción (Opcional)</label>
+                        <textarea name="descripcion" rows="3"
+                                  placeholder="Describe los beneficios y características de este plan..."
+                                  class="vf-input" style="resize:none;"></textarea>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label style="display:flex;align-items:center;gap:.75rem;cursor:pointer;">
+                            <input type="checkbox" name="activo" checked
+                                   style="width:1.25rem;height:1.25rem;accent-color:var(--vf-green-dark);border-radius:.25rem;">
+                            <span style="color:var(--vf-text);font-size:.875rem;font-weight:600;">Plan activo (visible para asignar a clientes)</span>
+                        </label>
+                    </div>
                 </div>
 
+                <!-- Vista Previa -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Plan *</label>
-                    <select name="tipo" required
-                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-vida-primary bg-white">
-                        <option value="">Seleccione un tipo...</option>
-                        <option value="diario">Diario</option>
-                        <option value="semanal">Semanal</option>
-                        <option value="mensual">Mensual</option>
-                        <option value="trimestral">Trimestral</option>
-                        <option value="semestral">Semestral</option>
-                        <option value="anual">Anual</option>
-                        <option value="personalizado">Personalizado</option>
-                        <option value="otro">Otro</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Color del Plan *</label>
-                    <div class="flex gap-2">
-                        <input type="color" name="color" value="#00FF00" id="colorPicker"
-                               class="h-12 w-20 border-2 border-gray-300 rounded-lg cursor-pointer">
-                        <input type="text" id="colorValue" value="#00FF00" readonly
-                               class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-50 font-mono text-sm">
-                    </div>
-                    <p class="text-xs text-gray-500 mt-1">El color se usa para identificar visualmente el plan</p>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Duración (días) *</label>
-                    <input type="number" name="duracionDias" required min="1" value="30"
-                           placeholder="30"
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-vida-primary">
-                    <p class="text-xs text-gray-500 mt-1">Duración del plan en días</p>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Precio *</label>
-                    <div class="relative">
-                        <span class="absolute left-4 top-3.5 text-gray-600 font-bold">$</span>
-                        <input type="number" name="precio" required min="0" step="0.01" value="0"
-                               placeholder="0.00"
-                               class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-vida-primary">
+                    <p style="font-size:.78rem;font-weight:800;color:var(--vf-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.75rem;">Vista previa</p>
+                    <div id="planPreview" style="border:2px solid #39FF14;border-radius:.75rem;overflow:hidden;transition:all .3s;box-shadow:0 4px 20px rgba(57,255,20,0.15);">
+                        <div class="p-6 relative overflow-hidden" style="background-color:#39FF14;color:#0a1f04;">
+                            <div style="position:absolute;top:0;right:0;width:8rem;height:8rem;background:rgba(255,255,255,0.2);border-radius:50%;transform:translate(2rem,-2rem);"></div>
+                            <div style="position:absolute;bottom:0;left:0;width:6rem;height:6rem;background:rgba(255,255,255,0.15);border-radius:50%;transform:translate(-1.5rem,1.5rem);"></div>
+                            <div style="position:relative;z-index:10;">
+                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+                                    <span style="background:rgba(0,0,0,0.15);color:#0a1f04;font-size:.8rem;font-weight:700;padding:.25rem .75rem;border-radius:9999px;" id="previewTipo">mensual</span>
+                                    <span style="font-size:.7rem;font-weight:900;letter-spacing:.05em;opacity:.55;">VIDAFIT</span>
+                                </div>
+                                <h4 style="font-size:1.5rem;font-weight:800;margin-bottom:.5rem;color:#0a1f04;" id="previewNombre">Nombre del Plan</h4>
+                                <div>
+                                    <span style="font-size:2.5rem;font-weight:900;color:#0a1f04;">$<span id="previewPrecio">0</span></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="padding:1.5rem;background:#ffffff;border-top:1px solid var(--vf-border);">
+                            <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;">
+                                <i data-lucide="calendar" style="width:1.25rem;height:1.25rem;color:var(--vf-green-dark);"></i>
+                                <span style="font-weight:700;color:var(--vf-text);"><span id="previewDuracion">30</span> días</span>
+                            </div>
+                            <p style="font-size:.875rem;color:var(--vf-muted);" id="previewDescripcion">Sin descripción</p>
+                        </div>
                     </div>
                 </div>
 
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Descripción (Opcional)</label>
-                    <textarea name="descripcion" rows="3"
-                              placeholder="Describe los beneficios y características de este plan..."
-                              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-vida-primary resize-none"></textarea>
+                <!-- Botones -->
+                <div style="display:flex;gap:1rem;padding-top:1rem;border-top:1px solid var(--vf-border);">
+                    <button type="submit" class="vf-btn-primary">
+                        <i data-lucide="check" class="w-5 h-5"></i>
+                        Crear Plan
+                    </button>
+                    <a href="/membresias/planes" class="vf-btn-secondary">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                        Cancelar
+                    </a>
                 </div>
 
-                <div class="md:col-span-2">
-                    <label class="flex items-center gap-3 cursor-pointer">
-                        <input type="checkbox" name="activo" checked
-                               class="w-5 h-5 text-vida-primary rounded focus:ring-2 focus:ring-vida-primary">
-                        <span class="text-sm font-medium text-gray-700">Plan activo (visible para asignar a clientes)</span>
-                    </label>
-                </div>
-            </div>
-
-            <div id="planPreview" class="border-2 rounded-xl overflow-hidden transition-all" style="border-color: #00FF00">
-                <div class="p-6 text-white" style="background-color: #00FF00">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm font-bold" id="previewTipo">
-                            mensual
-                        </span>
-                    </div>
-                    <h4 class="text-2xl font-bold mb-2" id="previewNombre">Nombre del Plan</h4>
-                    <div class="flex items-baseline gap-1">
-                        <span class="text-4xl font-bold">$<span id="previewPrecio">0</span></span>
-                    </div>
-                </div>
-                <div class="p-6 bg-white">
-                    <div class="flex items-center gap-3 mb-4">
-                        <i data-lucide="calendar" class="w-5 h-5 text-gray-600"></i>
-                        <span class="font-bold text-gray-800"><span id="previewDuracion">30</span> días</span>
-                    </div>
-                    <p class="text-sm text-gray-600" id="previewDescripcion">Sin descripción</p>
-                </div>
-            </div>
-
-            <div class="flex gap-4">
-                <button type="submit"
-                        class="flex-1 bg-vida-primary text-vida-dark font-bold py-3 px-6 rounded-lg hover:bg-vida-accent transition flex items-center justify-center gap-2">
-                    <i data-lucide="check" class="w-5 h-5"></i>
-                    Crear Plan
-                </button>
-                <a href="/membresias/planes"
-                   class="flex-1 bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-lg hover:bg-gray-400 transition text-center flex items-center justify-center gap-2">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                    Cancelar
-                </a>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -157,7 +282,6 @@
 
         document.getElementById('planForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-
             const formData = new FormData(e.target);
             const data = {
                 nombre: formData.get('nombre'),
@@ -168,14 +292,12 @@
                 descripcion: formData.get('descripcion'),
                 activo: formData.get('activo') === 'on'
             };
-
             try {
                 const response = await fetch('/api/Planes', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
-
                 if (response.ok) {
                     alert('✅ Plan creado exitosamente');
                     window.location.href = '/membresias/planes';

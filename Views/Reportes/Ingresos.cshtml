@@ -1,117 +1,248 @@
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Reporte de Ingresos";
-    ViewData["Subtitle"] = "Análisis financiero completo - TAURO GYM";
+    ViewData["Subtitle"] = "Análisis financiero completo - VidaFit";
 }
 
-<div class="space-y-6">
+<style>
+    :root {
+        --vf-green: #39FF14;
+        --vf-dark: #0a0a0a;
+        --vf-card: #111111;
+        --vf-border: #1f1f1f;
+        --vf-text: #e5e5e5;
+        --vf-muted: #6b7280;
+    }
+
+    .vf-page {
+        background: var(--vf-dark);
+        min-height: 100vh;
+        padding: 1.5rem;
+    }
+
+    .vf-card {
+        background: var(--vf-card);
+        border: 1px solid var(--vf-border);
+        border-radius: 1rem;
+    }
+
+    .vf-stat {
+        background: var(--vf-card);
+        border-radius: .85rem;
+        padding: 1.5rem;
+        border-left: 4px solid;
+    }
+
+    .vf-section-title {
+        font-size: 1rem;
+        font-weight: 900;
+        color: #fff;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+    }
+
+        .vf-section-title::before {
+            content: '';
+            display: block;
+            width: 3px;
+            height: 1rem;
+            background: var(--vf-green);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+    .vf-input {
+        background: #1a1a1a;
+        border: 2px solid var(--vf-border);
+        color: var(--vf-text);
+        border-radius: .6rem;
+        padding: .5rem 1rem;
+        outline: none;
+        font-weight: 600;
+    }
+
+        .vf-input:focus {
+            border-color: var(--vf-green);
+        }
+
+    select.vf-input option {
+        background: #1a1a1a;
+    }
+
+    .vf-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .vf-table th {
+            background: #0f0f0f;
+            color: var(--vf-muted);
+            font-size: .72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            padding: .9rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--vf-border);
+        }
+
+        .vf-table td {
+            padding: .85rem 1.5rem;
+            border-bottom: 1px solid var(--vf-border);
+            color: var(--vf-text);
+        }
+
+        .vf-table tr:hover td {
+            background: #161616;
+        }
+
+        .vf-table tr:last-child td {
+            border-bottom: none;
+        }
+
+    .vf-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: .25rem .7rem;
+        border-radius: 9999px;
+        font-size: .7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+    }
+</style>
+
+<div class="vf-page space-y-6">
+
+    <!-- Header Brand -->
+    <div style="display:flex;align-items:center;gap:.75rem;">
+        <div style="background:var(--vf-green);padding:.4rem .9rem;border-radius:.5rem;">
+            <span style="font-size:1.1rem;font-weight:900;color:#0a0a0a;letter-spacing:.05em;">VIDAFIT</span>
+        </div>
+        <div>
+            <h2 style="font-size:1.5rem;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:.04em;">Reporte de Ingresos</h2>
+            <p style="color:var(--vf-muted);font-size:.82rem;">Análisis financiero completo</p>
+        </div>
+    </div>
+
+    <!-- Stats cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-emerald-600">
-            <div class="flex items-center justify-between mb-3">
+        <div class="vf-stat" style="border-left-color:var(--vf-green);">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
                 <div>
-                    <p class="text-sm text-gray-600 mb-1 font-black uppercase tracking-wide">Ingresos del Mes</p>
-                    <p class="text-4xl font-black text-gray-900" id="ingresos-mes">$0.00</p>
+                    <p style="font-size:.72rem;font-weight:800;color:var(--vf-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.35rem;">Ingresos del Mes</p>
+                    <p style="font-size:2rem;font-weight:900;color:#fff;" id="ingresos-mes">$0.00</p>
                 </div>
-                <div class="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center">
-                    <i data-lucide="trending-up" class="w-7 h-7 text-emerald-600"></i>
+                <div style="width:3.5rem;height:3.5rem;background:#39FF1422;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                    <i data-lucide="trending-up" style="width:1.6rem;height:1.6rem;color:var(--vf-green);"></i>
                 </div>
             </div>
-            <p class="text-xs text-emerald-600 flex items-center gap-1 font-bold">
-                <i data-lucide="arrow-up" class="w-3 h-3"></i>
+            <p style="font-size:.75rem;color:var(--vf-green);display:flex;align-items:center;gap:.3rem;font-weight:700;">
+                <i data-lucide="arrow-up" style="width:.75rem;height:.75rem;"></i>
                 Membresías pagadas
             </p>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-blue-600">
-            <div class="flex items-center justify-between mb-3">
+        <div class="vf-stat" style="border-left-color:#3b82f6;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
                 <div>
-                    <p class="text-sm text-gray-600 mb-1 font-black uppercase tracking-wide">Ingresos por Productos</p>
-                    <p class="text-4xl font-black text-gray-900" id="ingresos-productos">$0.00</p>
+                    <p style="font-size:.72rem;font-weight:800;color:var(--vf-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.35rem;">Ingresos por Productos</p>
+                    <p style="font-size:2rem;font-weight:900;color:#fff;" id="ingresos-productos">$0.00</p>
                 </div>
-                <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center">
-                    <i data-lucide="shopping-cart" class="w-7 h-7 text-blue-600"></i>
+                <div style="width:3.5rem;height:3.5rem;background:#1d4ed822;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                    <i data-lucide="shopping-cart" style="width:1.6rem;height:1.6rem;color:#60a5fa;"></i>
                 </div>
             </div>
-            <p class="text-xs text-blue-600 flex items-center gap-1 font-bold">
-                <i data-lucide="package" class="w-3 h-3"></i>
+            <p style="font-size:.75rem;color:#60a5fa;display:flex;align-items:center;gap:.3rem;font-weight:700;">
+                <i data-lucide="package" style="width:.75rem;height:.75rem;"></i>
                 Ventas realizadas
             </p>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-amber-600">
-            <div class="flex items-center justify-between mb-3">
+        <div class="vf-stat" style="border-left-color:#f59e0b;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
                 <div>
-                    <p class="text-sm text-gray-600 mb-1 font-black uppercase tracking-wide">Pendiente de Cobro</p>
-                    <p class="text-4xl font-black text-gray-900" id="pendiente-cobro">$0.00</p>
+                    <p style="font-size:.72rem;font-weight:800;color:var(--vf-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.35rem;">Pendiente de Cobro</p>
+                    <p style="font-size:2rem;font-weight:900;color:#fff;" id="pendiente-cobro">$0.00</p>
                 </div>
-                <div class="w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center">
-                    <i data-lucide="alert-circle" class="w-7 h-7 text-amber-600"></i>
+                <div style="width:3.5rem;height:3.5rem;background:#b4530922;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                    <i data-lucide="alert-circle" style="width:1.6rem;height:1.6rem;color:#fbbf24;"></i>
                 </div>
             </div>
-            <p class="text-xs text-amber-600 flex items-center gap-1 font-bold">
-                <i data-lucide="clock" class="w-3 h-3"></i>
+            <p style="font-size:.75rem;color:#fbbf24;display:flex;align-items:center;gap:.3rem;font-weight:700;">
+                <i data-lucide="clock" style="width:.75rem;height:.75rem;"></i>
                 Productos fiados
             </p>
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
-        <div class="flex items-center justify-between mb-6">
-            <h3 class="text-2xl font-black text-gray-900 uppercase tracking-wide">Ingresos Mensuales</h3>
-            <select id="meses-periodo" onchange="loadData()" class="px-4 py-2 border-2 border-gray-300 rounded-xl text-sm font-semibold bg-white focus:ring-2 focus:ring-red-600">
+    <!-- Gráfica Ingresos -->
+    <div class="vf-card p-8">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+            <p class="vf-section-title" style="margin-bottom:0;">Ingresos Mensuales</p>
+            <select id="meses-periodo" onchange="loadData()" class="vf-input">
                 <option value="6">Últimos 6 meses</option>
                 <option value="12">Últimos 12 meses</option>
             </select>
         </div>
-        <div class="relative" style="height: 300px;">
+        <div style="position:relative;height:300px;">
             <canvas id="chart-ingresos"></canvas>
         </div>
     </div>
 
+    <!-- Resumen y Últimas Ventas -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
-            <h3 class="text-xl font-black text-gray-900 mb-6 uppercase tracking-wide">Resumen por Tipo</h3>
+        <div class="vf-card p-8">
+            <p class="vf-section-title">Resumen por Tipo</p>
             <div class="space-y-3" id="resumen-tipo">
-                <div class="text-center py-8 text-gray-500">
-                    <i data-lucide="loader" class="w-8 h-8 mx-auto mb-2 animate-spin"></i>
-                    <p class="font-bold">Cargando...</p>
+                <div style="text-align:center;padding:2rem;color:var(--vf-muted);">
+                    <i data-lucide="loader" style="width:2rem;height:2rem;margin:0 auto .5rem;display:block;" class="animate-spin"></i>
+                    <p style="font-weight:600;">Cargando...</p>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
-            <h3 class="text-xl font-black text-gray-900 mb-6 uppercase tracking-wide">Últimas Ventas</h3>
+        <div class="vf-card p-8">
+            <p class="vf-section-title">Últimas Ventas</p>
             <div class="space-y-2" id="ultimas-ventas">
-                <div class="text-center py-8 text-gray-500">
-                    <i data-lucide="loader" class="w-8 h-8 mx-auto mb-2 animate-spin"></i>
-                    <p class="font-bold">Cargando...</p>
+                <div style="text-align:center;padding:2rem;color:var(--vf-muted);">
+                    <i data-lucide="loader" style="width:2rem;height:2rem;margin:0 auto .5rem;display:block;" class="animate-spin"></i>
+                    <p style="font-weight:600;">Cargando...</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
-        <h3 class="text-2xl font-black text-gray-900 mb-6 uppercase tracking-wide">Productos Más Vendidos</h3>
-        <div class="overflow-x-auto">
-            <table class="w-full" id="tabla-productos">
-                <thead class="bg-gray-50 border-b-2 border-gray-200">
+    <!-- Productos más vendidos -->
+    <div class="vf-card" style="overflow:hidden;">
+        <div style="padding:1rem 1.5rem;border-bottom:1px solid var(--vf-border);background:#0f0f0f;">
+            <p class="vf-section-title" style="margin-bottom:0;">Productos Más Vendidos</p>
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="vf-table" id="tabla-productos">
+                <thead>
                     <tr>
-                        <th class="px-6 py-4 text-left text-xs font-black text-gray-600 uppercase tracking-wider">Producto</th>
-                        <th class="px-6 py-4 text-center text-xs font-black text-gray-600 uppercase tracking-wider">Cantidad</th>
-                        <th class="px-6 py-4 text-right text-xs font-black text-gray-600 uppercase tracking-wider">Ingresos</th>
+                        <th>Producto</th>
+                        <th style="text-align:center;">Cantidad</th>
+                        <th style="text-align:right;">Ingresos</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y-2 divide-gray-200" id="tbody-productos">
+                <tbody id="tbody-productos">
                     <tr>
-                        <td colspan="3" class="px-6 py-8 text-center text-gray-500">
-                            <i data-lucide="loader" class="w-8 h-8 mx-auto mb-2 animate-spin"></i>
-                            <p class="font-bold">Cargando...</p>
+                        <td colspan="3" style="padding:2rem;text-align:center;color:var(--vf-muted);">
+                            <i data-lucide="loader" style="width:2rem;height:2rem;margin:0 auto .5rem;display:block;" class="animate-spin"></i>
+                            <p style="font-weight:600;">Cargando...</p>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
+
 </div>
 
 @section Scripts {
@@ -122,21 +253,17 @@
         async function loadData() {
             try {
                 const mesesPeriodo = document.getElementById('meses-periodo').value;
-
                 const [membresiasRes, ventasRes] = await Promise.all([
                     fetch('/api/Membresias'),
                     fetch('/api/VentasProductos')
                 ]);
-
                 const membresias = await membresiasRes.json();
                 const ventas = await ventasRes.json();
-
                 calcularResumen(membresias, ventas);
                 renderGrafica(membresias, ventas, parseInt(mesesPeriodo));
                 renderResumenTipo(membresias, ventas);
                 renderUltimasVentas(ventas);
                 renderProductosMasVendidos(ventas);
-
             } catch (error) {
                 console.error('Error:', error);
             }
@@ -145,27 +272,12 @@
         function calcularResumen(membresias, ventas) {
             const hoy = new Date();
             const primerDiaMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-
             const ingresosMembresias = membresias
-                .filter(m => {
-                    const fecha = new Date(m.fechaInicio || m.FechaInicio);
-                    return fecha >= primerDiaMes && (m.estado || m.Estado) === 'activa';
-                })
+                .filter(m => { const fecha = new Date(m.fechaInicio || m.FechaInicio); return fecha >= primerDiaMes && (m.estado || m.Estado) === 'activa'; })
                 .reduce((sum, m) => sum + (m.montoPagado || m.MontoPagado || 0), 0);
-
-            const ventasMes = ventas.filter(v => {
-                const fecha = new Date(v.fechaVenta || v.FechaVenta);
-                return fecha >= primerDiaMes;
-            });
-
-            const ingresosProductos = ventasMes
-                .filter(v => v.estadoPago === 'pagado')
-                .reduce((sum, v) => sum + (v.total || 0), 0);
-
-            const pendienteCobro = ventasMes
-                .filter(v => v.estadoPago === 'pendiente')
-                .reduce((sum, v) => sum + (v.total || 0), 0);
-
+            const ventasMes = ventas.filter(v => { const fecha = new Date(v.fechaVenta || v.FechaVenta); return fecha >= primerDiaMes; });
+            const ingresosProductos = ventasMes.filter(v => v.estadoPago === 'pagado').reduce((sum, v) => sum + (v.total || 0), 0);
+            const pendienteCobro = ventasMes.filter(v => v.estadoPago === 'pendiente').reduce((sum, v) => sum + (v.total || 0), 0);
             document.getElementById('ingresos-mes').textContent = `$${ingresosMembresias.toFixed(2)}`;
             document.getElementById('ingresos-productos').textContent = `$${ingresosProductos.toFixed(2)}`;
             document.getElementById('pendiente-cobro').textContent = `$${pendienteCobro.toFixed(2)}`;
@@ -173,98 +285,34 @@
 
         function renderGrafica(membresias, ventas, meses) {
             const ctx = document.getElementById('chart-ingresos');
-
-            if (chartInstance) {
-                chartInstance.destroy();
-            }
-
-            const labels = [];
-            const datosMembresias = [];
-            const datosProductos = [];
-
+            if (chartInstance) chartInstance.destroy();
+            const labels = [], datosMembresias = [], datosProductos = [];
             for (let i = meses - 1; i >= 0; i--) {
-                const fecha = new Date();
-                fecha.setMonth(fecha.getMonth() - i);
-
-                const mesLabel = fecha.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' });
-                labels.push(mesLabel);
-
+                const fecha = new Date(); fecha.setMonth(fecha.getMonth() - i);
+                labels.push(fecha.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' }));
                 const primerDia = new Date(fecha.getFullYear(), fecha.getMonth(), 1);
                 const ultimoDia = new Date(fecha.getFullYear(), fecha.getMonth() + 1, 0);
-
-                const ingresosM = membresias
-                    .filter(m => {
-                        const f = new Date(m.fechaInicio || m.FechaInicio);
-                        return f >= primerDia && f <= ultimoDia && (m.estado || m.Estado) === 'activa';
-                    })
-                    .reduce((sum, m) => sum + (m.montoPagado || m.MontoPagado || 0), 0);
-
-                const ingresosP = ventas
-                    .filter(v => {
-                        const f = new Date(v.fechaVenta || v.FechaVenta);
-                        return f >= primerDia && f <= ultimoDia && v.estadoPago === 'pagado';
-                    })
-                    .reduce((sum, v) => sum + (v.total || 0), 0);
-
-                datosMembresias.push(ingresosM);
-                datosProductos.push(ingresosP);
+                datosMembresias.push(membresias.filter(m => { const f = new Date(m.fechaInicio || m.FechaInicio); return f >= primerDia && f <= ultimoDia && (m.estado || m.Estado) === 'activa'; }).reduce((sum, m) => sum + (m.montoPagado || m.MontoPagado || 0), 0));
+                datosProductos.push(ventas.filter(v => { const f = new Date(v.fechaVenta || v.FechaVenta); return f >= primerDia && f <= ultimoDia && v.estadoPago === 'pagado'; }).reduce((sum, v) => sum + (v.total || 0), 0));
             }
-
             chartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: labels,
+                    labels,
                     datasets: [
-                        {
-                            label: 'Membresías',
-                            data: datosMembresias,
-                            borderColor: '#E31E24',
-                            backgroundColor: 'rgba(227, 30, 36, 0.1)',
-                            borderWidth: 3,
-                            fill: true,
-                            tension: 0.4
-                        },
-                        {
-                            label: 'Productos',
-                            data: datosProductos,
-                            borderColor: '#3b82f6',
-                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                            borderWidth: 3,
-                            fill: true,
-                            tension: 0.4
-                        }
+                        { label: 'Membresías', data: datosMembresias, borderColor: '#39FF14', backgroundColor: 'rgba(57,255,20,0.07)', borderWidth: 3, fill: true, tension: 0.4, pointBackgroundColor: '#39FF14', pointBorderColor: '#111', pointBorderWidth: 2 },
+                        { label: 'Productos', data: datosProductos, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.07)', borderWidth: 3, fill: true, tension: 0.4, pointBackgroundColor: '#3b82f6', pointBorderColor: '#111', pointBorderWidth: 2 }
                     ]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    responsive: true, maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top'
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            padding: 12
-                        }
+                        legend: { display: true, position: 'top', labels: { color: '#e5e5e5', font: { weight: 'bold' } } },
+                        tooltip: { backgroundColor: '#1a1a1a', borderColor: '#1f1f1f', borderWidth: 1, titleColor: '#e5e5e5', bodyColor: '#39FF14', padding: 12, callbacks: { label: ctx => '$' + ctx.parsed.y.toFixed(2) } }
                     },
                     scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return '$' + value;
-                                }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            }
-                        }
+                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#6b7280', callback: v => '$' + v } },
+                        x: { grid: { display: false }, ticks: { color: '#6b7280' } }
                     }
                 }
             });
@@ -273,141 +321,95 @@
         function renderResumenTipo(membresias, ventas) {
             const hoy = new Date();
             const primerDiaMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-
-            const ingresosM = membresias
-                .filter(m => {
-                    const fecha = new Date(m.fechaInicio || m.FechaInicio);
-                    return fecha >= primerDiaMes && (m.estado || m.Estado) === 'activa';
-                })
-                .reduce((sum, m) => sum + (m.montoPagado || m.MontoPagado || 0), 0);
-
-            const ingresosP = ventas
-                .filter(v => {
-                    const fecha = new Date(v.fechaVenta || v.FechaVenta);
-                    return fecha >= primerDiaMes && v.estadoPago === 'pagado';
-                })
-                .reduce((sum, v) => sum + (v.total || 0), 0);
-
+            const ingresosM = membresias.filter(m => { const f = new Date(m.fechaInicio || m.FechaInicio); return f >= primerDiaMes && (m.estado || m.Estado) === 'activa'; }).reduce((sum, m) => sum + (m.montoPagado || m.MontoPagado || 0), 0);
+            const ingresosP = ventas.filter(v => { const f = new Date(v.fechaVenta || v.FechaVenta); return f >= primerDiaMes && v.estadoPago === 'pagado'; }).reduce((sum, v) => sum + (v.total || 0), 0);
             const total = ingresosM + ingresosP;
             const porcM = total > 0 ? (ingresosM / total * 100) : 0;
             const porcP = total > 0 ? (ingresosP / total * 100) : 0;
-
             document.getElementById('resumen-tipo').innerHTML = `
-                <div class="p-4 bg-red-50 rounded-xl border-2 border-red-200">
-                    <div class="flex items-center justify-between mb-2">
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="credit-card" class="w-5 h-5 text-red-600"></i>
-                            <span class="font-black text-gray-900 uppercase text-sm tracking-wide">Membresías</span>
+                <div style="padding:1rem;background:#1a1a1a;border-radius:.75rem;border:1px solid #39FF1433;margin-bottom:.75rem;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;">
+                        <div style="display:flex;align-items:center;gap:.5rem;">
+                            <i data-lucide="credit-card" style="width:1.1rem;height:1.1rem;color:#39FF14;"></i>
+                            <span style="font-weight:800;color:#e5e5e5;text-transform:uppercase;font-size:.85rem;letter-spacing:.06em;">Membresías</span>
                         </div>
-                        <span class="font-black text-red-600 text-lg">$${ingresosM.toFixed(2)}</span>
+                        <span style="font-weight:900;color:#39FF14;font-size:1.05rem;">$${ingresosM.toFixed(2)}</span>
                     </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2">
-                        <div class="bg-gradient-to-r from-red-600 to-red-800 h-2 rounded-full" style="width: ${porcM}%"></div>
+                    <div style="width:100%;background:#1f1f1f;border-radius:9999px;height:.5rem;">
+                        <div style="background:var(--vf-green);height:.5rem;border-radius:9999px;width:${porcM}%;transition:width .5s;"></div>
                     </div>
-                    <p class="text-xs text-gray-600 mt-2 font-bold">${porcM.toFixed(1)}% del total</p>
+                    <p style="font-size:.75rem;color:#6b7280;margin-top:.5rem;font-weight:700;">${porcM.toFixed(1)}% del total</p>
                 </div>
-
-                <div class="p-4 bg-blue-50 rounded-xl border-2 border-blue-200">
-                    <div class="flex items-center justify-between mb-2">
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="shopping-bag" class="w-5 h-5 text-blue-600"></i>
-                            <span class="font-black text-gray-900 uppercase text-sm tracking-wide">Productos</span>
+                <div style="padding:1rem;background:#1a1a1a;border-radius:.75rem;border:1px solid #1d4ed833;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;">
+                        <div style="display:flex;align-items:center;gap:.5rem;">
+                            <i data-lucide="shopping-bag" style="width:1.1rem;height:1.1rem;color:#60a5fa;"></i>
+                            <span style="font-weight:800;color:#e5e5e5;text-transform:uppercase;font-size:.85rem;letter-spacing:.06em;">Productos</span>
                         </div>
-                        <span class="font-black text-blue-600 text-lg">$${ingresosP.toFixed(2)}</span>
+                        <span style="font-weight:900;color:#60a5fa;font-size:1.05rem;">$${ingresosP.toFixed(2)}</span>
                     </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2">
-                        <div class="bg-blue-600 h-2 rounded-full" style="width: ${porcP}%"></div>
+                    <div style="width:100%;background:#1f1f1f;border-radius:9999px;height:.5rem;">
+                        <div style="background:#3b82f6;height:.5rem;border-radius:9999px;width:${porcP}%;transition:width .5s;"></div>
                     </div>
-                    <p class="text-xs text-gray-600 mt-2 font-bold">${porcP.toFixed(1)}% del total</p>
-                </div>
-            `;
+                    <p style="font-size:.75rem;color:#6b7280;margin-top:.5rem;font-weight:700;">${porcP.toFixed(1)}% del total</p>
+                </div>`;
             lucide.createIcons();
         }
 
         function renderUltimasVentas(ventas) {
-            const ultimas = ventas
-                .sort((a, b) => new Date(b.fechaVenta || b.FechaVenta) - new Date(a.fechaVenta || a.FechaVenta))
-                .slice(0, 5);
-
-            if (ultimas.length === 0) {
-                document.getElementById('ultimas-ventas').innerHTML = '<p class="text-center text-gray-500 py-4 font-semibold">No hay ventas recientes</p>';
-                return;
-            }
-
+            const ultimas = ventas.sort((a, b) => new Date(b.fechaVenta || b.FechaVenta) - new Date(a.fechaVenta || a.FechaVenta)).slice(0, 5);
+            if (ultimas.length === 0) { document.getElementById('ultimas-ventas').innerHTML = '<p style="text-align:center;color:#6b7280;padding:1rem;font-weight:600;">No hay ventas recientes</p>'; return; }
             document.getElementById('ultimas-ventas').innerHTML = ultimas.map(v => {
                 const fecha = new Date(v.fechaVenta || v.FechaVenta);
                 const producto = v.producto || v.Producto || {};
                 const cliente = v.cliente || v.Cliente || {};
-
                 return `
-                    <div class="p-3 bg-gray-50 rounded-xl border-2 border-gray-200 hover:border-red-600 transition-all">
-                        <div class="flex items-center justify-between">
-                            <div class="flex-1">
-                                <p class="font-black text-gray-900 text-sm">${producto.nombre || producto.Nombre || 'Producto'}</p>
-                                <p class="text-xs text-gray-600 font-semibold">${cliente.nombre || cliente.Nombre || 'Cliente'} - ${fecha.toLocaleDateString()}</p>
-                            </div>
-                            <span class="font-black text-emerald-600 text-lg">$${(v.total || 0).toFixed(2)}</span>
+                <div style="padding:.85rem;background:#1a1a1a;border-radius:.65rem;border:1px solid #1f1f1f;transition:border-color .2s;margin-bottom:.5rem;" onmouseover="this.style.borderColor='#39FF14'" onmouseout="this.style.borderColor='#1f1f1f'">
+                    <div style="display:flex;align-items:center;justify-content:space-between;">
+                        <div>
+                            <p style="font-weight:800;color:#fff;font-size:.875rem;">${producto.nombre || producto.Nombre || 'Producto'}</p>
+                            <p style="font-size:.75rem;color:#6b7280;font-weight:600;">${cliente.nombre || cliente.Nombre || 'Cliente'} · ${fecha.toLocaleDateString()}</p>
                         </div>
+                        <span style="font-weight:900;color:#39FF14;font-size:1.05rem;">$${(v.total || 0).toFixed(2)}</span>
                     </div>
-                `;
+                </div>`;
             }).join('');
         }
 
         function renderProductosMasVendidos(ventas) {
             const ventasPagadas = ventas.filter(v => v.estadoPago === 'pagado');
-
             const productosMap = {};
             ventasPagadas.forEach(v => {
                 const id = v.productoId || v.ProductoId;
                 const producto = v.producto || v.Producto || {};
-
-                if (!productosMap[id]) {
-                    productosMap[id] = {
-                        nombre: producto.nombre || producto.Nombre || 'Desconocido',
-                        cantidad: 0,
-                        total: 0
-                    };
-                }
+                if (!productosMap[id]) productosMap[id] = { nombre: producto.nombre || producto.Nombre || 'Desconocido', cantidad: 0, total: 0 };
                 productosMap[id].cantidad += v.cantidad || 0;
                 productosMap[id].total += v.total || 0;
             });
-
-            const productos = Object.values(productosMap)
-                .sort((a, b) => b.total - a.total)
-                .slice(0, 5);
-
-            if (productos.length === 0) {
-                document.getElementById('tbody-productos').innerHTML = '<tr><td colspan="3" class="px-6 py-8 text-center text-gray-500 font-semibold">No hay ventas de productos</td></tr>';
-                return;
-            }
-
+            const productos = Object.values(productosMap).sort((a, b) => b.total - a.total).slice(0, 5);
+            if (productos.length === 0) { document.getElementById('tbody-productos').innerHTML = '<tr><td colspan="3" style="padding:2rem;text-align:center;color:#6b7280;font-weight:600;">No hay ventas de productos</td></tr>'; return; }
             document.getElementById('tbody-productos').innerHTML = productos.map(p => `
-                <tr class="hover:bg-gray-50 transition-colors">
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center">
-                                <i data-lucide="package" class="w-5 h-5 text-gray-600"></i>
+                <tr>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:.75rem;">
+                            <div style="width:2.25rem;height:2.25rem;background:#1a1a1a;border-radius:.5rem;display:flex;align-items:center;justify-content:center;border:1px solid #1f1f1f;">
+                                <i data-lucide="package" style="width:1.1rem;height:1.1rem;color:#6b7280;"></i>
                             </div>
-                            <span class="font-black text-gray-900">${p.nombre}</span>
+                            <span style="font-weight:800;color:#fff;">${p.nombre}</span>
                         </div>
                     </td>
-                    <td class="px-6 py-4 text-center">
-                        <span class="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 font-black rounded-full uppercase text-xs tracking-wide">
+                    <td style="text-align:center;">
+                        <span style="display:inline-flex;align-items:center;padding:.25rem .7rem;background:#1d4ed822;color:#60a5fa;border-radius:9999px;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;border:1px solid #1d4ed844;">
                             ${p.cantidad} unidades
                         </span>
                     </td>
-                    <td class="px-6 py-4 text-right">
-                        <span class="text-xl font-black text-emerald-600">$${p.total.toFixed(2)}</span>
+                    <td style="text-align:right;">
+                        <span style="font-size:1.1rem;font-weight:900;color:#39FF14;">$${p.total.toFixed(2)}</span>
                     </td>
-                </tr>
-            `).join('');
-
+                </tr>`).join('');
             lucide.createIcons();
         }
 
-        window.addEventListener('load', function() {
-            loadData();
-            lucide.createIcons();
-        });
+        window.addEventListener('load', function() { loadData(); lucide.createIcons(); });
     </script>
 }

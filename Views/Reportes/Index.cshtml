@@ -1,91 +1,160 @@
 ﻿@{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Reportes";
-    ViewData["Subtitle"] = "Análisis y estadísticas - TAURO GYM";
+    ViewData["Subtitle"] = "Análisis y estadísticas - VidaFit";
 }
 
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <a href="/reportes/asistencia" class="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all transform hover:scale-105 border-2 border-gray-200">
-        <div class="flex items-center gap-4">
-            <div class="w-20 h-20 bg-blue-100 rounded-2xl flex items-center justify-center">
-                <i data-lucide="activity" class="w-10 h-10 text-blue-600"></i>
-            </div>
-            <div class="flex-1">
-                <h3 class="text-xl font-black text-gray-900 uppercase tracking-wide">Asistencia</h3>
-                <p class="text-sm text-gray-600 font-semibold">Análisis de check-ins y visitas</p>
-            </div>
-            <i data-lucide="chevron-right" class="w-6 h-6 text-gray-400"></i>
-        </div>
-    </a>
+<style>
+    :root {
+        --vf-green: #39FF14;
+        --vf-dark: #0a0a0a;
+        --vf-card: #111111;
+        --vf-border: #1f1f1f;
+        --vf-text: #e5e5e5;
+        --vf-muted: #6b7280;
+    }
 
-    <a href="/reportes/ingresos" class="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all transform hover:scale-105 border-2 border-gray-200">
-        <div class="flex items-center gap-4">
-            <div class="w-20 h-20 bg-emerald-100 rounded-2xl flex items-center justify-center">
-                <i data-lucide="dollar-sign" class="w-10 h-10 text-emerald-600"></i>
-            </div>
-            <div class="flex-1">
-                <h3 class="text-xl font-black text-gray-900 uppercase tracking-wide">Ingresos</h3>
-                <p class="text-sm text-gray-600 font-semibold">Reporte financiero y pagos</p>
-            </div>
-            <i data-lucide="chevron-right" class="w-6 h-6 text-gray-400"></i>
-        </div>
-    </a>
+    .vf-page {
+        background: var(--vf-dark);
+        min-height: 100vh;
+        padding: 1.5rem;
+    }
 
-    <a href="/reportes/clientes-inactivos" class="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all transform hover:scale-105 border-2 border-gray-200">
-        <div class="flex items-center gap-4">
-            <div class="w-20 h-20 bg-purple-100 rounded-2xl flex items-center justify-center">
-                <i data-lucide="user-x" class="w-10 h-10 text-purple-600"></i>
-            </div>
-            <div class="flex-1">
-                <h3 class="text-xl font-black text-gray-900 uppercase tracking-wide">Clientes Inactivos</h3>
-                <p class="text-sm text-gray-600 font-semibold">Seguimiento de clientes</p>
-            </div>
-            <i data-lucide="chevron-right" class="w-6 h-6 text-gray-400"></i>
-        </div>
-    </a>
+    .vf-report-card {
+        background: var(--vf-card);
+        border: 1px solid var(--vf-border);
+        border-radius: 1rem;
+        padding: 1.75rem;
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        text-decoration: none;
+        transition: border-color .2s,box-shadow .2s,transform .15s;
+    }
 
-    <a href="/reportes/productos-mas-vendidos" class="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all transform hover:scale-105 border-2 border-gray-200">
-        <div class="flex items-center gap-4">
-            <div class="w-20 h-20 bg-amber-100 rounded-2xl flex items-center justify-center">
-                <i data-lucide="package" class="w-10 h-10 text-amber-600"></i>
-            </div>
-            <div class="flex-1">
-                <h3 class="text-xl font-black text-gray-900 uppercase tracking-wide">Productos</h3>
-                <p class="text-sm text-gray-600 font-semibold">Más vendidos</p>
-            </div>
-            <i data-lucide="chevron-right" class="w-6 h-6 text-gray-400"></i>
-        </div>
-    </a>
+        .vf-report-card:hover {
+            border-color: var(--vf-green);
+            box-shadow: 0 0 24px rgba(57,255,20,.12);
+            transform: translateY(-2px);
+        }
 
-    <a href="/reportes/ingresos-membresias" class="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all transform hover:scale-105 border-2 border-gray-200">
-        <div class="flex items-center gap-4">
-            <div class="w-20 h-20 bg-red-100 rounded-2xl flex items-center justify-center">
-                <i data-lucide="credit-card" class="w-10 h-10 text-red-600"></i>
-            </div>
-            <div class="flex-1">
-                <h3 class="text-xl font-black text-gray-900 uppercase tracking-wide">Membresías</h3>
-                <p class="text-sm text-gray-600 font-semibold">Ingresos por membresías</p>
-            </div>
-            <i data-lucide="chevron-right" class="w-6 h-6 text-gray-400"></i>
-        </div>
-    </a>
+    .vf-icon-box {
+        width: 5rem;
+        height: 5rem;
+        border-radius: .85rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
 
-    <a href="/reportes/cuentas-pendientes" class="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all transform hover:scale-105 border-2 border-gray-200">
-        <div class="flex items-center gap-4">
-            <div class="w-20 h-20 bg-orange-100 rounded-2xl flex items-center justify-center">
-                <i data-lucide="alert-circle" class="w-10 h-10 text-orange-600"></i>
-            </div>
-            <div class="flex-1">
-                <h3 class="text-xl font-black text-gray-900 uppercase tracking-wide">Cuentas Pendientes</h3>
-                <p class="text-sm text-gray-600 font-semibold">Productos fiados</p>
-            </div>
-            <i data-lucide="chevron-right" class="w-6 h-6 text-gray-400"></i>
+    .vf-card-title {
+        font-size: 1.1rem;
+        font-weight: 900;
+        color: #fff;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+    }
+
+    .vf-card-sub {
+        font-size: .82rem;
+        color: var(--vf-muted);
+        font-weight: 600;
+        margin-top: .2rem;
+    }
+
+    .vf-header {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        margin-bottom: 2rem;
+    }
+</style>
+
+<div class="vf-page">
+
+    <!-- Header -->
+    <div class="vf-header">
+        <div style="background:var(--vf-green);padding:.45rem 1rem;border-radius:.5rem;">
+            <span style="font-size:1.2rem;font-weight:900;color:#0a0a0a;letter-spacing:.05em;">VIDAFIT</span>
         </div>
-    </a>
+        <div>
+            <h2 style="font-size:1.6rem;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:.04em;">Reportes</h2>
+            <p style="color:var(--vf-muted);font-size:.85rem;">Análisis y estadísticas del gimnasio</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+
+        <a href="/reportes/asistencia" class="vf-report-card">
+            <div class="vf-icon-box" style="background:#1d4ed822;">
+                <i data-lucide="activity" style="width:2.5rem;height:2.5rem;color:#60a5fa;"></i>
+            </div>
+            <div style="flex:1;">
+                <p class="vf-card-title">Asistencia</p>
+                <p class="vf-card-sub">Análisis de check-ins y visitas</p>
+            </div>
+            <i data-lucide="chevron-right" style="width:1.4rem;height:1.4rem;color:var(--vf-muted);flex-shrink:0;"></i>
+        </a>
+
+        <a href="/reportes/ingresos" class="vf-report-card">
+            <div class="vf-icon-box" style="background:#05966922;">
+                <i data-lucide="dollar-sign" style="width:2.5rem;height:2.5rem;color:#34d399;"></i>
+            </div>
+            <div style="flex:1;">
+                <p class="vf-card-title">Ingresos</p>
+                <p class="vf-card-sub">Reporte financiero y pagos</p>
+            </div>
+            <i data-lucide="chevron-right" style="width:1.4rem;height:1.4rem;color:var(--vf-muted);flex-shrink:0;"></i>
+        </a>
+
+        <a href="/reportes/clientes-inactivos" class="vf-report-card">
+            <div class="vf-icon-box" style="background:#7c3aed22;">
+                <i data-lucide="user-x" style="width:2.5rem;height:2.5rem;color:#a78bfa;"></i>
+            </div>
+            <div style="flex:1;">
+                <p class="vf-card-title">Clientes Inactivos</p>
+                <p class="vf-card-sub">Seguimiento de clientes</p>
+            </div>
+            <i data-lucide="chevron-right" style="width:1.4rem;height:1.4rem;color:var(--vf-muted);flex-shrink:0;"></i>
+        </a>
+
+        <a href="/reportes/productos-mas-vendidos" class="vf-report-card">
+            <div class="vf-icon-box" style="background:#b4530922;">
+                <i data-lucide="package" style="width:2.5rem;height:2.5rem;color:#fb923c;"></i>
+            </div>
+            <div style="flex:1;">
+                <p class="vf-card-title">Productos</p>
+                <p class="vf-card-sub">Más vendidos</p>
+            </div>
+            <i data-lucide="chevron-right" style="width:1.4rem;height:1.4rem;color:var(--vf-muted);flex-shrink:0;"></i>
+        </a>
+
+        <a href="/reportes/ingresos-membresias" class="vf-report-card">
+            <div class="vf-icon-box" style="background:#39FF1422;">
+                <i data-lucide="credit-card" style="width:2.5rem;height:2.5rem;color:var(--vf-green);"></i>
+            </div>
+            <div style="flex:1;">
+                <p class="vf-card-title">Membresías</p>
+                <p class="vf-card-sub">Ingresos por membresías</p>
+            </div>
+            <i data-lucide="chevron-right" style="width:1.4rem;height:1.4rem;color:var(--vf-muted);flex-shrink:0;"></i>
+        </a>
+
+        <a href="/reportes/cuentas-pendientes" class="vf-report-card">
+            <div class="vf-icon-box" style="background:#ea580c22;">
+                <i data-lucide="alert-circle" style="width:2.5rem;height:2.5rem;color:#fb923c;"></i>
+            </div>
+            <div style="flex:1;">
+                <p class="vf-card-title">Cuentas Pendientes</p>
+                <p class="vf-card-sub">Productos fiados</p>
+            </div>
+            <i data-lucide="chevron-right" style="width:1.4rem;height:1.4rem;color:var(--vf-muted);flex-shrink:0;"></i>
+        </a>
+
+    </div>
 </div>
 
 @section Scripts {
-    <script>
-        lucide.createIcons();
-    </script>
+    <script>lucide.createIcons();</script>
 }

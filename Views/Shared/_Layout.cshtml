@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - TAURO GYM</title>
+    <title>@ViewData["Title"] - VidaFit</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -12,11 +12,11 @@
             theme: {
                 extend: {
                     colors: {
-                        'tauro-red': '#E31E24',
-                        'tauro-dark': '#000000',
-                        'tauro-gray': '#1a1a1a',
-                        'tauro-light-red': '#FF4448',
-                        'tauro-accent': '#C41E23'
+                        'vida-green': '#3ddc52',
+                        'vida-dark': '#000000',
+                        'vida-gray': '#1a1a1a',
+                        'vida-light-green': '#5ce870',
+                        'vida-accent': '#2ab83d'
                     }
                 }
             }
@@ -58,33 +58,33 @@
         }
 
         ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #E31E24 0%, #C41E23 100%);
+            background: linear-gradient(180deg, #3ddc52 0%, #2ab83d 100%);
             border-radius: 5px;
         }
 
             ::-webkit-scrollbar-thumb:hover {
-                background: linear-gradient(180deg, #FF4448 0%, #E31E24 100%);
+                background: linear-gradient(180deg, #5ce870 0%, #3ddc52 100%);
             }
 
         .tauro-card {
             transition: all 0.3s ease;
-            border: 2px solid rgba(227, 30, 36, 0.2);
+            border: 2px solid rgba(61, 220, 82, 0.2);
         }
 
             .tauro-card:hover {
                 transform: translateY(-5px);
-                box-shadow: 0 15px 40px rgba(227, 30, 36, 0.4);
-                border-color: rgba(227, 30, 36, 0.6);
+                box-shadow: 0 15px 40px rgba(61, 220, 82, 0.4);
+                border-color: rgba(61, 220, 82, 0.6);
             }
 
         .btn-tauro {
-            background: linear-gradient(135deg, #E31E24 0%, #C41E23 100%);
+            background: linear-gradient(135deg, #3ddc52 0%, #2ab83d 100%);
             transition: all 0.3s ease;
         }
 
             .btn-tauro:hover {
-                background: linear-gradient(135deg, #FF4448 0%, #E31E24 100%);
-                box-shadow: 0 8px 25px rgba(227, 30, 36, 0.5);
+                background: linear-gradient(135deg, #5ce870 0%, #3ddc52 100%);
+                box-shadow: 0 8px 25px rgba(61, 220, 82, 0.5);
                 transform: scale(1.05);
             }
     </style>
