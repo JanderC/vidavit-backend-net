@@ -76,11 +76,9 @@ builder.Services.AddAuthentication(x =>
 
 // Servicios personalizados
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddSingleton<IFingerprintService, FingerprintService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
 // ✅ Registrar CajaFuerteController como servicio para inyección directa en CajaController
-// (evita el HttpClient interno que causaba fallos al enviar cierres a Caja Fuerte)
 builder.Services.AddScoped<VidaFit.Controllers.API.CajaFuerteController>();
 
 // ⚠️ SERVICIOS AUTOMÁTICOS REMOVIDOS - Causan problemas con zonas horarias
@@ -114,14 +112,9 @@ var app = builder.Build();
 
 // ==================== INICIALIZACIÓN ====================
 
-// Inicializar el servicio de huellas ANTES del banner
-var fingerprintService = app.Services.GetRequiredService<IFingerprintService>();
-fingerprintService.Initialize();
-
 // Mostrar zona horaria del servidor
 var zonaHoraria = TimeZoneInfo.Local;
 var horaActual = DateTime.Now;
-
 
 Console.WriteLine("                    GYM SYSTEM                          ");
 Console.WriteLine("═══════════════════════════════════════════════════════");
@@ -133,7 +126,6 @@ Console.WriteLine($"   ✓ Base de datos: PostgreSQL - {connectionString?.Split(
 Console.WriteLine($"   ✓ Zona horaria: {zonaHoraria.DisplayName}");
 Console.WriteLine($"   ✓ Hora actual: {horaActual:dd/MM/yyyy HH:mm:ss}");
 Console.WriteLine($"   ✓ Timestamp mode: Legacy (DateTime.Now compatible)");
-Console.WriteLine($"   {(fingerprintService.IsReaderConnected() ? "✓" : "✗")} Lector de huellas: {(fingerprintService.IsReaderConnected() ? "Conectado ✓" : "No detectado ✗")}");
 Console.WriteLine("═══════════════════════════════════════════════════════");
 Console.WriteLine("   📱 Kiosko de Check-in: http://localhost:5000/kiosko");
 Console.WriteLine("   🎛️  Panel Admin: http://localhost:5000/admin");
@@ -186,28 +178,23 @@ app.MapControllerRoute(
 
 // ==================== ABRIR NAVEGADOR AUTOMÁTICAMENTE ====================
 
-// Configurar el hook de inicio de la aplicación
 var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
 
 lifetime.ApplicationStarted.Register(() =>
 {
-    // Esperar un momento para asegurar que el servidor esté completamente listo
     Task.Run(async () =>
     {
-        await Task.Delay(1500); // Espera 1.5 segundos
+        await Task.Delay(1500);
 
         Console.WriteLine("═══════════════════════════════════════════════════════");
         Console.WriteLine("   ⚡ Abriendo navegador automáticamente...");
         Console.WriteLine("═══════════════════════════════════════════════════════");
 
-        // Abrir Panel Admin
         OpenBrowser("http://localhost:5000/admin");
         Console.WriteLine("   ✓ Panel Admin abierto");
 
-        // Pequeña pausa entre ventanas
         await Task.Delay(800);
 
-        // Abrir Kiosko
         OpenBrowser("http://localhost:3000/verify");
         Console.WriteLine("   ✓ Kiosko abierto");
 
@@ -230,7 +217,6 @@ static void OpenBrowser(string url)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            // Windows - Usar cmd para abrir en el navegador predeterminado
             var psi = new ProcessStartInfo
             {
                 FileName = "cmd",
@@ -242,12 +228,10 @@ static void OpenBrowser(string url)
         }
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
-            // Linux
             Process.Start("xdg-open", url);
         }
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
-            // macOS
             Process.Start("open", url);
         }
     }
