@@ -7,64 +7,63 @@
 
 <style>
     :root {
-        --vf-green: #39FF14;
-        --vf-dark: #0a0a0a;
-        --vf-card: #111111;
-        --vf-border: #1f1f1f;
-        --vf-text: #e5e5e5;
-        --vf-muted: #6b7280;
+        --pz-dark: #0f1535;
+        --pz-card: #111827;
+        --pz-border: #1f2a4a;
+        --pz-text: #e5e5e5;
+        --pz-muted: #6b7280;
     }
 
-    .vf-page {
-        background: var(--vf-dark);
+    .pz-page {
+        background: var(--pz-dark);
         min-height: 100vh;
         padding: 1.5rem;
     }
 
-    .vf-card {
-        background: var(--vf-card);
-        border: 1px solid var(--vf-border);
+    .pz-card {
+        background: var(--pz-card);
+        border: 1px solid var(--pz-border);
         border-radius: 1rem;
     }
 
-    .vf-label {
+    .pz-label {
         display: block;
         font-size: .78rem;
         font-weight: 800;
-        color: var(--vf-muted);
+        color: var(--pz-muted);
         text-transform: uppercase;
         letter-spacing: .08em;
         margin-bottom: .5rem;
     }
 
-    .vf-input {
+    .pz-input {
         width: 100%;
-        background: #1a1a1a;
-        border: 2px solid var(--vf-border);
-        color: var(--vf-text);
+        background: #1a2050;
+        border: 2px solid var(--pz-border);
+        color: var(--pz-text);
         border-radius: .6rem;
         padding: .75rem 1rem;
         outline: none;
         font-weight: 600;
-        transition: border-color .2s,box-shadow .2s;
+        transition: border-color .2s, box-shadow .2s;
     }
 
-        .vf-input:focus {
-            border-color: var(--vf-green);
-            box-shadow: 0 0 0 3px rgba(57,255,20,.12);
+        .pz-input:focus {
+            border-color: #D4A017;
+            box-shadow: 0 0 0 3px rgba(212,160,23,0.18);
         }
 
-        .vf-input::placeholder {
-            color: var(--vf-muted);
+        .pz-input::placeholder {
+            color: var(--pz-muted);
         }
 
-    select.vf-input option {
-        background: #1a1a1a;
+    select.pz-input option {
+        background: #1a2050;
     }
 
-    .vf-btn-primary {
-        background: var(--vf-green);
-        color: #0a0a0a;
+    .pz-btn-primary {
+        background: linear-gradient(135deg, #2B4FD8, #1a3ab5);
+        color: #fff;
         font-weight: 900;
         padding: .75rem 2rem;
         border-radius: .6rem;
@@ -72,21 +71,21 @@
         cursor: pointer;
         text-transform: uppercase;
         letter-spacing: .06em;
-        transition: opacity .2s,transform .1s;
+        transition: all .2s;
     }
 
-        .vf-btn-primary:hover {
-            opacity: .85;
+        .pz-btn-primary:hover {
+            background: linear-gradient(135deg, #D4A017, #b8880e);
             transform: translateY(-1px);
         }
 
-    .vf-btn-secondary {
-        background: #1f1f1f;
-        color: var(--vf-text);
+    .pz-btn-secondary {
+        background: #1f2a4a;
+        color: var(--pz-text);
         font-weight: 800;
         padding: .75rem 2rem;
         border-radius: .6rem;
-        border: 1px solid var(--vf-border);
+        border: 1px solid var(--pz-border);
         text-transform: uppercase;
         letter-spacing: .06em;
         text-decoration: none;
@@ -94,22 +93,22 @@
         transition: background .2s;
     }
 
-        .vf-btn-secondary:hover {
-            background: #2a2a2a;
+        .pz-btn-secondary:hover {
+            background: #263060;
         }
 
-    .vf-file-input {
+    .pz-file-input {
         width: 100%;
-        background: #1a1a1a;
-        border: 2px dashed var(--vf-border);
-        color: var(--vf-text);
+        background: #1a2050;
+        border: 2px dashed var(--pz-border);
+        color: var(--pz-text);
         border-radius: .6rem;
         padding: .6rem 1rem;
     }
 
-        .vf-file-input::file-selector-button {
-            background: var(--vf-green);
-            color: #0a0a0a;
+        .pz-file-input::file-selector-button {
+            background: linear-gradient(135deg, #D4A017, #b8880e);
+            color: #fff;
             font-weight: 800;
             padding: .4rem 1rem;
             border-radius: .4rem;
@@ -121,20 +120,20 @@
         }
 </style>
 
-<div class="vf-page">
+<div class="pz-page">
     <div class="max-w-2xl mx-auto">
-        <div class="vf-card p-8">
+        <div class="pz-card p-8">
             <!-- Header -->
-            <div style="display:flex;align-items:center;gap:1rem;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--vf-border);">
-                <div style="background:var(--vf-green);border-radius:.75rem;padding:1rem;">
-                    <i data-lucide="edit" style="width:2rem;height:2rem;color:#0a0a0a;display:block;"></i>
+            <div style="display:flex;align-items:center;gap:1rem;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--pz-border);">
+                <div style="background:linear-gradient(135deg,#D4A017,#b8880e);border-radius:.75rem;padding:1rem;">
+                    <i data-lucide="edit" style="width:2rem;height:2rem;color:#fff;display:block;"></i>
                 </div>
                 <div>
                     <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.2rem;">
                         <h2 style="font-size:1.6rem;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:.05em;">Editar Producto</h2>
-                        <span style="background:var(--vf-green);color:#0a0a0a;font-size:.65rem;font-weight:900;padding:.15rem .55rem;border-radius:9999px;letter-spacing:.1em;">VIDAFIT</span>
+                        <span style="background:linear-gradient(135deg,#0f1535,#1a2050);color:#D4A017;font-size:.65rem;font-weight:900;padding:.15rem .55rem;border-radius:9999px;letter-spacing:.1em;border:1px solid #D4A017;">POWERZONE</span>
                     </div>
-                    <p style="color:var(--vf-muted);font-size:.875rem;font-weight:600;">Actualizar información del producto</p>
+                    <p style="color:var(--pz-muted);font-size:.875rem;font-weight:600;">Actualizar información del producto</p>
                 </div>
             </div>
 
@@ -142,32 +141,32 @@
                 <input type="hidden" id="producto-id" value="@Model.Id">
 
                 <div>
-                    <label class="vf-label">Nombre *</label>
-                    <input type="text" id="nombre" value="@Model.Nombre" required class="vf-input">
+                    <label class="pz-label">Nombre *</label>
+                    <input type="text" id="nombre" value="@Model.Nombre" required class="pz-input">
                 </div>
 
                 <div>
-                    <label class="vf-label">Descripción</label>
-                    <textarea id="descripcion" rows="2" class="vf-input" style="resize:none;">@Model.Descripcion</textarea>
+                    <label class="pz-label">Descripción</label>
+                    <textarea id="descripcion" rows="2" class="pz-input" style="resize:none;">@Model.Descripcion</textarea>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="vf-label">Precio *</label>
+                        <label class="pz-label">Precio *</label>
                         <div style="position:relative;">
-                            <span style="position:absolute;left:1rem;top:.85rem;color:var(--vf-green);font-weight:800;">$</span>
-                            <input type="number" id="precio" step="0.01" value="@Model.Precio" required class="vf-input" style="padding-left:2rem;">
+                            <span style="position:absolute;left:1rem;top:.85rem;color:#D4A017;font-weight:800;">$</span>
+                            <input type="number" id="precio" step="0.01" value="@Model.Precio" required class="pz-input" style="padding-left:2rem;">
                         </div>
                     </div>
                     <div>
-                        <label class="vf-label">Stock *</label>
-                        <input type="number" id="stock" value="@Model.Stock" required class="vf-input">
+                        <label class="pz-label">Stock *</label>
+                        <input type="number" id="stock" value="@Model.Stock" required class="pz-input">
                     </div>
                 </div>
 
                 <div>
-                    <label class="vf-label">Categoría</label>
-                    <select id="categoria" class="vf-input">
+                    <label class="pz-label">Categoría</label>
+                    <select id="categoria" class="pz-input">
                         <option value="">Seleccionar...</option>
                         <option value="Suplementos" selected="@(Model.Categoria == "Suplementos")">Suplementos</option>
                         <option value="Bebidas" selected="@(Model.Categoria == "Bebidas")">Bebidas</option>
@@ -178,21 +177,23 @@
                 </div>
 
                 <div>
-                    <label class="vf-label">Imagen</label>
+                    <label class="pz-label">Imagen</label>
                     @if (!string.IsNullOrEmpty(Model.ImagenBase64))
                     {
-                        <img id="preview" src="data:image/jpeg;base64,@Model.ImagenBase64" style="margin-bottom:.75rem;width:8rem;height:8rem;object-fit:cover;border-radius:.75rem;border:2px solid var(--vf-border);">
+                        <img id="preview" src="data:image/jpeg;base64,@Model.ImagenBase64"
+                             style="margin-bottom:.75rem;width:8rem;height:8rem;object-fit:cover;border-radius:.75rem;border:2px solid #D4A017;">
                     }
                     else
                     {
-                        <img id="preview" src="" style="margin-bottom:.75rem;width:8rem;height:8rem;object-fit:cover;border-radius:.75rem;border:2px solid var(--vf-border);display:none;">
+                        <img id="preview" src=""
+                             style="margin-bottom:.75rem;width:8rem;height:8rem;object-fit:cover;border-radius:.75rem;border:2px solid var(--pz-border);display:none;">
                     }
-                    <input type="file" id="imagen" accept="image/*" class="vf-file-input">
+                    <input type="file" id="imagen" accept="image/*" class="pz-file-input">
                 </div>
 
-                <div style="display:flex;justify-content:flex-end;gap:.75rem;padding-top:1.5rem;border-top:1px solid var(--vf-border);">
-                    <a href="/productos" class="vf-btn-secondary">Cancelar</a>
-                    <button type="submit" class="vf-btn-primary">Actualizar</button>
+                <div style="display:flex;justify-content:flex-end;gap:.75rem;padding-top:1.5rem;border-top:1px solid var(--pz-border);">
+                    <a href="/productos" class="pz-btn-secondary">Cancelar</a>
+                    <button type="submit" class="pz-btn-primary">Actualizar</button>
                 </div>
             </form>
         </div>
@@ -233,20 +234,12 @@
             };
             try {
                 const response = await fetch(`${API_URL}/Productos/${productoId}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'PUT', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(producto)
                 });
-                if (response.ok) {
-                    alert('✓ Producto actualizado exitosamente');
-                    window.location.href = '/productos';
-                } else {
-                    const error = await response.text();
-                    alert('Error al actualizar: ' + error);
-                }
-            } catch (error) {
-                alert('Error de conexión: ' + error.message);
-            }
+                if (response.ok) { alert('✓ Producto actualizado exitosamente'); window.location.href = '/productos'; }
+                else { alert('Error al actualizar: ' + await response.text()); }
+            } catch (error) { alert('Error de conexión: ' + error.message); }
         });
 
         lucide.createIcons();

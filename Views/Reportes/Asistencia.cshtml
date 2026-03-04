@@ -2,7 +2,7 @@
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Reporte de Asistencia";
-    ViewData["Subtitle"] = "Control de check-ins - VidaFit";
+    ViewData["Subtitle"] = "Control de check-ins - PowerZone";
 
     int totalCheckins = 0;
     foreach (var item in Model) { totalCheckins += Convert.ToInt32(item.Total); }
@@ -11,40 +11,44 @@
 
 <style>
     :root {
-        --vf-green: #39FF14;
-        --vf-dark: #0a0a0a;
-        --vf-card: #111111;
-        --vf-border: #1f1f1f;
-        --vf-text: #e5e5e5;
-        --vf-muted: #6b7280;
+        --pz-blue: #2B4FD8;
+        --pz-blue-dark: #1a3ab5;
+        --pz-gold: #D4A017;
+        --pz-gold-dark: #b8880e;
+        --pz-dark: #0f1535;
+        --pz-dark2: #1a2050;
+        --pz-card: #111827;
+        --pz-border: #1f2a4a;
+        --pz-text: #e5e5e5;
+        --pz-muted: #6b7280;
     }
 
-    .vf-page {
-        background: var(--vf-dark);
+    .pz-page {
+        background: var(--pz-dark);
         min-height: 100vh;
         padding: 1.5rem;
     }
 
-    .vf-card {
-        background: var(--vf-card);
-        border: 1px solid var(--vf-border);
+    .pz-card {
+        background: var(--pz-card);
+        border: 1px solid var(--pz-border);
         border-radius: 1rem;
     }
 
-    .vf-label {
+    .pz-label {
         display: block;
         font-size: .78rem;
         font-weight: 800;
-        color: var(--vf-muted);
+        color: var(--pz-muted);
         text-transform: uppercase;
         letter-spacing: .08em;
         margin-bottom: .5rem;
     }
 
-    .vf-input {
-        background: #1a1a1a;
-        border: 2px solid var(--vf-border);
-        color: var(--vf-text);
+    .pz-input {
+        background: #1a2050;
+        border: 2px solid var(--pz-border);
+        color: var(--pz-text);
         border-radius: .6rem;
         padding: .75rem 1rem;
         outline: none;
@@ -53,20 +57,21 @@
         width: 100%;
     }
 
-        .vf-input:focus {
-            border-color: var(--vf-green);
+        .pz-input:focus {
+            border-color: #D4A017;
+            box-shadow: 0 0 0 3px rgba(212,160,23,0.15);
         }
 
-    .vf-stat {
-        background: var(--vf-card);
+    .pz-stat {
+        background: var(--pz-card);
         border-radius: .85rem;
         padding: 1.5rem;
         border-left: 4px solid;
     }
 
-    .vf-btn-filter {
-        background: var(--vf-green);
-        color: #0a0a0a;
+    .pz-btn-filter {
+        background: linear-gradient(135deg, #2B4FD8, #1a3ab5);
+        color: #fff;
         font-weight: 900;
         padding: .8rem 2rem;
         border-radius: .6rem;
@@ -77,44 +82,46 @@
         display: inline-flex;
         align-items: center;
         gap: .5rem;
-        transition: opacity .2s;
+        transition: all .2s;
+        box-shadow: 0 4px 14px rgba(43,79,216,0.3);
     }
 
-        .vf-btn-filter:hover {
-            opacity: .85;
+        .pz-btn-filter:hover {
+            background: linear-gradient(135deg, #D4A017, #b8880e);
+            box-shadow: 0 6px 20px rgba(212,160,23,0.4);
         }
 
-    .vf-table {
+    .pz-table {
         width: 100%;
         border-collapse: collapse;
     }
 
-        .vf-table th {
-            background: #0f0f0f;
-            color: var(--vf-muted);
+        .pz-table th {
+            background: linear-gradient(135deg, #0f1535, #1a2050);
+            color: #D4A017;
             font-size: .75rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: .08em;
             padding: .9rem 1.5rem;
             text-align: left;
-            border-bottom: 1px solid var(--vf-border);
+            border-bottom: 2px solid #D4A017;
         }
 
-        .vf-table td {
+        .pz-table td {
             padding: .85rem 1.5rem;
-            border-bottom: 1px solid var(--vf-border);
+            border-bottom: 1px solid var(--pz-border);
         }
 
-        .vf-table tr:hover td {
-            background: #161616;
+        .pz-table tr:hover td {
+            background: rgba(43,79,216,0.06);
         }
 
-        .vf-table tr:last-child td {
+        .pz-table tr:last-child td {
             border-bottom: none;
         }
 
-    .vf-badge {
+    .pz-badge {
         display: inline-flex;
         align-items: center;
         gap: .3rem;
@@ -126,7 +133,7 @@
         letter-spacing: .06em;
     }
 
-    .vf-btn-sm {
+    .pz-btn-sm {
         display: inline-flex;
         align-items: center;
         gap: .35rem;
@@ -138,51 +145,58 @@
         cursor: pointer;
         text-transform: uppercase;
         letter-spacing: .05em;
-        transition: opacity .2s;
+        transition: all .2s;
     }
 
-        .vf-btn-sm:hover {
+        .pz-btn-sm:hover {
             opacity: .85;
+            transform: translateY(-1px);
         }
-    /* Modal */
-    .vf-modal-backdrop {
+
+    .pz-modal-backdrop {
         background: rgba(0,0,0,.75);
         backdrop-filter: blur(4px);
     }
 
-    .vf-modal {
-        background: var(--vf-card);
-        border: 1px solid var(--vf-border);
+    .pz-modal {
+        background: var(--pz-card);
+        border: 1px solid var(--pz-border);
         border-radius: 1rem;
         overflow: hidden;
     }
+
+    @@keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
 </style>
 
-<div class="vf-page space-y-6">
+<div class="pz-page space-y-6">
 
     <!-- Header Brand -->
     <div style="display:flex;align-items:center;gap:.75rem;">
-        <div style="background:var(--vf-green);padding:.4rem .9rem;border-radius:.5rem;">
-            <span style="font-size:1.1rem;font-weight:900;color:#0a0a0a;letter-spacing:.05em;">VIDAFIT</span>
+        <div style="background:linear-gradient(135deg,#0f1535,#1a2050);padding:.4rem .9rem;border-radius:.5rem;border-bottom:2px solid #D4A017;box-shadow:0 4px 14px rgba(43,79,216,0.3);">
+            <span style="font-size:1rem;font-weight:900;color:#D4A017;letter-spacing:.05em;">POWER</span><span style="font-size:1rem;font-weight:900;color:#fff;opacity:0.85;">ZONE</span>
         </div>
         <div>
             <h2 style="font-size:1.5rem;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:.04em;">Reporte de Asistencia</h2>
-            <p style="color:var(--vf-muted);font-size:.82rem;">Control de check-ins del gimnasio</p>
+            <p style="color:var(--pz-muted);font-size:.82rem;">Control de check-ins del gimnasio</p>
         </div>
     </div>
 
     <!-- Filtro de fechas -->
-    <div class="vf-card p-6">
+    <div class="pz-card p-6">
         <div style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:1rem;">
             <div style="flex:1;min-width:200px;">
-                <label class="vf-label">Fecha Desde</label>
-                <input type="date" id="fecha-desde" value="@ViewBag.FechaInicio.ToString("yyyy-MM-dd")" class="vf-input">
+                <label class="pz-label">Fecha Desde</label>
+                <input type="date" id="fecha-desde" value="@ViewBag.FechaInicio.ToString("yyyy-MM-dd")" class="pz-input">
             </div>
             <div style="flex:1;min-width:200px;">
-                <label class="vf-label">Fecha Hasta</label>
-                <input type="date" id="fecha-hasta" value="@ViewBag.FechaFin.ToString("yyyy-MM-dd")" class="vf-input">
+                <label class="pz-label">Fecha Hasta</label>
+                <input type="date" id="fecha-hasta" value="@ViewBag.FechaFin.ToString("yyyy-MM-dd")" class="pz-input">
             </div>
-            <button onclick="filtrarPorFecha()" class="vf-btn-filter">
+            <button onclick="filtrarPorFecha()" class="pz-btn-filter">
                 <i data-lucide="filter" style="width:1rem;height:1rem;"></i>
                 Filtrar
             </button>
@@ -191,34 +205,34 @@
 
     <!-- Stats -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div class="vf-stat" style="border-left-color:#3b82f6;">
+        <div class="pz-stat" style="border-left-color:#2B4FD8;">
             <div style="display:flex;align-items:center;justify-content:space-between;">
                 <div>
-                    <p style="font-size:.75rem;font-weight:800;color:var(--vf-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.35rem;">Total Check-ins</p>
+                    <p style="font-size:.75rem;font-weight:800;color:var(--pz-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.35rem;">Total Check-ins</p>
                     <p style="font-size:2.25rem;font-weight:900;color:#fff;">@totalCheckins</p>
                 </div>
-                <div style="width:3.5rem;height:3.5rem;background:#1d4ed822;border-radius:50%;display:flex;align-items:center;justify-content:center;">
-                    <i data-lucide="users" style="width:1.6rem;height:1.6rem;color:#60a5fa;"></i>
+                <div style="width:3.5rem;height:3.5rem;background:rgba(43,79,216,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                    <i data-lucide="users" style="width:1.6rem;height:1.6rem;color:#2B4FD8;"></i>
                 </div>
             </div>
         </div>
 
-        <div class="vf-stat" style="border-left-color:var(--vf-green);">
+        <div class="pz-stat" style="border-left-color:#D4A017;">
             <div style="display:flex;align-items:center;justify-content:space-between;">
                 <div>
-                    <p style="font-size:.75rem;font-weight:800;color:var(--vf-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.35rem;">Promedio Diario</p>
-                    <p style="font-size:2.25rem;font-weight:900;color:var(--vf-green);">@Math.Round(promedioDiario, 1)</p>
+                    <p style="font-size:.75rem;font-weight:800;color:var(--pz-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.35rem;">Promedio Diario</p>
+                    <p style="font-size:2.25rem;font-weight:900;color:#D4A017;">@Math.Round(promedioDiario, 1)</p>
                 </div>
-                <div style="width:3.5rem;height:3.5rem;background:#39FF1422;border-radius:50%;display:flex;align-items:center;justify-content:center;">
-                    <i data-lucide="trending-up" style="width:1.6rem;height:1.6rem;color:var(--vf-green);"></i>
+                <div style="width:3.5rem;height:3.5rem;background:rgba(212,160,23,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                    <i data-lucide="trending-up" style="width:1.6rem;height:1.6rem;color:#D4A017;"></i>
                 </div>
             </div>
         </div>
 
-        <div class="vf-stat" style="border-left-color:#a78bfa;">
+        <div class="pz-stat" style="border-left-color:#a78bfa;">
             <div style="display:flex;align-items:center;justify-content:space-between;">
                 <div>
-                    <p style="font-size:.75rem;font-weight:800;color:var(--vf-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.35rem;">Día Más Activo</p>
+                    <p style="font-size:.75rem;font-weight:800;color:var(--pz-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.35rem;">Día Más Activo</p>
                     <p style="font-size:2.25rem;font-weight:900;color:#a78bfa;">@(Model.Any() ? Model.OrderByDescending(x => x.Total).First().Total : 0)</p>
                 </div>
                 <div style="width:3.5rem;height:3.5rem;background:#7c3aed22;border-radius:50%;display:flex;align-items:center;justify-content:center;">
@@ -227,10 +241,10 @@
             </div>
         </div>
 
-        <div class="vf-stat" style="border-left-color:#f59e0b;">
+        <div class="pz-stat" style="border-left-color:#f59e0b;">
             <div style="display:flex;align-items:center;justify-content:space-between;">
                 <div>
-                    <p style="font-size:.75rem;font-weight:800;color:var(--vf-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.35rem;">Días Analizados</p>
+                    <p style="font-size:.75rem;font-weight:800;color:var(--pz-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.35rem;">Días Analizados</p>
                     <p style="font-size:2.25rem;font-weight:900;color:#fbbf24;">@Model.Count()</p>
                 </div>
                 <div style="width:3.5rem;height:3.5rem;background:#b4530922;border-radius:50%;display:flex;align-items:center;justify-content:center;">
@@ -241,9 +255,9 @@
     </div>
 
     <!-- Gráfica -->
-    <div class="vf-card p-8">
+    <div class="pz-card p-8">
         <h3 style="font-size:1.25rem;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:.06em;margin-bottom:1.5rem;display:flex;align-items:center;gap:.5rem;">
-            <span style="display:block;width:3px;height:1.1rem;background:var(--vf-green);border-radius:2px;"></span>
+            <span style="display:block;width:3px;height:1.1rem;background:#D4A017;border-radius:2px;"></span>
             Tendencia de Asistencia
         </h3>
         <div style="position:relative;height:350px;">
@@ -252,13 +266,13 @@
     </div>
 
     <!-- Tabla Detalle -->
-    <div class="vf-card" style="overflow:hidden;">
-        <div style="padding:1rem 1.5rem;border-bottom:1px solid var(--vf-border);background:#0f0f0f;display:flex;align-items:center;gap:.5rem;">
-            <span style="display:block;width:3px;height:1rem;background:var(--vf-green);border-radius:2px;"></span>
+    <div class="pz-card" style="overflow:hidden;">
+        <div style="padding:1rem 1.5rem;border-bottom:2px solid #D4A017;background:linear-gradient(135deg,#0f1535,#1a2050);display:flex;align-items:center;gap:.5rem;">
+            <span style="display:block;width:3px;height:1rem;background:#D4A017;border-radius:2px;"></span>
             <h3 style="font-size:1rem;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:.06em;">Detalle por Fecha</h3>
         </div>
         <div style="overflow-x:auto;">
-            <table class="vf-table">
+            <table class="pz-table">
                 <thead>
                     <tr>
                         <th>Fecha</th>
@@ -276,35 +290,38 @@
                         var fechaStr = fecha.ToString("yyyy-MM-dd");
                         <tr>
                             <td><span style="font-weight:800;color:#fff;">@fecha.ToString("dd/MM/yyyy")</span></td>
-                            <td><span style="color:var(--vf-muted);font-weight:600;">@fecha.ToString("dddd", new System.Globalization.CultureInfo("es-ES"))</span></td>
+                            <td><span style="color:var(--pz-muted);font-weight:600;">@fecha.ToString("dddd", new System.Globalization.CultureInfo("es-ES"))</span></td>
                             <td style="text-align:center;">
-                                <span class="vf-badge" style="background:#1d4ed822;color:#60a5fa;border:1px solid #1d4ed844;">
+                                <span class="pz-badge" style="background:rgba(43,79,216,0.15);color:#7094f0;border:1px solid rgba(43,79,216,0.3);">
                                     @total visitas
                                 </span>
                             </td>
                             <td style="text-align:center;">
                                 @if (total >= 30)
                                 {
-                                    <span class="vf-badge" style="background:#05966922;color:#34d399;border:1px solid #05966944;">
+                                    <span class="pz-badge" style="background:#05966922;color:#34d399;border:1px solid #05966944;">
                                         <i data-lucide="trending-up" style="width:.75rem;height:.75rem;"></i> Alto
                                     </span>
                                 }
                                 else if (total >= 15)
                                 {
-                                    <span class="vf-badge" style="background:#b4530922;color:#fb923c;border:1px solid #b4530944;">
+                                    <span class="pz-badge" style="background:rgba(212,160,23,0.12);color:#D4A017;border:1px solid rgba(212,160,23,0.3);">
                                         <i data-lucide="minus" style="width:.75rem;height:.75rem;"></i> Medio
                                     </span>
                                 }
                                 else
                                 {
-                                    <span class="vf-badge" style="background:#dc262622;color:#f87171;border:1px solid #dc262644;">
+                                    <span class="pz-badge" style="background:#dc262622;color:#f87171;border:1px solid #dc262644;">
                                         <i data-lucide="trending-down" style="width:.75rem;height:.75rem;"></i> Bajo
                                     </span>
                                 }
                             </td>
                             <td style="text-align:center;">
                                 <button onclick="verAsistentes('@fechaStr', '@total')"
-                                        class="vf-btn-sm" style="background:var(--vf-green);color:#0a0a0a;">
+                                        class="pz-btn-sm"
+                                        style="background:linear-gradient(135deg,#2B4FD8,#1a3ab5);color:#fff;"
+                                        onmouseover="this.style.background='linear-gradient(135deg,#D4A017,#b8880e)';"
+                                        onmouseout="this.style.background='linear-gradient(135deg,#2B4FD8,#1a3ab5)';">
                                     <i data-lucide="users" style="width:.9rem;height:.9rem;"></i>
                                     Ver Asistentes
                                 </button>
@@ -318,26 +335,30 @@
 </div>
 
 <!-- MODAL ASISTENTES -->
-<div id="modal-asistentes" class="hidden fixed inset-0 vf-modal-backdrop flex items-center justify-center z-50 px-4">
-    <div class="vf-modal max-w-4xl w-full max-h-[90vh] overflow-hidden" style="box-shadow:0 25px 60px rgba(0,0,0,.8);">
+<div id="modal-asistentes" class="hidden fixed inset-0 pz-modal-backdrop flex items-center justify-center z-50 px-4">
+    <div class="pz-modal max-w-4xl w-full max-h-[90vh] overflow-hidden" style="box-shadow:0 25px 60px rgba(0,0,0,.8);border-color:#D4A017;">
+
         <!-- Header Modal -->
-        <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--vf-border);background:#0f0f0f;display:flex;align-items:center;justify-content:space-between;">
+        <div style="padding:1.25rem 1.5rem;border-bottom:2px solid #D4A017;background:linear-gradient(135deg,#0f1535,#1a2050);display:flex;align-items:center;justify-content:space-between;">
             <div>
                 <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.2rem;">
-                    <span style="background:var(--vf-green);color:#0a0a0a;font-size:.65rem;font-weight:900;padding:.15rem .55rem;border-radius:9999px;letter-spacing:.1em;">VIDAFIT</span>
+                    <span style="background:linear-gradient(135deg,#0f1535,#1a2050);color:#D4A017;font-size:.65rem;font-weight:900;padding:.15rem .55rem;border-radius:9999px;letter-spacing:.1em;border:1px solid #D4A017;">POWERZONE</span>
                     <h3 style="font-size:1.25rem;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:.05em;">Asistentes del Día</h3>
                 </div>
-                <p style="font-size:.82rem;color:var(--vf-muted);font-weight:600;" id="modal-fecha"></p>
+                <p style="font-size:.82rem;color:var(--pz-muted);font-weight:600;" id="modal-fecha"></p>
             </div>
-            <button onclick="cerrarModal()" style="color:var(--vf-muted);background:#1f1f1f;border:1px solid var(--vf-border);border-radius:.5rem;padding:.4rem;cursor:pointer;transition:color .2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--vf-muted)'">
+            <button onclick="cerrarModal()"
+                    style="color:var(--pz-muted);background:#1f2a4a;border:1px solid var(--pz-border);border-radius:.5rem;padding:.4rem;cursor:pointer;transition:color .2s;"
+                    onmouseover="this.style.color='#D4A017'; this.style.borderColor='#D4A017';"
+                    onmouseout="this.style.color='var(--pz-muted)'; this.style.borderColor='var(--pz-border)';">
                 <i data-lucide="x" style="width:1.25rem;height:1.25rem;display:block;"></i>
             </button>
         </div>
 
         <!-- Loading -->
         <div id="modal-loading" class="hidden" style="padding:3rem;text-align:center;">
-            <div style="display:inline-block;width:3rem;height:3rem;border:3px solid var(--vf-border);border-top-color:var(--vf-green);border-radius:50%;animation:spin 1s linear infinite;"></div>
-            <p style="margin-top:1rem;color:var(--vf-muted);font-weight:600;">Cargando asistentes...</p>
+            <div style="display:inline-block;width:3rem;height:3rem;border:3px solid var(--pz-border);border-top-color:#D4A017;border-radius:50%;animation:spin 1s linear infinite;"></div>
+            <p style="margin-top:1rem;color:var(--pz-muted);font-weight:600;">Cargando asistentes...</p>
         </div>
 
         <!-- Content -->
@@ -346,24 +367,19 @@
         </div>
 
         <!-- Footer Modal -->
-        <div style="padding:1rem 1.5rem;border-top:1px solid var(--vf-border);background:#0f0f0f;display:flex;align-items:center;justify-content:space-between;">
-            <p style="font-size:.875rem;font-weight:700;color:var(--vf-muted);">
-                Total de asistentes: <span id="modal-total" style="color:var(--vf-green);font-size:1.1rem;font-weight:900;">0</span>
+        <div style="padding:1rem 1.5rem;border-top:1px solid var(--pz-border);background:#0f1535;display:flex;align-items:center;justify-content:space-between;">
+            <p style="font-size:.875rem;font-weight:700;color:var(--pz-muted);">
+                Total de asistentes: <span id="modal-total" style="color:#D4A017;font-size:1.1rem;font-weight:900;">0</span>
             </p>
-            <button onclick="cerrarModal()" style="padding:.5rem 1.25rem;background:#1f1f1f;color:var(--vf-text);font-weight:700;border-radius:.5rem;border:1px solid var(--vf-border);cursor:pointer;text-transform:uppercase;font-size:.8rem;transition:background .2s;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='#1f1f1f'">
+            <button onclick="cerrarModal()"
+                    style="padding:.5rem 1.25rem;background:#1f2a4a;color:var(--pz-text);font-weight:700;border-radius:.5rem;border:1px solid var(--pz-border);cursor:pointer;text-transform:uppercase;font-size:.8rem;transition:all .2s;"
+                    onmouseover="this.style.background='#263060'; this.style.borderColor='#D4A017';"
+                    onmouseout="this.style.background='#1f2a4a'; this.style.borderColor='var(--pz-border)';">
                 Cerrar
             </button>
         </div>
     </div>
 </div>
-
-<style>
-    @@keyframes spin {
-        to {
-            transform: rotate(360deg);
-        }
-    }
-</style>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -391,15 +407,15 @@
                     datasets: [{
                         label: 'Check-ins',
                         data: data,
-                        borderColor: '#39FF14',
-                        backgroundColor: 'rgba(57,255,20,0.08)',
+                        borderColor: '#D4A017',
+                        backgroundColor: 'rgba(212,160,23,0.08)',
                         borderWidth: 3,
                         fill: true,
                         tension: 0.4,
                         pointRadius: 4,
                         pointHoverRadius: 7,
-                        pointBackgroundColor: '#39FF14',
-                        pointBorderColor: '#111',
+                        pointBackgroundColor: '#D4A017',
+                        pointBorderColor: '#111827',
                         pointBorderWidth: 2
                     }]
                 },
@@ -409,11 +425,11 @@
                     plugins: {
                         legend: { display: false },
                         tooltip: {
-                            backgroundColor: '#1a1a1a',
-                            borderColor: '#1f1f1f',
+                            backgroundColor: '#1a2050',
+                            borderColor: '#1f2a4a',
                             borderWidth: 1,
                             titleColor: '#e5e5e5',
-                            bodyColor: '#39FF14',
+                            bodyColor: '#D4A017',
                             padding: 12,
                             callbacks: { label: ctx => ctx.parsed.y + ' check-ins' }
                         }
@@ -421,7 +437,7 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            grid: { color: 'rgba(255,255,255,0.04)' },
+                            grid: { color: 'rgba(43,79,216,0.08)' },
                             ticks: { color: '#6b7280', stepSize: 5 }
                         },
                         x: {
@@ -464,10 +480,12 @@
                         let html = '<div class="grid grid-cols-1 md:grid-cols-2 gap-4">';
                         data.asistentes.forEach((asistente, index) => {
                             html += `
-                                <div style="display:flex;align-items:center;gap:1rem;padding:1rem;background:#1a1a1a;border-radius:.75rem;border:1px solid #1f1f1f;transition:border-color .2s;" onmouseover="this.style.borderColor='#39FF14'" onmouseout="this.style.borderColor='#1f1f1f'">
+                                <div style="display:flex;align-items:center;gap:1rem;padding:1rem;background:#1a2050;border-radius:.75rem;border:1px solid #1f2a4a;transition:border-color .2s;"
+                                     onmouseover="this.style.borderColor='#D4A017'"
+                                     onmouseout="this.style.borderColor='#1f2a4a'">
                                     ${asistente.fotoBase64
-                                        ? `<img src="data:image/jpeg;base64,${asistente.fotoBase64}" alt="${asistente.nombre}" style="width:3.5rem;height:3.5rem;border-radius:50%;object-fit:cover;border:2px solid #39FF14;" />`
-                                        : `<div style="width:3.5rem;height:3.5rem;border-radius:50%;background:linear-gradient(135deg,#39FF14,#059669);display:flex;align-items:center;justify-content:center;font-size:1.25rem;font-weight:900;color:#0a0a0a;flex-shrink:0;">${asistente.nombre.charAt(0)}</div>`
+                                        ? `<img src="data:image/jpeg;base64,${asistente.fotoBase64}" alt="${asistente.nombre}" style="width:3.5rem;height:3.5rem;border-radius:50%;object-fit:cover;border:2px solid #D4A017;" />`
+                                        : `<div style="width:3.5rem;height:3.5rem;border-radius:50%;background:linear-gradient(135deg,#2B4FD8,#1a3ab5);display:flex;align-items:center;justify-content:center;font-size:1.25rem;font-weight:900;color:#fff;flex-shrink:0;">${asistente.nombre.charAt(0)}</div>`
                                     }
                                     <div style="flex:1;">
                                         <h4 style="font-weight:800;color:#fff;font-size:1rem;">${asistente.nombre}</h4>
@@ -475,10 +493,10 @@
                                             <span style="font-size:.78rem;color:#6b7280;font-weight:600;">
                                                 <i data-lucide="clock" style="width:.75rem;height:.75rem;display:inline-block;margin-right:.2rem;"></i>${asistente.hora}
                                             </span>
-                                            <span style="font-size:.7rem;padding:.15rem .5rem;background:#1d4ed822;color:#60a5fa;border-radius:9999px;font-weight:700;text-transform:uppercase;">${asistente.metodo}</span>
+                                            <span style="font-size:.7rem;padding:.15rem .5rem;background:rgba(43,79,216,0.15);color:#7094f0;border-radius:9999px;font-weight:700;text-transform:uppercase;">${asistente.metodo}</span>
                                         </div>
                                     </div>
-                                    <div style="font-size:1.25rem;font-weight:900;color:#374151;">#${index + 1}</div>
+                                    <div style="font-size:1.25rem;font-weight:900;color:#D4A017;">#${index + 1}</div>
                                 </div>`;
                         });
                         html += '</div>';

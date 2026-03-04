@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - VidaFit</title>
+    <title>@ViewData["Title"] - PowerZone</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -12,11 +12,14 @@
             theme: {
                 extend: {
                     colors: {
-                        'vida-green': '#3ddc52',
-                        'vida-dark': '#000000',
-                        'vida-gray': '#1a1a1a',
-                        'vida-light-green': '#5ce870',
-                        'vida-accent': '#2ab83d'
+                        'pz-blue':      '#2B4FD8',
+                        'pz-blue-dark': '#1a3ab5',
+                        'pz-blue-light':'#4a6ee0',
+                        'pz-gold':      '#D4A017',
+                        'pz-gold-dark': '#b8880e',
+                        'pz-dark':      '#0f1535',
+                        'pz-dark2':     '#1a2050',
+                        'pz-silver':    '#8899bb',
                     }
                 }
             }
@@ -32,7 +35,7 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #000000 100%);
+            background: linear-gradient(135deg, #060b1e 0%, #0f1535 50%, #1a2050 100%);
         }
 
         h1, h2, h3, h4, h5, h6 {
@@ -44,7 +47,6 @@
             animation: pulse-red 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
 
-
         .text-glow {
             animation: glow 2s ease-in-out infinite;
         }
@@ -54,44 +56,44 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: #0a0a0a;
+            background: #060b1e;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #3ddc52 0%, #2ab83d 100%);
+            background: linear-gradient(180deg, #D4A017 0%, #b8880e 100%);
             border-radius: 5px;
         }
 
             ::-webkit-scrollbar-thumb:hover {
-                background: linear-gradient(180deg, #5ce870 0%, #3ddc52 100%);
+                background: linear-gradient(180deg, #e8bb2e 0%, #D4A017 100%);
             }
 
         .tauro-card {
             transition: all 0.3s ease;
-            border: 2px solid rgba(61, 220, 82, 0.2);
+            border: 2px solid rgba(43, 79, 216, 0.2);
         }
 
             .tauro-card:hover {
                 transform: translateY(-5px);
-                box-shadow: 0 15px 40px rgba(61, 220, 82, 0.4);
-                border-color: rgba(61, 220, 82, 0.6);
+                box-shadow: 0 15px 40px rgba(43, 79, 216, 0.35);
+                border-color: rgba(212, 160, 23, 0.5);
             }
 
         .btn-tauro {
-            background: linear-gradient(135deg, #3ddc52 0%, #2ab83d 100%);
+            background: linear-gradient(135deg, #D4A017 0%, #b8880e 100%);
             transition: all 0.3s ease;
         }
 
             .btn-tauro:hover {
-                background: linear-gradient(135deg, #5ce870 0%, #3ddc52 100%);
-                box-shadow: 0 8px 25px rgba(61, 220, 82, 0.5);
+                background: linear-gradient(135deg, #e8bb2e 0%, #D4A017 100%);
+                box-shadow: 0 8px 25px rgba(212, 160, 23, 0.5);
                 transform: scale(1.05);
             }
     </style>
 
     @RenderSection("Styles", required: false)
 </head>
-<body class="bg-black text-gray-100">
+<body class="text-gray-100" style="background:#060b1e;">
     @RenderBody()
 
     <script>

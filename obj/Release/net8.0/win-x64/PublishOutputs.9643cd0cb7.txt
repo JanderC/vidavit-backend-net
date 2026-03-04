@@ -1,0 +1,4 @@
+C:\d\PowerZoneFIt\appsettings.Development.json
+C:\d\PowerZoneFIt\appsettings.json
+C:\d\PowerZoneFIt\VidaFit.pdb
+C:\d\PowerZoneFIt\VidaFit.exe

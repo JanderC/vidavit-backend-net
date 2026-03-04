@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Login - VidaFit Admin";
+    ViewData["Title"] = "Login - PowerZone Admin";
 }
 
 <!DOCTYPE html>
@@ -7,7 +7,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Iniciar Sesión - VidaFit</title>
+    <title>Iniciar Sesión - PowerZone</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -16,10 +16,12 @@
             theme: {
                 extend: {
                     colors: {
-                        'vida-green': '#3ddc52',
-                        'vida-dark': '#000000',
-                        'vida-gray': '#1a1a1a',
-                        'vida-accent': '#2ab83d'
+                        'pz-blue':     '#2B4FD8',
+                        'pz-blue-dark':'#1a3ab5',
+                        'pz-gold':     '#D4A017',
+                        'pz-gold-dark':'#b8880e',
+                        'pz-dark':     '#0f1535',
+                        'pz-dark2':    '#1a2050',
                     }
                 }
             }
@@ -39,113 +41,159 @@
             animation: pulse-glow 3s ease-in-out infinite;
         }
 
+        @@keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(212,160,23,0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 40px rgba(212,160,23,0.6), 0 0 80px rgba(43,79,216,0.2);
+            }
+        }
+
         .grid-pattern {
-            background-image:
-                linear-gradient(rgba(61, 220, 82, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(61, 220, 82, 0.05) 1px, transparent 1px);
+            background-image: linear-gradient(rgba(43,79,216,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(43,79,216,0.06) 1px, transparent 1px);
             background-size: 50px 50px;
         }
+
+        input:focus {
+            border-color: #D4A017 !important;
+            box-shadow: 0 0 0 3px rgba(212,160,23,0.15);
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #D4A017, #b8880e);
+            transition: all 0.3s;
+        }
+
+            .btn-submit:hover {
+                background: linear-gradient(135deg, #e8bb2e, #D4A017);
+                transform: scale(1.03);
+                box-shadow: 0 10px 40px rgba(212,160,23,0.4);
+            }
     </style>
 </head>
 <body>
-    <div class="min-h-screen bg-black relative overflow-hidden flex items-center justify-center p-4">
+    <div class="min-h-screen relative overflow-hidden flex items-center justify-center p-4"
+         style="background: #060b1e;">
+        <!-- Grid pattern -->
         <div class="absolute inset-0 grid-pattern"></div>
 
-        <div class="absolute inset-0 opacity-20">
-            <div class="absolute top-0 left-1/4 w-96 h-96 bg-green-500 rounded-full blur-3xl animate-pulse"></div>
-            <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-green-700 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+        <!-- Ambient blobs -->
+        <div class="absolute inset-0 opacity-25">
+            <div class="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-3xl animate-pulse"
+                 style="background:#2B4FD8;"></div>
+            <div class="absolute bottom-0 right-1/4 w-96 h-96 rounded-full blur-3xl animate-pulse"
+                 style="background:#D4A017; animation-delay:1s;"></div>
         </div>
 
         <div class="w-full max-w-md relative z-10">
+
+            <!-- Logo -->
             <div class="text-center mb-10">
                 <div class="mb-8 flex justify-center">
-                    <div class="logo-container inline-block px-10 py-5 bg-black border-2 border-green-500 rounded-2xl transform hover:scale-105 transition-transform duration-300">
+                    <div class="logo-container inline-block px-10 py-5 rounded-2xl transform hover:scale-105 transition-transform duration-300"
+                         style="background:#060b1e; border: 2px solid #D4A017;">
                         <h1 class="text-6xl font-black tracking-widest">
-                            <span class="text-white">VIDA</span><span class="text-green-400">FIT</span>
+                            <span class="text-white">POWER</span><span style="color:#D4A017;">ZONE</span>
                         </h1>
-                        <p class="text-green-500 text-xs uppercase tracking-widest font-bold mt-1 text-center">⚡ Entrena. Supérate. Vive.</p>
+                        <p class="text-xs uppercase tracking-widest font-bold mt-1 text-center"
+                           style="color:#2B4FD8;">⚡ Entrena. Supérate. Vive.</p>
                     </div>
                 </div>
-                <div class="inline-block px-6 py-2 bg-gray-900 border border-green-600 rounded-full">
-                    <p class="text-green-500 uppercase tracking-widest text-sm font-bold">Panel Administrativo</p>
+                <div class="inline-block px-6 py-2 rounded-full"
+                     style="background:#0f1535; border: 1px solid #D4A017;">
+                    <p class="text-sm font-bold uppercase tracking-widest" style="color:#D4A017;">Panel Administrativo</p>
                 </div>
             </div>
 
-            <div class="bg-gradient-to-br from-gray-900 to-black backdrop-blur-lg rounded-3xl border-2 border-green-600 shadow-2xl p-8 relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-40 h-40 bg-green-600 rounded-full blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"></div>
+            <!-- Card -->
+            <div class="rounded-3xl border-2 shadow-2xl p-8 relative overflow-hidden"
+                 style="background: linear-gradient(135deg, #0f1535, #1a2050); border-color: #D4A017;">
+                <!-- Glow top-right -->
+                <div class="absolute top-0 right-0 w-40 h-40 rounded-full blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"
+                     style="background:#2B4FD8;"></div>
 
+                <!-- Icon + title -->
                 <div class="text-center mb-8 relative z-10">
-                    <div class="w-24 h-24 bg-gradient-to-br from-green-500 to-green-700 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-2xl transform hover:rotate-3 transition-transform">
+                    <div class="w-24 h-24 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-2xl transform hover:rotate-3 transition-transform"
+                         style="background: linear-gradient(135deg, #2B4FD8, #1a3ab5);">
                         <i data-lucide="shield-check" class="w-12 h-12 text-white"></i>
                     </div>
                     <h2 class="text-4xl font-black text-white uppercase tracking-wider">Iniciar Sesión</h2>
-                    <p class="text-gray-400 text-sm mt-2 font-semibold uppercase tracking-wide">Acceso al Sistema</p>
+                    <p class="text-sm mt-2 font-semibold uppercase tracking-wide" style="color:#8899bb;">Acceso al Sistema</p>
                 </div>
 
+                <!-- Error message -->
                 @if (ViewBag.Error != null)
                 {
-                    <div class="bg-green-900/40 border-2 border-green-500 rounded-xl p-4 mb-6 flex items-center gap-3 backdrop-blur-sm">
-                        <i data-lucide="alert-circle" class="w-6 h-6 text-green-400"></i>
-                        <p class="text-green-300 text-sm font-semibold">@ViewBag.Error</p>
+                    <div class="rounded-xl p-4 mb-6 flex items-center gap-3 backdrop-blur-sm"
+                         style="background:rgba(212,160,23,0.1); border: 2px solid #D4A017;">
+                        <i data-lucide="alert-circle" class="w-6 h-6" style="color:#D4A017;"></i>
+                        <p class="text-sm font-semibold" style="color:#e8bb2e;">@ViewBag.Error</p>
                     </div>
                 }
 
+                <!-- Form -->
                 <form method="post" action="/admin/login" class="space-y-6 relative z-10">
                     @Html.AntiForgeryToken()
 
                     <div>
-                        <label class="block text-gray-300 text-sm font-bold mb-3 uppercase tracking-wide">
+                        <label class="block text-sm font-bold mb-3 uppercase tracking-wide" style="color:#8899bb;">
                             <i data-lucide="mail" class="w-4 h-4 inline mr-2"></i>
                             Correo Electrónico
                         </label>
-                        <input type="email" name="email" required placeholder="admin@vidafit.com"
-                               class="w-full px-5 py-4 bg-black/60 border-2 border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-green-500 transition-all font-semibold" />
+                        <input type="email" name="email" required placeholder="admin@powerzone.com"
+                               class="w-full px-5 py-4 rounded-xl text-white font-semibold focus:outline-none transition-all"
+                               style="background:rgba(0,0,0,0.5); border: 2px solid #2B4FD8; placeholder-color:#555;" />
                     </div>
 
                     <div>
-                        <label class="block text-gray-300 text-sm font-bold mb-3 uppercase tracking-wide">
+                        <label class="block text-sm font-bold mb-3 uppercase tracking-wide" style="color:#8899bb;">
                             <i data-lucide="lock" class="w-4 h-4 inline mr-2"></i>
                             Contraseña
                         </label>
                         <input type="password" name="password" required placeholder="••••••••"
-                               class="w-full px-5 py-4 bg-black/60 border-2 border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-green-500 transition-all font-semibold" />
+                               class="w-full px-5 py-4 rounded-xl text-white font-semibold focus:outline-none transition-all"
+                               style="background:rgba(0,0,0,0.5); border: 2px solid #2B4FD8;" />
                     </div>
 
-                    <button type="submit"
-                            class="w-full py-5 bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 text-white font-black text-lg rounded-xl transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-green-600/50 flex items-center justify-center gap-3 uppercase tracking-wider">
+                    <button type="submit" class="btn-submit w-full py-5 text-white font-black text-lg rounded-xl flex items-center justify-center gap-3 uppercase tracking-wider">
                         <i data-lucide="log-in" class="w-6 h-6"></i>
                         <span>Ingresar al Sistema</span>
                     </button>
                 </form>
 
-                <div class="mt-8 pt-6 border-t-2 border-gray-800 relative z-10">
-                    <p class="text-xs text-gray-500 text-center mb-3 uppercase tracking-wide font-bold">Credenciales por defecto:</p>
-                    <div class="bg-black/70 rounded-xl p-4 font-mono text-xs text-center border-2 border-gray-800">
+                <!-- Default credentials -->
+                <div class="mt-8 pt-6 relative z-10" style="border-top: 2px solid rgba(43,79,216,0.3);">
+                    <p class="text-xs text-center mb-3 uppercase tracking-wide font-bold" style="color:#555;">Credenciales por defecto:</p>
+                    <div class="rounded-xl p-4 font-mono text-xs text-center"
+                         style="background:rgba(0,0,0,0.5); border: 2px solid rgba(43,79,216,0.3);">
                         <div class="flex items-center justify-center gap-2 mb-2">
-                            <span class="text-gray-400">Email:</span>
-                            <span class="text-green-500 font-bold">admin@vidafit.com</span>
+                            <span style="color:#8899bb;">Email:</span>
+                            <span class="font-bold" style="color:#D4A017;">admin@powerzone.com</span>
                         </div>
                         <div class="flex items-center justify-center gap-2">
-                            <span class="text-gray-400">Password:</span>
-                            <span class="text-green-500 font-bold">admin123</span>
+                            <span style="color:#8899bb;">Password:</span>
+                            <span class="font-bold" style="color:#D4A017;">admin123</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-
+            <!-- Footer -->
             <div class="mt-10 text-center">
-                <div class="inline-block px-6 py-2 bg-gray-900 border border-gray-800 rounded-full">
-                    <p class="text-gray-600 text-xs font-bold uppercase tracking-wider">
-                        VIDAFIT © 2025
+                <div class="inline-block px-6 py-2 rounded-full"
+                     style="background:#0f1535; border: 1px solid rgba(43,79,216,0.3);">
+                    <p class="text-xs font-bold uppercase tracking-wider" style="color:#555;">
+                        POWERZONE © 2025
                     </p>
                 </div>
             </div>
+
         </div>
     </div>
 
-    <script>
-        lucide.createIcons();
-    </script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>

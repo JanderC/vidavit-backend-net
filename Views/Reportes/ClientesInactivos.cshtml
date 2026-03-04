@@ -2,16 +2,238 @@
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Clientes Inactivos";
-    ViewData["Subtitle"] = "Seguimiento de clientes - TAURO GYM";
+    ViewData["Subtitle"] = "Seguimiento de clientes - PowerZoneFit";
 }
 
-<div class="space-y-6">
-    <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200">
-        <div class="flex flex-wrap items-end gap-4">
-            <div class="flex-1 min-w-[200px]">
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Días sin asistir</label>
-                <select id="dias-inactividad" onchange="filtrarPorDias()"
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold bg-white">
+<style>
+    :root {
+        --pz-gold: #D4A017;
+        --pz-gold-light: #F0C040;
+        --pz-blue: #1A3A8F;
+        --pz-blue-light: #2B55CC;
+        --pz-silver: #B0B8C8;
+        --pz-dark: #08090E;
+        --pz-card: #0E1120;
+        --pz-card2: #131829;
+        --pz-border: #1E2540;
+        --pz-text: #E8ECF4;
+        --pz-muted: #5A6480;
+    }
+
+    body, .space-y-6 {
+        background: var(--pz-dark);
+    }
+
+    /* ── Cards ── */
+    .pz-card {
+        background: var(--pz-card);
+        border: 1px solid var(--pz-border);
+        border-radius: 1rem;
+    }
+
+    /* ── Stat cards ── */
+    .pz-stat {
+        background: var(--pz-card);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        border: 1px solid var(--pz-border);
+        border-left-width: 4px;
+        box-shadow: 0 4px 20px rgba(0,0,0,.4);
+    }
+
+    .pz-stat-label {
+        font-size: .72rem;
+        font-weight: 800;
+        color: var(--pz-muted);
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        margin-bottom: .35rem;
+    }
+
+    .pz-stat-value {
+        font-size: 2.25rem;
+        font-weight: 900;
+        line-height: 1;
+    }
+
+    .pz-stat-footer {
+        font-size: .72rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: .3rem;
+        margin-top: .6rem;
+    }
+
+    /* ── Inputs / Selects ── */
+    .pz-select, .pz-search {
+        background: #0a0c14;
+        border: 2px solid var(--pz-border);
+        color: var(--pz-text);
+        border-radius: .6rem;
+        padding: .75rem 1rem;
+        outline: none;
+        font-weight: 600;
+        transition: border-color .2s;
+        width: 100%;
+    }
+
+        .pz-select:focus, .pz-search:focus {
+            border-color: var(--pz-gold);
+        }
+
+    .pz-search {
+        width: auto;
+        padding: .5rem 1rem;
+        font-size: .875rem;
+    }
+
+    /* ── Button ── */
+    .pz-btn {
+        background: linear-gradient(135deg, var(--pz-gold) 0%, var(--pz-gold-light) 100%);
+        color: #08090E;
+        font-weight: 900;
+        padding: .8rem 2rem;
+        border-radius: .6rem;
+        border: none;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        transition: opacity .2s, transform .15s;
+        box-shadow: 0 4px 18px rgba(212,160,23,.35);
+        white-space: nowrap;
+    }
+
+        .pz-btn:hover {
+            opacity: .88;
+            transform: translateY(-1px);
+        }
+
+    /* ── Alert / Recommendation box ── */
+    .pz-alert {
+        background: rgba(212,160,23,.07);
+        border: 1px solid rgba(212,160,23,.3);
+        border-left: 4px solid var(--pz-gold);
+        border-radius: 1rem;
+        padding: 1.5rem;
+    }
+
+    /* ── Section title ── */
+    .pz-section-title {
+        font-size: 1rem;
+        font-weight: 900;
+        color: #fff;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        margin-bottom: 0;
+    }
+
+        .pz-section-title::before {
+            content: '';
+            display: block;
+            width: 3px;
+            height: 1rem;
+            background: linear-gradient(180deg, var(--pz-gold), var(--pz-gold-light));
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+    /* ── Table ── */
+    .pz-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .pz-table thead tr {
+            background: #090b14;
+        }
+
+        .pz-table th {
+            padding: 1rem 1.5rem;
+            font-size: .72rem;
+            font-weight: 800;
+            color: var(--pz-muted);
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            border-bottom: 1px solid var(--pz-border);
+        }
+
+        .pz-table td {
+            padding: .9rem 1.5rem;
+            border-bottom: 1px solid var(--pz-border);
+            color: var(--pz-text);
+            vertical-align: middle;
+        }
+
+        .pz-table tbody tr:hover td {
+            background: #101424;
+        }
+
+        .pz-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+    /* ── Action icon buttons ── */
+    .pz-action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.1rem;
+        height: 2.1rem;
+        border-radius: .5rem;
+        border: 1px solid var(--pz-border);
+        background: transparent;
+        cursor: pointer;
+        transition: background .15s, border-color .15s;
+        text-decoration: none;
+    }
+
+        .pz-action-btn:hover {
+            background: rgba(255,255,255,.06);
+            border-color: var(--pz-gold);
+        }
+
+    /* ── Badge ── */
+    .pz-brand-badge {
+        background: linear-gradient(135deg, var(--pz-blue) 0%, var(--pz-blue-light) 100%);
+        padding: .35rem 1rem;
+        border-radius: .5rem;
+        border: 2px solid var(--pz-gold);
+        box-shadow: 0 0 14px rgba(212,160,23,.3);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        line-height: 1;
+    }
+</style>
+
+<div class="space-y-6" style="padding:1.5rem;background:var(--pz-dark);min-height:100vh;">
+
+    <!-- Header Brand -->
+    <div style="display:flex;align-items:center;gap:.9rem;">
+        <div class="pz-brand-badge">
+            <span style="font-size:.6rem;font-weight:700;color:var(--pz-silver);letter-spacing:.18em;text-transform:uppercase;">BOX BY CHOPER</span>
+            <span style="font-size:1rem;font-weight:900;color:#fff;letter-spacing:.06em;text-transform:uppercase;">POWER ZONE</span>
+            <span style="font-size:.58rem;font-weight:700;color:var(--pz-silver);letter-spacing:.22em;text-transform:uppercase;">TRAINING</span>
+        </div>
+        <div>
+            <h2 style="font-size:1.5rem;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:.04em;">Clientes Inactivos</h2>
+            <p style="color:var(--pz-muted);font-size:.82rem;">Seguimiento de clientes sin asistencia reciente</p>
+        </div>
+    </div>
+
+    <!-- Filtro -->
+    <div class="pz-card" style="padding:1.5rem;">
+        <div style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:1rem;">
+            <div style="flex:1;min-width:200px;">
+                <label style="display:block;font-size:.78rem;font-weight:800;color:var(--pz-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem;">Días sin asistir</label>
+                <select id="dias-inactividad" onchange="filtrarPorDias()" class="pz-select">
                     <option value="7" selected="@(ViewBag.Dias == 7)">7 días (1 semana)</option>
                     <option value="15" selected="@(ViewBag.Dias == 15)">15 días</option>
                     <option value="30" selected="@(ViewBag.Dias == 30)">30 días (1 mes)</option>
@@ -19,9 +241,8 @@
                     <option value="90" selected="@(ViewBag.Dias == 90)">90 días (3 meses)</option>
                 </select>
             </div>
-            <button onclick="exportarLista()"
-                    class="px-8 py-3 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
-                <i data-lucide="download" class="w-4 h-4 inline-block mr-2"></i>
+            <button onclick="exportarLista()" class="pz-btn">
+                <i data-lucide="download" style="width:1rem;height:1rem;"></i>
                 Exportar Lista
             </button>
         </div>
@@ -29,88 +250,94 @@
 
     @if (Model.Any())
     {
+        <!-- Stats -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-red-600">
-                <div class="flex items-center justify-between mb-3">
+            <!-- Clientes Inactivos -->
+            <div class="pz-stat" style="border-left-color:#e05c5c;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
                     <div>
-                        <p class="text-sm text-gray-600 mb-1 font-black uppercase tracking-wide">Clientes Inactivos</p>
-                        <p class="text-4xl font-black text-gray-900">@Model.Count()</p>
+                        <p class="pz-stat-label">Clientes Inactivos</p>
+                        <p class="pz-stat-value" style="color:#f87070;">@Model.Count()</p>
                     </div>
-                    <div class="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center">
-                        <i data-lucide="user-x" class="w-7 h-7 text-red-600"></i>
+                    <div style="width:3.5rem;height:3.5rem;background:rgba(224,92,92,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(224,92,92,.3);">
+                        <i data-lucide="user-x" style="width:1.6rem;height:1.6rem;color:#f87070;"></i>
                     </div>
                 </div>
-                <p class="text-xs text-red-600 flex items-center gap-1 font-bold">
-                    <i data-lucide="alert-circle" class="w-3 h-3"></i>
+                <p class="pz-stat-footer" style="color:#f87070;">
+                    <i data-lucide="alert-circle" style="width:.85rem;height:.85rem;"></i>
                     Requieren atención
                 </p>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-orange-600">
-                <div class="flex items-center justify-between mb-3">
+            <!-- Período -->
+            <div class="pz-stat" style="border-left-color:var(--pz-gold);">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
                     <div>
-                        <p class="text-sm text-gray-600 mb-1 font-black uppercase tracking-wide">Período Analizado</p>
-                        <p class="text-4xl font-black text-gray-900">@ViewBag.Dias</p>
+                        <p class="pz-stat-label">Período Analizado</p>
+                        <p class="pz-stat-value" style="color:var(--pz-gold-light);">@ViewBag.Dias</p>
                     </div>
-                    <div class="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center">
-                        <i data-lucide="calendar" class="w-7 h-7 text-orange-600"></i>
+                    <div style="width:3.5rem;height:3.5rem;background:rgba(212,160,23,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(212,160,23,.3);">
+                        <i data-lucide="calendar" style="width:1.6rem;height:1.6rem;color:var(--pz-gold);"></i>
                     </div>
                 </div>
-                <p class="text-xs text-orange-600 flex items-center gap-1 font-bold">
-                    <i data-lucide="clock" class="w-3 h-3"></i>
+                <p class="pz-stat-footer" style="color:var(--pz-gold);">
+                    <i data-lucide="clock" style="width:.85rem;height:.85rem;"></i>
                     Días sin visita
                 </p>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-amber-600">
-                <div class="flex items-center justify-between mb-3">
+            <!-- Con Membresía -->
+            <div class="pz-stat" style="border-left-color:var(--pz-gold-light);">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
                     <div>
-                        <p class="text-sm text-gray-600 mb-1 font-black uppercase tracking-wide">Con Membresía</p>
-                        <p class="text-4xl font-black text-gray-900">@Model.Count(c => c.Membresias != null && c.Membresias.Any(m => m.Estado == "activa"))</p>
+                        <p class="pz-stat-label">Con Membresía</p>
+                        <p class="pz-stat-value" style="color:var(--pz-gold-light);">@Model.Count(c => c.Membresias != null && c.Membresias.Any(m => m.Estado == "activa"))</p>
                     </div>
-                    <div class="w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center">
-                        <i data-lucide="credit-card" class="w-7 h-7 text-amber-600"></i>
+                    <div style="width:3.5rem;height:3.5rem;background:rgba(240,192,64,.12);border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(240,192,64,.25);">
+                        <i data-lucide="credit-card" style="width:1.6rem;height:1.6rem;color:var(--pz-gold-light);"></i>
                     </div>
                 </div>
-                <p class="text-xs text-amber-600 flex items-center gap-1 font-bold">
-                    <i data-lucide="alert-triangle" class="w-3 h-3"></i>
+                <p class="pz-stat-footer" style="color:var(--pz-gold-light);">
+                    <i data-lucide="alert-triangle" style="width:.85rem;height:.85rem;"></i>
                     Pagando pero no asisten
                 </p>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-blue-600">
-                <div class="flex items-center justify-between mb-3">
+            <!-- Tasa de Inactividad -->
+            <div class="pz-stat" style="border-left-color:var(--pz-blue-light);">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
                     <div>
-                        <p class="text-sm text-gray-600 mb-1 font-black uppercase tracking-wide">Tasa de Inactividad</p>
-                        <p class="text-4xl font-black text-gray-900">@((Model.Count() * 100.0 / (Model.Count() + 1)).ToString("F1"))%</p>
+                        <p class="pz-stat-label">Tasa de Inactividad</p>
+                        <p class="pz-stat-value" style="color:#6ea0f7;">@((Model.Count() * 100.0 / (Model.Count() + 1)).ToString("F1"))%</p>
                     </div>
-                    <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center">
-                        <i data-lucide="percent" class="w-7 h-7 text-blue-600"></i>
+                    <div style="width:3.5rem;height:3.5rem;background:rgba(26,58,143,.25);border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(43,85,204,.4);">
+                        <i data-lucide="percent" style="width:1.6rem;height:1.6rem;color:#6ea0f7;"></i>
                     </div>
                 </div>
-                <p class="text-xs text-blue-600 flex items-center gap-1 font-bold">
-                    <i data-lucide="trending-down" class="w-3 h-3"></i>
+                <p class="pz-stat-footer" style="color:#6ea0f7;">
+                    <i data-lucide="trending-down" style="width:.85rem;height:.85rem;"></i>
                     Del total
                 </p>
             </div>
         </div>
 
-        <div class="bg-amber-50 border-l-4 border-amber-600 rounded-2xl p-6 border-2 border-amber-200">
-            <div class="flex items-start gap-3">
-                <i data-lucide="alert-triangle" class="w-7 h-7 text-amber-600 mt-1"></i>
-                <div class="flex-1">
-                    <h3 class="text-xl font-black text-amber-900 mb-3 uppercase tracking-wide">Recomendaciones de Seguimiento</h3>
-                    <ul class="space-y-3 text-sm text-amber-800 font-semibold">
-                        <li class="flex items-center gap-2">
-                            <i data-lucide="phone" class="w-5 h-5"></i>
+        <!-- Recomendaciones -->
+        <div class="pz-alert">
+            <div style="display:flex;align-items:flex-start;gap:.9rem;">
+                <i data-lucide="alert-triangle" style="width:1.6rem;height:1.6rem;color:var(--pz-gold);margin-top:.1rem;flex-shrink:0;"></i>
+                <div>
+                    <h3 style="font-size:1.1rem;font-weight:900;color:var(--pz-gold-light);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem;">Recomendaciones de Seguimiento</h3>
+                    <ul style="display:flex;flex-direction:column;gap:.65rem;font-size:.875rem;color:var(--pz-text);font-weight:600;">
+                        <li style="display:flex;align-items:center;gap:.6rem;">
+                            <i data-lucide="phone" style="width:1.1rem;height:1.1rem;color:var(--pz-gold);flex-shrink:0;"></i>
                             Contactar a clientes con membresías activas para conocer el motivo de su inasistencia
                         </li>
-                        <li class="flex items-center gap-2">
-                            <i data-lucide="gift" class="w-5 h-5"></i>
+                        <li style="display:flex;align-items:center;gap:.6rem;">
+                            <i data-lucide="gift" style="width:1.1rem;height:1.1rem;color:var(--pz-gold);flex-shrink:0;"></i>
                             Ofrecer incentivos o promociones especiales para reactivar su participación
                         </li>
-                        <li class="flex items-center gap-2">
-                            <i data-lucide="mail" class="w-5 h-5"></i>
+                        <li style="display:flex;align-items:center;gap:.6rem;">
+                            <i data-lucide="mail" style="width:1.1rem;height:1.1rem;color:var(--pz-gold);flex-shrink:0;"></i>
                             Enviar recordatorios amigables sobre los beneficios de mantener una rutina constante
                         </li>
                     </ul>
@@ -118,121 +345,122 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-gray-200">
-            <div class="px-6 py-4 border-b-2 border-gray-200 flex items-center justify-between bg-gradient-to-r from-gray-900 to-black">
-                <h3 class="text-xl font-black text-white uppercase tracking-wide">Listado de Clientes Inactivos</h3>
-                <div class="flex items-center gap-2">
-                    <input type="text" id="search-input" placeholder="Buscar cliente..."
-                           class="px-4 py-2 border-2 border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
-                </div>
+        <!-- Tabla -->
+        <div class="pz-card" style="overflow:hidden;">
+            <!-- Table header bar -->
+            <div style="padding:1rem 1.5rem;border-bottom:1px solid var(--pz-border);background:linear-gradient(90deg,#090b14,#0d1020);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;">
+                <p class="pz-section-title">Listado de Clientes Inactivos</p>
+                <input type="text" id="search-input" placeholder="Buscar cliente…" class="pz-search">
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full" id="tabla-inactivos">
-                    <thead class="bg-gray-50 border-b-2 border-gray-200">
+            <div style="overflow-x:auto;">
+                <table class="pz-table" id="tabla-inactivos">
+                    <thead>
                         <tr>
-                            <th class="px-6 py-4 text-left text-xs font-black text-gray-600 uppercase tracking-wider">Cliente</th>
-                            <th class="px-6 py-4 text-left text-xs font-black text-gray-600 uppercase tracking-wider">Contacto</th>
-                            <th class="px-6 py-4 text-center text-xs font-black text-gray-600 uppercase tracking-wider">Estado Membresía</th>
-                            <th class="px-6 py-4 text-center text-xs font-black text-gray-600 uppercase tracking-wider">Último Check-in</th>
-                            <th class="px-6 py-4 text-center text-xs font-black text-gray-600 uppercase tracking-wider">Acciones</th>
+                            <th style="text-align:left;">Cliente</th>
+                            <th style="text-align:left;">Contacto</th>
+                            <th style="text-align:center;">Estado Membresía</th>
+                            <th style="text-align:center;">Último Check-in</th>
+                            <th style="text-align:center;">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y-2 divide-gray-200">
+                    <tbody>
                         @foreach (var cliente in Model.OrderBy(c => c.Nombre))
                         {
                             var ultimoCheckIn = cliente.CheckIns?.OrderByDescending(ci => ci.FechaHora).FirstOrDefault();
                             var membresiasActivas = cliente.Membresias?.Where(m => m.Estado == "activa");
                             var tieneMembresia = membresiasActivas?.Any() ?? false;
 
-                            <tr class="hover:bg-gray-50 transition-colors cliente-row">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center gap-3">
+                            <tr class="cliente-row">
+                                <!-- Cliente -->
+                                <td>
+                                    <div style="display:flex;align-items:center;gap:.75rem;">
                                         @if (!string.IsNullOrEmpty(cliente.FotoBase64))
                                         {
                                             <img src="data:image/jpeg;base64,@cliente.FotoBase64"
-                                                 class="w-12 h-12 rounded-full object-cover border-2 border-red-600">
+                                                 style="width:2.75rem;height:2.75rem;border-radius:50%;object-fit:cover;border:2px solid var(--pz-gold);">
                                         }
                                         else
                                         {
-                                            <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-                                                <i data-lucide="user" class="w-6 h-6 text-gray-500"></i>
+                                            <div style="width:2.75rem;height:2.75rem;border-radius:50%;background:rgba(26,58,143,.3);display:flex;align-items:center;justify-content:center;border:2px solid var(--pz-border);flex-shrink:0;">
+                                                <i data-lucide="user" style="width:1.25rem;height:1.25rem;color:var(--pz-muted);"></i>
                                             </div>
                                         }
                                         <div>
-                                            <div class="font-black text-gray-900 cliente-nombre">@cliente.Nombre @cliente.Apellido</div>
-                                            <div class="text-sm text-gray-600 font-semibold">Cédula: @cliente.Cedula</div>
+                                            <div style="font-weight:900;color:#fff;" class="cliente-nombre">@cliente.Nombre @cliente.Apellido</div>
+                                            <div style="font-size:.8rem;color:var(--pz-muted);font-weight:600;">Cédula: @cliente.Cedula</div>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm">
-                                        <div class="text-gray-700 flex items-center gap-1 font-bold">
-                                            <i data-lucide="phone" class="w-4 h-4"></i>
+
+                                <!-- Contacto -->
+                                <td>
+                                    <div style="font-size:.875rem;display:flex;flex-direction:column;gap:.25rem;">
+                                        <div style="color:var(--pz-text);font-weight:700;display:flex;align-items:center;gap:.35rem;">
+                                            <i data-lucide="phone" style="width:.9rem;height:.9rem;color:var(--pz-gold);"></i>
                                             @cliente.Telefono
                                         </div>
                                         @if (!string.IsNullOrEmpty(cliente.Email))
                                         {
-                                            <div class="text-gray-600 flex items-center gap-1 font-semibold">
-                                                <i data-lucide="mail" class="w-4 h-4"></i>
+                                            <div style="color:var(--pz-muted);font-weight:600;display:flex;align-items:center;gap:.35rem;">
+                                                <i data-lucide="mail" style="width:.9rem;height:.9rem;color:var(--pz-muted);"></i>
                                                 @cliente.Email
                                             </div>
                                         }
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center">
+
+                                <!-- Estado Membresía -->
+                                <td style="text-align:center;">
                                     @if (tieneMembresia)
                                     {
-                                        <span class="inline-flex items-center gap-1 px-4 py-2 bg-amber-100 text-amber-800 font-black rounded-full uppercase text-xs tracking-wide">
-                                            <i data-lucide="alert-circle" class="w-3 h-3"></i>
+                                        <span style="display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .85rem;background:rgba(240,192,64,.12);color:var(--pz-gold-light);border-radius:9999px;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;border:1px solid rgba(240,192,64,.3);">
+                                            <i data-lucide="alert-circle" style="width:.75rem;height:.75rem;"></i>
                                             Activa (No asiste)
                                         </span>
                                     }
                                     else
                                     {
-                                        <span class="inline-flex items-center gap-1 px-4 py-2 bg-gray-100 text-gray-600 font-black rounded-full uppercase text-xs tracking-wide">
-                                            <i data-lucide="x-circle" class="w-3 h-3"></i>
+                                        <span style="display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .85rem;background:rgba(90,100,128,.12);color:var(--pz-muted);border-radius:9999px;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;border:1px solid var(--pz-border);">
+                                            <i data-lucide="x-circle" style="width:.75rem;height:.75rem;"></i>
                                             Sin membresía
                                         </span>
                                     }
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center">
+
+                                <!-- Último Check-in -->
+                                <td style="text-align:center;">
                                     @if (ultimoCheckIn != null)
                                     {
                                         var diasInactivo = (DateTime.Now - ultimoCheckIn.FechaHora).Days;
-                                        <div class="text-sm">
-                                            <div class="font-black text-gray-900">@ultimoCheckIn.FechaHora.ToString("dd/MM/yyyy")</div>
-                                            <div class="text-red-600 font-black">Hace @diasInactivo días</div>
+                                        <div>
+                                            <div style="font-weight:900;color:#fff;">@ultimoCheckIn.FechaHora.ToString("dd/MM/yyyy")</div>
+                                            <div style="font-size:.8rem;font-weight:800;color:#f87070;">Hace @diasInactivo días</div>
                                         </div>
                                     }
                                     else
                                     {
-                                        <span class="text-sm text-gray-500 font-bold">Sin registros</span>
+                                        <span style="font-size:.875rem;color:var(--pz-muted);font-weight:700;">Sin registros</span>
                                     }
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center">
-                                    <div class="flex items-center justify-center gap-2">
-                                        <a href="/clientes/detalle/@cliente.Id"
-                                           class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                           title="Ver detalle">
-                                            <i data-lucide="eye" class="w-5 h-5"></i>
+
+                                <!-- Acciones -->
+                                <td style="text-align:center;">
+                                    <div style="display:flex;align-items:center;justify-content:center;gap:.4rem;">
+                                        <a href="/clientes/detalle/@cliente.Id" class="pz-action-btn" title="Ver detalle">
+                                            <i data-lucide="eye" style="width:1.1rem;height:1.1rem;color:#6ea0f7;"></i>
                                         </a>
-                                        <button onclick="contactarCliente('@cliente.Telefono', '@cliente.Nombre')"
-                                                class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
-                                                title="Contactar">
-                                            <i data-lucide="phone" class="w-5 h-5"></i>
+                                        <button onclick="contactarCliente('@cliente.Telefono', '@cliente.Nombre')" class="pz-action-btn" title="Contactar">
+                                            <i data-lucide="phone" style="width:1.1rem;height:1.1rem;color:#4ade80;"></i>
                                         </button>
                                         <button onclick="enviarRecordatorio('@cliente.Email', '@cliente.Nombre')"
-                                                class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
-                                                title="Enviar recordatorio"
-                                        @(string.IsNullOrEmpty(cliente.Email) ? "disabled" : "")>
-                                            <i data-lucide="mail" class="w-5 h-5"></i>
+                                                class="pz-action-btn" title="Enviar recordatorio"
+                                        @(string.IsNullOrEmpty(cliente.Email) ? "disabled style='opacity:.35;cursor:not-allowed;'" : "")>
+                                            <i data-lucide="mail" style="width:1.1rem;height:1.1rem;color:var(--pz-gold);"></i>
                                         </button>
                                         @if (tieneMembresia)
                                         {
-                                            <a href="/membresias?clienteId=@cliente.Id"
-                                               class="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
-                                               title="Ver membresías">
-                                                <i data-lucide="credit-card" class="w-5 h-5"></i>
+                                            <a href="/membresias?clienteId=@cliente.Id" class="pz-action-btn" title="Ver membresías">
+                                                <i data-lucide="credit-card" style="width:1.1rem;height:1.1rem;color:var(--pz-silver);"></i>
                                             </a>
                                         }
                                     </div>
@@ -246,13 +474,13 @@
     }
     else
     {
-        <div class="bg-white rounded-2xl shadow-xl p-12 text-center border-2 border-gray-200">
-            <div class="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i data-lucide="check-circle" class="w-14 h-14 text-emerald-600"></i>
+        <div class="pz-card" style="padding:4rem;text-align:center;">
+            <div style="width:5.5rem;height:5.5rem;background:rgba(74,222,128,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;border:2px solid rgba(74,222,128,.25);">
+                <i data-lucide="check-circle" style="width:3rem;height:3rem;color:#4ade80;"></i>
             </div>
-            <h3 class="text-3xl font-black text-gray-900 mb-3 uppercase tracking-wide">¡Excelente Participación!</h3>
-            <p class="text-gray-600 text-lg font-bold">No hay clientes inactivos en los últimos @ViewBag.Dias días</p>
-            <p class="text-gray-500 mt-2 font-semibold">Todos los clientes mantienen una asistencia regular</p>
+            <h3 style="font-size:1.5rem;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.75rem;">¡Excelente Participación!</h3>
+            <p style="color:var(--pz-text);font-size:1rem;font-weight:700;">No hay clientes inactivos en los últimos @ViewBag.Dias días</p>
+            <p style="color:var(--pz-muted);margin-top:.5rem;font-weight:600;">Todos los clientes mantienen una asistencia regular</p>
         </div>
     }
 </div>

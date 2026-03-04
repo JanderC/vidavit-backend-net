@@ -1,49 +1,50 @@
 ﻿@model IEnumerable<VidaFitBackend.Models.Producto>
-
 @{
     ViewData["Title"] = "Productos";
-    ViewData["Subtitle"] = "Gestión de productos - VidaFit";
+    ViewData["Subtitle"] = "Gestión de productos - PowerZone";
     Layout = "_AdminLayout";
 }
 
 <style>
     :root {
-        --vf-green: #39FF14;
-        --vf-green-dark: #28c40f;
-        --vf-border: #d1fac8;
-        --vf-text: #0f1f0a;
-        --vf-muted: #4a7a3a;
-        --vf-white: #ffffff;
+        --pz-blue: #2B4FD8;
+        --pz-blue-dark: #1a3ab5;
+        --pz-gold: #D4A017;
+        --pz-gold-dark: #b8880e;
+        --pz-border: rgba(43,79,216,0.18);
+        --pz-text: #0f1535;
+        --pz-muted: #4a5a8a;
+        --pz-white: #ffffff;
     }
 
-    .vf-page {
-        background: linear-gradient(135deg, #f7fff5 0%, #edfce8 100%);
+    .pz-page {
+        background: linear-gradient(135deg, #f5f7ff 0%, #eef1ff 100%);
         min-height: 100vh;
         padding: 1.5rem;
     }
 
-    .vf-card {
-        background: var(--vf-white);
-        border: 1px solid var(--vf-border);
+    .pz-card {
+        background: var(--pz-white);
+        border: 1px solid var(--pz-border);
         border-radius: 1rem;
-        box-shadow: 0 2px 12px rgba(57,255,20,0.08);
+        box-shadow: 0 2px 12px rgba(43,79,216,0.08);
     }
 
-    .vf-label {
+    .pz-label {
         display: block;
         font-size: .78rem;
         font-weight: 800;
-        color: var(--vf-muted);
+        color: var(--pz-muted);
         text-transform: uppercase;
         letter-spacing: .08em;
         margin-bottom: .5rem;
     }
 
-    .vf-input {
+    .pz-input {
         width: 100%;
-        background: #f7fff5;
-        border: 2px solid var(--vf-border);
-        color: var(--vf-text);
+        background: #f5f7ff;
+        border: 2px solid var(--pz-border);
+        color: var(--pz-text);
         border-radius: .6rem;
         padding: .75rem 1rem;
         outline: none;
@@ -51,21 +52,21 @@
         transition: border-color .2s, box-shadow .2s;
     }
 
-        .vf-input:focus {
-            border-color: var(--vf-green-dark);
-            box-shadow: 0 0 0 3px rgba(57,255,20,0.15);
+        .pz-input:focus {
+            border-color: #D4A017;
+            box-shadow: 0 0 0 3px rgba(212,160,23,0.15);
         }
 
-        .vf-input::placeholder {
-            color: #94b890;
+        .pz-input::placeholder {
+            color: #8899bb;
         }
 
-    select.vf-input option {
+    select.pz-input option {
         background: #fff;
-        color: var(--vf-text);
+        color: var(--pz-text);
     }
 
-    .vf-btn {
+    .pz-btn {
         display: inline-flex;
         align-items: center;
         gap: .45rem;
@@ -81,59 +82,64 @@
         transition: opacity .2s, transform .1s;
     }
 
-        .vf-btn:hover {
+        .pz-btn:hover {
             opacity: .88;
             transform: translateY(-1px);
         }
 
-    .vf-btn-green {
-        background: var(--vf-green);
-        color: #0a1f04;
+    .pz-btn-blue {
+        background: linear-gradient(135deg, #2B4FD8, #1a3ab5);
+        color: #fff;
     }
 
-    .vf-btn-emerald {
+    .pz-btn-gold {
+        background: linear-gradient(135deg, #D4A017, #b8880e);
+        color: #fff;
+    }
+
+    .pz-btn-emerald {
         background: #059669;
         color: #fff;
     }
 
-    .vf-btn-orange {
+    .pz-btn-orange {
         background: #ea580c;
         color: #fff;
     }
 
-    .vf-table {
+    .pz-table {
         width: 100%;
         border-collapse: collapse;
     }
 
-        .vf-table th {
-            background: #f0fff0;
-            color: var(--vf-muted);
+        .pz-table th {
+            background: linear-gradient(135deg, #0f1535, #1a2050);
+            color: #D4A017;
             font-size: .75rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: .08em;
             padding: 1rem 1.5rem;
             text-align: left;
-            border-bottom: 1px solid var(--vf-border);
+            border-bottom: 2px solid #D4A017;
         }
 
-        .vf-table td {
+        .pz-table td {
             padding: .9rem 1.5rem;
-            border-bottom: 1px solid #e8fce3;
-            color: var(--vf-text);
+            border-bottom: 1px solid rgba(43,79,216,0.1);
+            color: var(--pz-text);
             font-weight: 600;
         }
 
-        .vf-table tr:hover td {
-            background: #f0fff0;
+        .pz-table tr:hover td {
+            background: rgba(43,79,216,0.04);
         }
 
-        .vf-table tr:last-child td {
+        .pz-table tr:last-child td {
             border-bottom: none;
         }
 
-    .vf-badge {
+    .pz-badge {
         display: inline-flex;
         align-items: center;
         padding: .25rem .7rem;
@@ -144,7 +150,7 @@
         letter-spacing: .06em;
     }
 
-    .vf-action-btn {
+    .pz-action-btn {
         padding: .5rem;
         border-radius: .5rem;
         border: none;
@@ -153,32 +159,32 @@
         transition: background .2s;
     }
 
-        .vf-action-btn:hover {
-            background: #f0fff0;
+        .pz-action-btn:hover {
+            background: rgba(43,79,216,0.08);
         }
 </style>
 
-<div class="vf-page">
+<div class="pz-page">
     <div class="max-w-7xl mx-auto space-y-5">
 
         <!-- Header -->
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
             <div style="display:flex;align-items:center;gap:.75rem;">
-                <div style="background:var(--vf-green);padding:.5rem 1rem;border-radius:.5rem;box-shadow:0 4px 14px rgba(57,255,20,0.35);">
-                    <span style="font-size:1.3rem;font-weight:900;color:#0a1f04;letter-spacing:.05em;">VIDAFIT</span>
+                <div style="background:linear-gradient(135deg,#0f1535,#1a2050);padding:.5rem 1rem;border-radius:.5rem;box-shadow:0 4px 14px rgba(43,79,216,0.35);border-bottom:2px solid #D4A017;">
+                    <span style="font-size:1.1rem;font-weight:900;color:#D4A017;letter-spacing:.05em;">POWER</span><span style="font-size:1.1rem;font-weight:900;color:#fff;opacity:0.85;">ZONE</span>
                 </div>
-                <h2 style="font-size:1.75rem;font-weight:900;color:var(--vf-text);text-transform:uppercase;letter-spacing:.04em;">Gestión de Productos</h2>
+                <h2 style="font-size:1.75rem;font-weight:900;color:var(--pz-text);text-transform:uppercase;letter-spacing:.04em;">Gestión de Productos</h2>
             </div>
             <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
-                <a href="/productos/crear" class="vf-btn vf-btn-green">
+                <a href="/productos/crear" class="pz-btn pz-btn-blue">
                     <i data-lucide="plus-circle" style="width:1.1rem;height:1.1rem;"></i>
                     Nuevo Producto
                 </a>
-                <a href="/productos/vender" class="vf-btn vf-btn-emerald">
+                <a href="/productos/vender" class="pz-btn pz-btn-gold">
                     <i data-lucide="shopping-cart" style="width:1.1rem;height:1.1rem;"></i>
                     Vender Productos
                 </a>
-                <a href="/caja" class="vf-btn vf-btn-orange">
+                <a href="/caja" class="pz-btn pz-btn-orange">
                     <i data-lucide="alert-circle" style="width:1.1rem;height:1.1rem;"></i>
                     Ver deudas en caja
                 </a>
@@ -186,15 +192,15 @@
         </div>
 
         <!-- Filtros -->
-        <div class="vf-card p-5">
+        <div class="pz-card p-5">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                    <label class="vf-label">Buscar</label>
-                    <input type="text" id="buscarProducto" placeholder="Nombre o categoría..." class="vf-input">
+                    <label class="pz-label">Buscar</label>
+                    <input type="text" id="buscarProducto" placeholder="Nombre o categoría..." class="pz-input">
                 </div>
                 <div>
-                    <label class="vf-label">Categoría</label>
-                    <select id="filtroCategoria" class="vf-input">
+                    <label class="pz-label">Categoría</label>
+                    <select id="filtroCategoria" class="pz-input">
                         <option value="">Todas</option>
                         <option value="suplementos">Suplementos</option>
                         <option value="bebidas">Bebidas</option>
@@ -204,8 +210,8 @@
                     </select>
                 </div>
                 <div>
-                    <label class="vf-label">Estado</label>
-                    <select id="filtroEstado" class="vf-input">
+                    <label class="pz-label">Estado</label>
+                    <select id="filtroEstado" class="pz-input">
                         <option value="">Todos</option>
                         <option value="activo">Activos</option>
                         <option value="inactivo">Inactivos</option>
@@ -216,8 +222,8 @@
         </div>
 
         <!-- Tabla -->
-        <div class="vf-card" style="overflow:hidden;">
-            <table class="vf-table">
+        <div class="pz-card" style="overflow:hidden;">
+            <table class="pz-table">
                 <thead>
                     <tr>
                         <th>Imagen</th>
@@ -238,50 +244,50 @@
                             data-activo="@producto.Activo.ToString().ToLower()"
                             data-stock="@producto.Stock">
                             <td>
-                                <div style="width:3.5rem;height:3.5rem;background:#f0fff0;border-radius:.6rem;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid var(--vf-border);">
+                                <div style="width:3.5rem;height:3.5rem;background:rgba(43,79,216,0.06);border-radius:.6rem;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid var(--pz-border);">
                                     @if (!string.IsNullOrEmpty(producto.ImagenBase64))
                                     {
                                         <img src="@producto.ImagenBase64" style="width:100%;height:100%;object-fit:cover;" alt="@producto.Nombre">
                                     }
                                     else
                                     {
-                                        <i data-lucide="package" style="width:1.5rem;height:1.5rem;color:#94b890;"></i>
+                                        <i data-lucide="package" style="width:1.5rem;height:1.5rem;color:#8899bb;"></i>
                                     }
                                 </div>
                             </td>
                             <td>
-                                <div style="font-weight:800;color:var(--vf-text);">@producto.Nombre</div>
-                                <div style="font-size:.8rem;color:var(--vf-muted);font-weight:500;">@producto.Descripcion</div>
+                                <div style="font-weight:800;color:var(--pz-text);">@producto.Nombre</div>
+                                <div style="font-size:.8rem;color:var(--pz-muted);font-weight:500;">@producto.Descripcion</div>
                             </td>
                             <td>
-                                <span class="vf-badge" style="background:#dbeafe;color:#1d4ed8;border:1px solid #bfdbfe;">
+                                <span class="pz-badge" style="background:#dbeafe;color:#1d4ed8;border:1px solid #bfdbfe;">
                                     @producto.Categoria
                                 </span>
                             </td>
                             <td>
-                                <span style="font-size:1.05rem;font-weight:800;color:var(--vf-green-dark);">$@producto.Precio.ToString("N2")</span>
+                                <span style="font-size:1.05rem;font-weight:800;color:#D4A017;">$@producto.Precio.ToString("N2")</span>
                             </td>
                             <td>
-                                <span class="vf-badge"
+                                <span class="pz-badge"
                                       style="@(producto.Stock > 10 ? "background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;" : producto.Stock > 0 ? "background:#ffedd5;color:#c2410c;border:1px solid #fed7aa;" : "background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;")">
                                     @producto.Stock unidades
                                 </span>
                             </td>
                             <td>
-                                <span class="vf-badge" style="@(producto.Activo ? "background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;" : "background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb;")">
+                                <span class="pz-badge" style="@(producto.Activo ? "background:rgba(43,79,216,0.1);color:#2B4FD8;border:1px solid rgba(43,79,216,0.3);" : "background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb;")">
                                     @(producto.Activo ? "Activo" : "Inactivo")
                                 </span>
                             </td>
                             <td>
                                 <div style="display:flex;gap:.35rem;">
-                                    <a href="/productos/detalle/@producto.Id" class="vf-action-btn" title="Ver detalles" style="color:#1d4ed8;">
+                                    <a href="/productos/detalle/@producto.Id" class="pz-action-btn" title="Ver detalles" style="color:#2B4FD8;">
                                         <i data-lucide="eye" style="width:1.25rem;height:1.25rem;"></i>
                                     </a>
-                                    <a href="/productos/editar/@producto.Id" class="vf-action-btn" title="Editar" style="color:#d97706;">
+                                    <a href="/productos/editar/@producto.Id" class="pz-action-btn" title="Editar" style="color:#d97706;">
                                         <i data-lucide="edit" style="width:1.25rem;height:1.25rem;"></i>
                                     </a>
                                     <button type="button" onclick="eliminarProducto('@producto.Id', '@producto.Nombre')"
-                                            class="vf-action-btn" title="Eliminar" style="color:#dc2626;">
+                                            class="pz-action-btn" title="Eliminar" style="color:#dc2626;">
                                         <i data-lucide="trash-2" style="width:1.25rem;height:1.25rem;"></i>
                                     </button>
                                 </div>
@@ -291,7 +297,6 @@
                 </tbody>
             </table>
         </div>
-
     </div>
 </div>
 
@@ -305,12 +310,9 @@
             const busqueda = document.getElementById('buscarProducto').value.toLowerCase();
             const categoria = document.getElementById('filtroCategoria').value.toLowerCase();
             const estado = document.getElementById('filtroEstado').value.toLowerCase();
-            const rows = document.querySelectorAll('.producto-row');
-            rows.forEach(row => {
-                const nombre = row.dataset.nombre;
-                const cat = row.dataset.categoria;
-                const activo = row.dataset.activo === 'true';
-                const stock = parseInt(row.dataset.stock);
+            document.querySelectorAll('.producto-row').forEach(row => {
+                const nombre = row.dataset.nombre, cat = row.dataset.categoria;
+                const activo = row.dataset.activo === 'true', stock = parseInt(row.dataset.stock);
                 let mostrar = true;
                 if (busqueda && !nombre.includes(busqueda) && !cat.includes(busqueda)) mostrar = false;
                 if (categoria && cat !== categoria) mostrar = false;
@@ -324,30 +326,16 @@
         async function eliminarProducto(id, nombre) {
             if (!confirm(`¿Estás seguro de que deseas eliminar el producto "${nombre}"?\n\nEsta acción no se puede deshacer.`)) return;
             try {
-                const response = await fetch(`/api/Productos/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                if (response.ok) {
-                    alert('✅ Producto eliminado exitosamente');
-                    location.reload();
-                } else {
-                    const error = await response.text();
-                    alert('❌ Error: ' + error);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al eliminar el producto');
-            }
+                const response = await fetch(`/api/Productos/${id}`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' } });
+                if (response.ok) { alert('✅ Producto eliminado exitosamente'); location.reload(); }
+                else { alert('❌ Error: ' + await response.text()); }
+            } catch (error) { alert('❌ Error al eliminar el producto'); }
         }
 
         window.eliminarProducto = eliminarProducto;
 
-        // El _AdminLayout puede inyectar filas en #productosTable via fetch.
-        // Guardamos las filas de Razor y las restauramos si hay duplicación.
         const tbodyRef = document.getElementById('tablaProductos');
         const filasRazor = Array.from(tbodyRef.querySelectorAll('.producto-row'));
-
         const observer = new MutationObserver(() => {
             const filasActuales = Array.from(tbodyRef.querySelectorAll('.producto-row'));
             if (filasActuales.length > filasRazor.length) {
@@ -357,7 +345,6 @@
             }
         });
         observer.observe(tbodyRef, { childList: true });
-
         lucide.createIcons();
     </script>
 }

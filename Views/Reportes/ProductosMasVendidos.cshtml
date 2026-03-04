@@ -3,7 +3,7 @@
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Productos Más Vendidos";
-    ViewData["Subtitle"] = "Top productos con mayor demanda - VidaFit";
+    ViewData["Subtitle"] = "Top productos con mayor demanda - PowerZoneFit";
 
     decimal totalIngresos = 0;
     int totalUnidades = 0;
@@ -15,40 +15,44 @@
 
 <style>
     :root {
-        --vf-green: #39FF14;
-        --vf-dark: #0a0a0a;
-        --vf-card: #111111;
-        --vf-border: #1f1f1f;
-        --vf-text: #e5e5e5;
-        --vf-muted: #6b7280;
+        --pz-gold: #D4A017;
+        --pz-gold-light: #F0C040;
+        --pz-blue: #1A3A8F;
+        --pz-blue-light: #2B55CC;
+        --pz-silver: #B0B8C8;
+        --pz-dark: #08090E;
+        --pz-card: #0E1120;
+        --pz-border: #1E2540;
+        --pz-text: #E8ECF4;
+        --pz-muted: #5A6480;
     }
 
-    .vf-page {
-        background: var(--vf-dark);
+    .pz-page {
+        background: var(--pz-dark);
         min-height: 100vh;
         padding: 1.5rem;
     }
 
-    .vf-card {
-        background: var(--vf-card);
-        border: 1px solid var(--vf-border);
+    .pz-card {
+        background: var(--pz-card);
+        border: 1px solid var(--pz-border);
         border-radius: 1rem;
     }
 
-    .vf-label {
+    .pz-label {
         display: block;
         font-size: .78rem;
         font-weight: 800;
-        color: var(--vf-muted);
+        color: var(--pz-muted);
         text-transform: uppercase;
         letter-spacing: .08em;
         margin-bottom: .5rem;
     }
 
-    .vf-input {
-        background: #1a1a1a;
-        border: 2px solid var(--vf-border);
-        color: var(--vf-text);
+    .pz-input {
+        background: #0a0c14;
+        border: 2px solid var(--pz-border);
+        color: var(--pz-text);
         border-radius: .6rem;
         padding: .75rem 1rem;
         outline: none;
@@ -57,20 +61,20 @@
         width: 100%;
     }
 
-        .vf-input:focus {
-            border-color: var(--vf-green);
+        .pz-input:focus {
+            border-color: var(--pz-gold);
         }
 
-    .vf-stat {
-        background: var(--vf-card);
+    .pz-stat {
+        background: var(--pz-card);
         border-radius: .85rem;
         padding: 1.5rem;
         border-left: 4px solid;
     }
 
-    .vf-btn-filter {
-        background: var(--vf-green);
-        color: #0a0a0a;
+    .pz-btn-filter {
+        background: linear-gradient(135deg, var(--pz-gold) 0%, var(--pz-gold-light) 100%);
+        color: #08090E;
         font-weight: 900;
         padding: .8rem 2rem;
         border-radius: .6rem;
@@ -81,14 +85,16 @@
         display: inline-flex;
         align-items: center;
         gap: .5rem;
-        transition: opacity .2s;
+        transition: opacity .2s, transform .15s;
+        box-shadow: 0 4px 18px rgba(212,160,23,.35);
     }
 
-        .vf-btn-filter:hover {
-            opacity: .85;
+        .pz-btn-filter:hover {
+            opacity: .88;
+            transform: translateY(-1px);
         }
 
-    .vf-section-title {
+    .pz-section-title {
         font-size: 1rem;
         font-weight: 900;
         color: #fff;
@@ -100,85 +106,99 @@
         gap: .5rem;
     }
 
-        .vf-section-title::before {
+        .pz-section-title::before {
             content: '';
             display: block;
             width: 3px;
             height: 1rem;
-            background: var(--vf-green);
+            background: linear-gradient(180deg, var(--pz-gold), var(--pz-gold-light));
             border-radius: 2px;
             flex-shrink: 0;
         }
 
-    .vf-table {
+    .pz-table {
         width: 100%;
         border-collapse: collapse;
     }
 
-        .vf-table th {
-            background: #0f0f0f;
-            color: var(--vf-muted);
+        .pz-table th {
+            background: #090b14;
+            color: var(--pz-muted);
             font-size: .72rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: .08em;
             padding: .9rem 1.5rem;
-            border-bottom: 1px solid var(--vf-border);
+            border-bottom: 1px solid var(--pz-border);
         }
 
-        .vf-table td {
+        .pz-table td {
             padding: .85rem 1.5rem;
-            border-bottom: 1px solid var(--vf-border);
-            color: var(--vf-text);
+            border-bottom: 1px solid var(--pz-border);
+            color: var(--pz-text);
         }
 
-        .vf-table tr:hover td {
-            background: #161616;
+        .pz-table tr:hover td {
+            background: #101424;
         }
 
-        .vf-table tr:last-child td {
+        .pz-table tr:last-child td {
             border-bottom: none;
         }
 
-    .vf-podium {
-        background: var(--vf-card);
+    .pz-podium {
+        background: var(--pz-card);
         border-radius: 1rem;
         padding: 1.5rem;
-        border: 1px solid var(--vf-border);
-        transition: transform .15s,box-shadow .15s;
+        border: 1px solid var(--pz-border);
+        transition: transform .15s, box-shadow .15s;
     }
 
-        .vf-podium:hover {
+        .pz-podium:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 30px rgba(57,255,20,.1);
+            box-shadow: 0 8px 30px rgba(212,160,23,.12);
         }
+
+    .pz-brand-badge {
+        background: linear-gradient(135deg, var(--pz-blue) 0%, var(--pz-blue-light) 100%);
+        padding: .35rem 1rem;
+        border-radius: .5rem;
+        border: 2px solid var(--pz-gold);
+        box-shadow: 0 0 14px rgba(212,160,23,.3);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        line-height: 1;
+    }
 </style>
 
-<div class="vf-page space-y-6">
+<div class="pz-page space-y-6">
 
     <!-- Header Brand -->
-    <div style="display:flex;align-items:center;gap:.75rem;">
-        <div style="background:var(--vf-green);padding:.4rem .9rem;border-radius:.5rem;">
-            <span style="font-size:1.1rem;font-weight:900;color:#0a0a0a;letter-spacing:.05em;">VIDAFIT</span>
+    <div style="display:flex;align-items:center;gap:.9rem;">
+        <div class="pz-brand-badge">
+            <span style="font-size:.6rem;font-weight:700;color:var(--pz-silver);letter-spacing:.18em;text-transform:uppercase;">BOX BY CHOPER</span>
+            <span style="font-size:1rem;font-weight:900;color:#fff;letter-spacing:.06em;text-transform:uppercase;">POWER ZONE</span>
+            <span style="font-size:.58rem;font-weight:700;color:var(--pz-silver);letter-spacing:.22em;text-transform:uppercase;">TRAINING</span>
         </div>
         <div>
             <h2 style="font-size:1.5rem;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:.04em;">Productos Más Vendidos</h2>
-            <p style="color:var(--vf-muted);font-size:.82rem;">Top productos con mayor demanda</p>
+            <p style="color:var(--pz-muted);font-size:.82rem;">Top productos con mayor demanda</p>
         </div>
     </div>
 
     <!-- Filtro fechas -->
-    <div class="vf-card p-6">
+    <div class="pz-card p-6">
         <div style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:1rem;">
             <div style="flex:1;min-width:200px;">
-                <label class="vf-label">Fecha Desde</label>
-                <input type="date" id="fecha-desde" value="@ViewBag.FechaInicio.ToString("yyyy-MM-dd")" class="vf-input">
+                <label class="pz-label">Fecha Desde</label>
+                <input type="date" id="fecha-desde" value="@ViewBag.FechaInicio.ToString("yyyy-MM-dd")" class="pz-input">
             </div>
             <div style="flex:1;min-width:200px;">
-                <label class="vf-label">Fecha Hasta</label>
-                <input type="date" id="fecha-hasta" value="@ViewBag.FechaFin.ToString("yyyy-MM-dd")" class="vf-input">
+                <label class="pz-label">Fecha Hasta</label>
+                <input type="date" id="fecha-hasta" value="@ViewBag.FechaFin.ToString("yyyy-MM-dd")" class="pz-input">
             </div>
-            <button onclick="filtrarPorFecha()" class="vf-btn-filter">
+            <button onclick="filtrarPorFecha()" class="pz-btn-filter">
                 <i data-lucide="filter" style="width:1rem;height:1rem;"></i>
                 Filtrar
             </button>
@@ -189,38 +209,38 @@
     {
         <!-- Stats -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="vf-stat" style="border-left-color:#f59e0b;">
+            <div class="pz-stat" style="border-left-color:var(--pz-gold);">
                 <div style="display:flex;align-items:center;justify-content:space-between;">
                     <div>
-                        <p style="font-size:.72rem;font-weight:800;color:var(--vf-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.35rem;">Productos Vendidos</p>
-                        <p style="font-size:2.25rem;font-weight:900;color:#fbbf24;">@Model.Count</p>
+                        <p style="font-size:.72rem;font-weight:800;color:var(--pz-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.35rem;">Productos Vendidos</p>
+                        <p style="font-size:2.25rem;font-weight:900;color:var(--pz-gold-light);">@Model.Count</p>
                     </div>
-                    <div style="width:3.5rem;height:3.5rem;background:#b4530922;border-radius:50%;display:flex;align-items:center;justify-content:center;">
-                        <i data-lucide="package" style="width:1.6rem;height:1.6rem;color:#fbbf24;"></i>
+                    <div style="width:3.5rem;height:3.5rem;background:rgba(212,160,23,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(212,160,23,.3);">
+                        <i data-lucide="package" style="width:1.6rem;height:1.6rem;color:var(--pz-gold);"></i>
                     </div>
                 </div>
             </div>
 
-            <div class="vf-stat" style="border-left-color:var(--vf-green);">
+            <div class="pz-stat" style="border-left-color:var(--pz-blue-light);">
                 <div style="display:flex;align-items:center;justify-content:space-between;">
                     <div>
-                        <p style="font-size:.72rem;font-weight:800;color:var(--vf-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.35rem;">Ingresos Totales</p>
-                        <p style="font-size:2.25rem;font-weight:900;color:var(--vf-green);">$@totalIngresos.ToString("N2")</p>
+                        <p style="font-size:.72rem;font-weight:800;color:var(--pz-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.35rem;">Ingresos Totales</p>
+                        <p style="font-size:2.25rem;font-weight:900;color:var(--pz-gold-light);">$@totalIngresos.ToString("N2")</p>
                     </div>
-                    <div style="width:3.5rem;height:3.5rem;background:#39FF1422;border-radius:50%;display:flex;align-items:center;justify-content:center;">
-                        <i data-lucide="dollar-sign" style="width:1.6rem;height:1.6rem;color:var(--vf-green);"></i>
+                    <div style="width:3.5rem;height:3.5rem;background:rgba(212,160,23,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(212,160,23,.3);">
+                        <i data-lucide="dollar-sign" style="width:1.6rem;height:1.6rem;color:var(--pz-gold);"></i>
                     </div>
                 </div>
             </div>
 
-            <div class="vf-stat" style="border-left-color:#3b82f6;">
+            <div class="pz-stat" style="border-left-color:#6ea0f7;">
                 <div style="display:flex;align-items:center;justify-content:space-between;">
                     <div>
-                        <p style="font-size:.72rem;font-weight:800;color:var(--vf-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.35rem;">Unidades Totales</p>
-                        <p style="font-size:2.25rem;font-weight:900;color:#60a5fa;">@totalUnidades</p>
+                        <p style="font-size:.72rem;font-weight:800;color:var(--pz-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.35rem;">Unidades Totales</p>
+                        <p style="font-size:2.25rem;font-weight:900;color:#6ea0f7;">@totalUnidades</p>
                     </div>
-                    <div style="width:3.5rem;height:3.5rem;background:#1d4ed822;border-radius:50%;display:flex;align-items:center;justify-content:center;">
-                        <i data-lucide="shopping-cart" style="width:1.6rem;height:1.6rem;color:#60a5fa;"></i>
+                    <div style="width:3.5rem;height:3.5rem;background:rgba(26,58,143,.25);border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(43,85,204,.4);">
+                        <i data-lucide="shopping-cart" style="width:1.6rem;height:1.6rem;color:#6ea0f7;"></i>
                     </div>
                 </div>
             </div>
@@ -229,32 +249,32 @@
         <!-- Podium TOP 3 -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             @{
-                var podiumBorders = new[] { "#f59e0b", "#9ca3af", "#fb923c" };
+                var podiumBorders = new[] { "#D4A017", "#B0B8C8", "#2B55CC" };
                 var podiumIcons = new[] { "trophy", "medal", "award" };
-                var podiumColors = new[] { "#fbbf24", "#9ca3af", "#fb923c" };
-                var podiumBgs = new[] { "#b4530922", "#37415122", "#ea580c22" };
+                var podiumColors = new[] { "#F0C040", "#C8D0E0", "#6ea0f7" };
+                var podiumBgs = new[] { "rgba(212,160,23,.15)", "rgba(176,184,200,.1)", "rgba(26,58,143,.25)" };
             }
             @for (int i = 0; i < Math.Min(3, Model.Count); i++)
             {
                 var producto = Model[i];
-                <div class="vf-podium" style="border-color:@podiumBorders[i];border-width:2px;border-style:solid;">
+                <div class="pz-podium" style="border-color:@podiumBorders[i];border-width:2px;border-style:solid;">
                     <div style="display:flex;align-items:center;gap:.85rem;margin-bottom:1rem;">
-                        <div style="width:3.25rem;height:3.25rem;border-radius:50%;background:@podiumBgs[i];display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <div style="width:3.25rem;height:3.25rem;border-radius:50%;background:@podiumBgs[i];display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid @podiumBorders[i]40;">
                             <i data-lucide="@podiumIcons[i]" style="width:1.5rem;height:1.5rem;color:@podiumColors[i];"></i>
                         </div>
                         <div>
-                            <p style="font-size:.72rem;color:var(--vf-muted);text-transform:uppercase;font-weight:800;letter-spacing:.08em;">Puesto #@(i + 1)</p>
+                            <p style="font-size:.72rem;color:var(--pz-muted);text-transform:uppercase;font-weight:800;letter-spacing:.08em;">Puesto #@(i + 1)</p>
                             <p style="font-weight:900;color:#fff;font-size:1rem;text-transform:uppercase;letter-spacing:.04em;">@producto.Nombre</p>
                         </div>
                     </div>
-                    <div style="space-y:.75rem;">
+                    <div>
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem;">
-                            <span style="font-size:.82rem;color:var(--vf-muted);font-weight:700;">Unidades vendidas:</span>
+                            <span style="font-size:.82rem;color:var(--pz-muted);font-weight:700;">Unidades vendidas:</span>
                             <span style="font-weight:900;color:@podiumColors[i];font-size:1.05rem;">@producto.Cantidad</span>
                         </div>
                         <div style="display:flex;justify-content:space-between;align-items:center;">
-                            <span style="font-size:.82rem;color:var(--vf-muted);font-weight:700;">Ingresos:</span>
-                            <span style="font-weight:900;color:var(--vf-green);font-size:1.05rem;">$@producto.Total.ToString("N2")</span>
+                            <span style="font-size:.82rem;color:var(--pz-muted);font-weight:700;">Ingresos:</span>
+                            <span style="font-weight:900;color:var(--pz-gold-light);font-size:1.05rem;">$@producto.Total.ToString("N2")</span>
                         </div>
                     </div>
                 </div>
@@ -262,20 +282,20 @@
         </div>
 
         <!-- Gráfica -->
-        <div class="vf-card p-8">
-            <p class="vf-section-title">Comparativa de Ventas</p>
+        <div class="pz-card p-8">
+            <p class="pz-section-title">Comparativa de Ventas</p>
             <div style="position:relative;height:400px;">
                 <canvas id="chart-productos"></canvas>
             </div>
         </div>
 
         <!-- Tabla Ranking -->
-        <div class="vf-card" style="overflow:hidden;">
-            <div style="padding:1rem 1.5rem;border-bottom:1px solid var(--vf-border);background:#0f0f0f;">
-                <p class="vf-section-title" style="margin-bottom:0;">Ranking Completo</p>
+        <div class="pz-card" style="overflow:hidden;">
+            <div style="padding:1rem 1.5rem;border-bottom:1px solid var(--pz-border);background:#090b14;">
+                <p class="pz-section-title" style="margin-bottom:0;">Ranking Completo</p>
             </div>
             <div style="overflow-x:auto;">
-                <table class="vf-table">
+                <table class="pz-table">
                     <thead>
                         <tr>
                             <th style="text-align:center;">Posición</th>
@@ -295,32 +315,32 @@
                             var isTop = posicion <= 3;
                             <tr>
                                 <td style="text-align:center;">
-                                    <span style="display:inline-flex;align-items:center;justify-content:center;width:2.25rem;height:2.25rem;background:@(isTop ? "var(--vf-green)" : "#1f1f1f");color:@(isTop ? "#0a0a0a" : "var(--vf-muted)");font-weight:900;border-radius:50%;font-size:.875rem;">
+                                    <span style="display:inline-flex;align-items:center;justify-content:center;width:2.25rem;height:2.25rem;background:@(isTop ? "var(--pz-gold)" : "rgba(30,37,64,.8)");color:@(isTop ? "#08090E" : "var(--pz-muted)");font-weight:900;border-radius:50%;font-size:.875rem;border:1px solid @(isTop ? "var(--pz-gold-light)" : "var(--pz-border)");">
                                         @posicion
                                     </span>
                                 </td>
                                 <td>
                                     <div style="display:flex;align-items:center;gap:.75rem;">
-                                        <div style="width:2.5rem;height:2.5rem;background:#1a1a1a;border-radius:.5rem;display:flex;align-items:center;justify-content:center;border:1px solid var(--vf-border);">
-                                            <i data-lucide="package" style="width:1.25rem;height:1.25rem;color:var(--vf-muted);"></i>
+                                        <div style="width:2.5rem;height:2.5rem;background:#0a0c14;border-radius:.5rem;display:flex;align-items:center;justify-content:center;border:1px solid var(--pz-border);">
+                                            <i data-lucide="package" style="width:1.25rem;height:1.25rem;color:var(--pz-muted);"></i>
                                         </div>
                                         <span style="font-weight:800;color:#fff;">@producto.Nombre</span>
                                     </div>
                                 </td>
                                 <td style="text-align:center;">
-                                    <span style="display:inline-flex;align-items:center;padding:.25rem .75rem;background:#1d4ed822;color:#60a5fa;border-radius:9999px;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;border:1px solid #1d4ed844;">
+                                    <span style="display:inline-flex;align-items:center;padding:.25rem .75rem;background:rgba(26,58,143,.25);color:#6ea0f7;border-radius:9999px;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;border:1px solid rgba(43,85,204,.4);">
                                         @producto.Cantidad unidades
                                     </span>
                                 </td>
                                 <td style="text-align:right;">
-                                    <span style="font-size:1.05rem;font-weight:900;color:var(--vf-green);">$@producto.Total.ToString("N2")</span>
+                                    <span style="font-size:1.05rem;font-weight:900;color:var(--pz-gold-light);">$@producto.Total.ToString("N2")</span>
                                 </td>
                                 <td style="text-align:center;">
                                     <div style="display:flex;align-items:center;justify-content:center;gap:.5rem;">
-                                        <div style="width:6rem;background:#1f1f1f;border-radius:9999px;height:.5rem;">
-                                            <div style="background:var(--vf-green);height:.5rem;border-radius:9999px;width:@porcentaje.ToString("F1")%;"></div>
+                                        <div style="width:6rem;background:#1a1f35;border-radius:9999px;height:.5rem;">
+                                            <div style="background:linear-gradient(90deg,var(--pz-blue-light),var(--pz-gold));height:.5rem;border-radius:9999px;width:@porcentaje.ToString("F1")%;"></div>
                                         </div>
-                                        <span style="font-size:.78rem;font-weight:800;color:var(--vf-muted);">@porcentaje.ToString("F1")%</span>
+                                        <span style="font-size:.78rem;font-weight:800;color:var(--pz-muted);">@porcentaje.ToString("F1")%</span>
                                     </div>
                                 </td>
                             </tr>
@@ -333,10 +353,10 @@
     }
     else
     {
-        <div class="vf-card" style="padding:4rem;text-align:center;">
-            <i data-lucide="inbox" style="width:6rem;height:6rem;margin:0 auto 1rem;color:#374151;display:block;"></i>
+        <div class="pz-card" style="padding:4rem;text-align:center;">
+            <i data-lucide="inbox" style="width:6rem;height:6rem;margin:0 auto 1rem;color:#2a3050;display:block;"></i>
             <h3 style="font-size:1.25rem;font-weight:900;color:#fff;text-transform:uppercase;margin-bottom:.75rem;">No hay ventas en este período</h3>
-            <p style="color:var(--vf-muted);font-weight:600;">Intenta seleccionar un rango de fechas diferente</p>
+            <p style="color:var(--pz-muted);font-weight:600;">Intenta seleccionar un rango de fechas diferente</p>
         </div>
     }
 </div>
@@ -364,20 +384,20 @@
                 data: {
                     labels,
                     datasets: [
-                        { label: 'Unidades Vendidas', data: cantidades, backgroundColor: '#39FF14', borderRadius: 6, yAxisID: 'y' },
-                        { label: 'Ingresos ($)', data: ingresos, backgroundColor: '#3b82f6', borderRadius: 6, yAxisID: 'y1' }
+                        { label: 'Unidades Vendidas', data: cantidades, backgroundColor: '#F0C040', borderRadius: 6, yAxisID: 'y' },
+                        { label: 'Ingresos ($)',       data: ingresos,   backgroundColor: '#2B55CC', borderRadius: 6, yAxisID: 'y1' }
                     ]
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
                     plugins: {
-                        legend: { display: true, position: 'top', labels: { color: '#e5e5e5', font: { weight: 'bold' } } },
-                        tooltip: { backgroundColor: '#1a1a1a', borderColor: '#1f1f1f', borderWidth: 1, titleColor: '#e5e5e5', bodyColor: '#e5e5e5', padding: 12 }
+                        legend: { display: true, position: 'top', labels: { color: '#E8ECF4', font: { weight: 'bold' } } },
+                        tooltip: { backgroundColor: '#0E1120', borderColor: '#1E2540', borderWidth: 1, titleColor: '#E8ECF4', bodyColor: '#E8ECF4', padding: 12 }
                     },
                     scales: {
-                        y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'Unidades', color: '#6b7280' }, grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#6b7280' } },
-                        y1: { type: 'linear', display: true, position: 'right', title: { display: true, text: 'Ingresos ($)', color: '#6b7280' }, grid: { drawOnChartArea: false }, ticks: { color: '#6b7280' } },
-                        x: { grid: { display: false }, ticks: { color: '#6b7280' } }
+                        y:  { type: 'linear', display: true, position: 'left',  title: { display: true, text: 'Unidades',     color: '#5A6480' }, grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#5A6480' } },
+                        y1: { type: 'linear', display: true, position: 'right', title: { display: true, text: 'Ingresos ($)', color: '#5A6480' }, grid: { drawOnChartArea: false },            ticks: { color: '#5A6480' } },
+                        x:  { grid: { display: false }, ticks: { color: '#5A6480' } }
                     }
                 }
             });

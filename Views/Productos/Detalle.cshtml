@@ -1,190 +1,263 @@
-@model VidaFitBackend.Models.Producto
+@model VidaFitBackend.Models.Cliente
 @{
     Layout = "_AdminLayout";
-    ViewData["Title"] = "Detalle de Producto";
-    ViewData["Subtitle"] = "Información completa del producto";
+    ViewData["Title"] = $"{Model.Nombre} {Model.Apellido}";
+    ViewData["Subtitle"] = "Información detallada del cliente";
 }
 
-<style>
-    :root {
-        --vf-green: #39FF14;
-        --vf-dark: #0a0a0a;
-        --vf-card: #111111;
-        --vf-border: #1f1f1f;
-        --vf-text: #e5e5e5;
-        --vf-muted: #6b7280;
-    }
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <a href="/clientes" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 font-bold transition-colors">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+            Volver a Clientes
+        </a>
+        <div class="flex gap-3">
+            <a href="/clientes/edit/@Model.Id"
+               class="px-6 py-3 text-white rounded-xl transition-all inline-flex items-center gap-2 font-black uppercase tracking-wide shadow-xl transform hover:scale-105"
+               style="background:linear-gradient(135deg,#D4A017,#b8880e);"
+               onmouseover="this.style.background='linear-gradient(135deg,#e8bb2e,#D4A017)'; this.style.boxShadow='0 8px 25px rgba(212,160,23,0.4)';"
+               onmouseout="this.style.background='linear-gradient(135deg,#D4A017,#b8880e)'; this.style.boxShadow='';">
+                <i data-lucide="edit" class="w-5 h-5"></i>
+                Editar
+            </a>
+        </div>
+    </div>
 
-    .vf-page {
-        background: var(--vf-dark);
-        min-height: 100vh;
-        padding: 1.5rem;
-    }
-
-    .vf-card {
-        background: var(--vf-card);
-        border: 1px solid var(--vf-border);
-        border-radius: 1rem;
-        overflow: hidden;
-    }
-
-    .vf-info-box {
-        background: #1a1a1a;
-        border: 1px solid var(--vf-border);
-        border-radius: .75rem;
-        padding: 1.5rem;
-    }
-
-    .vf-info-label {
-        font-size: .75rem;
-        font-weight: 800;
-        color: var(--vf-muted);
-        text-transform: uppercase;
-        letter-spacing: .08em;
-        margin-bottom: .5rem;
-    }
-
-    .vf-info-value {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--vf-text);
-    }
-
-    .vf-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: .5rem;
-        padding: .9rem 1.5rem;
-        border-radius: .6rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: .06em;
-        text-decoration: none;
-        transition: opacity .2s;
-        flex: 1;
-    }
-
-        .vf-btn:hover {
-            opacity: .85;
-        }
-
-    .vf-btn-blue {
-        background: #1d4ed8;
-        color: #fff;
-    }
-
-    .vf-btn-gray {
-        background: #1f1f1f;
-        color: var(--vf-text);
-        border: 1px solid var(--vf-border);
-    }
-</style>
-
-<div class="vf-page">
-    <div class="max-w-4xl mx-auto">
-        <div class="vf-card">
-            <!-- Header -->
-            <div style="background:linear-gradient(135deg,#111 0%,#1a1a1a 100%);border-bottom:2px solid var(--vf-green);padding:2rem;">
-                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
-                    <div>
-                        <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.5rem;">
-                            <span style="background:var(--vf-green);color:#0a0a0a;font-size:.7rem;font-weight:900;padding:.2rem .6rem;border-radius:9999px;letter-spacing:.1em;">VIDAFIT</span>
-                            <h2 style="font-size:1.75rem;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:.05em;">Detalle de Producto</h2>
-                        </div>
-                        <p style="color:var(--vf-green);font-weight:700;font-size:1rem;">@Model.Nombre</p>
+    <!-- Información Principal -->
+    <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
+        <div class="flex items-start gap-6">
+            <div class="flex-shrink-0">
+                @if (!string.IsNullOrEmpty(Model.FotoBase64))
+                {
+                    <img src="data:image/jpeg;base64,@Model.FotoBase64"
+                         class="w-40 h-40 rounded-2xl object-cover shadow-xl"
+                         style="border: 4px solid #D4A017;"
+                         alt="@Model.Nombre">
+                }
+                else
+                {
+                    <div class="w-40 h-40 rounded-2xl bg-gray-100 flex items-center justify-center"
+                         style="border: 4px solid rgba(43,79,216,0.3);">
+                        <i data-lucide="user" class="w-20 h-20 text-gray-400"></i>
                     </div>
-                    <div>
-                        @if (Model.Activo)
-                        {
-                            <span style="display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1.25rem;background:#059669;color:#fff;border-radius:9999px;font-weight:800;font-size:.85rem;text-transform:uppercase;letter-spacing:.05em;">
-                                <i data-lucide="check-circle" style="width:1.1rem;height:1.1rem;"></i>
-                                Activo
-                            </span>
-                        }
-                        else
-                        {
-                            <span style="display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1.25rem;background:#374151;color:#fff;border-radius:9999px;font-weight:800;font-size:.85rem;text-transform:uppercase;letter-spacing:.05em;">
-                                <i data-lucide="x-circle" style="width:1.1rem;height:1.1rem;"></i>
-                                Inactivo
-                            </span>
-                        }
-                    </div>
-                </div>
+                }
             </div>
 
-            <div style="padding:2rem;">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <!-- Imagen -->
-                    <div class="md:col-span-2" style="display:flex;justify-content:center;">
-                        @if (!string.IsNullOrEmpty(Model.ImagenBase64))
-                        {
-                            <div style="width:16rem;height:16rem;border-radius:1rem;overflow:hidden;border:2px solid var(--vf-border);">
-                                <img src="@Model.ImagenBase64" alt="@Model.Nombre" style="width:100%;height:100%;object-fit:cover;">
-                            </div>
-                        }
-                        else
-                        {
-                            <div style="width:16rem;height:16rem;border-radius:1rem;border:2px dashed var(--vf-border);display:flex;align-items:center;justify-content:center;background:#1a1a1a;">
-                                <i data-lucide="package" style="width:6rem;height:6rem;color:var(--vf-muted);display:block;"></i>
-                            </div>
-                        }
-                    </div>
+            <div class="flex-1">
+                <h2 class="text-4xl font-black text-gray-900 mb-4 uppercase tracking-wide">@Model.Nombre @Model.Apellido</h2>
 
-                    <div class="vf-info-box">
-                        <p class="vf-info-label">Nombre</p>
-                        <p class="vf-info-value">@Model.Nombre</p>
+                <div class="grid grid-cols-2 gap-6 mt-6">
+                    <div class="bg-gray-50 p-4 rounded-xl border-2 border-gray-200">
+                        <p class="text-sm text-gray-600 mb-1 font-black uppercase tracking-wide">Cédula</p>
+                        <p class="font-black text-gray-900 text-lg">@Model.Cedula</p>
                     </div>
-
-                    <div class="vf-info-box">
-                        <p class="vf-info-label">Categoría</p>
-                        <p class="vf-info-value">@(string.IsNullOrEmpty(Model.Categoria) ? "Sin categoría" : Model.Categoria)</p>
+                    <div class="bg-gray-50 p-4 rounded-xl border-2 border-gray-200">
+                        <p class="text-sm text-gray-600 mb-1 font-black uppercase tracking-wide">Teléfono</p>
+                        <p class="font-black text-gray-900 text-lg">@Model.Telefono</p>
                     </div>
-
-                    <div class="vf-info-box" style="border-left:3px solid var(--vf-green);">
-                        <p class="vf-info-label" style="color:var(--vf-green);">Precio</p>
-                        <p style="font-size:1.75rem;font-weight:900;color:var(--vf-green);">$@Model.Precio.ToString("N2")</p>
-                    </div>
-
-                    <div class="vf-info-box" style="border-left:3px solid #3b82f6;">
-                        <p class="vf-info-label" style="color:#60a5fa;">Stock Disponible</p>
-                        <p style="font-size:1.75rem;font-weight:900;color:#3b82f6;">@Model.Stock</p>
-                    </div>
-
-                    @if (!string.IsNullOrEmpty(Model.Descripcion))
+                    @if (!string.IsNullOrEmpty(Model.Email))
                     {
-                        <div class="vf-info-box md:col-span-2">
-                            <p class="vf-info-label">Descripción</p>
-                            <p style="color:var(--vf-text);font-weight:500;line-height:1.6;">@Model.Descripcion</p>
+                        <div class="bg-gray-50 p-4 rounded-xl border-2 border-gray-200">
+                            <p class="text-sm text-gray-600 mb-1 font-black uppercase tracking-wide">Email</p>
+                            <p class="font-bold text-gray-900">@Model.Email</p>
                         </div>
                     }
-
-                    <div class="vf-info-box">
-                        <p class="vf-info-label">Fecha de Creación</p>
-                        <p class="vf-info-value">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
-                    </div>
-
-                    <div class="vf-info-box">
-                        <p class="vf-info-label">Última Actualización</p>
-                        <p class="vf-info-value">@Model.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</p>
-                    </div>
+                    @if (Model.FechaNacimiento.HasValue)
+                    {
+                        <div class="bg-gray-50 p-4 rounded-xl border-2 border-gray-200">
+                            <p class="text-sm text-gray-600 mb-1 font-black uppercase tracking-wide">Fecha de Nacimiento</p>
+                            <p class="font-black text-gray-900 text-lg">@Model.FechaNacimiento.Value.ToString("dd/MM/yyyy")</p>
+                        </div>
+                    }
                 </div>
 
-                <div style="display:flex;gap:1rem;padding-top:1.5rem;border-top:1px solid var(--vf-border);">
-                    <a href="/productos/editar/@Model.Id" class="vf-btn vf-btn-blue">
-                        <i data-lucide="edit" style="width:1.25rem;height:1.25rem;"></i>
-                        Editar Producto
-                    </a>
-                    <a href="/productos" class="vf-btn vf-btn-gray">
-                        <i data-lucide="arrow-left" style="width:1.25rem;height:1.25rem;"></i>
-                        Volver al Listado
-                    </a>
+                @if (!string.IsNullOrEmpty(Model.Direccion))
+                {
+                    <div class="mt-6 bg-gray-50 p-4 rounded-xl border-2 border-gray-200">
+                        <p class="text-sm text-gray-600 mb-1 font-black uppercase tracking-wide">Dirección</p>
+                        <p class="font-bold text-gray-900">@Model.Direccion</p>
+                    </div>
+                }
+
+                <div class="mt-6 flex gap-3">
+                    @if (Model.Activo)
+                    {
+                        <span class="px-4 py-2 bg-emerald-100 text-emerald-800 font-black rounded-full uppercase tracking-wide text-xs inline-flex items-center gap-2">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i> Activo
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="px-4 py-2 bg-red-100 text-red-800 font-black rounded-full uppercase tracking-wide text-xs inline-flex items-center gap-2">
+                            <i data-lucide="x-circle" class="w-4 h-4"></i> Inactivo
+                        </span>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.HuellaTemplate))
+                    {
+                        <span class="px-4 py-2 bg-purple-100 text-purple-800 font-black rounded-full uppercase tracking-wide text-xs inline-flex items-center gap-2">
+                            <i data-lucide="fingerprint" class="w-4 h-4"></i> Con Huella
+                        </span>
+                    }
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Membresías -->
+    <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-2xl font-black text-gray-900 flex items-center gap-3 uppercase tracking-wide">
+                <i data-lucide="credit-card" class="w-6 h-6" style="color:#2B4FD8;"></i>
+                Membresías
+            </h3>
+            <button onclick="window.location.href='/membresias/crear?clienteId=@Model.Id'"
+                    class="px-6 py-3 text-white font-black rounded-xl transition-all inline-flex items-center gap-2 shadow-xl uppercase tracking-wide transform hover:scale-105"
+                    style="background:linear-gradient(135deg,#2B4FD8,#1a3ab5);"
+                    onmouseover="this.style.background='linear-gradient(135deg,#D4A017,#b8880e)';"
+                    onmouseout="this.style.background='linear-gradient(135deg,#2B4FD8,#1a3ab5)';">
+                <i data-lucide="plus" class="w-5 h-5"></i>
+                Nueva Membresía
+            </button>
+        </div>
+        <div id="membresias-list" class="space-y-4">
+            <div class="text-center py-12 text-gray-500">
+                <i data-lucide="loader" class="w-10 h-10 mx-auto mb-3 animate-spin"></i>
+                <p class="font-bold">Cargando membresías...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Historial de Check-ins -->
+    <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
+        <h3 class="text-2xl font-black text-gray-900 mb-6 flex items-center gap-3 uppercase tracking-wide">
+            <i data-lucide="history" class="w-6 h-6" style="color:#D4A017;"></i>
+            Historial de Check-ins
+        </h3>
+        <div id="checkins-list" class="space-y-3">
+            <div class="text-center py-12 text-gray-500">
+                <i data-lucide="loader" class="w-10 h-10 mx-auto mb-3 animate-spin"></i>
+                <p class="font-bold">Cargando historial...</p>
             </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
-    <script>lucide.createIcons();</script>
+    <script>
+        const API_URL = '/api';
+        const clienteId = '@Model.Id';
+
+        async function loadMembresias() {
+            try {
+                const response = await fetch(`${API_URL}/Clientes/${clienteId}/membresias`);
+                const membresias = await response.json();
+                const container = document.getElementById('membresias-list');
+
+                if (membresias.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-12 text-gray-500">
+                            <i data-lucide="inbox" class="w-16 h-16 mx-auto mb-4 text-gray-400"></i>
+                            <p class="font-bold text-lg">No hay membresías registradas</p>
+                        </div>`;
+                } else {
+                    container.innerHTML = membresias.map(m => {
+                        const fechaVenc   = new Date(m.fechaVencimiento || m.FechaVencimiento);
+                        const fechaInicio = new Date(m.fechaInicio || m.FechaInicio);
+                        const montoPagado = m.montoPagado || m.MontoPagado || 0;
+                        const estado      = m.estado || m.Estado || 'desconocido';
+                        const planNombre  = m.plan?.nombre || m.Plan?.Nombre || m.plan?.Nombre || m.Plan?.nombre || 'Plan';
+                        const hoy = new Date();
+                        const diasRestantes = Math.ceil((fechaVenc - hoy) / (1000 * 60 * 60 * 24));
+
+                        let estadoClass = 'bg-gray-100 text-gray-800';
+                        let estadoIcon  = 'circle';
+                        if (estado === 'activa') {
+                            if (diasRestantes <= 3)      { estadoClass = 'bg-red-100 text-red-800';     estadoIcon = 'alert-circle'; }
+                            else if (diasRestantes <= 7) { estadoClass = 'bg-amber-100 text-amber-800'; estadoIcon = 'alert-triangle'; }
+                            else                          { estadoClass = 'bg-emerald-100 text-emerald-800'; estadoIcon = 'check-circle'; }
+                        } else if (estado === 'vencida') {
+                            estadoClass = 'bg-red-100 text-red-800'; estadoIcon = 'x-circle';
+                        }
+
+                        return `
+                            <div class="p-6 border-2 border-gray-200 rounded-2xl transition-all shadow-lg hover:shadow-xl"
+                                 onmouseover="this.style.borderColor='#D4A017';"
+                                 onmouseout="this.style.borderColor='#e5e7eb';">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-3 mb-3">
+                                            <span class="font-black text-gray-900 text-lg uppercase">${planNombre}</span>
+                                            <span class="px-4 py-2 ${estadoClass} font-black rounded-full uppercase tracking-wide text-xs inline-flex items-center gap-2">
+                                                <i data-lucide="${estadoIcon}" class="w-4 h-4"></i>
+                                                ${estado}
+                                            </span>
+                                        </div>
+                                        <div class="text-sm text-gray-600 font-bold">
+                                            <span>Inicio: ${fechaInicio.toLocaleDateString('es-ES')}</span>
+                                            <span class="mx-2">•</span>
+                                            <span>Vence: ${fechaVenc.toLocaleDateString('es-ES')}</span>
+                                            ${estado === 'activa' ? `<span class="mx-2">•</span><span class="font-black" style="color:#2B4FD8;">${diasRestantes} días restantes</span>` : ''}
+                                        </div>
+                                        <div class="text-sm text-gray-700 mt-2">
+                                            Monto: <span class="font-black text-lg" style="color:#D4A017;">$${montoPagado.toFixed(2)}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`;
+                    }).join('');
+                }
+                lucide.createIcons();
+            } catch (error) { console.error('Error cargando membresías:', error); }
+        }
+
+        async function loadCheckIns() {
+            try {
+                const response = await fetch(`${API_URL}/CheckIn/cliente/${clienteId}?limit=20`);
+                const data = await response.json();
+                const checkIns = data.checkIns;
+                const container = document.getElementById('checkins-list');
+
+                if (checkIns.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-12 text-gray-500">
+                            <i data-lucide="inbox" class="w-16 h-16 mx-auto mb-4 text-gray-400"></i>
+                            <p class="font-bold text-lg">No hay check-ins registrados</p>
+                        </div>`;
+                } else {
+                    container.innerHTML = checkIns.map(ci => {
+                        const fecha   = new Date(ci.FechaHora || ci.fechaHora);
+                        const exitoso = ci.Exitoso !== undefined ? ci.Exitoso : ci.exitoso;
+                        const metodo  = ci.Metodo || ci.metodo;
+                        const nota    = ci.Nota   || ci.nota;
+                        const iconClass = exitoso ? 'text-emerald-500' : 'text-red-500';
+                        const icon      = exitoso ? 'check-circle' : 'x-circle';
+
+                        return `
+                            <div class="flex items-center justify-between p-4 border-2 border-gray-200 rounded-xl transition-all hover:bg-blue-50"
+                                 onmouseover="this.style.borderColor='#D4A017';"
+                                 onmouseout="this.style.borderColor='#e5e7eb';">
+                                <div class="flex items-center gap-4">
+                                    <i data-lucide="${icon}" class="w-6 h-6 ${iconClass}"></i>
+                                    <div>
+                                        <p class="font-black text-gray-900">${fecha.toLocaleDateString('es-ES')} ${fecha.toLocaleTimeString('es-ES')}</p>
+                                        <p class="text-sm text-gray-600 font-semibold">${nota || 'Check-in exitoso'}</p>
+                                    </div>
+                                </div>
+                                <span class="px-4 py-2 bg-gray-100 text-gray-900 font-black rounded-xl uppercase tracking-wide text-xs">
+                                    ${metodo}
+                                </span>
+                            </div>`;
+                    }).join('');
+                }
+                lucide.createIcons();
+            } catch (error) { console.error('Error cargando check-ins:', error); }
+        }
+
+        window.addEventListener('load', function() {
+            loadMembresias();
+            loadCheckIns();
+            lucide.createIcons();
+        });
+    </script>
 }

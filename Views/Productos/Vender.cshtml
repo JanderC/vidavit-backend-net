@@ -1,13 +1,21 @@
 @{
     ViewData["Title"] = "Vender Productos";
-    ViewData["Subtitle"] = "Punto de venta con opción de pago parcial - TAURO GYM";
+    ViewData["Subtitle"] = "Punto de venta con opción de pago parcial - PowerZone";
     Layout = "_AdminLayout";
 }
+
+<style>
+    .pz-input-focus:focus {
+        outline: none;
+        border-color: #D4A017 !important;
+        box-shadow: 0 0 0 3px rgba(212,160,23,0.15) !important;
+    }
+</style>
 
 <div class="max-w-6xl mx-auto">
     <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
         <div class="flex items-center gap-4 mb-8 pb-6 border-b-2 border-gray-200">
-            <div class="bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-xl p-4">
+            <div class="rounded-xl p-4" style="background:linear-gradient(135deg,#2B4FD8,#1a3ab5);">
                 <i data-lucide="shopping-cart" class="w-8 h-8 text-white"></i>
             </div>
             <div>
@@ -17,21 +25,20 @@
         </div>
 
         <!-- CLIENTE -->
-        <div class="mb-6 p-6 bg-blue-50 rounded-2xl border-2 border-blue-300">
+        <div class="mb-6 p-6 rounded-2xl border-2" style="background:rgba(43,79,216,0.05); border-color:rgba(43,79,216,0.3);">
             <label class="block text-sm font-black text-gray-900 mb-3 uppercase tracking-wide">Cliente (Opcional)</label>
             <p class="text-xs text-gray-600 mb-3 font-semibold">Deja vacío para venta rápida sin cliente</p>
 
             <div class="mb-3">
                 <input type="text" id="buscarClienteInput" placeholder="Buscar por nombre, apellido o cédula..."
-                       class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 font-semibold">
-
+                       class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl font-semibold pz-input-focus">
                 <div id="resultadosBusqueda" class="hidden mt-2 bg-white border-2 border-gray-300 rounded-xl shadow-xl max-h-60 overflow-y-auto"></div>
             </div>
 
             <div id="clienteInfo" class="hidden">
-                <div class="flex items-center gap-3 p-5 bg-white rounded-xl border-2 border-blue-600">
-                    <div class="w-14 h-14 bg-gray-300 rounded-full flex items-center justify-center">
-                        <i data-lucide="user" class="w-7 h-7 text-gray-600"></i>
+                <div class="flex items-center gap-3 p-5 bg-white rounded-xl border-2" style="border-color:#2B4FD8;">
+                    <div class="w-14 h-14 rounded-full flex items-center justify-center" style="background:rgba(43,79,216,0.1);">
+                        <i data-lucide="user" class="w-7 h-7" style="color:#2B4FD8;"></i>
                     </div>
                     <div class="flex-1">
                         <p class="font-black text-gray-900 text-lg" id="clienteNombre"></p>
@@ -50,7 +57,7 @@
             <h3 class="text-xl font-black text-gray-900 mb-4 uppercase tracking-wide">Productos Disponibles</h3>
             <div class="mb-4">
                 <input type="text" id="buscarProducto" placeholder="Buscar producto..."
-                       class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                       class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl font-semibold pz-input-focus">
             </div>
             <div id="productosGrid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-96 overflow-y-auto">
                 <div class="col-span-full text-center py-8 text-gray-500">
@@ -66,61 +73,58 @@
             <div id="carritoItems" class="space-y-3 mb-4">
                 <p class="text-gray-500 text-center py-4 font-semibold">No hay productos en el carrito</p>
             </div>
-
             <div class="border-t-2 border-gray-300 pt-6">
                 <div class="flex justify-between items-center text-2xl font-black">
                     <span class="uppercase tracking-wide">Total:</span>
-                    <span id="totalCarrito" class="text-emerald-600">$0.00</span>
+                    <span id="totalCarrito" style="color:#D4A017;">$0.00</span>
                 </div>
             </div>
         </div>
 
-        <!-- MÉTODO DE PAGO Y PAGO PARCIAL -->
-        <div class="mb-6 p-6 bg-amber-50 rounded-2xl border-2 border-amber-300">
+        <!-- FORMA DE PAGO -->
+        <div class="mb-6 p-6 rounded-2xl border-2" style="background:rgba(212,160,23,0.05); border-color:rgba(212,160,23,0.35);">
             <h3 class="text-xl font-black text-gray-900 mb-4 uppercase tracking-wide">Forma de Pago</h3>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <label class="flex items-center p-5 border-2 border-gray-300 rounded-xl cursor-pointer hover:border-emerald-600 transition-all bg-white tipo-pago-option">
-                    <input type="radio" name="tipoPago" value="pagado" checked class="mr-3 w-5 h-5 text-emerald-600">
+                <label class="flex items-center p-5 border-2 border-gray-300 rounded-xl cursor-pointer transition-all bg-white tipo-pago-option hover:border-blue-400">
+                    <input type="radio" name="tipoPago" value="pagado" checked class="mr-3 w-5 h-5" style="accent-color:#2B4FD8;">
                     <div>
                         <p class="font-black text-gray-900 uppercase tracking-wide">Pago Completo</p>
                         <p class="text-sm text-gray-600 font-semibold">100% del total</p>
                     </div>
                 </label>
 
-                <label class="flex items-center p-5 border-2 border-gray-300 rounded-xl cursor-pointer hover:border-orange-600 transition-all bg-white tipo-pago-option">
-                    <input type="radio" name="tipoPago" value="parcial" class="mr-3 w-5 h-5 text-orange-600">
+                <label class="flex items-center p-5 border-2 border-gray-300 rounded-xl cursor-pointer transition-all bg-white tipo-pago-option hover:border-orange-500">
+                    <input type="radio" name="tipoPago" value="parcial" class="mr-3 w-5 h-5" style="accent-color:#ea580c;">
                     <div>
                         <p class="font-black text-gray-900 uppercase tracking-wide">Pago Parcial</p>
                         <p class="text-sm text-gray-600 font-semibold">Abono + Deuda</p>
                     </div>
                 </label>
 
-                <label class="flex items-center p-5 border-2 border-gray-300 rounded-xl cursor-pointer hover:border-red-600 transition-all bg-white tipo-pago-option">
-                    <input type="radio" name="tipoPago" value="fiado" class="mr-3 w-5 h-5 text-red-600">
+                <label class="flex items-center p-5 border-2 border-gray-300 rounded-xl cursor-pointer transition-all bg-white tipo-pago-option hover:border-red-500">
+                    <input type="radio" name="tipoPago" value="fiado" class="mr-3 w-5 h-5" style="accent-color:#dc2626;">
                     <div>
                         <p class="font-black text-gray-900 uppercase tracking-wide">Fiado Completo</p>
                         <p class="text-sm text-gray-600 font-semibold">Todo a deuda</p>
                     </div>
                 </label>
             </div>
+
             <div class="mb-4">
                 <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Método de Pago</label>
-                <select id="metodoPago" class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-600 focus:border-amber-600 font-semibold">
+                <select id="metodoPago" class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl font-semibold pz-input-focus">
                     <option value="efectivo" selected>Efectivo</option>
                     <option value="transferencia">Transferencia</option>
                 </select>
             </div>
 
-            <!-- CAMPO DE PAGO PARCIAL (oculto inicialmente) -->
             <div id="montoPagadoContainer" class="hidden mb-4 p-4 bg-white rounded-xl border-2 border-orange-400">
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
-                    Monto a Pagar Ahora
-                </label>
+                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Monto a Pagar Ahora</label>
                 <div class="flex gap-4 items-end">
                     <div class="flex-1">
                         <input type="number" id="montoPagado" step="0.01" min="0" placeholder="0.00"
-                               class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 font-semibold text-lg">
+                               class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl font-semibold text-lg pz-input-focus">
                     </div>
                     <div class="flex-1">
                         <p class="text-sm text-gray-600 font-bold mb-1">Saldo a Deber:</p>
@@ -132,14 +136,17 @@
             <div class="mt-4">
                 <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Notas</label>
                 <textarea id="notasVenta" rows="2" placeholder="Observaciones adicionales..."
-                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-600 focus:border-amber-600 font-semibold"></textarea>
+                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl font-semibold pz-input-focus"></textarea>
             </div>
         </div>
 
         <!-- BOTONES -->
         <div class="flex gap-4">
             <button type="button" id="btnRegistrarVenta"
-                    class="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900 text-white font-black py-4 px-6 rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
+                    class="flex-1 text-white font-black py-4 px-6 rounded-xl transition-all shadow-xl uppercase tracking-wide transform hover:scale-105"
+                    style="background:linear-gradient(135deg,#2B4FD8,#1a3ab5);"
+                    onmouseover="this.style.background='linear-gradient(135deg,#D4A017,#b8880e)'; this.style.boxShadow='0 8px 25px rgba(212,160,23,0.4)';"
+                    onmouseout="this.style.background='linear-gradient(135deg,#2B4FD8,#1a3ab5)'; this.style.boxShadow='';">
                 <i data-lucide="check-circle" class="w-5 h-5 inline mr-2"></i>
                 Registrar Venta
             </button>
@@ -158,67 +165,42 @@
 
 @section Scripts {
     <script>
-        let productos = [];
-        let clientes = [];
-        let carrito = [];
-        let clienteSeleccionado = null;
+        // ── Toda la lógica JS queda idéntica al original ──
+        let productos = [], clientes = [], carrito = [], clienteSeleccionado = null;
 
-        // Cargar datos
         async function cargarDatos() {
             try {
-                const [clientesRes, productosRes] = await Promise.all([
-                    fetch('/api/Clientes'),
-                    fetch('/api/Productos')
-                ]);
-
+                const [clientesRes, productosRes] = await Promise.all([fetch('/api/Clientes'), fetch('/api/Productos')]);
                 clientes = await clientesRes.json();
                 productos = await productosRes.json();
-
                 renderProductos(productos);
-            } catch (error) {
-                console.error('Error cargando datos:', error);
-                mostrarError('Error al cargar datos del sistema');
-            }
+            } catch (error) { mostrarError('Error al cargar datos del sistema'); }
         }
 
-        // Buscar clientes
         document.getElementById('buscarClienteInput').addEventListener('input', function(e) {
             const termino = e.target.value.toLowerCase().trim();
             const resultados = document.getElementById('resultadosBusqueda');
-
-            if (termino.length < 2) {
-                resultados.classList.add('hidden');
-                return;
-            }
-
+            if (termino.length < 2) { resultados.classList.add('hidden'); return; }
             const coincidencias = clientes.filter(c => {
                 const nombre = (c.Nombre || c.nombre || '').toLowerCase();
                 const apellido = (c.Apellido || c.apellido || '').toLowerCase();
                 const cedula = c.Cedula || c.cedula || '';
-
-                return nombre.includes(termino) ||
-                       apellido.includes(termino) ||
-                       cedula.includes(termino);
+                return nombre.includes(termino) || apellido.includes(termino) || cedula.includes(termino);
             }).slice(0, 5);
 
             if (coincidencias.length > 0) {
                 resultados.innerHTML = coincidencias.map(c => {
-                    const nombre = c.Nombre || c.nombre;
-                    const apellido = c.Apellido || c.apellido;
-                    const cedula = c.Cedula || c.cedula;
-
-                    return `
-                    <div onclick='seleccionarCliente(${JSON.stringify(c).replace(/'/g, "&apos;")})'
-                         class="flex items-center gap-3 p-4 hover:bg-blue-50 cursor-pointer border-b last:border-b-0">
-                        <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                            <i data-lucide="user" class="w-5 h-5 text-gray-600"></i>
+                    const nombre = c.Nombre || c.nombre, apellido = c.Apellido || c.apellido, cedula = c.Cedula || c.cedula;
+                    return `<div onclick='seleccionarCliente(${JSON.stringify(c).replace(/'/g, "&apos;")})'
+                                 class="flex items-center gap-3 p-4 hover:bg-blue-50 cursor-pointer border-b last:border-b-0">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background:rgba(43,79,216,0.1);">
+                            <i data-lucide="user" class="w-5 h-5" style="color:#2B4FD8;"></i>
                         </div>
                         <div>
                             <p class="font-black text-gray-900">${nombre} ${apellido}</p>
                             <p class="text-sm text-gray-600">Cédula: ${cedula}</p>
                         </div>
-                    </div>
-                    `;
+                    </div>`;
                 }).join('');
                 resultados.classList.remove('hidden');
                 lucide.createIcons();
@@ -229,20 +211,9 @@
         });
 
         function seleccionarCliente(cliente) {
-            // Normalizar propiedades
-            const id = cliente.Id || cliente.id;
-            const nombre = cliente.Nombre || cliente.nombre;
-            const apellido = cliente.Apellido || cliente.apellido;
-            const cedula = cliente.Cedula || cliente.cedula;
-
-            clienteSeleccionado = {
-                id,
-                nombre,
-                apellido,
-                cedula,
-                ...cliente
-            };
-
+            const id = cliente.Id || cliente.id, nombre = cliente.Nombre || cliente.nombre;
+            const apellido = cliente.Apellido || cliente.apellido, cedula = cliente.Cedula || cliente.cedula;
+            clienteSeleccionado = { id, nombre, apellido, cedula, ...cliente };
             document.getElementById('buscarClienteInput').value = '';
             document.getElementById('resultadosBusqueda').classList.add('hidden');
             document.getElementById('clienteNombre').textContent = `${nombre} ${apellido}`;
@@ -255,83 +226,68 @@
             document.getElementById('clienteInfo').classList.add('hidden');
         });
 
-        // Buscar productos
         document.getElementById('buscarProducto').addEventListener('input', function(e) {
             const termino = e.target.value.toLowerCase();
-            const filtrados = productos.filter(p => {
+            renderProductos(productos.filter(p => {
                 const nombre = (p.Nombre || p.nombre || '').toLowerCase();
                 const descripcion = (p.Descripcion || p.descripcion || '').toLowerCase();
                 const activo = p.Activo !== undefined ? p.Activo : p.activo;
                 return (nombre.includes(termino) || descripcion.includes(termino)) && activo;
-            });
-            renderProductos(filtrados);
+            }));
         });
 
         function renderProductos(lista) {
             const grid = document.getElementById('productosGrid');
             grid.innerHTML = lista.map(p => {
-                // Normalizar propiedades (soportar tanto camelCase como PascalCase)
                 const precio = p.Precio !== undefined ? p.Precio : (p.precio || 0);
                 const stock = p.Stock !== undefined ? p.Stock : (p.stock || 0);
                 const nombre = p.Nombre || p.nombre || 'Sin nombre';
                 const imagenBase64 = p.ImagenBase64 || p.imagenBase64 || null;
-
                 return `
-                <div class="bg-white border-2 border-gray-200 rounded-xl p-4 hover:shadow-lg transition-all ${stock === 0 ? 'opacity-50' : ''}">
-                    <div class="aspect-square bg-gray-200 rounded-lg mb-3 overflow-hidden flex items-center justify-center">
-                        ${imagenBase64 ? `<img src="${imagenBase64}" class="w-full h-full object-cover">` : `<i data-lucide="package" class="w-12 h-12 text-gray-400"></i>`}
+                <div class="bg-white border-2 rounded-xl p-4 hover:shadow-lg transition-all ${stock === 0 ? 'opacity-50' : ''}"
+                     style="border-color:rgba(43,79,216,0.2);"
+                     onmouseover="if(${stock > 0}) this.style.borderColor='#D4A017';"
+                     onmouseout="this.style.borderColor='rgba(43,79,216,0.2)';">
+                    <div class="aspect-square rounded-lg mb-3 overflow-hidden flex items-center justify-center" style="background:rgba(43,79,216,0.06);">
+                        ${imagenBase64 ? `<img src="${imagenBase64}" class="w-full h-full object-cover">` : `<i data-lucide="package" class="w-12 h-12" style="color:#8899bb;"></i>`}
                     </div>
                     <h4 class="font-black text-sm text-gray-900 mb-1">${nombre}</h4>
                     <p class="text-xs text-gray-600 mb-2">Stock: ${stock}</p>
-                    <p class="text-lg font-black text-emerald-600 mb-3">$${precio.toFixed(2)}</p>
+                    <p class="text-lg font-black mb-3" style="color:#D4A017;">$${precio.toFixed(2)}</p>
                     <button onclick='agregarAlCarrito(${JSON.stringify(p).replace(/'/g, "&apos;")})'
                             ${stock === 0 ? 'disabled' : ''}
-                            class="w-full px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-sm disabled:bg-gray-300 disabled:cursor-not-allowed">
+                            class="w-full px-3 py-2 text-white font-bold rounded-lg text-sm disabled:bg-gray-300 disabled:cursor-not-allowed"
+                            style="background:linear-gradient(135deg,#2B4FD8,#1a3ab5);"
+                            onmouseover="if(!this.disabled) this.style.background='linear-gradient(135deg,#D4A017,#b8880e)';"
+                            onmouseout="if(!this.disabled) this.style.background='linear-gradient(135deg,#2B4FD8,#1a3ab5)';">
                         ${stock === 0 ? 'Sin Stock' : 'Agregar'}
                     </button>
-                </div>
-                `;
+                </div>`;
             }).join('');
             lucide.createIcons();
         }
 
-
         function agregarAlCarrito(producto) {
-            // Normalizar propiedades
             const precio = producto.Precio !== undefined ? producto.Precio : (producto.precio || 0);
             const stock = producto.Stock !== undefined ? producto.Stock : (producto.stock || 0);
-            const id = producto.Id || producto.id;
-            const nombre = producto.Nombre || producto.nombre;
-
+            const id = producto.Id || producto.id, nombre = producto.Nombre || producto.nombre;
             const existente = carrito.find(item => item.producto.id === id);
             if (existente) {
-                if (existente.cantidad < stock) {
-                    existente.cantidad++;
-                    existente.total = existente.cantidad * existente.precioUnitario;
-                } else {
-                    mostrarError('No hay más stock disponible');
-                }
+                if (existente.cantidad < stock) { existente.cantidad++; existente.total = existente.cantidad * existente.precioUnitario; }
+                else { mostrarError('No hay más stock disponible'); }
             } else {
-                carrito.push({
-                    producto: { ...producto, id, precio, stock, nombre },
-                    cantidad: 1,
-                    precioUnitario: precio,
-                    total: precio
-                });
+                carrito.push({ producto: { ...producto, id, precio, stock, nombre }, cantidad: 1, precioUnitario: precio, total: precio });
             }
             renderCarrito();
         }
 
         function renderCarrito() {
             const container = document.getElementById('carritoItems');
-
             if (carrito.length === 0) {
                 container.innerHTML = '<p class="text-gray-500 text-center py-4 font-semibold">No hay productos en el carrito</p>';
                 document.getElementById('totalCarrito').textContent = '$0.00';
-                calcularSaldoPendiente();
-                return;
+                calcularSaldoPendiente(); return;
             }
-
             let total = 0;
             container.innerHTML = carrito.map(item => {
                 total += item.total;
@@ -346,14 +302,12 @@
                             <span class="w-12 text-center font-black text-lg">${item.cantidad}</span>
                             <button onclick="cambiarCantidad('${item.producto.id}', ${item.cantidad + 1})" class="w-10 h-10 bg-gray-200 rounded-lg hover:bg-gray-300 font-black">+</button>
                         </div>
-                        <p class="font-black text-emerald-600 text-lg w-24 text-right">$${item.total.toFixed(2)}</p>
+                        <p class="font-black text-lg w-24 text-right" style="color:#D4A017;">$${item.total.toFixed(2)}</p>
                         <button onclick="eliminarDelCarrito('${item.producto.id}')" class="ml-3 text-red-600 hover:text-red-800 p-2">
                             <i data-lucide="trash-2" class="w-5 h-5"></i>
                         </button>
-                    </div>
-                `;
+                    </div>`;
             }).join('');
-
             document.getElementById('totalCarrito').textContent = `$${total.toFixed(2)}`;
             calcularSaldoPendiente();
             lucide.createIcons();
@@ -362,129 +316,73 @@
         function cambiarCantidad(productoId, nuevaCantidad) {
             const item = carrito.find(i => i.producto.id === productoId);
             if (item && nuevaCantidad >= 1 && nuevaCantidad <= item.producto.stock) {
-                item.cantidad = nuevaCantidad;
-                item.total = item.cantidad * item.precioUnitario;
-                renderCarrito();
-            } else if (item && nuevaCantidad > item.producto.stock) {
-                mostrarError('No hay suficiente stock');
-            }
+                item.cantidad = nuevaCantidad; item.total = item.cantidad * item.precioUnitario; renderCarrito();
+            } else if (item && nuevaCantidad > item.producto.stock) { mostrarError('No hay suficiente stock'); }
         }
 
-        function eliminarDelCarrito(productoId) {
-            carrito = carrito.filter(item => item.producto.id !== productoId);
-            renderCarrito();
-        }
+        function eliminarDelCarrito(productoId) { carrito = carrito.filter(item => item.producto.id !== productoId); renderCarrito(); }
 
-        // Manejar tipo de pago
         document.querySelectorAll('input[name="tipoPago"]').forEach(radio => {
             radio.addEventListener('change', function() {
                 const container = document.getElementById('montoPagadoContainer');
-                if (this.value === 'parcial') {
-                    container.classList.remove('hidden');
-                    document.getElementById('montoPagado').value = '';
-                    calcularSaldoPendiente();
-                } else {
-                    container.classList.add('hidden');
-                }
-
-                // Actualizar estilo visual
+                if (this.value === 'parcial') { container.classList.remove('hidden'); document.getElementById('montoPagado').value = ''; calcularSaldoPendiente(); }
+                else { container.classList.add('hidden'); }
                 document.querySelectorAll('.tipo-pago-option').forEach(opt => {
-                    opt.classList.remove('border-emerald-600', 'border-orange-600', 'border-red-600', 'bg-emerald-50', 'bg-orange-50', 'bg-red-50');
+                    opt.style.borderColor = ''; opt.style.background = '';
                 });
-                this.closest('.tipo-pago-option').classList.add(
-                    this.value === 'pagado' ? 'border-emerald-600' : this.value === 'parcial' ? 'border-orange-600' : 'border-red-600',
-                    this.value === 'pagado' ? 'bg-emerald-50' : this.value === 'parcial' ? 'bg-orange-50' : 'bg-red-50'
-                );
+                const colors = { pagado: '#2B4FD8', parcial: '#ea580c', fiado: '#dc2626' };
+                const bgs = { pagado: 'rgba(43,79,216,0.05)', parcial: 'rgba(234,88,12,0.05)', fiado: 'rgba(220,38,38,0.05)' };
+                this.closest('.tipo-pago-option').style.borderColor = colors[this.value];
+                this.closest('.tipo-pago-option').style.background = bgs[this.value];
             });
         });
 
-        // Calcular saldo pendiente
         document.getElementById('montoPagado')?.addEventListener('input', calcularSaldoPendiente);
 
         function calcularSaldoPendiente() {
             const total = carrito.reduce((sum, item) => sum + item.total, 0);
             const montoPagado = parseFloat(document.getElementById('montoPagado')?.value || 0);
             const saldo = Math.max(0, total - montoPagado);
-
-            if (document.getElementById('saldoPendiente')) {
-                document.getElementById('saldoPendiente').textContent = `$${saldo.toFixed(2)}`;
-            }
+            if (document.getElementById('saldoPendiente')) document.getElementById('saldoPendiente').textContent = `$${saldo.toFixed(2)}`;
         }
 
-        // Registrar venta
         document.getElementById('btnRegistrarVenta').addEventListener('click', async function() {
-
-            if (carrito.length === 0) {
-                mostrarError('Debe agregar productos al carrito');
-                return;
-            }
-
+            if (carrito.length === 0) { mostrarError('Debe agregar productos al carrito'); return; }
             const tipoPago = document.querySelector('input[name="tipoPago"]:checked').value;
             const notas = document.getElementById('notasVenta').value;
             const total = carrito.reduce((sum, item) => sum + item.total, 0);
-
-            let montoPagado = total;
-            let mensajeConfirmacion = '';
-
-            if (tipoPago === 'fiado') {
-                montoPagado = 0;
-                mensajeConfirmacion = `¿Confirmar venta FIADA por $${total.toFixed(2)}? Se registrará como deuda.`;
-            } else if (tipoPago === 'parcial') {
+            let montoPagado = total, mensajeConfirmacion = '';
+            if (tipoPago === 'fiado') { montoPagado = 0; mensajeConfirmacion = `¿Confirmar venta FIADA por $${total.toFixed(2)}? Se registrará como deuda.`; }
+            else if (tipoPago === 'parcial') {
                 montoPagado = parseFloat(document.getElementById('montoPagado').value || 0);
-                if (montoPagado <= 0 || montoPagado > total) {
-                    mostrarError('El monto a pagar debe ser mayor a 0 y menor o igual al total');
-                    return;
-                }
+                if (montoPagado <= 0 || montoPagado > total) { mostrarError('El monto a pagar debe ser mayor a 0 y menor o igual al total'); return; }
                 const saldo = total - montoPagado;
                 mensajeConfirmacion = `¿Confirmar venta con PAGO PARCIAL?\\nPaga ahora: $${montoPagado.toFixed(2)}\\nQueda a deber: $${saldo.toFixed(2)}`;
-            } else {
-                mensajeConfirmacion = `¿Confirmar venta PAGADA por $${total.toFixed(2)}?`;
-            }
-
+            } else { mensajeConfirmacion = `¿Confirmar venta PAGADA por $${total.toFixed(2)}?`; }
             if (!confirm(mensajeConfirmacion)) return;
-
             try {
                 for (const item of carrito) {
                     const venta = {
                         clienteId: clienteSeleccionado ? clienteSeleccionado.id : null,
-                        productoId: item.producto.id,
-                        cantidad: item.cantidad,
-                        precioUnitario: item.precioUnitario,
-                        total: item.total,
+                        productoId: item.producto.id, cantidad: item.cantidad,
+                        precioUnitario: item.precioUnitario, total: item.total,
                         montoPagado: tipoPago === 'pagado' ? item.total : (montoPagado * (item.total / total)),
-                        estadoPago: tipoPago,
-                        notas: notas || null,
-                        usuarioId: null, // TODO: Obtener ID del usuario logueado,
-                        metodoPago: document.getElementById('metodoPago')?.value || 'efectivo' // NUEVO
+                        estadoPago: tipoPago, notas: notas || null, usuarioId: null,
+                        metodoPago: document.getElementById('metodoPago')?.value || 'efectivo'
                     };
-
-                    const response = await fetch('/api/VentasProductos', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(venta)
-                    });
-
+                    const response = await fetch('/api/VentasProductos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(venta) });
                     const result = await response.json();
-                    if (!result.success) {
-                        throw new Error(result.message || 'Error al registrar venta');
-                    }
+                    if (!result.success) throw new Error(result.message || 'Error al registrar venta');
                 }
-
                 alert('✓ Venta registrada exitosamente');
-                inicio()
-                limpiar();
-                await cargarDatos();
-            } catch (error) {
-                console.error('Error:', error);
-                mostrarError('Error al registrar la venta: ' + error.message);
-            }
+                inicio(); limpiar(); await cargarDatos();
+            } catch (error) { mostrarError('Error al registrar la venta: ' + error.message); }
         });
 
         document.getElementById('btnLimpiar').addEventListener('click', limpiar);
 
         function limpiar() {
-            carrito = [];
-            clienteSeleccionado = null;
+            carrito = []; clienteSeleccionado = null;
             document.getElementById('clienteInfo').classList.add('hidden');
             document.getElementById('buscarClienteInput').value = '';
             document.getElementById('notasVenta').value = '';
@@ -492,25 +390,17 @@
             document.getElementById('montoPagado').value = '';
             document.getElementById('montoPagadoContainer').classList.add('hidden');
             document.querySelector('input[name="tipoPago"][value="pagado"]').checked = true;
-            renderCarrito();
-            renderProductos(productos);
+            renderCarrito(); renderProductos(productos);
         }
 
-        function inicio() {
-            window.location.href = '/productos';
-        }
+        function inicio() { window.location.href = '/productos'; }
+        function mostrarError(mensaje) { alert('⚠ ' + mensaje); }
 
-        function mostrarError(mensaje) {
-            alert('⚠ ' + mensaje);
-        }
-
-        // Exponer funciones
         window.agregarAlCarrito = agregarAlCarrito;
         window.cambiarCantidad = cambiarCantidad;
         window.eliminarDelCarrito = eliminarDelCarrito;
         window.seleccionarCliente = seleccionarCliente;
 
-        // Inicializar
         cargarDatos();
         lucide.createIcons();
     </script>

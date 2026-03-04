@@ -6,50 +6,49 @@
 
 <style>
     :root {
-        --vf-green: #39FF14;
-        --vf-dark: #0a0a0a;
-        --vf-card: #111111;
-        --vf-border: #1f1f1f;
-        --vf-text: #e5e5e5;
-        --vf-muted: #6b7280;
+        --pz-dark: #0f1535;
+        --pz-card: #111827;
+        --pz-border: #1f2a4a;
+        --pz-text: #e5e5e5;
+        --pz-muted: #6b7280;
     }
 
-    .vf-page {
-        background: var(--vf-dark);
+    .pz-page {
+        background: var(--pz-dark);
         min-height: 100vh;
         padding: 1.5rem;
     }
 
-    .vf-card {
-        background: var(--vf-card);
-        border: 1px solid var(--vf-border);
+    .pz-card {
+        background: var(--pz-card);
+        border: 1px solid var(--pz-border);
         border-radius: 1rem;
         overflow: hidden;
     }
 
-    .vf-info-box {
-        background: #1a1a1a;
-        border: 1px solid var(--vf-border);
+    .pz-info-box {
+        background: #1a2050;
+        border: 1px solid var(--pz-border);
         border-radius: .75rem;
         padding: 1.5rem;
     }
 
-    .vf-info-label {
+    .pz-info-label {
         font-size: .75rem;
         font-weight: 800;
-        color: var(--vf-muted);
+        color: var(--pz-muted);
         text-transform: uppercase;
         letter-spacing: .08em;
         margin-bottom: .5rem;
     }
 
-    .vf-info-value {
+    .pz-info-value {
         font-size: 1.1rem;
         font-weight: 700;
-        color: var(--vf-text);
+        color: var(--pz-text);
     }
 
-    .vf-btn {
+    .pz-btn {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -66,25 +65,25 @@
         border: none;
     }
 
-        .vf-btn:hover {
+        .pz-btn:hover {
             opacity: .85;
         }
 
-    .vf-btn-danger {
+    .pz-btn-danger {
         background: #dc2626;
         color: #fff;
     }
 
-    .vf-btn-gray {
-        background: #1f1f1f;
-        color: var(--vf-text);
-        border: 1px solid var(--vf-border) !important;
+    .pz-btn-gray {
+        background: #1f2a4a;
+        color: var(--pz-text);
+        border: 1px solid var(--pz-border) !important;
     }
 </style>
 
-<div class="vf-page">
+<div class="pz-page">
     <div class="max-w-3xl mx-auto">
-        <div class="vf-card">
+        <div class="pz-card">
             <!-- Header de peligro -->
             <div style="background:linear-gradient(135deg,#1a0000 0%,#2d0000 100%);border-bottom:2px solid #dc2626;padding:2rem;">
                 <div style="display:flex;align-items:center;gap:1rem;">
@@ -94,7 +93,7 @@
                     <div>
                         <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.25rem;">
                             <h2 style="font-size:1.6rem;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:.05em;">Eliminar Producto</h2>
-                            <span style="background:var(--vf-green);color:#0a0a0a;font-size:.65rem;font-weight:900;padding:.15rem .55rem;border-radius:9999px;letter-spacing:.1em;">VIDAFIT</span>
+                            <span style="background:linear-gradient(135deg,#0f1535,#1a2050);color:#D4A017;font-size:.65rem;font-weight:900;padding:.15rem .55rem;border-radius:9999px;letter-spacing:.1em;border:1px solid #D4A017;">POWERZONE</span>
                         </div>
                         <p style="color:#f87171;font-weight:600;">Esta acción no se puede deshacer</p>
                     </div>
@@ -109,32 +108,32 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 mb-8">
-                    <div class="vf-info-box">
-                        <p class="vf-info-label">Nombre</p>
-                        <p class="vf-info-value">@Model.Nombre</p>
+                    <div class="pz-info-box">
+                        <p class="pz-info-label">Nombre</p>
+                        <p class="pz-info-value">@Model.Nombre</p>
                     </div>
-                    <div class="vf-info-box">
-                        <p class="vf-info-label">Categoría</p>
-                        <p class="vf-info-value">@(string.IsNullOrEmpty(Model.Categoria) ? "Sin categoría" : Model.Categoria)</p>
+                    <div class="pz-info-box">
+                        <p class="pz-info-label">Categoría</p>
+                        <p class="pz-info-value">@(string.IsNullOrEmpty(Model.Categoria) ? "Sin categoría" : Model.Categoria)</p>
                     </div>
-                    <div class="vf-info-box" style="border-left:3px solid var(--vf-green);">
-                        <p class="vf-info-label" style="color:var(--vf-green);">Precio</p>
-                        <p style="font-size:1.25rem;font-weight:800;color:var(--vf-green);">$@Model.Precio.ToString("N2")</p>
+                    <div class="pz-info-box" style="border-left:3px solid #D4A017;">
+                        <p class="pz-info-label" style="color:#D4A017;">Precio</p>
+                        <p style="font-size:1.25rem;font-weight:800;color:#D4A017;">$@Model.Precio.ToString("N2")</p>
                     </div>
-                    <div class="vf-info-box" style="border-left:3px solid #3b82f6;">
-                        <p class="vf-info-label" style="color:#60a5fa;">Stock</p>
-                        <p style="font-size:1.25rem;font-weight:800;color:#3b82f6;">@Model.Stock</p>
+                    <div class="pz-info-box" style="border-left:3px solid #2B4FD8;">
+                        <p class="pz-info-label" style="color:#7094f0;">Stock</p>
+                        <p style="font-size:1.25rem;font-weight:800;color:#2B4FD8;">@Model.Stock</p>
                     </div>
                 </div>
 
                 <form method="post" action="/productos/eliminar/@Model.Id" style="display:flex;gap:1rem;">
                     @Html.AntiForgeryToken()
-                    <button type="submit" class="vf-btn vf-btn-danger"
+                    <button type="submit" class="pz-btn pz-btn-danger"
                             onclick="return confirm('¿Estás completamente seguro? Esta acción no se puede deshacer.')">
                         <i data-lucide="trash-2" style="width:1.25rem;height:1.25rem;"></i>
                         Confirmar Eliminación
                     </button>
-                    <a href="/productos" class="vf-btn vf-btn-gray">
+                    <a href="/productos" class="pz-btn pz-btn-gray">
                         <i data-lucide="x" style="width:1.25rem;height:1.25rem;"></i>
                         Cancelar
                     </a>

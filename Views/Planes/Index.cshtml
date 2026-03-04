@@ -6,53 +6,55 @@
 
 <style>
     :root {
-        --vf-green: #39FF14;
-        --vf-green-dark: #28c40f;
-        --vf-green-soft: #f0fff0;
-        --vf-green-mid: #e6ffe0;
-        --vf-border: #d1fac8;
-        --vf-text: #0f1f0a;
-        --vf-muted: #4a7a3a;
-        --vf-white: #ffffff;
-        --vf-light: #f7fff5;
+        --pz-blue: #2B4FD8;
+        --pz-blue-dark: #1a3ab5;
+        --pz-gold: #D4A017;
+        --pz-gold-dark: #b8880e;
+        --pz-dark: #0f1535;
+        --pz-dark2: #1a2050;
+        --pz-border: rgba(43,79,216,0.2);
+        --pz-text: #111827;
+        --pz-muted: #6b7280;
+        --pz-white: #ffffff;
+        --pz-light: #f5f7ff;
     }
 
-    .vf-page {
-        background: linear-gradient(135deg, #f7fff5 0%, #edfce8 100%);
+    .pz-page {
+        background: linear-gradient(135deg, #f5f7ff 0%, #eef1ff 100%);
         min-height: 100vh;
         padding: 1.5rem;
     }
 
-    .vf-card {
-        background: var(--vf-white);
-        border: 1px solid var(--vf-border);
+    .pz-card {
+        background: var(--pz-white);
+        border: 1px solid var(--pz-border);
         border-radius: 1rem;
-        box-shadow: 0 2px 12px rgba(57,255,20,0.08);
+        box-shadow: 0 2px 12px rgba(43,79,216,0.08);
     }
 
-    .vf-stat-card {
-        background: var(--vf-white);
+    .pz-stat-card {
+        background: var(--pz-white);
         border-radius: 0.75rem;
         padding: 1.5rem;
         border-left: 4px solid;
-        box-shadow: 0 2px 10px rgba(57,255,20,0.07);
+        box-shadow: 0 2px 10px rgba(43,79,216,0.07);
     }
 
-    .vf-plan-card {
+    .pz-plan-card {
         border-width: 2px;
         border-style: solid;
         border-radius: 0.75rem;
         overflow: hidden;
         transition: box-shadow 0.2s, transform 0.2s;
-        background: var(--vf-white);
+        background: var(--pz-white);
     }
 
-        .vf-plan-card:hover {
+        .pz-plan-card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 32px rgba(57,255,20,0.18);
+            box-shadow: 0 10px 32px rgba(212,160,23,0.22);
         }
 
-    .vf-btn {
+    .pz-btn {
         display: inline-flex;
         align-items: center;
         gap: 0.4rem;
@@ -67,66 +69,70 @@
         justify-content: center;
     }
 
-        .vf-btn:hover {
+        .pz-btn:hover {
             opacity: 0.88;
             transform: translateY(-1px);
         }
 
-    .vf-btn-green {
-        background: var(--vf-green);
-        color: #0a1f04;
+    .pz-btn-primary {
+        background: linear-gradient(135deg, var(--pz-blue), var(--pz-blue-dark));
+        color: #fff;
     }
 
-    .vf-btn-gray {
+    .pz-btn-gold {
+        background: linear-gradient(135deg, var(--pz-gold), var(--pz-gold-dark));
+        color: #fff;
+    }
+
+    .pz-btn-gray {
         background: #f0f0f0;
         color: #374151;
         border: 1px solid #d1d5db;
     }
 
-    .vf-btn-blue {
+    .pz-btn-blue {
         background: #1d4ed8;
         color: #fff;
     }
 
-    .vf-btn-orange {
+    .pz-btn-orange {
         background: #ea580c;
         color: #fff;
     }
 
-    .vf-btn-emerald {
+    .pz-btn-emerald {
         background: #059669;
         color: #fff;
     }
 
-    .vf-btn-red {
+    .pz-btn-red {
         background: #dc2626;
         color: #fff;
     }
 </style>
 
-<div class="vf-page">
+<div class="pz-page">
     <div class="max-w-7xl mx-auto space-y-6">
 
         <!-- Header -->
-        <div class="vf-card p-6">
+        <div class="pz-card p-6">
             <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
                 <div style="display:flex;align-items:center;gap:1rem;">
-                    <!-- Logo VidaFit -->
-                    <div style="background:var(--vf-green);padding:0.5rem 1.1rem;border-radius:0.5rem;display:flex;align-items:center;gap:0.2rem;box-shadow:0 4px 14px rgba(57,255,20,0.35);">
-                        <span style="font-size:1.4rem;font-weight:900;letter-spacing:0.05em;color:#0a1f04;">VIDA</span>
-                        <span style="font-size:1.4rem;font-weight:900;color:#0a1f04;opacity:0.6;">FIT</span>
+                    <div style="background:linear-gradient(135deg,#0f1535,#1a2050);padding:0.5rem 1.1rem;border-radius:0.5rem;display:flex;align-items:center;gap:0.2rem;box-shadow:0 4px 14px rgba(43,79,216,0.35);border-bottom:2px solid #D4A017;">
+                        <span style="font-size:1.2rem;font-weight:900;letter-spacing:0.05em;color:#D4A017;">POWER</span>
+                        <span style="font-size:1.2rem;font-weight:900;color:#fff;opacity:0.85;">ZONE</span>
                     </div>
                     <div>
-                        <h2 style="color:var(--vf-text);font-size:1.4rem;font-weight:800;">Gestión de Planes de Membresía</h2>
-                        <p style="color:var(--vf-muted);font-size:0.875rem;margin-top:0.2rem;">Administra los planes disponibles para tus clientes</p>
+                        <h2 style="color:var(--pz-text);font-size:1.4rem;font-weight:800;">Gestión de Planes de Membresía</h2>
+                        <p style="color:var(--pz-muted);font-size:0.875rem;margin-top:0.2rem;">Administra los planes disponibles para tus clientes</p>
                     </div>
                 </div>
                 <div style="display:flex;gap:0.75rem;">
-                    <a href="/membresias" class="vf-btn vf-btn-gray">
+                    <a href="/membresias" class="pz-btn pz-btn-gray">
                         <i data-lucide="arrow-left" class="w-4 h-4"></i>
                         Volver a Membresías
                     </a>
-                    <a href="/membresias/planes/crear" class="vf-btn vf-btn-green">
+                    <a href="/membresias/planes/crear" class="pz-btn pz-btn-gold">
                         <i data-lucide="plus" class="w-4 h-4"></i>
                         Crear Plan
                     </a>
@@ -143,37 +149,37 @@
                 var duracionPromedio = Model.Where(p => p.Activo).Any() ? Model.Where(p => p.Activo).Average(p => p.DuracionDias) : 0;
             }
 
-            <div class="vf-stat-card" style="border-left-color:#3b82f6;">
-                <p style="color:var(--vf-muted);font-size:0.8rem;margin-bottom:0.4rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Total Planes</p>
-                <p style="color:var(--vf-text);font-size:2rem;font-weight:800;">@totalPlanes</p>
+            <div class="pz-stat-card" style="border-left-color:#2B4FD8;">
+                <p style="color:var(--pz-muted);font-size:0.8rem;margin-bottom:0.4rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Total Planes</p>
+                <p style="color:#2B4FD8;font-size:2rem;font-weight:800;">@totalPlanes</p>
             </div>
 
-            <div class="vf-stat-card" style="border-left-color:var(--vf-green);">
-                <p style="color:var(--vf-muted);font-size:0.8rem;margin-bottom:0.4rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Planes Activos</p>
-                <p style="color:var(--vf-green-dark);font-size:2rem;font-weight:800;">@planesActivos</p>
+            <div class="pz-stat-card" style="border-left-color:#D4A017;">
+                <p style="color:var(--pz-muted);font-size:0.8rem;margin-bottom:0.4rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Planes Activos</p>
+                <p style="color:#D4A017;font-size:2rem;font-weight:800;">@planesActivos</p>
             </div>
 
-            <div class="vf-stat-card" style="border-left-color:#a78bfa;">
-                <p style="color:var(--vf-muted);font-size:0.8rem;margin-bottom:0.4rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Precio Promedio</p>
-                <p style="color:var(--vf-text);font-size:2rem;font-weight:800;">$@precioPromedio.ToString("N0")</p>
+            <div class="pz-stat-card" style="border-left-color:#a78bfa;">
+                <p style="color:var(--pz-muted);font-size:0.8rem;margin-bottom:0.4rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Precio Promedio</p>
+                <p style="color:var(--pz-text);font-size:2rem;font-weight:800;">$@precioPromedio.ToString("N0")</p>
             </div>
 
-            <div class="vf-stat-card" style="border-left-color:#f59e0b;">
-                <p style="color:var(--vf-muted);font-size:0.8rem;margin-bottom:0.4rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Duración Promedio</p>
-                <p style="color:var(--vf-text);font-size:2rem;font-weight:800;">@duracionPromedio.ToString("N0") días</p>
+            <div class="pz-stat-card" style="border-left-color:#f59e0b;">
+                <p style="color:var(--pz-muted);font-size:0.8rem;margin-bottom:0.4rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Duración Promedio</p>
+                <p style="color:var(--pz-text);font-size:2rem;font-weight:800;">@duracionPromedio.ToString("N0") días</p>
             </div>
         </div>
 
         <!-- Grid de Planes -->
-        <div class="vf-card p-6">
-            <h3 style="color:var(--vf-text);font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">Listado de Planes</h3>
+        <div class="pz-card p-6">
+            <h3 style="color:var(--pz-text);font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">Listado de Planes</h3>
 
             @if (Model.Count == 0)
             {
                 <div style="text-align:center;padding:3rem 0;">
-                    <i data-lucide="inbox" style="width:4rem;height:4rem;margin:0 auto 1rem;color:#a3d9a0;display:block;"></i>
-                    <p style="color:var(--vf-muted);font-size:1.1rem;margin-bottom:1rem;">No hay planes registrados</p>
-                    <a href="/membresias/planes/crear" class="vf-btn vf-btn-green" style="display:inline-flex;">
+                    <i data-lucide="inbox" style="width:4rem;height:4rem;margin:0 auto 1rem;color:#8899bb;display:block;"></i>
+                    <p style="color:var(--pz-muted);font-size:1.1rem;margin-bottom:1rem;">No hay planes registrados</p>
+                    <a href="/membresias/planes/crear" class="pz-btn pz-btn-gold" style="display:inline-flex;">
                         Crear primer plan
                     </a>
                 </div>
@@ -183,9 +189,9 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     @foreach (var plan in Model)
                     {
-                        <div class="vf-plan-card @(!plan.Activo ? "opacity-60" : "")" style="border-color:@plan.Color;">
+                        <div class="pz-plan-card @(!plan.Activo ? "opacity-60" : "")" style="border-color:@plan.Color;">
 
-                            <!-- Header del plan con su color -->
+                            <!-- Header con color del plan (se mantiene el color personalizado del plan) -->
                             <div class="p-6 relative overflow-hidden" style="background-color:@plan.Color;color:#0a1f04;">
                                 <div style="position:absolute;top:0;right:0;width:8rem;height:8rem;background:rgba(255,255,255,0.2);border-radius:50%;transform:translate(2rem,-2rem);"></div>
                                 <div style="position:absolute;bottom:0;left:0;width:6rem;height:6rem;background:rgba(255,255,255,0.15);border-radius:50%;transform:translate(-1.5rem,1.5rem);"></div>
@@ -203,7 +209,7 @@
                                         }
                                         else
                                         {
-                                            <span style="font-size:0.65rem;font-weight:900;letter-spacing:0.12em;opacity:0.55;">VIDAFIT</span>
+                                            <span style="font-size:0.65rem;font-weight:900;letter-spacing:0.12em;opacity:0.6;">POWERZONE</span>
                                         }
                                     </div>
                                     <h4 style="font-size:1.35rem;font-weight:800;margin-bottom:0.4rem;">@plan.Nombre</h4>
@@ -213,7 +219,7 @@
                                 </div>
                             </div>
 
-                            <!-- Cuerpo del plan — blanco limpio -->
+                            <!-- Cuerpo -->
                             <div style="padding:1.5rem;background:#ffffff;">
                                 <div style="margin-bottom:1.25rem;">
                                     <div style="display:flex;align-items:center;gap:0.75rem;">
@@ -236,79 +242,52 @@
 
                                 <!-- Acciones -->
                                 <div style="display:flex;gap:0.5rem;">
-                                    <a href="/membresias/planes/editar/@plan.Id"
-                                       class="vf-btn vf-btn-blue" style="flex:1;">
+                                    <a href="/membresias/planes/editar/@plan.Id" class="pz-btn pz-btn-blue" style="flex:1;">
                                         <i data-lucide="edit" class="w-4 h-4"></i>
                                         Editar
                                     </a>
                                     <button onclick="toggleActivoPlan('@plan.Id', @(plan.Activo ? "false" : "true"), '@plan.Nombre')"
-                                            class="vf-btn @(plan.Activo ? "vf-btn-orange" : "vf-btn-emerald")" style="flex:1;">
+                                            class="pz-btn @(plan.Activo ? "pz-btn-orange" : "pz-btn-emerald")" style="flex:1;">
                                         <i data-lucide="@(plan.Activo ? "toggle-right" : "toggle-left")" class="w-4 h-4"></i>
                                         @(plan.Activo ? "Desactivar" : "Activar")
                                     </button>
-                                    <button onclick="eliminarPlan('@plan.Id', '@plan.Nombre')"
-                                            class="vf-btn vf-btn-red">
+                                    <button onclick="eliminarPlan('@plan.Id', '@plan.Nombre')" class="pz-btn pz-btn-red">
                                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                                     </button>
                                 </div>
                             </div>
-
                         </div>
                     }
                 </div>
             }
         </div>
-
     </div>
 </div>
 
 @section Scripts {
     <script>
         async function eliminarPlan(id, nombre) {
-            const confirmar = confirm(
-                `⚠️ ¿Está seguro de eliminar el plan?\n\n` +
-                `Plan: ${nombre}\n\n` +
-                `Esta acción no se puede deshacer.\n` +
-                `Si el plan tiene membresías asociadas, no se podrá eliminar.`
-            );
+            const confirmar = confirm(`⚠️ ¿Está seguro de eliminar el plan?\n\nPlan: ${nombre}\n\nEsta acción no se puede deshacer.\nSi el plan tiene membresías asociadas, no se podrá eliminar.`);
             if (!confirmar) return;
             try {
                 const response = await fetch(`/api/Planes/${id}`, { method: 'DELETE' });
-                if (response.ok) {
-                    alert(`✅ Plan "${nombre}" eliminado exitosamente`);
-                    window.location.reload();
-                } else {
-                    const error = await response.json();
-                    alert(`❌ Error: ${error.mensaje || 'No se pudo eliminar el plan'}`);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al eliminar el plan: ' + error.message);
-            }
+                if (response.ok) { alert(`✅ Plan "${nombre}" eliminado exitosamente`); window.location.reload(); }
+                else { const error = await response.json(); alert(`❌ Error: ${error.mensaje || 'No se pudo eliminar el plan'}`); }
+            } catch (error) { alert('❌ Error al eliminar el plan: ' + error.message); }
         }
 
         async function toggleActivoPlan(id, nuevoEstado, nombre) {
             const accion = nuevoEstado === 'true' ? 'activar' : 'desactivar';
-            const confirmar = confirm(`¿Está seguro de ${accion} el plan?\n\nPlan: ${nombre}`);
-            if (!confirmar) return;
+            if (!confirm(`¿Está seguro de ${accion} el plan?\n\nPlan: ${nombre}`)) return;
             try {
                 const response = await fetch(`/api/Planes/${id}/toggle-activo`, { method: 'PATCH' });
-                if (response.ok) {
-                    alert(`✅ Plan "${nombre}" ${accion === 'activar' ? 'activado' : 'desactivado'} exitosamente`);
-                    window.location.reload();
-                } else {
-                    const error = await response.json();
-                    alert(`❌ Error: ${error.mensaje || 'No se pudo actualizar el plan'}`);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al actualizar el plan: ' + error.message);
-            }
+                if (response.ok) { alert(`✅ Plan "${nombre}" ${accion === 'activar' ? 'activado' : 'desactivado'} exitosamente`); window.location.reload(); }
+                else { const error = await response.json(); alert(`❌ Error: ${error.mensaje || 'No se pudo actualizar el plan'}`); }
+            } catch (error) { alert('❌ Error al actualizar el plan: ' + error.message); }
         }
 
         window.eliminarPlan = eliminarPlan;
         window.toggleActivoPlan = toggleActivoPlan;
-
         lucide.createIcons();
     </script>
 }

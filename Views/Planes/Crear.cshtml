@@ -5,29 +5,31 @@
 
 <style>
     :root {
-        --vf-green: #39FF14;
-        --vf-green-dark: #28c40f;
-        --vf-border: #d1fac8;
-        --vf-text: #0f1f0a;
-        --vf-muted: #4a7a3a;
-        --vf-white: #ffffff;
+        --pz-blue: #2B4FD8;
+        --pz-blue-dark: #1a3ab5;
+        --pz-gold: #D4A017;
+        --pz-gold-dark: #b8880e;
+        --pz-border: rgba(43,79,216,0.2);
+        --pz-text: #0f1535;
+        --pz-muted: #4a5a8a;
+        --pz-white: #ffffff;
     }
 
-    .vf-page {
-        background: linear-gradient(135deg, #f7fff5 0%, #edfce8 100%);
+    .pz-page {
+        background: linear-gradient(135deg, #f5f7ff 0%, #eef1ff 100%);
         min-height: 100vh;
         padding: 1.5rem;
     }
 
-    .vf-card {
-        background: var(--vf-white);
-        border: 1px solid var(--vf-border);
+    .pz-card {
+        background: var(--pz-white);
+        border: 1px solid var(--pz-border);
         border-radius: 1rem;
-        box-shadow: 0 2px 12px rgba(57,255,20,0.08);
+        box-shadow: 0 2px 12px rgba(43,79,216,0.08);
     }
 
-    .vf-label {
-        color: var(--vf-muted);
+    .pz-label {
+        color: var(--pz-muted);
         font-size: .78rem;
         font-weight: 800;
         text-transform: uppercase;
@@ -36,11 +38,11 @@
         display: block;
     }
 
-    .vf-input {
+    .pz-input {
         width: 100%;
-        background: #f7fff5;
-        border: 2px solid var(--vf-border);
-        color: var(--vf-text);
+        background: #f5f7ff;
+        border: 2px solid var(--pz-border);
+        color: var(--pz-text);
         border-radius: .5rem;
         padding: .75rem 1rem;
         transition: border-color .2s, box-shadow .2s;
@@ -48,23 +50,23 @@
         font-weight: 600;
     }
 
-        .vf-input:focus {
-            border-color: var(--vf-green-dark);
-            box-shadow: 0 0 0 3px rgba(57,255,20,0.15);
+        .pz-input:focus {
+            border-color: #D4A017;
+            box-shadow: 0 0 0 3px rgba(212,160,23,0.15);
         }
 
-        .vf-input::placeholder {
-            color: #94b890;
+        .pz-input::placeholder {
+            color: #8899bb;
         }
 
-    select.vf-input option {
+    select.pz-input option {
         background: #fff;
-        color: var(--vf-text);
+        color: var(--pz-text);
     }
 
-    .vf-btn-primary {
-        background: var(--vf-green);
-        color: #0a1f04;
+    .pz-btn-primary {
+        background: linear-gradient(135deg, #2B4FD8, #1a3ab5);
+        color: #fff;
         font-weight: 800;
         padding: .85rem 1.5rem;
         border-radius: .5rem;
@@ -74,19 +76,20 @@
         align-items: center;
         justify-content: center;
         gap: .5rem;
-        transition: opacity .2s, transform .1s;
+        transition: all .2s;
         width: 100%;
-        box-shadow: 0 4px 14px rgba(57,255,20,0.3);
+        box-shadow: 0 4px 14px rgba(43,79,216,0.3);
         text-transform: uppercase;
         letter-spacing: .06em;
     }
 
-        .vf-btn-primary:hover {
-            opacity: .88;
+        .pz-btn-primary:hover {
+            background: linear-gradient(135deg, #D4A017, #b8880e);
+            box-shadow: 0 6px 20px rgba(212,160,23,0.4);
             transform: translateY(-1px);
         }
 
-    .vf-btn-secondary {
+    .pz-btn-secondary {
         background: #f3f4f6;
         color: #374151;
         font-weight: 700;
@@ -105,45 +108,46 @@
         letter-spacing: .06em;
     }
 
-        .vf-btn-secondary:hover {
+        .pz-btn-secondary:hover {
             background: #e5e7eb;
         }
 </style>
 
-<div class="vf-page">
+<div class="pz-page">
     <div class="max-w-4xl mx-auto space-y-6">
 
         <!-- Header -->
-        <div class="vf-card p-6" style="display:flex;align-items:center;justify-content:space-between;">
+        <div class="pz-card p-6" style="display:flex;align-items:center;justify-content:space-between;">
             <div style="display:flex;align-items:center;gap:1rem;">
-                <div style="background:var(--vf-green);border-radius:.5rem;padding:.5rem 1rem;box-shadow:0 4px 14px rgba(57,255,20,0.3);">
-                    <span style="color:#0a1f04;font-size:1.25rem;font-weight:900;letter-spacing:.05em;">VIDAFIT</span>
+                <div style="background:linear-gradient(135deg,#0f1535,#1a2050);padding:0.5rem 1rem;border-radius:.5rem;box-shadow:0 4px 14px rgba(43,79,216,0.3);border-bottom:2px solid #D4A017;">
+                    <span style="color:#D4A017;font-size:1.1rem;font-weight:900;letter-spacing:.05em;">POWER</span><span style="color:#fff;font-size:1.1rem;font-weight:900;opacity:0.85;">ZONE</span>
                 </div>
                 <div>
-                    <h2 style="color:var(--vf-text);font-size:1.5rem;font-weight:800;">Crear Nuevo Plan</h2>
-                    <p style="color:var(--vf-muted);font-size:.875rem;">Define un nuevo plan de membresía</p>
+                    <h2 style="color:var(--pz-text);font-size:1.5rem;font-weight:800;">Crear Nuevo Plan</h2>
+                    <p style="color:var(--pz-muted);font-size:.875rem;">Define un nuevo plan de membresía</p>
                 </div>
             </div>
-            <a href="/membresias/planes" style="color:var(--vf-muted);display:flex;align-items:center;padding:.5rem;border-radius:.5rem;transition:background .2s;" onmouseover="this.style.background='#f0fff0'" onmouseout="this.style.background='transparent'">
+            <a href="/membresias/planes" style="color:var(--pz-muted);display:flex;align-items:center;padding:.5rem;border-radius:.5rem;transition:background .2s;"
+               onmouseover="this.style.background='rgba(43,79,216,0.08)'" onmouseout="this.style.background='transparent'">
                 <i data-lucide="x" class="w-6 h-6"></i>
             </a>
         </div>
 
         <!-- Formulario -->
-        <div class="vf-card p-8">
+        <div class="pz-card p-8">
             <form id="planForm" class="space-y-6">
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="md:col-span-2">
-                        <label class="vf-label">Nombre del Plan *</label>
+                        <label class="pz-label">Nombre del Plan *</label>
                         <input type="text" name="nombre" required
                                placeholder="Ej: Plan Mensual, Plan Trimestral, etc."
-                               class="vf-input">
+                               class="pz-input">
                     </div>
 
                     <div>
-                        <label class="vf-label">Tipo de Plan *</label>
-                        <select name="tipo" required class="vf-input">
+                        <label class="pz-label">Tipo de Plan *</label>
+                        <select name="tipo" required class="pz-input">
                             <option value="">Seleccione un tipo...</option>
                             <option value="diario">Diario</option>
                             <option value="semanal">Semanal</option>
@@ -157,88 +161,87 @@
                     </div>
 
                     <div>
-                        <label class="vf-label">Color del Plan *</label>
+                        <label class="pz-label">Color del Plan *</label>
                         <div style="display:flex;gap:.5rem;">
-                            <input type="color" name="color" value="#39FF14" id="colorPicker"
-                                   style="height:3rem;width:5rem;border:2px solid var(--vf-border);border-radius:.5rem;cursor:pointer;background:#f7fff5;padding:.2rem;">
-                            <input type="text" id="colorValue" value="#39FF14" readonly
-                                   style="flex:1;padding:.75rem 1rem;border:2px solid var(--vf-border);border-radius:.5rem;background:#f7fff5;color:var(--vf-text);font-family:monospace;font-size:.875rem;font-weight:700;outline:none;">
+                            <input type="color" name="color" value="#2B4FD8" id="colorPicker"
+                                   style="height:3rem;width:5rem;border:2px solid var(--pz-border);border-radius:.5rem;cursor:pointer;background:#f5f7ff;padding:.2rem;">
+                            <input type="text" id="colorValue" value="#2B4FD8" readonly
+                                   style="flex:1;padding:.75rem 1rem;border:2px solid var(--pz-border);border-radius:.5rem;background:#f5f7ff;color:var(--pz-text);font-family:monospace;font-size:.875rem;font-weight:700;outline:none;">
                         </div>
-                        <p style="color:var(--vf-muted);font-size:.75rem;margin-top:.25rem;">El color identifica visualmente el plan</p>
+                        <p style="color:var(--pz-muted);font-size:.75rem;margin-top:.25rem;">El color identifica visualmente el plan</p>
                     </div>
 
                     <div>
-                        <label class="vf-label">Duración (días) *</label>
+                        <label class="pz-label">Duración (días) *</label>
                         <input type="number" name="duracionDias" required min="1" value="30"
-                               placeholder="30" class="vf-input">
-                        <p style="color:var(--vf-muted);font-size:.75rem;margin-top:.25rem;">Duración del plan en días</p>
+                               placeholder="30" class="pz-input">
+                        <p style="color:var(--pz-muted);font-size:.75rem;margin-top:.25rem;">Duración del plan en días</p>
                     </div>
 
                     <div>
-                        <label class="vf-label">Precio *</label>
+                        <label class="pz-label">Precio *</label>
                         <div style="position:relative;">
-                            <span style="position:absolute;left:1rem;top:.85rem;color:var(--vf-green-dark);font-weight:800;">$</span>
+                            <span style="position:absolute;left:1rem;top:.85rem;color:#D4A017;font-weight:800;">$</span>
                             <input type="number" name="precio" required min="0" step="0.01" value="0"
-                                   placeholder="0.00" style="padding-left:2rem;" class="vf-input">
+                                   placeholder="0.00" style="padding-left:2rem;" class="pz-input">
                         </div>
                     </div>
 
                     <div class="md:col-span-2">
-                        <label class="vf-label">Descripción (Opcional)</label>
+                        <label class="pz-label">Descripción (Opcional)</label>
                         <textarea name="descripcion" rows="3"
                                   placeholder="Describe los beneficios y características de este plan..."
-                                  class="vf-input" style="resize:none;"></textarea>
+                                  class="pz-input" style="resize:none;"></textarea>
                     </div>
 
                     <div class="md:col-span-2">
                         <label style="display:flex;align-items:center;gap:.75rem;cursor:pointer;">
                             <input type="checkbox" name="activo" checked
-                                   style="width:1.25rem;height:1.25rem;accent-color:var(--vf-green-dark);border-radius:.25rem;">
-                            <span style="color:var(--vf-text);font-size:.875rem;font-weight:600;">Plan activo (visible para asignar a clientes)</span>
+                                   style="width:1.25rem;height:1.25rem;accent-color:#2B4FD8;border-radius:.25rem;">
+                            <span style="color:var(--pz-text);font-size:.875rem;font-weight:600;">Plan activo (visible para asignar a clientes)</span>
                         </label>
                     </div>
                 </div>
 
                 <!-- Vista Previa -->
                 <div>
-                    <p style="font-size:.78rem;font-weight:800;color:var(--vf-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.75rem;">Vista previa</p>
-                    <div id="planPreview" style="border:2px solid #39FF14;border-radius:.75rem;overflow:hidden;transition:all .3s;box-shadow:0 4px 20px rgba(57,255,20,0.15);">
-                        <div class="p-6 relative overflow-hidden" style="background-color:#39FF14;color:#0a1f04;">
+                    <p style="font-size:.78rem;font-weight:800;color:var(--pz-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.75rem;">Vista previa</p>
+                    <div id="planPreview" style="border:2px solid #2B4FD8;border-radius:.75rem;overflow:hidden;transition:all .3s;box-shadow:0 4px 20px rgba(43,79,216,0.15);">
+                        <div class="p-6 relative overflow-hidden" id="previewHeader" style="background-color:#2B4FD8;color:#fff;">
                             <div style="position:absolute;top:0;right:0;width:8rem;height:8rem;background:rgba(255,255,255,0.2);border-radius:50%;transform:translate(2rem,-2rem);"></div>
                             <div style="position:absolute;bottom:0;left:0;width:6rem;height:6rem;background:rgba(255,255,255,0.15);border-radius:50%;transform:translate(-1.5rem,1.5rem);"></div>
                             <div style="position:relative;z-index:10;">
                                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
-                                    <span style="background:rgba(0,0,0,0.15);color:#0a1f04;font-size:.8rem;font-weight:700;padding:.25rem .75rem;border-radius:9999px;" id="previewTipo">mensual</span>
-                                    <span style="font-size:.7rem;font-weight:900;letter-spacing:.05em;opacity:.55;">VIDAFIT</span>
+                                    <span style="background:rgba(0,0,0,0.2);color:#fff;font-size:.8rem;font-weight:700;padding:.25rem .75rem;border-radius:9999px;" id="previewTipo">mensual</span>
+                                    <span style="font-size:.7rem;font-weight:900;letter-spacing:.05em;opacity:.65;color:#D4A017;">POWERZONE</span>
                                 </div>
-                                <h4 style="font-size:1.5rem;font-weight:800;margin-bottom:.5rem;color:#0a1f04;" id="previewNombre">Nombre del Plan</h4>
+                                <h4 style="font-size:1.5rem;font-weight:800;margin-bottom:.5rem;" id="previewNombre">Nombre del Plan</h4>
                                 <div>
-                                    <span style="font-size:2.5rem;font-weight:900;color:#0a1f04;">$<span id="previewPrecio">0</span></span>
+                                    <span style="font-size:2.5rem;font-weight:900;">$<span id="previewPrecio">0</span></span>
                                 </div>
                             </div>
                         </div>
-                        <div style="padding:1.5rem;background:#ffffff;border-top:1px solid var(--vf-border);">
+                        <div style="padding:1.5rem;background:#ffffff;border-top:1px solid rgba(43,79,216,0.15);">
                             <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;">
-                                <i data-lucide="calendar" style="width:1.25rem;height:1.25rem;color:var(--vf-green-dark);"></i>
-                                <span style="font-weight:700;color:var(--vf-text);"><span id="previewDuracion">30</span> días</span>
+                                <i data-lucide="calendar" style="width:1.25rem;height:1.25rem;color:#2B4FD8;"></i>
+                                <span style="font-weight:700;color:var(--pz-text);"><span id="previewDuracion">30</span> días</span>
                             </div>
-                            <p style="font-size:.875rem;color:var(--vf-muted);" id="previewDescripcion">Sin descripción</p>
+                            <p style="font-size:.875rem;color:var(--pz-muted);" id="previewDescripcion">Sin descripción</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Botones -->
-                <div style="display:flex;gap:1rem;padding-top:1rem;border-top:1px solid var(--vf-border);">
-                    <button type="submit" class="vf-btn-primary">
+                <div style="display:flex;gap:1rem;padding-top:1rem;border-top:1px solid var(--pz-border);">
+                    <button type="submit" class="pz-btn-primary">
                         <i data-lucide="check" class="w-5 h-5"></i>
                         Crear Plan
                     </button>
-                    <a href="/membresias/planes" class="vf-btn-secondary">
+                    <a href="/membresias/planes" class="pz-btn-secondary">
                         <i data-lucide="x" class="w-5 h-5"></i>
                         Cancelar
                     </a>
                 </div>
-
             </form>
         </div>
     </div>
@@ -249,7 +252,7 @@
         const colorPicker = document.querySelector('input[name="color"]');
         const colorValue = document.getElementById('colorValue');
         const previewContainer = document.getElementById('planPreview');
-        const previewHeader = previewContainer.querySelector('div[style*="background-color"]');
+        const previewHeader = document.getElementById('previewHeader');
 
         function updatePreview() {
             const nombre = document.querySelector('input[name="nombre"]').value || 'Nombre del Plan';
@@ -298,17 +301,9 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
-                if (response.ok) {
-                    alert('✅ Plan creado exitosamente');
-                    window.location.href = '/membresias/planes';
-                } else {
-                    const error = await response.text();
-                    alert('❌ Error al crear plan: ' + error);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al crear plan: ' + error.message);
-            }
+                if (response.ok) { alert('✅ Plan creado exitosamente'); window.location.href = '/membresias/planes'; }
+                else { alert('❌ Error al crear plan: ' + await response.text()); }
+            } catch (error) { alert('❌ Error al crear plan: ' + error.message); }
         });
 
         lucide.createIcons();

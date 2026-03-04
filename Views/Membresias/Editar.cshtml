@@ -1,14 +1,27 @@
 @model VidaFitBackend.Models.Membresia
 @{
     ViewData["Title"] = "Editar Membresía";
-    ViewData["Subtitle"] = "Modificar información de la membresía - VidaFit";
+    ViewData["Subtitle"] = "Modificar información de la membresía - PowerZone";
     Layout = "_AdminLayout";
 }
+
+<style>
+    .pz-input {
+        border: 2px solid #d1d5db;
+        transition: all 0.2s;
+    }
+
+        .pz-input:focus {
+            outline: none;
+            border-color: #D4A017 !important;
+            box-shadow: 0 0 0 3px rgba(212,160,23,0.15);
+        }
+</style>
 
 <div class="max-w-4xl mx-auto">
     <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
         <div class="flex items-center gap-4 mb-8 pb-6 border-b-2 border-gray-200">
-            <div class="bg-gradient-to-br from-green-600 to-green-800 rounded-xl p-4">
+            <div class="rounded-xl p-4" style="background:linear-gradient(135deg,#D4A017,#b8880e);">
                 <i data-lucide="edit" class="w-8 h-8 text-white"></i>
             </div>
             <div>
@@ -24,14 +37,14 @@
         </div>
 
         <!-- Alerta informativa -->
-        <div class="mb-6 p-5 bg-blue-50 border-2 border-blue-500 rounded-xl">
+        <div class="mb-6 p-5 rounded-xl border-2" style="background:rgba(43,79,216,0.05); border-color:rgba(43,79,216,0.35);">
             <div class="flex items-start gap-4">
-                <div class="bg-blue-200 p-3 rounded-xl">
-                    <i data-lucide="alert-circle" class="w-6 h-6 text-blue-700"></i>
+                <div class="p-3 rounded-xl" style="background:rgba(43,79,216,0.15);">
+                    <i data-lucide="alert-circle" class="w-6 h-6" style="color:#2B4FD8;"></i>
                 </div>
                 <div>
-                    <h4 class="font-black text-blue-900 text-lg uppercase tracking-wide mb-2">ℹ️ Importante</h4>
-                    <ul class="text-sm text-blue-800 font-bold space-y-1">
+                    <h4 class="font-black text-lg uppercase tracking-wide mb-2" style="color:#1a3ab5;">ℹ️ Importante</h4>
+                    <ul class="text-sm font-bold space-y-1" style="color:#2B4FD8;">
                         <li>✏️ Esta función solo EDITA datos de la membresía</li>
                         <li>🚫 NO registra movimientos en caja</li>
                         <li>💰 Para renovar y registrar pago, use el botón "RENOVAR" del listado</li>
@@ -48,10 +61,10 @@
             <!-- CLIENTE (Solo lectura) -->
             <div>
                 <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Cliente</label>
-                <div class="p-5 bg-gray-50 border-2 border-gray-300 rounded-xl">
+                <div class="p-5 bg-gray-50 border-2 border-gray-200 rounded-xl">
                     <div class="flex items-center gap-3">
-                        <div class="bg-gray-300 p-3 rounded-xl">
-                            <i data-lucide="user" class="w-6 h-6 text-gray-700"></i>
+                        <div class="p-3 rounded-xl" style="background:rgba(43,79,216,0.1);">
+                            <i data-lucide="user" class="w-6 h-6" style="color:#2B4FD8;"></i>
                         </div>
                         <div>
                             <p class="font-black text-gray-900 text-lg uppercase tracking-wide">@Model.Cliente?.Nombre @Model.Cliente?.Apellido</p>
@@ -65,8 +78,7 @@
             <!-- PLAN -->
             <div>
                 <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Plan *</label>
-                <select id="planId" required
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-600 focus:border-green-600 text-gray-900 bg-white font-semibold">
+                <select id="planId" required class="w-full px-4 py-3 rounded-xl text-gray-900 bg-white font-semibold pz-input">
                     @if (ViewBag.Planes != null)
                     {
                         foreach (var plan in ViewBag.Planes)
@@ -83,7 +95,8 @@
                         }
                     }
                 </select>
-                <div id="planInfo" class="mt-3 p-4 bg-blue-50 border-2 border-blue-500 rounded-xl text-sm text-blue-900 font-bold hidden"></div>
+                <div id="planInfo" class="mt-3 p-4 rounded-xl text-sm font-bold hidden"
+                     style="background:rgba(43,79,216,0.06); border:2px solid rgba(43,79,216,0.3); color:#1a3ab5;"></div>
             </div>
 
             <!-- FECHAS -->
@@ -91,13 +104,12 @@
                 <div>
                     <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Fecha Inicio *</label>
                     <input type="date" id="fechaInicio" value="@Model.FechaInicio.ToString("yyyy-MM-dd")" required
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-600 focus:border-green-600 text-gray-900 font-semibold">
+                           class="w-full px-4 py-3 rounded-xl text-gray-900 font-semibold pz-input">
                 </div>
-
                 <div>
                     <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Fecha Vencimiento *</label>
                     <input type="date" id="fechaVencimiento" value="@Model.FechaVencimiento.ToString("yyyy-MM-dd")" required
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-600 focus:border-green-600 text-gray-900 font-semibold">
+                           class="w-full px-4 py-3 rounded-xl text-gray-900 font-semibold pz-input">
                     <p class="text-xs text-gray-600 font-bold mt-2">
                         <i data-lucide="info" class="w-3 h-3 inline"></i>
                         Se actualizará automáticamente al cambiar el plan o fecha de inicio
@@ -105,21 +117,21 @@
                 </div>
             </div>
 
-            <!-- INFORMACIÓN DE DURACIÓN -->
+            <!-- DURACIÓN -->
             <div id="duracionInfo" class="hidden">
-                <div class="bg-emerald-50 border-2 border-emerald-500 rounded-xl p-5">
+                <div class="rounded-xl p-5 border-2" style="background:rgba(43,79,216,0.05); border-color:rgba(43,79,216,0.3);">
                     <div class="flex items-center gap-2 mb-4">
-                        <i data-lucide="calendar" class="w-6 h-6 text-emerald-600"></i>
-                        <h4 class="font-black text-emerald-900 uppercase tracking-wide">Duración de la Membresía</h4>
+                        <i data-lucide="calendar" class="w-6 h-6" style="color:#2B4FD8;"></i>
+                        <h4 class="font-black uppercase tracking-wide" style="color:#1a3ab5;">Duración de la Membresía</h4>
                     </div>
                     <div class="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                            <p class="text-emerald-700 font-bold uppercase tracking-wide">Total:</p>
-                            <p class="font-black text-emerald-900 text-2xl" id="totalDias">-</p>
+                            <p class="font-bold uppercase tracking-wide" style="color:#2B4FD8;">Total:</p>
+                            <p class="font-black text-2xl" style="color:#1a3ab5;" id="totalDias">-</p>
                         </div>
                         <div>
-                            <p class="text-emerald-700 font-bold uppercase tracking-wide">Vence el:</p>
-                            <p class="font-black text-emerald-900 text-lg" id="fechaVencTexto">-</p>
+                            <p class="font-bold uppercase tracking-wide" style="color:#2B4FD8;">Vence el:</p>
+                            <p class="font-black text-lg" style="color:#1a3ab5;" id="fechaVencTexto">-</p>
                         </div>
                     </div>
                 </div>
@@ -128,8 +140,7 @@
             <!-- ESTADO -->
             <div>
                 <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Estado *</label>
-                <select id="estado" required
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-600 focus:border-green-600 text-gray-900 bg-white font-semibold">
+                <select id="estado" required class="w-full px-4 py-3 rounded-xl text-gray-900 bg-white font-semibold pz-input">
                     <option value="activa" selected="@(Model.Estado == "activa")">Activa</option>
                     <option value="vencida" selected="@(Model.Estado == "vencida")">Vencida</option>
                     <option value="suspendida" selected="@(Model.Estado == "suspendida")">Suspendida</option>
@@ -137,33 +148,32 @@
                 </select>
             </div>
 
-            <!-- MÉTODO DE PAGO (Solo referencial) -->
+            <!-- MÉTODO DE PAGO -->
             <div>
                 <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
                     Método de Pago (Referencial)
                     <span class="text-xs text-gray-500 normal-case font-normal ml-2">(No afecta la caja)</span>
                 </label>
-                <select id="metodoPago" required
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-600 focus:border-green-600 text-gray-900 bg-white font-semibold">
+                <select id="metodoPago" required class="w-full px-4 py-3 rounded-xl text-gray-900 bg-white font-semibold pz-input">
                     <option value="efectivo" selected="@(Model.MetodoPago == "efectivo")">Efectivo</option>
                     <option value="tarjeta" selected="@(Model.MetodoPago == "tarjeta")">Tarjeta</option>
                     <option value="transferencia" selected="@(Model.MetodoPago == "transferencia")">Transferencia</option>
                 </select>
             </div>
 
-            <!-- INFORMACIÓN DE PAGO (Solo lectura) -->
-            <div class="p-5 bg-gray-50 border-2 border-gray-300 rounded-xl">
+            <!-- MONTO (Solo lectura) -->
+            <div class="p-5 bg-gray-50 border-2 border-gray-200 rounded-xl">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-gray-600 font-bold uppercase tracking-wide">Monto Pagado Originalmente:</p>
-                        <p class="text-2xl font-black text-gray-900">$@Model.MontoPagado.ToString("N2")</p>
+                        <p class="text-2xl font-black" style="color:#D4A017;">$@Model.MontoPagado.ToString("N2")</p>
                         <p class="text-xs text-gray-500 font-bold mt-1">
                             <i data-lucide="lock" class="w-3 h-3 inline"></i>
                             Este campo no se puede editar desde aquí
                         </p>
                     </div>
-                    <div class="bg-gray-300 p-3 rounded-xl">
-                        <i data-lucide="dollar-sign" class="w-8 h-8 text-gray-700"></i>
+                    <div class="p-3 rounded-xl" style="background:rgba(212,160,23,0.1);">
+                        <i data-lucide="dollar-sign" class="w-8 h-8" style="color:#D4A017;"></i>
                     </div>
                 </div>
             </div>
@@ -171,13 +181,12 @@
             <!-- NOTAS -->
             <div>
                 <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Notas (Opcional)</label>
-                <textarea id="notas" rows="3"
-                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-600 focus:border-green-600 text-gray-900 font-semibold resize-none"
+                <textarea id="notas" rows="3" class="w-full px-4 py-3 rounded-xl text-gray-900 font-semibold resize-none pz-input"
                           placeholder="Observaciones o comentarios adicionales...">@Model.Notas</textarea>
             </div>
 
-            <!-- INFORMACIÓN DE TIMESTAMPS -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-5 bg-gray-50 border-2 border-gray-300 rounded-xl">
+            <!-- TIMESTAMPS -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-5 bg-gray-50 border-2 border-gray-200 rounded-xl">
                 <div>
                     <p class="text-xs text-gray-600 font-bold uppercase tracking-wide">Creado:</p>
                     <p class="text-sm font-black text-gray-900">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
@@ -196,7 +205,10 @@
                     Cancelar
                 </a>
                 <button type="submit"
-                        class="flex-1 px-6 py-4 bg-gradient-to-r from-green-600 to-green-800 text-white rounded-xl hover:from-green-700 hover:to-green-900 font-black uppercase tracking-wide transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105">
+                        class="flex-1 px-6 py-4 text-white rounded-xl font-black uppercase tracking-wide transition-all flex items-center justify-center gap-2 shadow-lg transform hover:scale-105"
+                        style="background:linear-gradient(135deg,#2B4FD8,#1a3ab5);"
+                        onmouseover="this.style.background='linear-gradient(135deg,#D4A017,#b8880e)';"
+                        onmouseout="this.style.background='linear-gradient(135deg,#2B4FD8,#1a3ab5)';">
                     <i data-lucide="save" class="w-5 h-5"></i>
                     Guardar Cambios
                 </button>
@@ -207,183 +219,72 @@
 
 @section Scripts {
     <script>
+        // ── Lógica JS idéntica al original ──
         let planesData = [];
         let planSeleccionado = null;
 
-        // Cargar planes al inicio
         async function cargarPlanes() {
             try {
                 const response = await fetch('/api/Planes');
                 planesData = await response.json();
-                console.log('Planes cargados:', planesData.length);
-
-                // Establecer plan actual como seleccionado
                 const planActual = planesData.find(p => (p.id || p.Id) == '@Model.PlanId');
                 if (planActual) {
-                    planSeleccionado = {
-                        id: planActual.id || planActual.Id,
-                        precio: planActual.precio || planActual.Precio,
-                        duracionDias: planActual.duracionDias || planActual.DuracionDias,
-                        tipoCalculoVencimiento: planActual.tipoCalculoVencimiento || planActual.TipoCalculoVencimiento || 'dias',
-                        cantidadUnidades: planActual.cantidadUnidades || planActual.CantidadUnidades || planActual.duracionDias || planActual.DuracionDias
-                    };
+                    planSeleccionado = { id:planActual.id||planActual.Id, precio:planActual.precio||planActual.Precio, duracionDias:planActual.duracionDias||planActual.DuracionDias, tipoCalculoVencimiento:planActual.tipoCalculoVencimiento||planActual.TipoCalculoVencimiento||'dias', cantidadUnidades:planActual.cantidadUnidades||planActual.CantidadUnidades||planActual.duracionDias||planActual.DuracionDias };
                     mostrarInfoPlan();
                 }
-            } catch (error) {
-                console.error('Error cargando planes:', error);
-            }
+            } catch (error) { console.error('Error cargando planes:', error); }
         }
 
-        // Evento: cambio de plan
         document.getElementById('planId').addEventListener('change', function() {
             const option = this.options[this.selectedIndex];
-            if (!option.value) {
-                planSeleccionado = null;
-                document.getElementById('planInfo').classList.add('hidden');
-                document.getElementById('duracionInfo').classList.add('hidden');
-                return;
-            }
-
-            planSeleccionado = {
-                id: option.value,
-                precio: parseFloat(option.dataset.precio),
-                duracionDias: parseInt(option.dataset.duracion),
-                tipoCalculoVencimiento: option.dataset.tipo || 'dias',
-                cantidadUnidades: parseInt(option.dataset.cantidad || option.dataset.duracion)
-            };
-
-            mostrarInfoPlan();
-            recalcularFechaVencimiento();
+            if (!option.value) { planSeleccionado = null; document.getElementById('planInfo').classList.add('hidden'); document.getElementById('duracionInfo').classList.add('hidden'); return; }
+            planSeleccionado = { id:option.value, precio:parseFloat(option.dataset.precio), duracionDias:parseInt(option.dataset.duracion), tipoCalculoVencimiento:option.dataset.tipo||'dias', cantidadUnidades:parseInt(option.dataset.cantidad||option.dataset.duracion) };
+            mostrarInfoPlan(); recalcularFechaVencimiento();
         });
 
-        // Evento: cambio de fecha inicio
-        document.getElementById('fechaInicio').addEventListener('change', function() {
-            if (planSeleccionado) {
-                recalcularFechaVencimiento();
-            }
-        });
+        document.getElementById('fechaInicio').addEventListener('change', function() { if (planSeleccionado) recalcularFechaVencimiento(); });
 
         function mostrarInfoPlan() {
             if (!planSeleccionado) return;
-
             const info = document.getElementById('planInfo');
-            info.innerHTML = `
-                <div class="flex items-center gap-2">
-                    <i data-lucide="info" class="w-5 h-5"></i>
-                    <span>Precio: <strong>$${planSeleccionado.precio.toFixed(2)}</strong> | Duración: <strong>${planSeleccionado.duracionDias} días</strong></span>
-                </div>
-            `;
-            info.classList.remove('hidden');
-            lucide.createIcons();
+            info.innerHTML = `<div class="flex items-center gap-2"><i data-lucide="info" class="w-5 h-5"></i><span>Precio: <strong>$${planSeleccionado.precio.toFixed(2)}</strong> | Duración: <strong>${planSeleccionado.duracionDias} días</strong></span></div>`;
+            info.classList.remove('hidden'); lucide.createIcons();
         }
 
         function recalcularFechaVencimiento() {
             const fechaInicioStr = document.getElementById('fechaInicio').value;
             if (!fechaInicioStr || !planSeleccionado) return;
-
             const [year, month, day] = fechaInicioStr.split('-').map(Number);
-            const fechaInicio = new Date(year, month - 1, day);
-
-            let fechaVenc;
-            let duracionTexto;
-
+            const fechaInicio = new Date(year, month-1, day);
+            let fechaVenc, duracionTexto;
             switch (planSeleccionado.tipoCalculoVencimiento.toLowerCase()) {
-                case 'meses':
-                    fechaVenc = new Date(fechaInicio);
-                    fechaVenc.setMonth(fechaVenc.getMonth() + planSeleccionado.cantidadUnidades);
-                    duracionTexto = `${planSeleccionado.cantidadUnidades} ${planSeleccionado.cantidadUnidades === 1 ? 'mes' : 'meses'}`;
-                    break;
-
-                case 'semanas':
-                    fechaVenc = new Date(fechaInicio);
-                    fechaVenc.setDate(fechaVenc.getDate() + (planSeleccionado.cantidadUnidades * 7));
-                    duracionTexto = `${planSeleccionado.cantidadUnidades} ${planSeleccionado.cantidadUnidades === 1 ? 'semana' : 'semanas'}`;
-                    break;
-
-                case 'anios':
-                    fechaVenc = new Date(fechaInicio);
-                    fechaVenc.setFullYear(fechaVenc.getFullYear() + planSeleccionado.cantidadUnidades);
-                    duracionTexto = `${planSeleccionado.cantidadUnidades} ${planSeleccionado.cantidadUnidades === 1 ? 'año' : 'años'}`;
-                    break;
-
-                case 'dias':
-                default:
-                    fechaVenc = new Date(fechaInicio);
-                    fechaVenc.setDate(fechaVenc.getDate() + (planSeleccionado.duracionDias - 1));
-                    duracionTexto = `${planSeleccionado.duracionDias} días`;
-                    break;
+                case 'meses': fechaVenc = new Date(fechaInicio); fechaVenc.setMonth(fechaVenc.getMonth()+planSeleccionado.cantidadUnidades); duracionTexto=`${planSeleccionado.cantidadUnidades} ${planSeleccionado.cantidadUnidades===1?'mes':'meses'}`; break;
+                case 'semanas': fechaVenc = new Date(fechaInicio); fechaVenc.setDate(fechaVenc.getDate()+(planSeleccionado.cantidadUnidades*7)); duracionTexto=`${planSeleccionado.cantidadUnidades} ${planSeleccionado.cantidadUnidades===1?'semana':'semanas'}`; break;
+                case 'anios': fechaVenc = new Date(fechaInicio); fechaVenc.setFullYear(fechaVenc.getFullYear()+planSeleccionado.cantidadUnidades); duracionTexto=`${planSeleccionado.cantidadUnidades} ${planSeleccionado.cantidadUnidades===1?'año':'años'}`; break;
+                default: fechaVenc = new Date(fechaInicio); fechaVenc.setDate(fechaVenc.getDate()+(planSeleccionado.duracionDias-1)); duracionTexto=`${planSeleccionado.duracionDias} días`; break;
             }
-
-            // Formatear fecha para el input (YYYY-MM-DD)
-            const year2 = fechaVenc.getFullYear();
-            const month2 = String(fechaVenc.getMonth() + 1).padStart(2, '0');
-            const day2 = String(fechaVenc.getDate()).padStart(2, '0');
-            const fechaVencStr = `${year2}-${month2}-${day2}`;
-
-            // Actualizar UI
-            document.getElementById('fechaVencimiento').value = fechaVencStr;
+            const y2=fechaVenc.getFullYear(), m2=String(fechaVenc.getMonth()+1).padStart(2,'0'), d2=String(fechaVenc.getDate()).padStart(2,'0');
+            document.getElementById('fechaVencimiento').value = `${y2}-${m2}-${d2}`;
             document.getElementById('totalDias').textContent = duracionTexto;
-            document.getElementById('fechaVencTexto').textContent = fechaVenc.toLocaleDateString('es-ES', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
+            document.getElementById('fechaVencTexto').textContent = fechaVenc.toLocaleDateString('es-ES',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
             document.getElementById('duracionInfo').classList.remove('hidden');
         }
 
-        // Validación y envío al API
         document.getElementById('editForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-
-            if (!confirm('⚠️ ¿Confirmar cambios en esta membresía?\n\n✏️ Solo se editarán los datos\n🚫 NO se registrará ningún movimiento en caja')) {
-                return false;
-            }
-
+            if (!confirm('⚠️ ¿Confirmar cambios en esta membresía?\n\n✏️ Solo se editarán los datos\n🚫 NO se registrará ningún movimiento en caja')) return false;
             const membresiaId = document.getElementById('membresiaId').value;
-            const data = {
-                id: membresiaId,
-                clienteId: document.getElementById('clienteId').value,
-                planId: document.getElementById('planId').value,
-                fechaInicio: document.getElementById('fechaInicio').value,
-                fechaVencimiento: document.getElementById('fechaVencimiento').value,
-                estado: document.getElementById('estado').value,
-                montoPagado: parseFloat(document.getElementById('montoPagadoOriginal').value),
-                metodoPago: document.getElementById('metodoPago').value,
-                notas: document.getElementById('notas').value || null
-            };
-
+            const data = { id:membresiaId, clienteId:document.getElementById('clienteId').value, planId:document.getElementById('planId').value, fechaInicio:document.getElementById('fechaInicio').value, fechaVencimiento:document.getElementById('fechaVencimiento').value, estado:document.getElementById('estado').value, montoPagado:parseFloat(document.getElementById('montoPagadoOriginal').value), metodoPago:document.getElementById('metodoPago').value, notas:document.getElementById('notas').value||null };
             try {
-                const response = await fetch(`/api/Membresias/${membresiaId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                if (response.ok) {
-                    alert('✅ Membresía actualizada exitosamente');
-                    window.location.href = '/membresias';
-                } else {
-                    const error = await response.text();
-                    alert('❌ Error al actualizar: ' + error);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al actualizar la membresía: ' + error.message);
-            }
+                const response = await fetch(`/api/Membresias/${membresiaId}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+                if (response.ok) { alert('✅ Membresía actualizada exitosamente'); window.location.href='/membresias'; }
+                else { alert('❌ Error al actualizar: ' + await response.text()); }
+            } catch (error) { alert('❌ Error al actualizar la membresía: ' + error.message); }
         });
 
-        // Inicializar
         document.addEventListener('DOMContentLoaded', function() {
-            cargarPlanes();
-            lucide.createIcons();
-
-            // Mostrar info de duración inicial si hay fechas
-            if (planSeleccionado) {
-                recalcularFechaVencimiento();
-            }
+            cargarPlanes(); lucide.createIcons();
+            if (planSeleccionado) recalcularFechaVencimiento();
         });
     </script>
 }
