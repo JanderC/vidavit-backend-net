@@ -104,8 +104,10 @@ namespace VidaFit.Controllers.API
                     .FirstOrDefault();
 
                 bool tieneAcceso = true;
+                bool membresiaVencida = false;
                 string mensaje;
                 int? diasRestantes = null;
+                int diasVencidosNeg = 0;
 
                 if (membresiaActiva == null)
                 {
@@ -114,8 +116,11 @@ namespace VidaFit.Controllers.API
                 }
                 else if (membresiaActiva.FechaVencimiento < DateTime.Now.Date)
                 {
-                    tieneAcceso = false;
-                    mensaje = "Tu membresía ha vencido. Acércate a recepción para renovar.";
+                    // Membresía vencida: se permite el acceso igualmente pero se avisa
+                    tieneAcceso = true;
+                    membresiaVencida = true;
+                    diasVencidosNeg = (DateTime.Now.Date - membresiaActiva.FechaVencimiento.Date).Days;
+                    mensaje = $"¡Bienvenido! Tu membresía venció hace {diasVencidosNeg} {(diasVencidosNeg == 1 ? "día" : "días")}. Acércate a recepción para renovar.";
                     membresiaActiva.Estado = "vencida";
                     await _context.SaveChangesAsync();
                 }
@@ -127,7 +132,7 @@ namespace VidaFit.Controllers.API
                         : "¡Bienvenido!";
                 }
 
-                // Registrar check-in
+                // Registrar check-in (siempre exitoso si la cédula existe, incluso con membresía vencida)
                 var checkIn = new CheckIn
                 {
                     ClienteId = cliente.Id,
@@ -145,6 +150,8 @@ namespace VidaFit.Controllers.API
                 {
                     success = tieneAcceso,
                     message = mensaje,
+                    membresiaVencida = membresiaVencida,
+                    diasVencidos = membresiaVencida ? diasVencidosNeg : (int?)null,
                     cliente = new
                     {
                         nombre = $"{cliente.Nombre} {cliente.Apellido}",
@@ -154,12 +161,11 @@ namespace VidaFit.Controllers.API
                     membresia = membresiaActiva != null ? new
                     {
                         estado = membresiaActiva.Estado,
+                        nombre = membresiaActiva.Plan?.Nombre ?? "Membresía",
                         mensaje = mensaje,
                         diasRestantes = diasRestantes,
                         fechaVencimiento = membresiaActiva.FechaVencimiento,
-                        diasVencidos = membresiaActiva.FechaVencimiento < DateTime.Now
-                            ? (DateTime.Now.Date - membresiaActiva.FechaVencimiento).Days
-                            : (int?)null
+                        diasVencidos = membresiaVencida ? diasVencidosNeg : (int?)null
                     } : null,
                     deuda = totalDeuda > 0 ? new
                     {
@@ -332,16 +338,18 @@ namespace VidaFit.Controllers.API
         {
             try
             {
-                var fechaBuscada = fecha.Date;
+                // La fecha llega como "2026-03-04" — forzar tratarla como fecha local
+                // independientemente del Kind que ASP.NET le asigne al parsear
+                var fechaBuscada = DateTime.SpecifyKind(fecha, DateTimeKind.Local).Date;
 
-                // Obtener todos los check-ins exitosos
+                // Cargar todos los check-ins exitosos en memoria
                 var todosCheckIns = await _context.CheckIns
                     .Include(c => c.Cliente)
                     .Where(c => c.Exitoso)
                     .OrderBy(c => c.FechaHora)
                     .ToListAsync();
 
-                // Filtrar por fecha en memoria
+                // Filtrar comparando fecha local con fecha local
                 var asistentes = todosCheckIns
                     .Where(c => c.FechaHora.ToLocalTime().Date == fechaBuscada)
                     .Select(c => new

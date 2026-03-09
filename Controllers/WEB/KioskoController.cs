@@ -134,30 +134,39 @@ namespace VidaFit.Controllers.WEB
 
                 var totalDeuda = deudasPendientes.Sum(d => d.Saldo);
 
-                // Verificar membresía
+                // Buscar membresía activa; si no existe, buscar la más reciente (activa o vencida)
                 var membresiaActiva = clienteEncontrado.Membresias
                     .Where(m => m.Estado == "activa")
                     .OrderByDescending(m => m.FechaVencimiento)
                     .FirstOrDefault();
 
+                var membresiaReciente = membresiaActiva ?? clienteEncontrado.Membresias
+                    .OrderByDescending(m => m.FechaVencimiento)
+                    .FirstOrDefault();
+
                 bool tieneAcceso = true;
+                bool membresiaVencida = false;
+                int diasVencidos = 0;
                 string mensaje = $"¡Bienvenido {clienteEncontrado.Nombre} {clienteEncontrado.Apellido}!";
                 string alertType = "success";
                 int? diasRestantes = null;
 
-                if (membresiaActiva == null)
+                if (membresiaReciente == null)
                 {
                     tieneAcceso = false;
                     mensaje = "No tienes membresía activa. Acércate a recepción.";
                     alertType = "error";
                 }
-                else if (membresiaActiva.FechaVencimiento < DateTime.Now.Date)
+                else if (membresiaActiva == null || membresiaReciente.FechaVencimiento < DateTime.Now.Date)
                 {
-                    tieneAcceso = false;
-                    mensaje = "Tu membresía ha vencido. Acércate a recepción para renovar.";
-                    alertType = "error";
-                    membresiaActiva.Estado = "vencida";
-                    membresiaActiva.UpdatedAt = DateTime.Now;
+                    // Tiene membresía pero está vencida: se permite el acceso igualmente
+                    tieneAcceso = true;
+                    membresiaVencida = true;
+                    diasVencidos = (DateTime.Now.Date - membresiaReciente.FechaVencimiento.Date).Days;
+                    mensaje = $"¡Bienvenido! Tu membresía venció hace {diasVencidos} {(diasVencidos == 1 ? "día" : "días")}. Acércate a recepción para renovar.";
+                    alertType = "warning";
+                    membresiaReciente.Estado = "vencida";
+                    membresiaReciente.UpdatedAt = DateTime.Now;
                     await _context.SaveChangesAsync();
                 }
                 else
@@ -176,7 +185,7 @@ namespace VidaFit.Controllers.WEB
                     }
                 }
 
-                // Registrar check-in
+                // Registrar check-in (exitoso incluso con membresía vencida)
                 var checkIn = new CheckIn
                 {
                     ClienteId = clienteEncontrado.Id,
@@ -194,6 +203,8 @@ namespace VidaFit.Controllers.WEB
                     success = tieneAcceso,
                     message = mensaje,
                     alertType = alertType,
+                    membresiaVencida = membresiaVencida,
+                    diasVencidos = membresiaVencida ? diasVencidos : (int?)null,
                     cliente = new
                     {
                         nombre = $"{clienteEncontrado.Nombre} {clienteEncontrado.Apellido}",
@@ -305,29 +316,40 @@ namespace VidaFit.Controllers.WEB
 
             var totalDeuda = deudasPendientes.Sum(d => d.Saldo);
 
+            // Buscar membresía activa; si no existe, buscar la más reciente (activa o vencida)
             var membresiaActiva = cliente.Membresias
                 .Where(m => m.Estado == "activa")
                 .OrderByDescending(m => m.FechaVencimiento)
                 .FirstOrDefault();
 
+            var membresiaReciente = membresiaActiva ?? cliente.Membresias
+                .OrderByDescending(m => m.FechaVencimiento)
+                .FirstOrDefault();
+
             bool tieneAcceso = true;
+            bool membresiaVencida = false;
+            int diasVencidos = 0;
             string mensaje = $"¡Bienvenido {cliente.Nombre} {cliente.Apellido}!";
             string alertType = "success";
             int? diasRestantes = null;
 
-            if (membresiaActiva == null)
+            if (membresiaReciente == null)
             {
+                // No tiene ninguna membresía registrada
                 tieneAcceso = false;
                 mensaje = "No tienes membresía activa. Acércate a recepción.";
                 alertType = "error";
             }
-            else if (membresiaActiva.FechaVencimiento < DateTime.Now.Date)
+            else if (membresiaActiva == null || membresiaReciente.FechaVencimiento < DateTime.Now.Date)
             {
-                tieneAcceso = false;
-                mensaje = "Tu membresía ha vencido. Acércate a recepción para renovar.";
-                alertType = "error";
-                membresiaActiva.Estado = "vencida";
-                membresiaActiva.UpdatedAt = DateTime.Now;
+                // Tiene membresía pero está vencida: se permite el acceso igualmente
+                tieneAcceso = true;
+                membresiaVencida = true;
+                diasVencidos = (DateTime.Now.Date - membresiaReciente.FechaVencimiento.Date).Days;
+                mensaje = $"¡Bienvenido! Tu membresía venció hace {diasVencidos} {(diasVencidos == 1 ? "día" : "días")}. Acércate a recepción para renovar.";
+                alertType = "warning";
+                membresiaReciente.Estado = "vencida";
+                membresiaReciente.UpdatedAt = DateTime.Now;
                 await _context.SaveChangesAsync();
             }
             else
@@ -346,7 +368,7 @@ namespace VidaFit.Controllers.WEB
                 }
             }
 
-            // Registrar check-in
+            // Registrar check-in (exitoso incluso con membresía vencida)
             var checkIn = new CheckIn
             {
                 ClienteId = cliente.Id,
@@ -364,23 +386,24 @@ namespace VidaFit.Controllers.WEB
                 success = tieneAcceso,
                 message = mensaje,
                 alertType = alertType,
+                membresiaVencida = membresiaVencida,
+                diasVencidos = membresiaVencida ? diasVencidos : (int?)null,
                 cliente = new
                 {
                     nombre = $"{cliente.Nombre} {cliente.Apellido}",
                     fotoBase64 = cliente.FotoBase64
                 },
-                membresia = membresiaActiva != null ? new
+                membresia = membresiaReciente != null ? new
                 {
-                    estado = membresiaActiva.Estado,
+                    estado = membresiaReciente.Estado,
+                    nombre = membresiaReciente.Plan?.Nombre ?? "Membresía",
                     mensaje = mensaje,
                     diasRestantes = diasRestantes,
-                    fechaVencimiento = membresiaActiva.FechaVencimiento,
-                    diasVencidos = membresiaActiva.FechaVencimiento < DateTime.Now
-                        ? (DateTime.Now.Date - membresiaActiva.FechaVencimiento).Days
-                        : (int?)null
+                    fechaVencimiento = membresiaReciente.FechaVencimiento,
+                    diasVencidos = membresiaVencida ? diasVencidos : (int?)null
                 } : null,
                 diasRestantes = diasRestantes,
-                fechaVencimiento = membresiaActiva?.FechaVencimiento,
+                fechaVencimiento = membresiaReciente?.FechaVencimiento,
                 deuda = totalDeuda > 0 ? new
                 {
                     tieneDeuda = true,

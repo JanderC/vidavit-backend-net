@@ -18,7 +18,9 @@
                     similarity: 0,
                     isProcessing: false,
                     deuda: null,
-                    ultimoCheckIn: null
+                    ultimoCheckIn: null,
+                    membresiaVencida: false,
+                    diasVencidos: null
                 };
                 this.fingerprintCheckInterval = null;
                 this.render();
@@ -49,7 +51,9 @@
                     similarity: 0,
                     isProcessing: false,
                     deuda: null,
-                    ultimoCheckIn: null
+                    ultimoCheckIn: null,
+                    membresiaVencida: false,
+                    diasVencidos: null
                 });
             }
 
@@ -199,7 +203,10 @@
                             cliente: data.cliente,
                             diasRestantes: diasRestantes,
                             message: data.message,
-                            deuda: data.deuda || null
+                            deuda: data.deuda || null,
+                            membresiaVencida: data.membresiaVencida || false,
+                            diasVencidos: data.diasVencidos ?? null,
+                            membresia: data.membresia || null
                         });
                     } else {
                         this.setState({
@@ -339,7 +346,7 @@
             }
 
             renderSuccess() {
-                const { cliente, diasRestantes, similarity, deuda } = this.state;
+                const { cliente, diasRestantes, similarity, deuda, membresiaVencida, diasVencidos } = this.state;
                 return `
                     <div class="min-h-screen relative overflow-hidden" style="background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);">
                         <div class="absolute inset-0 opacity-15">
@@ -379,7 +386,21 @@
                                     <div class="flex-1 text-left backdrop-blur-sm rounded-3xl px-12 py-10" style="background: rgba(0,0,0,0.6); border: 3px solid #00C851;">
                                         <h3 class="text-5xl font-black text-white mb-6">${cliente.nombre}</h3>
 
-                                        ${diasRestantes !== null && diasRestantes !== undefined ? `
+                                        ${membresiaVencida && diasVencidos !== null ? `
+                                            <div class="mb-6 pb-6" style="border-bottom: 2px solid rgba(255, 165, 0, 0.5);">
+                                                <p class="text-lg mb-2 uppercase tracking-wide font-bold" style="color: #FFA500;">⚠️ Membresía Vencida</p>
+                                                <p class="text-2xl font-semibold mb-3" style="color: #FFA500;">
+                                                    ${this.state.membresia?.nombre || 'Tu membresía'}
+                                                </p>
+                                                <p class="text-6xl font-black" style="color: #FFA500;">
+                                                    -${diasVencidos} ${diasVencidos === 1 ? 'DÍA' : 'DÍAS'}
+                                                </p>
+                                                <p class="text-lg text-gray-300 mt-2">desde el vencimiento</p>
+                                                <p class="text-base mt-3 font-semibold" style="color: #FFA500;">
+                                                    Acércate a recepción para renovar
+                                                </p>
+                                            </div>
+                                        ` : diasRestantes !== null && diasRestantes !== undefined ? `
                                             <div class="mb-6 pb-6" style="border-bottom: 2px solid rgba(255, 255, 255, 0.2);">
                                                 <p class="text-lg mb-3 uppercase tracking-wide font-semibold" style="color: #00C851;">Días Restantes</p>
                                                 <p class="text-6xl font-black ${diasRestantes <= 3 ? 'text-yellow-400' : 'text-white'}">

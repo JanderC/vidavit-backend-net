@@ -4,12 +4,7 @@
     ViewData["Title"] = "Reporte de Asistencia";
     ViewData["Subtitle"] = "Control de check-ins - JONEL GYM";
 
-    int totalCheckins = 0;
-    foreach (var item in Model)
-    {
-        totalCheckins += Convert.ToInt32(item.Total);
-    }
-    double promedioDiario = Model.Any() ? (double)totalCheckins / Model.Count() : 0;
+    // Los totales reales se calculan desde el API en JS al cargar la página
 }
 
 <div class="space-y-6">
@@ -38,7 +33,7 @@
             <div class="flex items-center justify-between mb-3">
                 <div>
                     <p class="text-sm text-gray-600 mb-1 font-black uppercase tracking-wide">Total Check-ins</p>
-                    <p class="text-4xl font-black text-gray-900" id="total-checkins">@totalCheckins</p>
+                    <p class="text-4xl font-black text-gray-900" id="total-checkins"><span class="text-gray-400 text-2xl">...</span></p>
                 </div>
                 <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center">
                     <i data-lucide="users" class="w-7 h-7 text-blue-600"></i>
@@ -50,7 +45,7 @@
             <div class="flex items-center justify-between mb-3">
                 <div>
                     <p class="text-sm text-gray-600 mb-1 font-black uppercase tracking-wide">Promedio Diario</p>
-                    <p class="text-4xl font-black text-gray-900" id="promedio-diario">@Math.Round(promedioDiario, 1)</p>
+                    <p class="text-4xl font-black text-gray-900" id="promedio-diario"><span class="text-gray-400 text-2xl">...</span></p>
                 </div>
                 <div class="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center">
                     <i data-lucide="trending-up" class="w-7 h-7 text-emerald-600"></i>
@@ -62,9 +57,7 @@
             <div class="flex items-center justify-between mb-3">
                 <div>
                     <p class="text-sm text-gray-600 mb-1 font-black uppercase tracking-wide">Día Más Activo</p>
-                    <p class="text-4xl font-black text-gray-900" id="dia-activo">
-                        @(Model.Any() ? Model.OrderByDescending(x => x.Total).First().Total : 0)
-                    </p>
+                    <p class="text-4xl font-black text-gray-900" id="dia-activo"><span class="text-gray-400 text-2xl">...</span></p>
                 </div>
                 <div class="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center">
                     <i data-lucide="award" class="w-7 h-7 text-purple-600"></i>
@@ -113,7 +106,7 @@
                         var fecha = (DateTime)item.Fecha;
                         var total = (int)item.Total;
                         var fechaStr = fecha.ToString("yyyy-MM-dd");
-                        <tr class="hover:bg-gray-50 transition-colors">
+                        <tr class="hover:bg-gray-50 transition-colors" data-fecha="@fechaStr">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="font-black text-gray-900">@fecha.ToString("dd/MM/yyyy")</span>
                             </td>
@@ -121,29 +114,15 @@
                                 <span class="text-gray-600 font-bold">@fecha.ToString("dddd", new System.Globalization.CultureInfo("es-ES"))</span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
-                                <span class="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 font-black rounded-full uppercase text-xs tracking-wide">
-                                    @total visitas
+                                <span id="visitas-@fechaStr" class="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 font-black rounded-full uppercase text-xs tracking-wide">
+                                    <svg class="animate-spin w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>
+                                    cargando
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
-                                @if (total >= 30)
-                                {
-                                    <span class="inline-flex items-center gap-1 px-3 py-2 bg-emerald-100 text-emerald-800 font-black rounded-full uppercase text-xs tracking-wide">
-                                        <i data-lucide="trending-up" class="w-3 h-3"></i> Alto
-                                    </span>
-                                }
-                                else if (total >= 15)
-                                {
-                                    <span class="inline-flex items-center gap-1 px-3 py-2 bg-amber-100 text-amber-800 font-black rounded-full uppercase text-xs tracking-wide">
-                                        <i data-lucide="minus" class="w-3 h-3"></i> Medio
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="inline-flex items-center gap-1 px-3 py-2 bg-orange-100 text-orange-800 font-black rounded-full uppercase text-xs tracking-wide">
-                                        <i data-lucide="trending-down" class="w-3 h-3"></i> Bajo
-                                    </span>
-                                }
+                                <span id="estado-@fechaStr" class="inline-flex items-center gap-1 px-3 py-2 bg-gray-100 text-gray-400 font-black rounded-full uppercase text-xs tracking-wide">
+                                    —
+                                </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <button onclick="verAsistentes('@fechaStr', '@total')"
@@ -213,74 +192,71 @@
             window.location.href = `/reportes/asistencia?desde=${desde}&hasta=${hasta}`;
         }
 
-        function renderChart() {
-            const ctx = document.getElementById('chart-asistencia');
+        // =========================================================
+        // CACHE de conteos reales desde el API (fecha -> count)
+        const conteosPorFecha = {};
 
-            const labels = asistenciaData.map(d => {
-                const fecha = new Date(d.Fecha);
-                return fecha.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
-            });
+        // Actualiza el badge de visitas y el estado en la fila
+        function actualizarFila(fecha, count) {
+            const spanVisitas = document.getElementById(`visitas-${fecha}`);
+            const spanEstado = document.getElementById(`estado-${fecha}`);
 
-            const data = asistenciaData.map(d => d.Total);
+            if (spanVisitas) {
+                spanVisitas.className = 'inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 font-black rounded-full uppercase text-xs tracking-wide';
+                spanVisitas.textContent = `${count} visitas`;
+            }
 
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Check-ins',
-                        data: data,
-                        borderColor: '#E31E24',
-                        backgroundColor: 'rgba(227, 30, 36, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 4,
-                        pointHoverRadius: 6,
-                        pointBackgroundColor: '#E31E24',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            padding: 12,
-                            callbacks: {
-                                label: function(context) {
-                                    return context.parsed.y + ' check-ins';
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
-                            },
-                            ticks: {
-                                stepSize: 5
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            }
-                        }
-                    }
+            if (spanEstado) {
+                if (count >= 30) {
+                    spanEstado.className = 'inline-flex items-center gap-1 px-3 py-2 bg-emerald-100 text-emerald-800 font-black rounded-full uppercase text-xs tracking-wide';
+                    spanEstado.innerHTML = '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg> Alto';
+                } else if (count >= 15) {
+                    spanEstado.className = 'inline-flex items-center gap-1 px-3 py-2 bg-amber-100 text-amber-800 font-black rounded-full uppercase text-xs tracking-wide';
+                    spanEstado.innerHTML = '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg> Medio';
+                } else {
+                    spanEstado.className = 'inline-flex items-center gap-1 px-3 py-2 bg-orange-100 text-orange-800 font-black rounded-full uppercase text-xs tracking-wide';
+                    spanEstado.innerHTML = '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17H5m0 0V9m0 8l8-8 4 4 6-6"/></svg> Bajo';
                 }
-            });
+            }
         }
 
-        // ========== NUEVA FUNCIONALIDAD: VER ASISTENTES ==========
-        async function verAsistentes(fecha, total) {
+        // Carga el conteo real del API para cada fecha de la tabla
+        async function cargarConteosReales() {
+            const filas = document.querySelectorAll('tr[data-fecha]');
+            const fechas = Array.from(filas).map(f => f.dataset.fecha);
+
+            // Lanzar todas las llamadas en paralelo
+            const promesas = fechas.map(async (fecha) => {
+                try {
+                    const response = await fetch(`/api/CheckIn/asistentes/${fecha}`);
+                    const data = await response.json();
+                    const count = (data.success && data.asistentes) ? data.asistentes.length : 0;
+                    conteosPorFecha[fecha] = count;
+                    actualizarFila(fecha, count);
+                } catch (e) {
+                    conteosPorFecha[fecha] = 0;
+                    actualizarFila(fecha, 0);
+                }
+            });
+
+            await Promise.all(promesas);
+
+            // Actualizar tarjetas de estadísticas con los totales reales
+            const totales = Object.values(conteosPorFecha);
+            const totalReal = totales.reduce((a, b) => a + b, 0);
+            const promedioReal = totales.length > 0 ? (totalReal / totales.length) : 0;
+            const maxReal = totales.length > 0 ? Math.max(...totales) : 0;
+
+            document.getElementById('total-checkins').textContent = totalReal;
+            document.getElementById('promedio-diario').textContent = promedioReal.toFixed(1);
+            document.getElementById('dia-activo').textContent = maxReal;
+
+            // Actualizar el gráfico con los datos reales
+            actualizarGrafico();
+        }
+
+        // ========== MODAL VER ASISTENTES ==========
+        async function verAsistentes(fecha) {
             const modal = document.getElementById('modal-asistentes');
             const modalFecha = document.getElementById('modal-fecha');
             const modalTotal = document.getElementById('modal-total');
@@ -288,39 +264,36 @@
             const modalContent = document.getElementById('modal-content');
             const asistentesLista = document.getElementById('asistentes-lista');
 
-            // Mostrar modal y loading
             modal.classList.remove('hidden');
             modalLoading.classList.remove('hidden');
             modalContent.classList.add('hidden');
 
-            // Formatear fecha para mostrar
             const fechaObj = new Date(fecha + 'T00:00:00');
-            const fechaFormateada = fechaObj.toLocaleDateString('es-ES', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
+            modalFecha.textContent = fechaObj.toLocaleDateString('es-ES', {
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
             });
-            modalFecha.textContent = fechaFormateada;
-            modalTotal.textContent = total;
+            modalTotal.textContent = '...';
 
             try {
-                // Llamar al API para obtener los asistentes
                 const response = await fetch(`/api/CheckIn/asistentes/${fecha}`);
                 const data = await response.json();
 
                 if (data.success && data.asistentes) {
-                    // Renderizar la lista de asistentes
-                    if (data.asistentes.length === 0) {
+                    const count = data.asistentes.length;
+                    modalTotal.textContent = count;
+
+                    // Actualizar también la fila en la tabla con el dato más fresco
+                    conteosPorFecha[fecha] = count;
+                    actualizarFila(fecha, count);
+
+                    if (count === 0) {
                         asistentesLista.innerHTML = `
                             <div class="text-center py-12">
                                 <i data-lucide="users" class="w-16 h-16 mx-auto text-gray-400 mb-4"></i>
                                 <p class="text-gray-600 font-semibold">No hay asistentes registrados para este día</p>
-                            </div>
-                        `;
+                            </div>`;
                     } else {
                         let html = '<div class="grid grid-cols-1 md:grid-cols-2 gap-4">';
-
                         data.asistentes.forEach((asistente, index) => {
                             html += `
                                 <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors border-2 border-gray-200">
@@ -345,70 +318,122 @@
                                             </span>
                                         </div>
                                     </div>
-                                    <div class="text-2xl font-black text-gray-400">
-                                        #${index + 1}
-                                    </div>
-                                </div>
-                            `;
+                                    <div class="text-2xl font-black text-gray-400">#${index + 1}</div>
+                                </div>`;
                         });
-
                         html += '</div>';
                         asistentesLista.innerHTML = html;
                     }
 
-                    // Reiniciar iconos de Lucide
-                    setTimeout(() => {
-                        if (typeof lucide !== 'undefined') {
-                            lucide.createIcons();
-                        }
-                    }, 100);
+                    setTimeout(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); }, 100);
                 } else {
                     asistentesLista.innerHTML = `
                         <div class="text-center py-12">
                             <i data-lucide="alert-circle" class="w-16 h-16 mx-auto text-red-400 mb-4"></i>
                             <p class="text-orange-500 font-semibold">Error al cargar los asistentes</p>
-                        </div>
-                    `;
+                        </div>`;
+                    modalTotal.textContent = '—';
                 }
             } catch (error) {
-                console.error('Error al obtener asistentes:', error);
                 asistentesLista.innerHTML = `
                     <div class="text-center py-12">
                         <i data-lucide="alert-circle" class="w-16 h-16 mx-auto text-red-400 mb-4"></i>
                         <p class="text-orange-500 font-semibold">Error al cargar los asistentes</p>
                         <p class="text-sm text-gray-600 mt-2">${error.message}</p>
-                    </div>
-                `;
+                    </div>`;
+                modalTotal.textContent = '—';
             } finally {
-                // Ocultar loading y mostrar contenido
                 modalLoading.classList.add('hidden');
                 modalContent.classList.remove('hidden');
             }
         }
 
         function cerrarModal() {
-            const modal = document.getElementById('modal-asistentes');
-            modal.classList.add('hidden');
+            document.getElementById('modal-asistentes').classList.add('hidden');
         }
 
-        // Cerrar modal al hacer clic fuera
         document.getElementById('modal-asistentes').addEventListener('click', function(e) {
-            if (e.target === this) {
-                cerrarModal();
-            }
+            if (e.target === this) cerrarModal();
         });
 
-        // Cerrar modal con tecla ESC
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                cerrarModal();
-            }
+            if (e.key === 'Escape') cerrarModal();
         });
         // =========================================================
 
+        let chartInstance = null;
+
+        function actualizarGrafico() {
+            const filas = document.querySelectorAll('tr[data-fecha]');
+            const fechasOrdenadas = Array.from(filas)
+                .map(f => f.dataset.fecha)
+                .sort();
+
+            const labels = fechasOrdenadas.map(f => {
+                const d = new Date(f + 'T00:00:00');
+                return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+            });
+            const data = fechasOrdenadas.map(f => conteosPorFecha[f] ?? 0);
+
+            if (chartInstance) {
+                chartInstance.data.labels = labels;
+                chartInstance.data.datasets[0].data = data;
+                chartInstance.update();
+            }
+        }
+
         window.addEventListener('load', function() {
-            renderChart();
+            // Renderizar gráfico inicial vacío
+            const ctx = document.getElementById('chart-asistencia');
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Check-ins',
+                        data: [],
+                        borderColor: '#E31E24',
+                        backgroundColor: 'rgba(227, 30, 36, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: '#E31E24',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y + ' check-ins';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                            ticks: { stepSize: 5 }
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
             lucide.createIcons();
+
+            // Cargar conteos reales desde el API para todas las fechas
+            cargarConteosReales();
         });
     </script>
 }

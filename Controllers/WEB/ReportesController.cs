@@ -79,16 +79,20 @@ namespace VidaFit.Controllers.WEB
             fechaInicio = new DateTime(fechaInicio.Year, fechaInicio.Month, fechaInicio.Day, 0, 0, 0, DateTimeKind.Utc);
             fechaFin = new DateTime(fechaFin.Year, fechaFin.Month, fechaFin.Day, 23, 59, 59, DateTimeKind.Utc);
 
-            var asistencia = await _context.CheckIns
+            // Cargar en memoria y agrupar por fecha LOCAL para que coincida con el modal
+            var checkInsRaw = await _context.CheckIns
                 .Where(c => c.FechaHora >= fechaInicio && c.FechaHora <= fechaFin)
-                .GroupBy(c => c.FechaHora.Date)
+                .ToListAsync();
+
+            var asistencia = checkInsRaw
+                .GroupBy(c => c.FechaHora.ToLocalTime().Date)
                 .Select(g => new AsistenciaReporte
                 {
                     Fecha = g.Key,
                     Total = g.Count()
                 })
                 .OrderBy(g => g.Fecha)
-                .ToListAsync();
+                .ToList();
 
             ViewBag.FechaInicio = fechaInicio;
             ViewBag.FechaFin = fechaFin;
