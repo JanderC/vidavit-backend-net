@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - TAURO GYM</title>
+    <title>@ViewData["Title"] - Tallest GYM</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -12,11 +12,12 @@
             theme: {
                 extend: {
                     colors: {
-                        'tauro-red': '#E31E24',
-                        'tauro-dark': '#000000',
-                        'tauro-gray': '#1a1a1a',
-                        'tauro-light-red': '#FF4448',
-                        'tauro-accent': '#C41E23'
+                        'tallest-green':       '#22c55e',
+                        'tallest-green-dark':  '#15803d',
+                        'tallest-green-deep':  '#166534',
+                        'tallest-black':       '#000000',
+                        'tallest-dark':        '#0a0a0a',
+                        'tallest-gray':        '#111111',
                     }
                 }
             }
@@ -32,7 +33,7 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #000000 100%);
+            background: linear-gradient(135deg, #0a0a0a 0%, #0d1a0d 50%, #000000 100%);
         }
 
         h1, h2, h3, h4, h5, h6 {
@@ -40,17 +41,9 @@
             letter-spacing: 2px;
         }
 
-        .animate-pulse-red {
-            animation: pulse-red 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-
-
-        .text-glow {
-            animation: glow 2s ease-in-out infinite;
-        }
-
+        /* Scrollbar */
         ::-webkit-scrollbar {
-            width: 10px;
+            width: 8px;
         }
 
         ::-webkit-scrollbar-track {
@@ -58,34 +51,36 @@
         }
 
         ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #E31E24 0%, #C41E23 100%);
-            border-radius: 5px;
+            background: linear-gradient(180deg, #22c55e 0%, #15803d 100%);
+            border-radius: 4px;
         }
 
             ::-webkit-scrollbar-thumb:hover {
-                background: linear-gradient(180deg, #FF4448 0%, #E31E24 100%);
+                background: linear-gradient(180deg, #4ade80 0%, #22c55e 100%);
             }
 
-        .tauro-card {
+        /* Generic card style */
+        .tallest-card {
             transition: all 0.3s ease;
-            border: 2px solid rgba(227, 30, 36, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.15);
         }
 
-            .tauro-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 15px 40px rgba(227, 30, 36, 0.4);
-                border-color: rgba(227, 30, 36, 0.6);
+            .tallest-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 12px 35px rgba(34, 197, 94, 0.2);
+                border-color: rgba(34, 197, 94, 0.4);
             }
 
-        .btn-tauro {
-            background: linear-gradient(135deg, #E31E24 0%, #C41E23 100%);
+        /* Primary button */
+        .btn-tallest {
+            background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
             transition: all 0.3s ease;
         }
 
-            .btn-tauro:hover {
-                background: linear-gradient(135deg, #FF4448 0%, #E31E24 100%);
-                box-shadow: 0 8px 25px rgba(227, 30, 36, 0.5);
-                transform: scale(1.05);
+            .btn-tallest:hover {
+                background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+                box-shadow: 0 8px 25px rgba(34, 197, 94, 0.45);
+                transform: scale(1.04);
             }
     </style>
 

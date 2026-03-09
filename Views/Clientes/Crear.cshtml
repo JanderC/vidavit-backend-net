@@ -1,367 +1,453 @@
 @model VidaFitBackend.Models.Cliente
 @{
     ViewData["Title"] = "Crear Cliente";
-    ViewData["Subtitle"] = "Registrar nuevo miembro en TAURO GYM";
+    ViewData["Subtitle"] = "Registrar nuevo miembro en Tallest GYM";
     Layout = "_AdminLayout";
 }
 
 <style>
-    /* ===== MODAL OVERLAY ===== */
+    /* ── Modal Overlay ── */
     #modalExito {
         display: none;
         position: fixed;
         inset: 0;
         z-index: 9999;
-        background: rgba(0, 0, 0, 0.65);
-        backdrop-filter: blur(4px);
+        background: rgba(0,0,0,0.75);
+        backdrop-filter: blur(6px);
         align-items: center;
         justify-content: center;
-        animation: fadeInOverlay 0.2s ease;
     }
 
         #modalExito.show {
             display: flex;
         }
 
-    @@keyframes fadeInOverlay {
-        from {
-            opacity: 0;
-        }
-
-        to {
-            opacity: 1;
-        }
-    }
-
     .modal-card {
-        background: #fff;
-        border-radius: 20px;
+        background: #0d0d0d;
+        border: 1px solid rgba(34,197,94,0.3);
+        border-radius: 1.25rem;
         width: 100%;
-        max-width: 520px;
-        margin: 16px;
-        box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+        max-width: 500px;
+        margin: 1rem;
+        box-shadow: 0 25px 60px rgba(0,0,0,0.6), 0 0 40px rgba(34,197,94,0.1);
         overflow: hidden;
-        animation: slideUpModal 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    @@keyframes slideUpModal {
-        from {
-            opacity: 0;
-            transform: translateY(30px) scale(0.96);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
     }
 
     .modal-header {
-        background: linear-gradient(135deg, #dc2626, #991b1b);
-        padding: 28px 32px 24px;
+        background: linear-gradient(135deg, #166534, #15803d);
+        padding: 1.75rem 2rem 1.5rem;
         text-align: center;
         position: relative;
     }
 
+        .modal-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(34,197,94,0.4);
+        }
+
     .modal-checkmark {
-        width: 64px;
-        height: 64px;
-        background: rgba(255,255,255,0.15);
-        border: 3px solid rgba(255,255,255,0.4);
+        width: 3.5rem;
+        height: 3.5rem;
+        background: rgba(255,255,255,0.12);
+        border: 2px solid rgba(255,255,255,0.3);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 14px;
-        font-size: 28px;
-        animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
-    }
-
-    @@keyframes popIn {
-        from {
-            transform: scale(0);
-            opacity: 0;
-        }
-
-        to {
-            transform: scale(1);
-            opacity: 1;
-        }
+        margin: 0 auto .85rem;
+        font-size: 1.4rem;
     }
 
     .modal-title {
-        font-size: 22px;
+        font-size: 1.3rem;
         font-weight: 900;
         color: #fff;
-        letter-spacing: 0.5px;
         text-transform: uppercase;
+        letter-spacing: .04em;
     }
 
     .modal-subtitle {
-        font-size: 13px;
-        color: rgba(255,255,255,0.75);
-        margin-top: 4px;
+        font-size: .78rem;
+        color: rgba(255,255,255,.7);
+        margin-top: .25rem;
         font-weight: 600;
     }
 
     .modal-cliente-nombre {
         display: inline-block;
-        margin-top: 10px;
-        background: rgba(255,255,255,0.18);
-        border: 1px solid rgba(255,255,255,0.3);
-        border-radius: 8px;
-        padding: 6px 18px;
+        margin-top: .65rem;
+        background: rgba(255,255,255,.12);
+        border: 1px solid rgba(255,255,255,.25);
+        border-radius: .5rem;
+        padding: .35rem 1rem;
         color: #fff;
         font-weight: 800;
-        font-size: 15px;
-        letter-spacing: 0.5px;
+        font-size: .9rem;
     }
 
     .modal-body {
-        padding: 28px 32px;
+        padding: 1.5rem 2rem;
     }
 
     .modal-pregunta {
         text-align: center;
-        font-size: 15px;
+        font-size: .9rem;
         font-weight: 700;
-        color: #374151;
-        margin-bottom: 20px;
+        color: #d1d5db;
+        margin-bottom: 1rem;
     }
 
         .modal-pregunta span {
             display: block;
-            font-size: 13px;
+            font-size: .75rem;
             color: #6b7280;
             font-weight: 500;
-            margin-top: 4px;
+            margin-top: .2rem;
         }
 
-    /* Opciones del modal */
     .modal-opciones {
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: .65rem;
     }
 
     .opcion-btn {
         display: flex;
         align-items: center;
-        gap: 16px;
-        padding: 16px 20px;
-        border-radius: 14px;
-        border: 2px solid transparent;
+        gap: 1rem;
+        padding: .9rem 1.1rem;
+        border-radius: .75rem;
+        border: 1px solid transparent;
         cursor: pointer;
         text-decoration: none;
-        transition: all 0.18s ease;
         text-align: left;
         width: 100%;
         font-family: inherit;
+        transition: all .18s;
     }
 
         .opcion-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
         }
 
-    /* Opción 1: Registrar huella (principal) */
     .opcion-huella {
-        background: linear-gradient(135deg, #dc2626, #b91c1c);
+        background: linear-gradient(135deg,#22c55e,#15803d);
         color: #fff;
     }
 
         .opcion-huella:hover {
-            background: linear-gradient(135deg, #b91c1c, #991b1b);
-            color: #fff;
-            box-shadow: 0 8px 24px rgba(220,38,38,0.4);
+            background: linear-gradient(135deg,#16a34a,#166534);
+            box-shadow: 0 6px 20px rgba(34,197,94,0.35) !important;
         }
 
-    /* Opción 2: Ir a clientes */
     .opcion-lista {
-        background: #f9fafb;
-        border-color: #e5e7eb;
-        color: #374151;
+        background: rgba(255,255,255,0.04);
+        border-color: rgba(255,255,255,0.08);
+        color: #d1d5db;
     }
 
         .opcion-lista:hover {
-            background: #f3f4f6;
-            border-color: #d1d5db;
+            background: rgba(255,255,255,0.07);
+            border-color: rgba(34,197,94,0.2);
         }
 
-    /* Opción 3: Crear otro */
     .opcion-nuevo {
-        background: #fff;
-        border-color: #e5e7eb;
+        background: transparent;
+        border-color: rgba(255,255,255,0.06);
         color: #6b7280;
     }
 
         .opcion-nuevo:hover {
-            background: #f9fafb;
-            border-color: #9ca3af;
-            color: #374151;
+            background: rgba(255,255,255,0.03);
+            border-color: rgba(255,255,255,0.12);
+            color: #d1d5db;
         }
 
     .opcion-icon {
-        width: 44px;
-        height: 44px;
-        border-radius: 10px;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: .6rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 22px;
+        font-size: 1.2rem;
         flex-shrink: 0;
+        background: rgba(255,255,255,0.12);
     }
 
-    .opcion-huella .opcion-icon {
-        background: rgba(255,255,255,0.2);
-    }
-
-    .opcion-lista .opcion-icon {
-        background: #e5e7eb;
-    }
-
-    .opcion-nuevo .opcion-icon {
-        background: #f3f4f6;
+    .opcion-lista .opcion-icon, .opcion-nuevo .opcion-icon {
+        background: rgba(34,197,94,0.08);
     }
 
     .opcion-texto strong {
         display: block;
-        font-size: 14px;
+        font-size: .8rem;
         font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: .05em;
     }
 
     .opcion-texto small {
-        font-size: 12px;
-        opacity: 0.75;
+        font-size: .72rem;
+        opacity: .75;
         font-weight: 500;
+        margin-top: .15rem;
+        display: block;
     }
 
     .opcion-arrow {
         margin-left: auto;
-        font-size: 18px;
-        opacity: 0.6;
+        opacity: .5;
         flex-shrink: 0;
     }
 
-    /* Badge Node.js */
     .node-badge {
         display: inline-flex;
         align-items: center;
-        gap: 5px;
-        background: #ecfdf5;
-        border: 1px solid #6ee7b7;
-        color: #065f46;
-        border-radius: 6px;
-        padding: 3px 8px;
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: 0.5px;
+        gap: .3rem;
+        background: rgba(16,185,129,0.12);
+        border: 1px solid rgba(16,185,129,0.3);
+        color: #10b981;
+        border-radius: .35rem;
+        padding: .15rem .5rem;
+        font-size: .65rem;
+        font-weight: 800;
         text-transform: uppercase;
-        margin-top: 4px;
+        margin-top: .25rem;
     }
 
         .node-badge::before {
             content: '';
-            width: 6px;
-            height: 6px;
+            width: 5px;
+            height: 5px;
             border-radius: 50%;
             background: #10b981;
             display: inline-block;
         }
 
-    /* ===== ERROR TOAST ===== */
+    /* ── Toast ── */
     #toastError {
         display: none;
         position: fixed;
-        top: 24px;
-        right: 24px;
+        top: 1.5rem;
+        right: 1.5rem;
         z-index: 10000;
-        background: #fff;
-        border: 2px solid #fca5a5;
-        border-left: 5px solid #dc2626;
-        border-radius: 12px;
-        padding: 16px 20px;
-        max-width: 380px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-        animation: slideInToast 0.3s ease;
+        background: #0d0d0d;
+        border: 1px solid rgba(239,68,68,0.3);
+        border-left: 4px solid #ef4444;
+        border-radius: .75rem;
+        padding: 1rem 1.25rem;
+        max-width: 22rem;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.4);
     }
 
         #toastError.show {
             display: block;
         }
 
-    @@keyframes slideInToast {
-        from {
-            opacity: 0;
-            transform: translateX(20px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-
     .toast-title {
         font-weight: 800;
-        color: #dc2626;
-        font-size: 14px;
-        margin-bottom: 4px;
+        color: #ef4444;
+        font-size: .82rem;
+        margin-bottom: .25rem;
+        text-transform: uppercase;
+        letter-spacing: .05em;
     }
 
     .toast-msg {
-        font-size: 13px;
-        color: #374151;
+        font-size: .78rem;
+        color: #9ca3af;
         font-weight: 500;
     }
 
-    /* ===== SPINNER EN BOTÓN ===== */
+    /* ── Spinner ── */
     .btn-spinner {
         display: inline-block;
-        width: 16px;
-        height: 16px;
-        border: 2px solid rgba(255,255,255,0.4);
+        width: 1rem;
+        height: 1rem;
+        border: 2px solid rgba(255,255,255,0.3);
         border-top-color: #fff;
         border-radius: 50%;
-        animation: spin 0.7s linear infinite;
         flex-shrink: 0;
+        animation: spin .7s linear infinite;
     }
 
-    @@keyframes spin {
-        to {
-            transform: rotate(360deg);
+    /* ── Form card ── */
+    .tz-card {
+        background: #0d0d0d;
+        border: 1px solid rgba(34,197,94,0.15);
+        border-radius: 1rem;
+        padding: 2rem;
+    }
+
+    .tz-label {
+        display: block;
+        font-size: .68rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .1em;
+        color: #6b7280;
+        margin-bottom: .4rem;
+    }
+
+        .tz-label .req {
+            color: #ef4444;
         }
+
+    .tz-input {
+        width: 100%;
+        padding: .7rem 1rem;
+        background: #111;
+        border: 1px solid rgba(34,197,94,0.2);
+        border-radius: .65rem;
+        color: #f9fafb;
+        font-weight: 600;
+        font-size: .9rem;
+        transition: border-color .2s, box-shadow .2s;
+        box-sizing: border-box;
+    }
+
+        .tz-input::placeholder {
+            color: #374151;
+        }
+
+        .tz-input:focus {
+            outline: none;
+            border-color: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34,197,94,0.1);
+        }
+
+        .tz-input.error {
+            border-color: #ef4444;
+        }
+
+    .tz-section-title {
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        font-size: 1rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: #f9fafb;
+        padding-bottom: .85rem;
+        border-bottom: 1px solid rgba(34,197,94,0.12);
+        margin-bottom: 1.25rem;
+    }
+
+        .tz-section-title i {
+            color: #22c55e;
+        }
+
+    .tz-btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .85rem 1.5rem;
+        border-radius: .65rem;
+        background: linear-gradient(135deg,#22c55e,#15803d);
+        color: #fff;
+        font-weight: 800;
+        font-size: .82rem;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        border: none;
+        cursor: pointer;
+        transition: all .2s;
+        flex: 1;
+        justify-content: center;
+    }
+
+        .tz-btn-primary:hover {
+            background: linear-gradient(135deg,#16a34a,#166534);
+            box-shadow: 0 4px 16px rgba(34,197,94,0.3);
+            transform: translateY(-1px);
+        }
+
+        .tz-btn-primary:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+    .tz-btn-ghost {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .85rem 1.5rem;
+        border-radius: .65rem;
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.1);
+        color: #6b7280;
+        font-weight: 800;
+        font-size: .82rem;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        text-decoration: none;
+        transition: all .2s;
+        flex: 1;
+        justify-content: center;
+    }
+
+        .tz-btn-ghost:hover {
+            border-color: rgba(34,197,94,0.3);
+            color: #d1d5db;
+        }
+
+    .info-box {
+        display: flex;
+        align-items: flex-start;
+        gap: .75rem;
+        padding: 1rem 1.25rem;
+        border-radius: .75rem;
+    }
+
+    .info-box-warn {
+        background: rgba(239,68,68,0.06);
+        border: 1px solid rgba(239,68,68,0.2);
+    }
+
+    .info-box-blue {
+        background: rgba(59,130,246,0.06);
+        border: 1px solid rgba(59,130,246,0.2);
+    }
+
+    .info-box-title {
+        font-weight: 800;
+        font-size: .78rem;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+        margin-bottom: .25rem;
+    }
+
+    .info-box-text {
+        font-size: .78rem;
+        font-weight: 500;
     }
 </style>
 
-<!-- ===================================================
-     MODAL DE ÉXITO — aparece tras crear el cliente
-     =================================================== -->
+<!-- Modal Éxito -->
 <div id="modalExito">
     <div class="modal-card">
-
         <div class="modal-header">
             <div class="modal-checkmark">✓</div>
             <div class="modal-title">¡Cliente Creado!</div>
             <div class="modal-subtitle">El registro se guardó correctamente</div>
             <div class="modal-cliente-nombre" id="modalNombreCliente">—</div>
         </div>
-
         <div class="modal-body">
             <div class="modal-pregunta">
                 ¿Qué deseas hacer ahora?
                 <span>Puedes registrar la huella digital del cliente de inmediato</span>
             </div>
-
             <div class="modal-opciones">
-
-                <!-- OPCIÓN 1: Registrar huella (Node.js) — ACCIÓN PRINCIPAL -->
-                <a id="btnRegistrarHuella"
-                   href="#"
-                   target="_blank"
-                   class="opcion-btn opcion-huella">
+                <a id="btnRegistrarHuella" href="#" target="_blank" class="opcion-btn opcion-huella">
                     <div class="opcion-icon">✋</div>
                     <div class="opcion-texto">
                         <strong>Registrar Huella Digital</strong>
@@ -370,8 +456,6 @@
                     </div>
                     <div class="opcion-arrow">→</div>
                 </a>
-
-                <!-- OPCIÓN 2: Ver listado de clientes -->
                 <a href="/clientes" class="opcion-btn opcion-lista">
                     <div class="opcion-icon">👥</div>
                     <div class="opcion-texto">
@@ -380,11 +464,7 @@
                     </div>
                     <div class="opcion-arrow">→</div>
                 </a>
-
-                <!-- OPCIÓN 3: Crear otro cliente -->
-                <button type="button"
-                        class="opcion-btn opcion-nuevo"
-                        onclick="resetFormulario()">
+                <button type="button" class="opcion-btn opcion-nuevo" onclick="resetFormulario()">
                     <div class="opcion-icon">➕</div>
                     <div class="opcion-texto">
                         <strong>Crear Otro Cliente</strong>
@@ -392,176 +472,116 @@
                     </div>
                     <div class="opcion-arrow">↩</div>
                 </button>
-
             </div>
         </div>
     </div>
 </div>
 
-<!-- ===================================================
-     TOAST DE ERROR
-     =================================================== -->
+<!-- Toast Error -->
 <div id="toastError">
     <div class="toast-title">❌ Error al crear el cliente</div>
     <div class="toast-msg" id="toastMensaje">—</div>
 </div>
 
-<!-- ===================================================
-     FORMULARIO PRINCIPAL
-     =================================================== -->
+<!-- Formulario Principal -->
 <div class="max-w-4xl mx-auto">
-    <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
+    <div class="tz-card">
 
-        <div class="flex items-center gap-4 mb-8 pb-6 border-b-2 border-gray-200">
-            <div class="bg-gradient-to-br from-red-600 to-red-800 rounded-xl p-4">
-                <i data-lucide="user-plus" class="w-8 h-8 text-white"></i>
-            </div>
+        <!-- Header del form -->
+        <div class="tz-section-title" style="font-size:1.15rem;margin-bottom:1.5rem">
+            <i data-lucide="user-plus" style="width:1.25rem;height:1.25rem"></i>
+            Nuevo Cliente
+        </div>
+
+        <!-- Aviso campos obligatorios -->
+        <div class="info-box info-box-warn mb-6">
+            <i data-lucide="alert-circle" style="width:1.1rem;height:1.1rem;color:#ef4444;margin-top:.1rem;flex-shrink:0"></i>
             <div>
-                <h2 class="text-3xl font-black text-gray-900 uppercase tracking-wide">Nuevo Cliente</h2>
-                <p class="text-sm text-gray-600 font-semibold mt-1">
-                    Complete el formulario. Al guardar podrás registrar la huella digital del cliente.
+                <div class="info-box-title" style="color:#ef4444">Campos Obligatorios</div>
+                <p class="info-box-text" style="color:#9ca3af">
+                    Solo se requieren: <strong style="color:#d1d5db">Nombre, Apellido y Cédula</strong>.
+                    Todos los demás campos son opcionales.
                 </p>
             </div>
         </div>
 
-        <!-- Aviso campos obligatorios -->
-        <div class="bg-red-50 border-l-4 border-red-600 rounded-xl p-5 mb-6">
-            <div class="flex items-start gap-3">
-                <i data-lucide="alert-circle" class="w-6 h-6 text-red-600 mt-0.5"></i>
-                <div>
-                    <h4 class="font-black text-red-900 mb-1 uppercase tracking-wide">Campos Obligatorios</h4>
-                    <p class="text-sm text-red-900 font-semibold">
-                        Solo se requieren: <span class="font-black">Nombre, Apellido y Cédula</span>.
-                        Todos los demás campos son opcionales.
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Formulario — SIN asp-action, lo manejamos con AJAX -->
         <form id="formCrearCliente" class="space-y-6" novalidate>
             @Html.AntiForgeryToken()
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(13rem,1fr));gap:1rem">
                 <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
-                        Nombre <span class="text-red-600">*</span>
-                    </label>
-                    <input id="inputNombre" name="nombre" type="text"
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
-                           placeholder="Ingrese el nombre"
-                           required />
-                    <span class="text-red-600 text-sm font-bold" id="errNombre"></span>
+                    <label class="tz-label">Nombre <span class="req">*</span></label>
+                    <input id="inputNombre" name="nombre" type="text" class="tz-input" placeholder="Ingrese el nombre" required />
+                    <span class="toast-title" id="errNombre" style="font-size:.72rem;display:block;margin-top:.25rem"></span>
                 </div>
-
                 <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
-                        Apellido <span class="text-red-600">*</span>
-                    </label>
-                    <input id="inputApellido" name="apellido" type="text"
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
-                           placeholder="Ingrese el apellido"
-                           required />
-                    <span class="text-red-600 text-sm font-bold" id="errApellido"></span>
+                    <label class="tz-label">Apellido <span class="req">*</span></label>
+                    <input id="inputApellido" name="apellido" type="text" class="tz-input" placeholder="Ingrese el apellido" required />
+                    <span class="toast-title" id="errApellido" style="font-size:.72rem;display:block;margin-top:.25rem"></span>
                 </div>
-
                 <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
-                        Cédula <span class="text-red-600">*</span>
-                    </label>
-                    <input id="inputCedula" name="cedula" type="text"
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
-                           placeholder="Ej: 001-1234567-8"
-                           required />
-                    <span class="text-red-600 text-sm font-bold" id="errCedula"></span>
+                    <label class="tz-label">Cédula <span class="req">*</span></label>
+                    <input id="inputCedula" name="cedula" type="text" class="tz-input" placeholder="Ej: 001-1234567-8" required style="font-family:monospace" />
+                    <span class="toast-title" id="errCedula" style="font-size:.72rem;display:block;margin-top:.25rem"></span>
                 </div>
-
                 <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
-                        Teléfono (Opcional)
-                    </label>
-                    <input id="inputTelefono" name="telefono" type="tel"
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
-                           placeholder="Ej: 809-555-1234" />
+                    <label class="tz-label">Teléfono (Opcional)</label>
+                    <input id="inputTelefono" name="telefono" type="tel" class="tz-input" placeholder="Ej: 809-555-1234" />
                 </div>
-
                 <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
-                        Email (Opcional)
-                    </label>
-                    <input id="inputEmail" name="email" type="email"
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
-                           placeholder="cliente@ejemplo.com" />
+                    <label class="tz-label">Email (Opcional)</label>
+                    <input id="inputEmail" name="email" type="email" class="tz-input" placeholder="cliente@ejemplo.com" />
                 </div>
-
                 <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
-                        Fecha de Nacimiento (Opcional)
-                    </label>
-                    <input id="inputFechaNac" name="fechaNacimiento" type="date"
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold" />
+                    <label class="tz-label">Fecha de Nacimiento (Opcional)</label>
+                    <input id="inputFechaNac" name="fechaNacimiento" type="date" class="tz-input" />
                 </div>
             </div>
 
             <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
-                    Dirección (Opcional)
-                </label>
-                <textarea id="inputDireccion" name="direccion" rows="2"
-                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
+                <label class="tz-label">Dirección (Opcional)</label>
+                <textarea id="inputDireccion" name="direccion" rows="2" class="tz-input" style="resize:vertical"
                           placeholder="Calle, número, sector, ciudad"></textarea>
             </div>
 
             <!-- Foto -->
             <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
-                    Foto del Cliente (Opcional)
-                </label>
-                <div class="flex items-center gap-4">
-                    <div id="preview-container" class="hidden">
-                        <img id="foto-preview" class="w-32 h-32 object-cover rounded-xl border-2 border-gray-300" />
+                <label class="tz-label">Foto del Cliente (Opcional)</label>
+                <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+                    <div id="preview-container" style="display:none">
+                        <img id="foto-preview" style="width:5rem;height:5rem;object-fit:cover;border-radius:.65rem;border:2px solid rgba(34,197,94,0.3)" />
                     </div>
-                    <div class="flex-1">
-                        <input type="file"
-                               id="fotoInput"
-                               accept="image/*"
-                               class="w-full px-4 py-2 border-2 border-gray-300 rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-gradient-to-r file:from-red-600 file:to-red-800 file:text-white file:font-bold hover:file:from-red-700 hover:file:to-red-900" />
-                        <p class="text-xs text-gray-500 mt-2 font-semibold">Formatos: JPG, PNG (máx. 5MB)</p>
+                    <div>
+                        <input type="file" id="fotoInput" accept="image/*"
+                               style="display:block;font-size:.78rem;color:#9ca3af;background:#111;border:1px solid rgba(34,197,94,0.2);border-radius:.65rem;padding:.5rem .75rem;width:auto" />
+                        <p style="font-size:.7rem;color:#4b5563;font-weight:600;margin-top:.3rem">JPG, PNG · máx. 5MB</p>
                     </div>
                 </div>
                 <input type="hidden" id="fotoBase64Input" />
             </div>
 
             <!-- Info huella -->
-            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-600 p-5 rounded-xl">
-                <div class="flex items-start gap-3">
-                    <i data-lucide="fingerprint" class="w-6 h-6 text-blue-600 mt-0.5"></i>
-                    <div>
-                        <h4 class="font-black text-blue-900 mb-1 uppercase tracking-wide">Registro de Huella Digital</h4>
-                        <p class="text-sm text-blue-900 font-semibold">
-                            Al guardar el cliente, se abrirá una ventana para registrar su huella en el
-                            <strong>sistema biométrico</strong>. Los datos se pre-cargan automáticamente.
-                        </p>
-                    </div>
+            <div class="info-box info-box-blue">
+                <i data-lucide="fingerprint" style="width:1.1rem;height:1.1rem;color:#60a5fa;margin-top:.1rem;flex-shrink:0"></i>
+                <div>
+                    <div class="info-box-title" style="color:#60a5fa">Registro de Huella Digital</div>
+                    <p class="info-box-text" style="color:#9ca3af">
+                        Al guardar el cliente, se abrirá una ventana para registrar su huella en el
+                        <strong style="color:#d1d5db">sistema biométrico</strong>. Los datos se pre-cargan automáticamente.
+                    </p>
                 </div>
             </div>
 
             <!-- Botones -->
-            <div class="flex gap-4 pt-6 border-t-2 border-gray-200">
-
-                <button type="submit" id="btnGuardar"
-                        class="flex-1 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black py-4 px-6 rounded-xl transition-all shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 uppercase tracking-wide transform hover:scale-105">
-                    <i data-lucide="save" class="w-5 h-5" id="iconGuardar"></i>
+            <div style="display:flex;gap:.75rem;padding-top:1.25rem;border-top:1px solid rgba(34,197,94,0.1)">
+                <button type="submit" id="btnGuardar" class="tz-btn-primary">
+                    <i data-lucide="save" style="width:.9rem;height:.9rem" id="iconGuardar"></i>
                     <span id="textoGuardar">Crear Cliente</span>
                 </button>
-
-                <a href="/clientes"
-                   class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-black py-4 px-6 rounded-xl transition-all text-center flex items-center justify-center gap-2 uppercase tracking-wide">
-                    <i data-lucide="x" class="w-5 h-5"></i>
+                <a href="/clientes" class="tz-btn-ghost">
+                    <i data-lucide="x" style="width:.9rem;height:.9rem"></i>
                     Cancelar
                 </a>
-
             </div>
         </form>
     </div>
@@ -569,71 +589,56 @@
 
 @section Scripts {
     <script>
-        lucide.createIcons();
-
-        // URL del sistema Node.js de huellas
+        const API_URL = '/api';
         const NODE_URL = 'http://localhost:3000';
 
-        // ===== FOTO PREVIEW =====
+        // Foto preview
         const fotoInput = document.getElementById('fotoInput');
         const fotoBase64Input = document.getElementById('fotoBase64Input');
         const preview = document.getElementById('foto-preview');
         const previewContainer = document.getElementById('preview-container');
 
-        fotoInput.addEventListener('change', function(e) {
+        fotoInput.addEventListener('change', function (e) {
             const file = e.target.files[0];
-            if (!file) {
-                previewContainer.classList.add('hidden');
-                fotoBase64Input.value = '';
-                return;
-            }
-            if (file.size > 5 * 1024 * 1024) {
-                mostrarToastError('La imagen es muy grande. El tamaño máximo es 5MB.');
-                fotoInput.value = '';
-                return;
-            }
+            if (!file) { previewContainer.style.display = 'none'; fotoBase64Input.value = ''; return; }
+            if (file.size > 5 * 1024 * 1024) { mostrarToastError('La imagen es muy grande. El tamaño máximo es 5MB.'); fotoInput.value = ''; return; }
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 const base64 = e.target.result;
                 fotoBase64Input.value = base64;
                 preview.src = base64;
-                previewContainer.classList.remove('hidden');
+                previewContainer.style.display = 'block';
             };
             reader.readAsDataURL(file);
         });
 
-        // ===== VALIDACIÓN CLIENT-SIDE =====
+        // Validación
         function validarFormulario() {
             let ok = true;
-
             const campos = [
                 { id: 'inputNombre',   err: 'errNombre',   msg: 'El nombre es obligatorio.' },
                 { id: 'inputApellido', err: 'errApellido', msg: 'El apellido es obligatorio.' },
                 { id: 'inputCedula',   err: 'errCedula',   msg: 'La cédula es obligatoria.' },
             ];
-
             campos.forEach(c => {
                 const input = document.getElementById(c.id);
                 const errEl = document.getElementById(c.err);
                 if (!input.value.trim()) {
                     errEl.textContent = c.msg;
-                    input.classList.add('border-red-500');
+                    input.classList.add('error');
                     ok = false;
                 } else {
                     errEl.textContent = '';
-                    input.classList.remove('border-red-500');
+                    input.classList.remove('error');
                 }
             });
-
             return ok;
         }
 
-        // ===== SUBMIT AJAX =====
-        document.getElementById('formCrearCliente').addEventListener('submit', async function(e) {
+        // Submit
+        document.getElementById('formCrearCliente').addEventListener('submit', async function (e) {
             e.preventDefault();
-
             if (!validarFormulario()) return;
-
             setBtnLoading(true);
 
             const payload = {
@@ -654,47 +659,28 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-
                 if (response.status === 400) {
                     const txt = await response.text();
                     mostrarToastError(txt || 'Ya existe un cliente con esa cédula.');
-                    setBtnLoading(false);
-                    return;
+                    setBtnLoading(false); return;
                 }
-
-                if (!response.ok) {
-                    throw new Error(`Error del servidor: ${response.status}`);
-                }
-
-                // ✅ Cliente creado — mostrar modal
+                if (!response.ok) throw new Error(`Error del servidor: ${response.status}`);
                 const cliente = await response.json();
                 mostrarModalExito(cliente);
-
             } catch (err) {
-                console.error('Error al crear cliente:', err);
                 mostrarToastError(err.message || 'Error inesperado. Intenta de nuevo.');
             } finally {
                 setBtnLoading(false);
             }
         });
 
-        // ===== MODAL ÉXITO =====
         function mostrarModalExito(cliente) {
             const nombre = `${cliente.Nombre || cliente.nombre} ${cliente.Apellido || cliente.apellido}`;
             const cedula = cliente.Cedula || cliente.cedula;
-
-            // Nombre en el modal
             document.getElementById('modalNombreCliente').textContent = nombre;
-
-            // URL del sistema Node.js con datos pre-cargados
             const nodeUrl = `${NODE_URL}/register?cedula=${encodeURIComponent(cedula)}&nombre=${encodeURIComponent(nombre)}`;
             document.getElementById('btnRegistrarHuella').href = nodeUrl;
-
-            // Mostrar modal
-            const modal = document.getElementById('modalExito');
-            modal.classList.add('show');
-
-            // Evitar scroll del body
+            document.getElementById('modalExito').classList.add('show');
             document.body.style.overflow = 'hidden';
         }
 
@@ -703,64 +689,47 @@
             document.body.style.overflow = '';
         }
 
-        // Cerrar modal al hacer click en el overlay (fuera de la card)
-        document.getElementById('modalExito').addEventListener('click', function(e) {
+        document.getElementById('modalExito').addEventListener('click', function (e) {
             if (e.target === this) cerrarModal();
         });
 
-        // ===== RESET FORMULARIO (opción "Crear Otro") =====
         function resetFormulario() {
             cerrarModal();
             document.getElementById('formCrearCliente').reset();
             fotoBase64Input.value = '';
-            previewContainer.classList.add('hidden');
-            ['errNombre','errApellido','errCedula'].forEach(id => {
-                document.getElementById(id).textContent = '';
-            });
-            ['inputNombre','inputApellido','inputCedula'].forEach(id => {
-                document.getElementById(id).classList.remove('border-red-500');
-            });
+            previewContainer.style.display = 'none';
+            ['errNombre','errApellido','errCedula'].forEach(id => document.getElementById(id).textContent = '');
+            ['inputNombre','inputApellido','inputCedula'].forEach(id => document.getElementById(id).classList.remove('error'));
             document.getElementById('inputNombre').focus();
         }
 
-        // ===== ESTADO DEL BOTÓN =====
         function setBtnLoading(loading) {
-            const btn    = document.getElementById('btnGuardar');
-            const icono  = document.getElementById('iconGuardar');
-            const texto  = document.getElementById('textoGuardar');
-
+            const btn   = document.getElementById('btnGuardar');
+            const texto = document.getElementById('textoGuardar');
             btn.disabled = loading;
-
             if (loading) {
-                icono.outerHTML = '<div class="btn-spinner" id="iconGuardar"></div>';
+                document.getElementById('iconGuardar').outerHTML = '<div class="btn-spinner" id="iconGuardar"></div>';
                 texto.textContent = 'Guardando...';
             } else {
-                const spinnerEl = document.getElementById('iconGuardar');
-                if (spinnerEl) {
-                    spinnerEl.outerHTML = '<i data-lucide="save" class="w-5 h-5" id="iconGuardar"></i>';
-                    lucide.createIcons();
-                }
+                const spinner = document.getElementById('iconGuardar');
+                if (spinner) { spinner.outerHTML = '<i data-lucide="save" style="width:.9rem;height:.9rem" id="iconGuardar"></i>'; lucide.createIcons(); }
                 texto.textContent = 'Crear Cliente';
             }
         }
 
-        // ===== TOAST DE ERROR =====
         let toastTimer = null;
-
         function mostrarToastError(msg) {
             document.getElementById('toastMensaje').textContent = msg;
             const toast = document.getElementById('toastError');
             toast.classList.add('show');
-
             clearTimeout(toastTimer);
             toastTimer = setTimeout(() => toast.classList.remove('show'), 5000);
         }
 
-        // Limpiar errores al tipear
         ['inputNombre','inputApellido','inputCedula'].forEach(id => {
-            document.getElementById(id).addEventListener('input', function() {
-                this.classList.remove('border-red-500');
-            });
+            document.getElementById(id).addEventListener('input', function () { this.classList.remove('error'); });
         });
+
+        lucide.createIcons();
     </script>
 }

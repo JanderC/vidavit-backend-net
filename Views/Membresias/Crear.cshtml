@@ -1,103 +1,370 @@
 @{
     ViewData["Title"] = "Crear Membresía";
-    ViewData["Subtitle"] = "Nueva membresía con opción de pago parcial - TAURO GYM";
+    ViewData["Subtitle"] = "Nueva membresía con opción de pago parcial - Tallest GYM";
     Layout = "_AdminLayout";
 }
 
+<style>
+    .tz-card {
+        background: #0d0d0d;
+        border: 1px solid rgba(34,197,94,0.15);
+        border-radius: 1rem;
+        padding: 2rem;
+    }
+
+    .tz-section-title {
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        font-size: 1.1rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: #f9fafb;
+        padding-bottom: .9rem;
+        border-bottom: 1px solid rgba(34,197,94,0.12);
+        margin-bottom: 1.5rem;
+    }
+
+        .tz-section-title i {
+            color: #22c55e;
+        }
+
+    .tz-label {
+        display: block;
+        font-size: .68rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .1em;
+        color: #6b7280;
+        margin-bottom: .4rem;
+    }
+
+        .tz-label .req {
+            color: #ef4444;
+        }
+
+        .tz-label .opt {
+            color: #4b5563;
+            font-weight: 500;
+            text-transform: none;
+            font-size: .65rem;
+        }
+
+    .tz-input {
+        width: 100%;
+        padding: .7rem 1rem;
+        background: #111;
+        border: 1px solid rgba(34,197,94,0.2);
+        border-radius: .65rem;
+        color: #f9fafb;
+        font-weight: 600;
+        font-size: .9rem;
+        transition: border-color .2s, box-shadow .2s;
+        box-sizing: border-box;
+    }
+
+        .tz-input::placeholder {
+            color: #374151;
+        }
+
+        .tz-input:focus {
+            outline: none;
+            border-color: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34,197,94,0.1);
+        }
+
+        .tz-input:read-only {
+            opacity: .55;
+            cursor: not-allowed;
+        }
+
+    .tz-select {
+        width: 100%;
+        padding: .7rem 1rem;
+        background: #111;
+        border: 1px solid rgba(34,197,94,0.2);
+        border-radius: .65rem;
+        color: #f9fafb;
+        font-weight: 600;
+        font-size: .9rem;
+        transition: border-color .2s;
+    }
+
+        .tz-select:focus {
+            outline: none;
+            border-color: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34,197,94,0.1);
+        }
+
+    /* Client search */
+    .search-wrap {
+        position: relative;
+    }
+
+    .search-icon {
+        position: absolute;
+        right: .9rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #4b5563;
+        pointer-events: none;
+    }
+
+    #clienteResultados {
+        position: absolute;
+        z-index: 50;
+        left: 0;
+        right: 0;
+        top: 100%;
+        margin-top: .3rem;
+        background: #111;
+        border: 1px solid rgba(34,197,94,0.25);
+        border-radius: .75rem;
+        overflow: hidden;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+        max-height: 16rem;
+        overflow-y: auto;
+    }
+
+    .cliente-result-item {
+        padding: .75rem 1rem;
+        cursor: pointer;
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+        transition: background .12s;
+    }
+
+        .cliente-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .cliente-result-item:hover {
+            background: rgba(34,197,94,0.06);
+        }
+
+    /* Selected client box */
+    .cliente-selected-box {
+        margin-top: .65rem;
+        padding: .85rem 1.1rem;
+        background: rgba(34,197,94,0.06);
+        border: 1px solid rgba(34,197,94,0.25);
+        border-radius: .75rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    /* Info boxes */
+    .info-box {
+        padding: .85rem 1.1rem;
+        border-radius: .75rem;
+        display: flex;
+        align-items: flex-start;
+        gap: .75rem;
+    }
+
+    .info-blue {
+        background: rgba(59,130,246,0.06);
+        border: 1px solid rgba(59,130,246,0.2);
+    }
+
+    .info-green {
+        background: rgba(34,197,94,0.06);
+        border: 1px solid rgba(34,197,94,0.2);
+    }
+
+    .info-orange {
+        background: rgba(249,115,22,0.06);
+        border: 1px solid rgba(249,115,22,0.2);
+    }
+
+    /* Precio banner */
+    .precio-banner {
+        padding: 1rem 1.25rem;
+        background: rgba(34,197,94,0.06);
+        border: 1px solid rgba(34,197,94,0.2);
+        border-radius: .75rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    /* Saldo pendiente */
+    .saldo-box {
+        padding: 1rem 1.25rem;
+        background: rgba(249,115,22,0.05);
+        border: 1px solid rgba(249,115,22,0.2);
+        border-radius: .75rem;
+    }
+
+    .saldo-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: .75rem;
+        margin-top: .65rem;
+    }
+
+    /* Duracion info */
+    .duracion-box {
+        padding: 1rem 1.25rem;
+        background: rgba(34,197,94,0.05);
+        border: 1px solid rgba(34,197,94,0.15);
+        border-radius: .75rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: .75rem;
+    }
+
+    /* Buttons */
+    .tz-btn-primary {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        padding: .9rem 1.5rem;
+        border-radius: .65rem;
+        background: linear-gradient(135deg,#22c55e,#15803d);
+        color: #fff;
+        font-weight: 800;
+        font-size: .82rem;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        border: none;
+        cursor: pointer;
+        transition: all .2s;
+    }
+
+        .tz-btn-primary:hover {
+            background: linear-gradient(135deg,#16a34a,#166534);
+            box-shadow: 0 4px 16px rgba(34,197,94,0.3);
+            transform: translateY(-1px);
+        }
+
+    .tz-btn-ghost {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        padding: .9rem 1.5rem;
+        border-radius: .65rem;
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.1);
+        color: #6b7280;
+        font-weight: 800;
+        font-size: .82rem;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        text-decoration: none;
+        transition: all .2s;
+    }
+
+        .tz-btn-ghost:hover {
+            border-color: rgba(34,197,94,0.25);
+            color: #d1d5db;
+        }
+
+    .clear-btn {
+        background: rgba(239,68,68,0.1);
+        border: 1px solid rgba(239,68,68,0.2);
+        color: #ef4444;
+        padding: .35rem;
+        border-radius: .45rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        transition: background .15s;
+    }
+
+        .clear-btn:hover {
+            background: rgba(239,68,68,0.18);
+        }
+</style>
+
 <div class="max-w-4xl mx-auto">
-    <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
-        <div class="flex items-center gap-4 mb-8 pb-6 border-b-2 border-gray-200">
-            <div class="bg-gradient-to-br from-red-600 to-red-800 rounded-xl p-4">
-                <i data-lucide="credit-card" class="w-8 h-8 text-white"></i>
-            </div>
-            <div>
-                <h2 class="text-3xl font-black text-gray-900 uppercase tracking-wide">Nueva Membresía</h2>
-                <p class="text-sm text-gray-600 font-semibold mt-1">Registrar membresía con opción de pago parcial</p>
-            </div>
+    <div class="tz-card">
+
+        <div class="tz-section-title">
+            <i data-lucide="credit-card" style="width:1.2rem;height:1.2rem"></i>
+            Nueva Membresía
+            <span style="font-size:.7rem;font-weight:600;color:#6b7280;text-transform:none;letter-spacing:0;margin-left:.25rem">Registrar con opción de pago parcial</span>
         </div>
 
         <form id="membresiaForm" class="space-y-6">
-            <!-- CLIENTE -->
+
+            <!-- Cliente -->
             <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Buscar Cliente *</label>
-                <div class="relative">
+                <label class="tz-label">Buscar Cliente <span class="req">*</span></label>
+                <div class="search-wrap">
                     <input type="text" id="clienteBuscar" placeholder="Buscar por nombre, apellido o cédula..."
-                           class="w-full px-4 py-3 pr-12 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 text-gray-900 bg-white font-semibold"
-                           autocomplete="off">
-                    <i data-lucide="search" class="absolute right-4 top-4 w-5 h-5 text-gray-400"></i>
+                           class="tz-input" style="padding-right:2.75rem" autocomplete="off" />
+                    <span class="search-icon">
+                        <i data-lucide="search" style="width:1rem;height:1rem"></i>
+                    </span>
+                    <div id="clienteResultados" class="hidden"></div>
                 </div>
 
-                <div id="clienteResultados" class="hidden absolute z-10 mt-1 w-full bg-white border-2 border-gray-300 rounded-xl shadow-xl max-h-64 overflow-y-auto">
-                </div>
-
-                <div id="clienteSeleccionado" class="hidden mt-3 p-5 bg-emerald-50 border-2 border-emerald-500 rounded-xl">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="font-black text-emerald-900 text-lg uppercase tracking-wide" id="clienteNombre"></p>
-                            <p class="text-sm text-emerald-700 font-bold" id="clienteCedula"></p>
-                        </div>
-                        <button type="button" onclick="limpiarCliente()" class="text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded-lg transition-all">
-                            <i data-lucide="x" class="w-6 h-6"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <input type="hidden" name="clienteId" id="clienteId" required>
-            </div>
-
-            <!-- PLAN -->
-            <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Plan *</label>
-                <select name="planId" id="planSelect" required
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 text-gray-900 bg-white font-semibold">
-                    <option value="" class="text-gray-500">Seleccione un plan...</option>
-                </select>
-                <div id="planInfo" class="mt-3 p-4 bg-blue-50 border-2 border-blue-500 rounded-xl text-sm text-blue-900 font-bold hidden"></div>
-            </div>
-
-            <!-- FECHAS -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Fecha Inicio *</label>
-                    <input type="date" name="fechaInicio" id="fechaInicio" required
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 text-gray-900 font-semibold">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Fecha Vencimiento</label>
-                    <input type="date" name="fechaVencimiento" id="fechaVencimiento" readonly
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl bg-gray-100 text-gray-900 font-semibold">
-                </div>
-            </div>
-
-            <!-- PRECIO DEL PLAN (DISPLAY) -->
-            <div id="precioContainer" class="hidden p-5 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-400 rounded-xl">
-                <div class="flex items-center justify-between">
+                <div id="clienteSeleccionado" class="hidden cliente-selected-box">
                     <div>
-                        <p class="text-sm text-blue-700 font-bold uppercase tracking-wide">Precio Total del Plan:</p>
-                        <p class="text-3xl font-black text-blue-900" id="precioPlan">$0.00</p>
+                        <p style="font-weight:900;color:#10b981;font-size:.95rem;text-transform:uppercase" id="clienteNombre"></p>
+                        <p style="font-size:.78rem;color:#6b7280;font-weight:600;margin-top:.15rem" id="clienteCedula"></p>
                     </div>
-                    <div class="bg-blue-200 p-3 rounded-xl">
-                        <i data-lucide="dollar-sign" class="w-8 h-8 text-blue-700"></i>
-                    </div>
+                    <button type="button" onclick="limpiarCliente()" class="clear-btn">
+                        <i data-lucide="x" style="width:.9rem;height:.9rem"></i>
+                    </button>
+                </div>
+                <input type="hidden" name="clienteId" id="clienteId" required />
+            </div>
+
+            <!-- Plan -->
+            <div>
+                <label class="tz-label">Plan <span class="req">*</span></label>
+                <select name="planId" id="planSelect" required class="tz-select">
+                    <option value="">Seleccione un plan...</option>
+                </select>
+                <div id="planInfo" class="hidden info-box info-blue" style="margin-top:.6rem">
+                    <i data-lucide="info" style="width:1rem;height:1rem;color:#60a5fa;flex-shrink:0;margin-top:.1rem"></i>
+                    <span style="font-size:.82rem;color:#93c5fd;font-weight:600"></span>
                 </div>
             </div>
 
-            <!-- MONTO PAGADO Y MÉTODO -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Fechas -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
                 <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
-                        Monto a Pagar Ahora *
-                        <span class="text-xs text-gray-500 normal-case">(Puede pagar menos del total)</span>
+                    <label class="tz-label">Fecha Inicio <span class="req">*</span></label>
+                    <input type="date" name="fechaInicio" id="fechaInicio" required class="tz-input" />
+                </div>
+                <div>
+                    <label class="tz-label">Fecha Vencimiento</label>
+                    <input type="date" name="fechaVencimiento" id="fechaVencimiento" readonly class="tz-input" />
+                </div>
+            </div>
+
+            <!-- Precio del plan -->
+            <div id="precioContainer" class="hidden precio-banner">
+                <div>
+                    <p style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#6b7280;margin-bottom:.2rem">Precio Total del Plan</p>
+                    <p style="font-size:2rem;font-weight:900;color:#22c55e" id="precioPlan">$0.00</p>
+                </div>
+                <div style="width:2.75rem;height:2.75rem;border-radius:.65rem;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);display:flex;align-items:center;justify-content:center">
+                    <i data-lucide="dollar-sign" style="width:1.25rem;height:1.25rem;color:#22c55e"></i>
+                </div>
+            </div>
+
+            <!-- Monto y método -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+                <div>
+                    <label class="tz-label">
+                        Monto a Pagar Ahora <span class="req">*</span>
+                        <span class="opt">(puede ser parcial)</span>
                     </label>
                     <input type="number" step="0.01" min="0" name="montoPagado" id="montoPagado" required
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 text-gray-900 font-semibold text-lg">
+                           class="tz-input" style="font-size:1.1rem;font-weight:900" />
                 </div>
-
                 <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Método de Pago *</label>
-                    <select name="metodoPago" required
-                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 text-gray-900 bg-white font-semibold">
+                    <label class="tz-label">Método de Pago <span class="req">*</span></label>
+                    <select name="metodoPago" required class="tz-select">
                         <option value="efectivo">Efectivo</option>
                         <option value="tarjeta">Tarjeta</option>
                         <option value="transferencia">Transferencia</option>
@@ -105,68 +372,54 @@
                 </div>
             </div>
 
-            <!-- ALERTA DE SALDO PENDIENTE -->
-            <div id="saldoPendienteAlert" class="hidden p-5 bg-gradient-to-r from-orange-50 to-red-50 border-2 border-orange-400 rounded-xl">
-                <div class="flex items-start gap-4">
-                    <div class="bg-orange-200 p-3 rounded-xl">
-                        <i data-lucide="alert-triangle" class="w-8 h-8 text-orange-700"></i>
+            <!-- Saldo pendiente alert -->
+            <div id="saldoPendienteAlert" class="hidden saldo-box">
+                <div style="display:flex;align-items:center;gap:.6rem">
+                    <i data-lucide="alert-triangle" style="width:1.1rem;height:1.1rem;color:#f97316;flex-shrink:0"></i>
+                    <h4 style="font-weight:900;color:#f97316;font-size:.82rem;text-transform:uppercase;letter-spacing:.07em" id="saldoAlertTitle">⚠️ Pago Parcial Detectado</h4>
+                </div>
+                <div class="saldo-grid">
+                    <div>
+                        <p style="font-size:.65rem;font-weight:800;text-transform:uppercase;color:#9ca3af;margin-bottom:.2rem">Monto a Pagar</p>
+                        <p style="font-size:1.4rem;font-weight:900;color:#f97316" id="montoPagandoDisplay">$0.00</p>
                     </div>
-                    <div class="flex-1">
-                        <h4 class="font-black text-orange-900 text-lg uppercase tracking-wide mb-2">⚠️ Pago Parcial Detectado</h4>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <p class="text-sm text-orange-700 font-bold">Monto a Pagar:</p>
-                                <p class="text-2xl font-black text-orange-900" id="montoPagandoDisplay">$0.00</p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-red-700 font-bold">Saldo a Deber:</p>
-                                <p class="text-2xl font-black text-red-600" id="saldoDeberDisplay">$0.00</p>
-                            </div>
-                        </div>
-                        <p class="text-sm text-orange-800 font-bold mt-3 bg-orange-100 p-3 rounded-lg border border-orange-300">
-                            📝 Se creará automáticamente una DEUDA por el saldo pendiente
-                        </p>
+                    <div>
+                        <p style="font-size:.65rem;font-weight:800;text-transform:uppercase;color:#9ca3af;margin-bottom:.2rem">Saldo a Deber</p>
+                        <p style="font-size:1.4rem;font-weight:900;color:#ef4444" id="saldoDeberDisplay">$0.00</p>
                     </div>
+                </div>
+                <div style="margin-top:.75rem;padding:.6rem .85rem;background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.2);border-radius:.5rem;font-size:.75rem;color:#fb923c;font-weight:700">
+                    📝 Se creará automáticamente una DEUDA por el saldo pendiente
                 </div>
             </div>
 
-            <!-- INFORMACIÓN DE DURACIÓN -->
-            <div id="duracionInfo" class="hidden">
-                <div class="bg-emerald-50 border-2 border-emerald-500 rounded-xl p-5">
-                    <div class="flex items-center gap-2 mb-4">
-                        <i data-lucide="calendar" class="w-6 h-6 text-emerald-600"></i>
-                        <h4 class="font-black text-emerald-900 uppercase tracking-wide">Duración de la Membresía</h4>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                            <p class="text-emerald-700 font-bold uppercase tracking-wide">Total de días:</p>
-                            <p class="font-black text-emerald-900 text-2xl" id="totalDias">-</p>
-                        </div>
-                        <div>
-                            <p class="text-emerald-700 font-bold uppercase tracking-wide">Vence el:</p>
-                            <p class="font-black text-emerald-900 text-lg" id="fechaVencTexto">-</p>
-                        </div>
-                    </div>
+            <!-- Duración info -->
+            <div id="duracionInfo" class="hidden duracion-box">
+                <div>
+                    <p style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#6b7280;margin-bottom:.25rem">Total de días</p>
+                    <p style="font-size:1.6rem;font-weight:900;color:#22c55e" id="totalDias">—</p>
+                </div>
+                <div>
+                    <p style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#6b7280;margin-bottom:.25rem">Vence el</p>
+                    <p style="font-size:.9rem;font-weight:800;color:#f9fafb" id="fechaVencTexto">—</p>
                 </div>
             </div>
 
-            <!-- NOTAS -->
+            <!-- Notas -->
             <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Notas (Opcional)</label>
+                <label class="tz-label">Notas <span class="opt">(opcional)</span></label>
                 <textarea name="notas" rows="2" placeholder="Ingrese notas adicionales..."
-                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 text-gray-900 font-semibold"></textarea>
+                          class="tz-input" style="resize:vertical"></textarea>
             </div>
 
-            <!-- BOTONES -->
-            <div class="flex gap-4 pt-6 border-t-2 border-gray-200">
-                <button type="submit"
-                        class="flex-1 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black py-4 px-6 rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
-                    <i data-lucide="check-circle" class="w-5 h-5 inline mr-2"></i>
+            <!-- Botones -->
+            <div style="display:flex;gap:.75rem;padding-top:1.25rem;border-top:1px solid rgba(34,197,94,0.1)">
+                <button type="submit" class="tz-btn-primary">
+                    <i data-lucide="check-circle" style="width:.9rem;height:.9rem"></i>
                     Crear Membresía
                 </button>
-                <a href="/membresias"
-                   class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 font-black py-4 px-6 rounded-xl transition-all text-center uppercase tracking-wide">
-                    <i data-lucide="x-circle" class="w-5 h-5 inline mr-2"></i>
+                <a href="/membresias" class="tz-btn-ghost">
+                    <i data-lucide="x-circle" style="width:.9rem;height:.9rem"></i>
                     Cancelar
                 </a>
             </div>
@@ -184,55 +437,39 @@
 
         async function cargarPlanes() {
             try {
-                let planesRes = await fetch('/api/Planes/activos');
-                if (!planesRes.ok) {
-                    planesRes = await fetch('/api/Planes');
-                    if (!planesRes.ok) throw new Error('Error al cargar planes');
-                }
+                let res = await fetch('/api/Planes/activos');
+                if (!res.ok) res = await fetch('/api/Planes');
+                if (!res.ok) throw new Error('Error al cargar planes');
 
-                const planesData = await planesRes.json();
-                planes = planesData.map(p => ({
-                    id: p.Id || p.id,
-                    nombre: p.Nombre || p.nombre,
-                    precio: p.Precio || p.precio,
-                    duracionDias: p.DuracionDias || p.duracionDias,
-                    // 🆕 AGREGAR NUEVOS CAMPOS
+                const data = await res.json();
+                planes = data.map(p => ({
+                    id:                     p.Id   || p.id,
+                    nombre:                 p.Nombre || p.nombre,
+                    precio:                 p.Precio || p.precio,
+                    duracionDias:           p.DuracionDias || p.duracionDias,
                     tipoCalculoVencimiento: p.TipoCalculoVencimiento || p.tipoCalculoVencimiento || 'dias',
-                    cantidadUnidades: p.CantidadUnidades || p.cantidadUnidades || 1
+                    cantidadUnidades:       p.CantidadUnidades || p.cantidadUnidades || 1
                 }));
 
                 const planSelect = document.getElementById('planSelect');
                 planes.forEach(p => {
-                    const option = document.createElement('option');
-                    option.value = p.id;
-
-                    // 🆕 Mostrar duración según el tipo de cálculo
-                    let duracionTexto = `${p.duracionDias} días`;
-                    if (p.tipoCalculoVencimiento === 'meses') {
-                        duracionTexto = `${p.cantidadUnidades} ${p.cantidadUnidades === 1 ? 'mes' : 'meses'}`;
-                    } else if (p.tipoCalculoVencimiento === 'semanas') {
-                        duracionTexto = `${p.cantidadUnidades} ${p.cantidadUnidades === 1 ? 'semana' : 'semanas'}`;
-                    } else if (p.tipoCalculoVencimiento === 'anios') {
-                        duracionTexto = `${p.cantidadUnidades} ${p.cantidadUnidades === 1 ? 'año' : 'años'}`;
-                    }
-
-                    option.textContent = `${p.nombre} - $${p.precio.toFixed(2)} (${duracionTexto})`;
-                    option.className = 'text-gray-900 font-semibold';
-                    planSelect.appendChild(option);
+                    const opt = document.createElement('option');
+                    opt.value = p.id;
+                    let durTxt = `${p.duracionDias} días`;
+                    if (p.tipoCalculoVencimiento === 'meses')   durTxt = `${p.cantidadUnidades} ${p.cantidadUnidades===1?'mes':'meses'}`;
+                    if (p.tipoCalculoVencimiento === 'semanas')  durTxt = `${p.cantidadUnidades} ${p.cantidadUnidades===1?'semana':'semanas'}`;
+                    if (p.tipoCalculoVencimiento === 'anios')    durTxt = `${p.cantidadUnidades} ${p.cantidadUnidades===1?'año':'años'}`;
+                    opt.textContent = `${p.nombre} — $${p.precio.toFixed(2)} (${durTxt})`;
+                    planSelect.appendChild(opt);
                 });
 
                 const hoy = new Date();
-                const year = hoy.getFullYear();
-                const month = String(hoy.getMonth() + 1).padStart(2, '0');
-                const day = String(hoy.getDate()).padStart(2, '0');
-                const fechaHoyLocal = `${year}-${month}-${day}`;
-                document.getElementById('fechaInicio').value = fechaHoyLocal;
+                document.getElementById('fechaInicio').value =
+                    `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}-${String(hoy.getDate()).padStart(2,'0')}`;
 
-                // Cargar clientes
-                const clientesRes = await fetch('/api/Clientes');
-                if (clientesRes.ok) {
-                    const clientesData = await clientesRes.json();
-                    todosLosClientes = clientesData.map(c => ({
+                const cRes = await fetch('/api/Clientes');
+                if (cRes.ok) {
+                    todosLosClientes = (await cRes.json()).map(c => ({
                         id: c.Id || c.id,
                         nombre: c.Nombre || c.nombre,
                         apellido: c.Apellido || c.apellido,
@@ -240,75 +477,51 @@
                         telefono: c.Telefono || c.telefono
                     }));
                 }
-
-            } catch (error) {
-                console.error('Error cargando datos:', error);
+            } catch (err) {
+                console.error(err);
                 alert('Error al cargar planes y clientes');
             }
         }
 
-        // Buscar cliente
-        document.getElementById('clienteBuscar').addEventListener('input', function(e) {
+        // Búsqueda de cliente
+        document.getElementById('clienteBuscar').addEventListener('input', function (e) {
             clearTimeout(buscarTimeout);
-            const termino = e.target.value.toLowerCase().trim();
-
-            if (termino.length < 2) {
-                document.getElementById('clienteResultados').classList.add('hidden');
-                return;
-            }
-
+            const t = e.target.value.toLowerCase().trim();
+            if (t.length < 2) { document.getElementById('clienteResultados').classList.add('hidden'); return; }
             buscarTimeout = setTimeout(() => {
-                const resultados = todosLosClientes.filter(c =>
-                    c.nombre.toLowerCase().includes(termino) ||
-                    c.apellido.toLowerCase().includes(termino) ||
-                    c.cedula.includes(termino)
+                const res = todosLosClientes.filter(c =>
+                    c.nombre.toLowerCase().includes(t) ||
+                    c.apellido.toLowerCase().includes(t) ||
+                    c.cedula.includes(t)
                 ).slice(0, 5);
-
-                mostrarResultados(resultados);
+                mostrarResultados(res);
             }, 300);
         });
 
         function mostrarResultados(clientes) {
-            const resultadosDiv = document.getElementById('clienteResultados');
-
+            const div = document.getElementById('clienteResultados');
             if (clientes.length === 0) {
-                resultadosDiv.innerHTML = '<div class="p-4 text-gray-500 text-center font-bold">No se encontraron clientes</div>';
-                resultadosDiv.classList.remove('hidden');
-                return;
+                div.innerHTML = `<div style="padding:.85rem 1rem;text-align:center;color:#6b7280;font-weight:700;font-size:.82rem">No se encontraron clientes</div>`;
+            } else {
+                div.innerHTML = clientes.map(c => `
+                    <div class="cliente-result-item" onclick='seleccionarCliente(${JSON.stringify(c).replace(/'/g,"&#39;")})'>
+                        <p style="font-weight:800;color:#f9fafb;font-size:.88rem">${c.nombre} ${c.apellido}</p>
+                        <p style="font-size:.72rem;color:#6b7280;font-weight:600">Cédula: ${c.cedula}${c.telefono ? ' · ' + c.telefono : ''}</p>
+                    </div>`).join('');
             }
-
-            resultadosDiv.innerHTML = clientes.map(c => `
-                <div onclick='seleccionarCliente(${JSON.stringify(c).replace(/'/g, "&#39;")})'
-                     class="p-4 hover:bg-gray-50 cursor-pointer border-b last:border-b-0 transition-all">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="font-black text-gray-900">${c.nombre} ${c.apellido}</p>
-                            <p class="text-sm text-gray-600 font-semibold">Cédula: ${c.cedula}${c.telefono ? ' - Tel: ' + c.telefono : ''}</p>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-
-            resultadosDiv.classList.remove('hidden');
+            div.classList.remove('hidden');
         }
 
         async function seleccionarCliente(cliente) {
-            // Verificar membresía activa
             try {
-                const response = await fetch(`/api/Membresias/cliente/${cliente.id}`);
-                if (response.ok) {
-                    const membresias = await response.json();
-                    const tieneActiva = membresias.some(m => (m.Estado || m.estado) === 'activa');
-
-                    if (tieneActiva) {
-                        if (!confirm('⚠️ Este cliente ya tiene una membresía activa. ¿Desea continuar?')) {
-                            return;
-                        }
+                const resp = await fetch(`/api/Membresias/cliente/${cliente.id}`);
+                if (resp.ok) {
+                    const mems = await resp.json();
+                    if (mems.some(m => (m.Estado || m.estado) === 'activa')) {
+                        if (!confirm('⚠️ Este cliente ya tiene una membresía activa. ¿Desea continuar?')) return;
                     }
                 }
-            } catch (error) {
-                console.error('Error al verificar membresías:', error);
-            }
+            } catch {}
 
             clienteSeleccionadoId = cliente.id;
             document.getElementById('clienteId').value = cliente.id;
@@ -317,7 +530,6 @@
             document.getElementById('clienteSeleccionado').classList.remove('hidden');
             document.getElementById('clienteResultados').classList.add('hidden');
             document.getElementById('clienteBuscar').value = '';
-
             lucide.createIcons();
         }
 
@@ -327,223 +539,140 @@
             document.getElementById('clienteSeleccionado').classList.add('hidden');
         }
 
-        // Seleccionar plan
-        document.getElementById('planSelect').addEventListener('change', function() {
-            const planId = this.value;
-            planSeleccionado = planes.find(p => p.id == planId);
-
-            if (planSeleccionado) {
-                // 🆕 Mostrar información más clara según el tipo de cálculo
-                let duracionTexto = `${planSeleccionado.duracionDias} días`;
-                if (planSeleccionado.tipoCalculoVencimiento === 'meses') {
-                    duracionTexto = `${planSeleccionado.cantidadUnidades} ${planSeleccionado.cantidadUnidades === 1 ? 'mes' : 'meses'}`;
-                } else if (planSeleccionado.tipoCalculoVencimiento === 'semanas') {
-                    duracionTexto = `${planSeleccionado.cantidadUnidades} ${planSeleccionado.cantidadUnidades === 1 ? 'semana' : 'semanas'}`;
-                } else if (planSeleccionado.tipoCalculoVencimiento === 'anios') {
-                    duracionTexto = `${planSeleccionado.cantidadUnidades} ${planSeleccionado.cantidadUnidades === 1 ? 'año' : 'años'}`;
-                }
-
-                document.getElementById('planInfo').textContent = `${planSeleccionado.nombre} - ${duracionTexto} - $${planSeleccionado.precio.toFixed(2)}`;
-                document.getElementById('planInfo').classList.remove('hidden');
-
-                // Mostrar precio
-                document.getElementById('precioPlan').textContent = `$${planSeleccionado.precio.toFixed(2)}`;
-                document.getElementById('precioContainer').classList.remove('hidden');
-
-                // Setear monto pagado con el precio del plan
-                document.getElementById('montoPagado').value = planSeleccionado.precio.toFixed(2);
-                document.getElementById('montoPagado').max = planSeleccionado.precio;
-
-                const fechaInicio = document.getElementById('fechaInicio').value;
-                if (fechaInicio) {
-                    calcularFechaVencimiento(fechaInicio, planSeleccionado); // 🔧 Pasar plan completo
-                }
-
-                calcularSaldoPendiente();
-                lucide.createIcons();
-            }
-        });
-
-        // Cambio de fecha inicio
-        document.getElementById('fechaInicio').addEventListener('change', function() {
-            if (planSeleccionado && this.value) {
-                calcularFechaVencimiento(this.value, planSeleccionado); // 🔧 Pasar plan completo
-            }
-        });
-
-        // Calcular saldo pendiente en tiempo real
-        document.getElementById('montoPagado').addEventListener('input', calcularSaldoPendiente);
-
-        function calcularSaldoPendiente() {
+        // Cambio de plan
+        document.getElementById('planSelect').addEventListener('change', function () {
+            planSeleccionado = planes.find(p => p.id == this.value);
             if (!planSeleccionado) return;
 
-            const precioPlan = planSeleccionado.precio;
-            const montoPagado = parseFloat(document.getElementById('montoPagado').value) || 0;
-            const saldoPendiente = Math.max(0, precioPlan - montoPagado);
+            let durTxt = `${planSeleccionado.duracionDias} días`;
+            if (planSeleccionado.tipoCalculoVencimiento === 'meses')   durTxt = `${planSeleccionado.cantidadUnidades} ${planSeleccionado.cantidadUnidades===1?'mes':'meses'}`;
+            if (planSeleccionado.tipoCalculoVencimiento === 'semanas')  durTxt = `${planSeleccionado.cantidadUnidades} ${planSeleccionado.cantidadUnidades===1?'semana':'semanas'}`;
+            if (planSeleccionado.tipoCalculoVencimiento === 'anios')    durTxt = `${planSeleccionado.cantidadUnidades} ${planSeleccionado.cantidadUnidades===1?'año':'años'}`;
 
-            const alertDiv = document.getElementById('saldoPendienteAlert');
+            const infoEl = document.getElementById('planInfo');
+            infoEl.querySelector('span').textContent = `${planSeleccionado.nombre} · ${durTxt} · $${planSeleccionado.precio.toFixed(2)}`;
+            infoEl.classList.remove('hidden');
 
-            if (saldoPendiente > 0 && montoPagado > 0) {
-                // Mostrar alerta de pago parcial
-                document.getElementById('montoPagandoDisplay').textContent = `$${montoPagado.toFixed(2)}`;
-                document.getElementById('saldoDeberDisplay').textContent = `$${saldoPendiente.toFixed(2)}`;
-                alertDiv.classList.remove('hidden');
-            } else if (montoPagado === 0) {
-                // Pago completo fiado
-                document.getElementById('montoPagandoDisplay').textContent = '$0.00';
-                document.getElementById('saldoDeberDisplay').textContent = `$${precioPlan.toFixed(2)}`;
-                alertDiv.classList.remove('hidden');
-                alertDiv.querySelector('h4').textContent = '⚠️ Membresía Fiada Completa';
-            } else {
-                // Pago completo
-                alertDiv.classList.add('hidden');
-            }
+            document.getElementById('precioPlan').textContent = `$${planSeleccionado.precio.toFixed(2)}`;
+            document.getElementById('precioContainer').classList.remove('hidden');
+            document.getElementById('montoPagado').value = planSeleccionado.precio.toFixed(2);
+            document.getElementById('montoPagado').max = planSeleccionado.precio;
 
+            const fechaInicio = document.getElementById('fechaInicio').value;
+            if (fechaInicio) calcularFechaVencimiento(fechaInicio, planSeleccionado);
+            calcularSaldoPendiente();
             lucide.createIcons();
-        }
+        });
+
+        document.getElementById('fechaInicio').addEventListener('change', function () {
+            if (planSeleccionado && this.value) calcularFechaVencimiento(this.value, planSeleccionado);
+        });
+
+        document.getElementById('montoPagado').addEventListener('input', calcularSaldoPendiente);
 
         function calcularFechaVencimiento(fechaInicioStr, plan) {
-            // 🔧 CORRECCIÓN: Parsear como fecha local sin conversión UTC
-            const [year, month, day] = fechaInicioStr.split('-').map(Number);
-            const fechaInicio = new Date(year, month - 1, day); // Mes es 0-indexed en JS
-
-            let fechaVenc;
-            let duracionTexto;
-
-            // Calcular según el tipo de plan
-            switch (plan.tipoCalculoVencimiento?.toLowerCase() || 'dias') {
+            const [y, m, d] = fechaInicioStr.split('-').map(Number);
+            const fi = new Date(y, m - 1, d);
+            let fv, durTxt;
+            switch ((plan.tipoCalculoVencimiento || 'dias').toLowerCase()) {
                 case 'meses':
-                    // Sumar meses calendario (30 Ene → 28/29 Feb)
-                    fechaVenc = new Date(fechaInicio);
-                    fechaVenc.setMonth(fechaVenc.getMonth() + (plan.cantidadUnidades || 1));
-                    duracionTexto = `${plan.cantidadUnidades || 1} ${(plan.cantidadUnidades || 1) === 1 ? 'mes' : 'meses'}`;
-                    break;
-
+                    fv = new Date(fi); fv.setMonth(fv.getMonth() + (plan.cantidadUnidades || 1));
+                    durTxt = `${plan.cantidadUnidades || 1} ${(plan.cantidadUnidades||1)===1?'mes':'meses'}`; break;
                 case 'semanas':
-                    // Sumar semanas
-                    fechaVenc = new Date(fechaInicio);
-                    fechaVenc.setDate(fechaVenc.getDate() + ((plan.cantidadUnidades || 1) * 7));
-                    duracionTexto = `${plan.cantidadUnidades || 1} ${(plan.cantidadUnidades || 1) === 1 ? 'semana' : 'semanas'}`;
-                    break;
-
+                    fv = new Date(fi); fv.setDate(fv.getDate() + (plan.cantidadUnidades || 1) * 7);
+                    durTxt = `${plan.cantidadUnidades || 1} ${(plan.cantidadUnidades||1)===1?'semana':'semanas'}`; break;
                 case 'anios':
-                    // Sumar años
-                    fechaVenc = new Date(fechaInicio);
-                    fechaVenc.setFullYear(fechaVenc.getFullYear() + (plan.cantidadUnidades || 1));
-                    duracionTexto = `${plan.cantidadUnidades || 1} ${(plan.cantidadUnidades || 1) === 1 ? 'año' : 'años'}`;
-                    break;
-
-                case 'dias':
+                    fv = new Date(fi); fv.setFullYear(fv.getFullYear() + (plan.cantidadUnidades || 1));
+                    durTxt = `${plan.cantidadUnidades || 1} ${(plan.cantidadUnidades||1)===1?'año':'años'}`; break;
                 default:
-                    // Sumar días corridos (incluye el día de inicio)
-                    // Si son 30 días: día 1 (inicio) + 29 días más = 30 días total
-                    fechaVenc = new Date(fechaInicio);
-                    fechaVenc.setDate(fechaVenc.getDate() + (plan.duracionDias - 1));
-                    duracionTexto = `${plan.duracionDias} días`;
-                    break;
+                    fv = new Date(fi); fv.setDate(fv.getDate() + (plan.duracionDias - 1));
+                    durTxt = `${plan.duracionDias} días`; break;
             }
-
-            // Formatear fecha para el input (YYYY-MM-DD)
-            const year2 = fechaVenc.getFullYear();
-            const month2 = String(fechaVenc.getMonth() + 1).padStart(2, '0');
-            const day2 = String(fechaVenc.getDate()).padStart(2, '0');
-            const fechaVencStr = `${year2}-${month2}-${day2}`;
-
-            // Actualizar UI
-            document.getElementById('fechaVencimiento').value = fechaVencStr;
-            document.getElementById('totalDias').textContent = duracionTexto;
-            document.getElementById('fechaVencTexto').textContent = fechaVenc.toLocaleDateString('es-ES', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
+            const fvStr = `${fv.getFullYear()}-${String(fv.getMonth()+1).padStart(2,'0')}-${String(fv.getDate()).padStart(2,'0')}`;
+            document.getElementById('fechaVencimiento').value = fvStr;
+            document.getElementById('totalDias').textContent = durTxt;
+            document.getElementById('fechaVencTexto').textContent = fv.toLocaleDateString('es-ES', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
             document.getElementById('duracionInfo').classList.remove('hidden');
         }
 
-        // Submit form
-        document.getElementById('membresiaForm').addEventListener('submit', async function(e) {
+        function calcularSaldoPendiente() {
+            if (!planSeleccionado) return;
+            const precio = planSeleccionado.precio;
+            const pagado = parseFloat(document.getElementById('montoPagado').value) || 0;
+            const saldo = Math.max(0, precio - pagado);
+            const alertDiv = document.getElementById('saldoPendienteAlert');
+            if (saldo > 0 && pagado > 0) {
+                document.getElementById('montoPagandoDisplay').textContent = `$${pagado.toFixed(2)}`;
+                document.getElementById('saldoDeberDisplay').textContent = `$${saldo.toFixed(2)}`;
+                document.getElementById('saldoAlertTitle').textContent = '⚠️ Pago Parcial Detectado';
+                alertDiv.classList.remove('hidden');
+            } else if (pagado === 0) {
+                document.getElementById('montoPagandoDisplay').textContent = '$0.00';
+                document.getElementById('saldoDeberDisplay').textContent = `$${precio.toFixed(2)}`;
+                document.getElementById('saldoAlertTitle').textContent = '⚠️ Membresía Fiada Completa';
+                alertDiv.classList.remove('hidden');
+            } else {
+                alertDiv.classList.add('hidden');
+            }
+        }
+
+        // Submit
+        document.getElementById('membresiaForm').addEventListener('submit', async function (e) {
             e.preventDefault();
-
-            if (!clienteSeleccionadoId) {
-                alert('⚠️ Debe seleccionar un cliente');
-                return;
-            }
-
-            if (!planSeleccionado) {
-                alert('⚠️ Debe seleccionar un plan');
-                return;
-            }
+            if (!clienteSeleccionadoId) { alert('⚠️ Debe seleccionar un cliente'); return; }
+            if (!planSeleccionado)      { alert('⚠️ Debe seleccionar un plan');    return; }
 
             const formData = new FormData(e.target);
-            const montoPagado = parseFloat(formData.get('montoPagado'));
-            const precioPlan = planSeleccionado.precio;
+            const montoPagado  = parseFloat(formData.get('montoPagado'));
+            const precioPlan   = planSeleccionado.precio;
             const saldoPendiente = precioPlan - montoPagado;
 
-            // Validar monto
             if (montoPagado < 0 || montoPagado > precioPlan) {
-                alert('⚠️ El monto pagado debe estar entre $0 y $' + precioPlan.toFixed(2));
-                return;
+                alert(`⚠️ El monto debe estar entre $0 y $${precioPlan.toFixed(2)}`); return;
             }
 
-            // Confirmación
-            let mensaje = '';
-            if (montoPagado === 0) {
-                mensaje = `¿Confirmar membresía FIADA?\n\n💰 Total: $${precioPlan.toFixed(2)}\n🔴 Se registrará como DEUDA COMPLETA`;
-            } else if (saldoPendiente > 0) {
-                mensaje = `¿Confirmar membresía con PAGO PARCIAL?\n\n💵 Paga ahora: $${montoPagado.toFixed(2)}\n🔴 Saldo a deber: $${saldoPendiente.toFixed(2)}\n📝 Se creará deuda automáticamente`;
-            } else {
-                mensaje = `¿Confirmar membresía PAGADA?\n\n✅ Monto: $${montoPagado.toFixed(2)}`;
-            }
+            let msg = '';
+            if (montoPagado === 0)       msg = `¿Confirmar membresía FIADA?\n\n💰 Total: $${precioPlan.toFixed(2)}\n🔴 Se registrará como DEUDA COMPLETA`;
+            else if (saldoPendiente > 0) msg = `¿Confirmar membresía con PAGO PARCIAL?\n\n💵 Paga ahora: $${montoPagado.toFixed(2)}\n🔴 Saldo: $${saldoPendiente.toFixed(2)}\n📝 Se creará deuda automáticamente`;
+            else                         msg = `¿Confirmar membresía PAGADA?\n\n✅ Monto: $${montoPagado.toFixed(2)}`;
+            if (!confirm(msg)) return;
 
-            if (!confirm(mensaje)) return;
-
-            // 🔧 IMPORTANTE: Ya NO enviamos fechaVencimiento, el backend la calculará
             const data = {
-                clienteId: clienteSeleccionadoId,
-                planId: formData.get('planId'),
+                clienteId:   clienteSeleccionadoId,
+                planId:      formData.get('planId'),
                 fechaInicio: formData.get('fechaInicio'),
-                // fechaVencimiento se elimina - el backend la calculará correctamente
                 montoPagado: montoPagado,
-                metodoPago: formData.get('metodoPago'),
-                notas: formData.get('notas') || '',
-                usuarioId: null // TODO: Obtener del usuario logueado
+                metodoPago:  formData.get('metodoPago'),
+                notas:       formData.get('notas') || '',
+                usuarioId:   null
             };
 
             try {
-                const response = await fetch('/api/Membresias', {
+                const resp = await fetch('/api/Membresias', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
-
-                const result = await response.json();
-
+                const result = await resp.json();
                 if (result.success) {
-                    let mensajeExito = '✓ Membresía creada exitosamente';
-                    if (result.saldoPendiente > 0) {
-                        mensajeExito += `\n\n📝 Se registró deuda de $${result.saldoPendiente.toFixed(2)}`;
-                    }
-                    alert(mensajeExito);
+                    let ok = '✓ Membresía creada exitosamente';
+                    if (result.saldoPendiente > 0) ok += `\n\n📝 Se registró deuda de $${result.saldoPendiente.toFixed(2)}`;
+                    alert(ok);
                     window.location.href = '/membresias';
                 } else {
                     alert('❌ Error: ' + result.message);
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al crear membresía: ' + error.message);
+            } catch (err) {
+                alert('❌ Error al crear membresía: ' + err.message);
             }
         });
 
-        // Cerrar resultados al hacer clic fuera
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('#clienteBuscar') && !e.target.closest('#clienteResultados')) {
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('#clienteBuscar') && !e.target.closest('#clienteResultados'))
                 document.getElementById('clienteResultados').classList.add('hidden');
-            }
         });
 
-        // Inicializar
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             cargarPlanes();
             lucide.createIcons();
         });

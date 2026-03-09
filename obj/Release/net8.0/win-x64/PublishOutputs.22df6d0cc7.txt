@@ -1,0 +1,4 @@
+C:\d\TallestGym\appsettings.Development.json
+C:\d\TallestGym\appsettings.json
+C:\d\TallestGym\VidaFit.pdb
+C:\d\TallestGym\VidaFit.exe

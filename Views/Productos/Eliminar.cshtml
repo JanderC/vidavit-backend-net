@@ -4,60 +4,169 @@
     ViewData["Title"] = "Eliminar Producto";
 }
 
+<style>
+    :root {
+        --tg-green: #2EAD4B;
+        --tg-green-dark: #1e8a38;
+        --tg-black: #1a1a1a;
+        --tg-dark: #2D2D2D;
+        --tg-white: #ffffff;
+    }
+
+    .tg-danger-hero {
+        background: linear-gradient(135deg, #7f1d1d, #991b1b);
+        padding: 2rem 2.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .tg-danger-hero::before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            right: -30px;
+            width: 120px;
+            height: 120px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 50%;
+        }
+
+    .tg-card {
+        background: var(--tg-white);
+        border-radius: 1.25rem;
+        border: 2px solid #fecaca;
+        box-shadow: 0 4px 24px rgba(153,27,27,0.12);
+        overflow: hidden;
+    }
+
+    .tg-info-box {
+        background: #fafafa;
+        border: 2px solid #e5e7eb;
+        border-radius: .85rem;
+        padding: 1.25rem 1.5rem;
+    }
+
+    .tg-info-label {
+        font-size: .7rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: .1em;
+        color: #6b7280;
+        margin-bottom: .4rem;
+    }
+
+    .tg-btn-danger {
+        background: linear-gradient(135deg, #dc2626, #991b1b);
+        color: var(--tg-white);
+        font-weight: 900;
+        padding: 1rem 1.5rem;
+        border-radius: .75rem;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        transition: all .2s;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+        flex: 1;
+        box-shadow: 0 4px 16px rgba(220,38,38,0.35);
+        font-size: .9rem;
+    }
+
+        .tg-btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(220,38,38,0.45);
+        }
+
+    .tg-btn-secondary {
+        background: #f3f4f6;
+        color: var(--tg-dark);
+        font-weight: 800;
+        padding: 1rem 1.5rem;
+        border-radius: .75rem;
+        border: 2px solid #e5e7eb;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        transition: all .2s;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+        flex: 1;
+        text-decoration: none;
+        font-size: .9rem;
+    }
+
+        .tg-btn-secondary:hover {
+            background: #e5e7eb;
+            text-decoration: none;
+            color: var(--tg-dark);
+        }
+</style>
+
 <div class="max-w-3xl mx-auto">
-    <div class="bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-red-300">
-        <div class="bg-gradient-to-r from-red-600 to-red-800 p-8">
-            <div class="flex items-center gap-4">
-                <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
-                    <i data-lucide="alert-triangle" class="w-8 h-8 text-white"></i>
+    <div class="tg-card">
+
+        <!-- Danger Header -->
+        <div class="tg-danger-hero">
+            <div class="flex items-center gap-4 relative z-10">
+                <div class="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="alert-triangle" class="w-7 h-7 text-white"></i>
                 </div>
                 <div>
-                    <h2 class="text-3xl font-black text-white uppercase tracking-wide">Eliminar Producto</h2>
-                    <p class="text-white opacity-90 font-bold mt-1">Esta acción no se puede deshacer</p>
+                    <p class="text-xs font-black uppercase tracking-widest mb-1 text-red-200">Tallest GYM · Inventario</p>
+                    <h2 class="text-2xl font-black text-white uppercase tracking-wide">Eliminar Producto</h2>
+                    <p class="text-red-200 font-bold text-sm mt-1">Esta acción no se puede deshacer</p>
                 </div>
             </div>
         </div>
 
+        <!-- Body -->
         <div class="p-8">
-            <div class="bg-red-50 border-2 border-red-300 rounded-xl p-6 mb-6">
-                <p class="text-lg text-red-900 font-bold mb-2">¿Estás seguro de que deseas eliminar este producto?</p>
-                <p class="text-red-700 font-semibold">Toda la información será eliminada permanentemente.</p>
+
+            <!-- Aviso -->
+            <div class="bg-red-50 border-2 border-red-200 rounded-xl p-5 mb-6">
+                <p class="text-base text-red-900 font-bold mb-1">¿Estás seguro de que deseas eliminar este producto?</p>
+                <p class="text-red-600 font-semibold text-sm">Toda la información será eliminada permanentemente del sistema.</p>
             </div>
 
-            <div class="grid grid-cols-2 gap-6 mb-8">
-                <div class="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
-                    <p class="text-sm font-black text-gray-600 uppercase tracking-wide mb-2">Nombre</p>
-                    <p class="text-xl font-bold text-gray-900">@Model.Nombre</p>
+            <!-- Info -->
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div class="tg-info-box">
+                    <p class="tg-info-label">Nombre</p>
+                    <p class="text-lg font-bold text-gray-900">@Model.Nombre</p>
                 </div>
 
-                <div class="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
-                    <p class="text-sm font-black text-gray-600 uppercase tracking-wide mb-2">Categoría</p>
-                    <p class="text-xl font-bold text-gray-900">@(string.IsNullOrEmpty(Model.Categoria) ? "Sin categoría" : Model.Categoria)</p>
+                <div class="tg-info-box">
+                    <p class="tg-info-label">Categoría</p>
+                    <p class="text-lg font-bold text-gray-900">@(string.IsNullOrEmpty(Model.Categoria) ? "Sin categoría" : Model.Categoria)</p>
                 </div>
 
-                <div class="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
-                    <p class="text-sm font-black text-gray-600 uppercase tracking-wide mb-2">Precio</p>
-                    <p class="text-xl font-bold text-emerald-600">$@Model.Precio.ToString("N2")</p>
+                <div class="tg-info-box">
+                    <p class="tg-info-label">Precio</p>
+                    <p class="text-lg font-bold" style="color:var(--tg-green);">$@Model.Precio.ToString("N2")</p>
                 </div>
 
-                <div class="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
-                    <p class="text-sm font-black text-gray-600 uppercase tracking-wide mb-2">Stock</p>
-                    <p class="text-xl font-bold text-blue-600">@Model.Stock</p>
+                <div class="tg-info-box">
+                    <p class="tg-info-label">Stock</p>
+                    <p class="text-lg font-bold text-blue-600">@Model.Stock unidades</p>
                 </div>
             </div>
 
+            <!-- Acciones -->
             <form method="post" action="/productos/eliminar/@Model.Id" class="flex gap-4">
                 @Html.AntiForgeryToken()
 
-                <button type="submit"
-                        class="flex-1 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black py-4 px-6 rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide flex items-center justify-center gap-2"
+                <button type="submit" class="tg-btn-danger"
                         onclick="return confirm('¿Estás completamente seguro? Esta acción no se puede deshacer.')">
                     <i data-lucide="trash-2" class="w-5 h-5"></i>
                     Confirmar Eliminación
                 </button>
 
-                <a href="/productos"
-                   class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 font-black py-4 px-6 rounded-xl transition-all text-center uppercase tracking-wide flex items-center justify-center gap-2">
+                <a href="/productos" class="tg-btn-secondary">
                     <i data-lucide="x" class="w-5 h-5"></i>
                     Cancelar
                 </a>

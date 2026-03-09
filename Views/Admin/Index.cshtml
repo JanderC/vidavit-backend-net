@@ -7,13 +7,328 @@
 <div id="dashboard-app">
     <div class="flex items-center justify-center h-64">
         <div class="text-center">
-            <div class="animate-spin w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p class="text-gray-600">Cargando estadísticas...</p>
+            <div class="animate-spin w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+            <p class="text-gray-400 font-semibold uppercase tracking-widest text-sm">Cargando estadísticas...</p>
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <style>
+        /* ── Tallest GYM Dashboard Theme ── */
+        :root {
+            --tz-green: #22c55e;
+            --tz-green-dark: #15803d;
+            --tz-green-dim: rgba(34,197,94,0.15);
+            --tz-black: #000000;
+            --tz-dark: #0d0d0d;
+            --tz-card: #111111;
+            --tz-border: rgba(34,197,94,0.18);
+        }
+
+        /* Section headings */
+        .section-title {
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            font-size: 1.05rem;
+            margin-bottom: 1.25rem;
+        }
+
+            .section-title i {
+                color: var(--tz-green);
+            }
+
+        /* KPI cards (caja) */
+        .kpi-card {
+            border-radius: 1rem;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: transform .25s, box-shadow .25s;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+            .kpi-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 10px 35px rgba(0,0,0,0.6);
+            }
+
+            .kpi-card .circle-bg {
+                position: absolute;
+                top: -16px;
+                right: -16px;
+                width: 100px;
+                height: 100px;
+                background: rgba(255,255,255,0.07);
+                border-radius: 50%;
+            }
+
+            .kpi-card .icon-box {
+                background: rgba(255,255,255,0.15);
+                border-radius: .75rem;
+                padding: .65rem;
+                display: inline-flex;
+                backdrop-filter: blur(4px);
+            }
+
+            .kpi-card .badge {
+                font-size: .65rem;
+                font-weight: 800;
+                letter-spacing: .08em;
+                background: rgba(255,255,255,0.15);
+                padding: .25rem .7rem;
+                border-radius: 99px;
+                backdrop-filter: blur(4px);
+            }
+
+            .kpi-card .kpi-label {
+                font-size: .75rem;
+                text-transform: uppercase;
+                letter-spacing: .1em;
+                opacity: .8;
+                margin-bottom: .25rem;
+            }
+
+            .kpi-card .kpi-value {
+                font-size: 1.85rem;
+                font-weight: 900;
+                line-height: 1.1;
+            }
+
+            .kpi-card .kpi-sub {
+                font-size: .7rem;
+                opacity: .75;
+                margin-top: .4rem;
+            }
+
+        .kpi-green {
+            background: linear-gradient(135deg, #16a34a 0%, #166534 100%);
+            color: #fff;
+        }
+
+        .kpi-teal {
+            background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+            color: #fff;
+        }
+
+        .kpi-lime {
+            background: linear-gradient(135deg, #65a30d 0%, #4d7c0f 100%);
+            color: #fff;
+        }
+
+        .kpi-dark {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            color: #fff;
+        }
+
+        /* Stat mini-cards (estadísticas generales) */
+        .stat-card {
+            background: #111;
+            border: 1px solid var(--tz-border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: transform .2s, box-shadow .2s;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+        }
+
+            .stat-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 24px rgba(34,197,94,0.15);
+            }
+
+        .stat-icon {
+            width: 3.25rem;
+            height: 3.25rem;
+            border-radius: .75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .stat-icon.green {
+                background: rgba(34,197,94,0.12);
+            }
+
+            .stat-icon.emerald {
+                background: rgba(16,185,129,0.12);
+            }
+
+            .stat-icon.orange {
+                background: rgba(249,115,22,0.12);
+            }
+
+            .stat-icon.red {
+                background: rgba(239,68,68,0.12);
+            }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 900;
+        }
+
+        .stat-label {
+            font-size: .7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            color: #6b7280;
+            margin-top: .25rem;
+        }
+
+        /* Tables */
+        .tz-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            .tz-table thead th {
+                padding: .9rem 1.25rem;
+                text-align: left;
+                font-size: .7rem;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: .1em;
+                color: #fff;
+            }
+
+                .tz-table thead th:not(:first-child) {
+                    text-align: right;
+                }
+
+            .tz-table tbody tr {
+                border-bottom: 1px solid rgba(255,255,255,0.04);
+                transition: background .15s;
+            }
+
+                .tz-table tbody tr:hover {
+                    background: rgba(34,197,94,0.04);
+                }
+
+            .tz-table tbody td {
+                padding: .9rem 1.25rem;
+                font-size: .9rem;
+                color: #d1d5db;
+            }
+
+                .tz-table tbody td:not(:first-child) {
+                    text-align: right;
+                    font-weight: 700;
+                    color: #f9fafb;
+                }
+
+            .tz-table tfoot td {
+                padding: .9rem 1.25rem;
+                font-size: .75rem;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: .08em;
+                border-top: 2px solid rgba(34,197,94,0.25);
+                background: rgba(34,197,94,0.04);
+            }
+
+                .tz-table tfoot td:not(:first-child) {
+                    text-align: right;
+                }
+
+        /* Panel cards (alerts / top clientes) */
+        .panel-card {
+            background: #111;
+            border: 1px solid var(--tz-border);
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .panel-header {
+            padding: 1.1rem 1.5rem;
+            background: linear-gradient(90deg, #0d0d0d 0%, #111 100%);
+            border-bottom: 1px solid var(--tz-border);
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+        }
+
+            .panel-header h3 {
+                color: #f9fafb;
+                font-weight: 800;
+                font-size: 1rem;
+                text-transform: uppercase;
+                letter-spacing: .08em;
+            }
+
+            .panel-header i {
+                color: var(--tz-green);
+            }
+
+        /* Alert rows */
+        .alert-row-warn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: .65rem 1rem;
+            border-radius: .65rem;
+            font-size: .82rem;
+            background: linear-gradient(90deg, rgba(217,119,6,0.08), rgba(245,158,11,0.05));
+            border: 1px solid rgba(217,119,6,0.2);
+            transition: box-shadow .15s;
+        }
+
+            .alert-row-warn:hover {
+                box-shadow: 0 2px 10px rgba(217,119,6,0.15);
+            }
+
+        .alert-row-expired {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: .65rem 1rem;
+            border-radius: .65rem;
+            font-size: .82rem;
+            background: linear-gradient(90deg, rgba(220,38,38,0.08), rgba(239,68,68,0.05));
+            border: 1px solid rgba(220,38,38,0.2);
+            transition: box-shadow .15s;
+        }
+
+            .alert-row-expired:hover {
+                box-shadow: 0 2px 10px rgba(220,38,38,0.15);
+            }
+
+        /* Scrollbar for panels */
+        .custom-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(34,197,94,0.3);
+            border-radius: 4px;
+        }
+
+        /* Section separator accent line */
+        .section-accent {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(34,197,94,0.5), transparent);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Table header themes */
+        .thead-green {
+            background: linear-gradient(90deg, #166534, #15803d);
+        }
+
+        .thead-dark {
+            background: linear-gradient(90deg, #1f2937, #111827);
+        }
+    </style>
+
     <script>
         const API_URL = '/api';
 
@@ -22,7 +337,6 @@
                 this.cajaHoyData = null;
                 this.estadisticasData = null;
                 this.loadAllData();
-                // Actualizar cada 30 segundos
                 setInterval(() => this.loadAllData(), 30000);
             }
 
@@ -42,7 +356,6 @@
                 try {
                     const response = await fetch(`${API_URL}/Caja/dashboard`);
                     const data = await response.json();
-
                     if (data.success) {
                         this.cajaHoyData = {
                             success: true,
@@ -72,10 +385,8 @@
 
             formatCurrency(value) {
                 return new Intl.NumberFormat('es-CO', {
-                    style: 'currency',
-                    currency: 'COP',
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0
+                    style: 'currency', currency: 'COP',
+                    minimumFractionDigits: 0, maximumFractionDigits: 0
                 }).format(value);
             }
 
@@ -87,110 +398,97 @@
                         ingresosTransferencia, egresosTransferencia, cantidadMovimientos } = this.cajaHoyData;
 
                 document.getElementById('dashboard-app').innerHTML = `
-                    <!-- Resumen de Caja Hoy -->
-                    <div class="mb-8">
-                        <h3 class="text-xl font-bold text-gray-800 mb-5 uppercase tracking-wide flex items-center gap-2">
-                            <i data-lucide="wallet" class="w-6 h-6 text-emerald-600"></i>
-                            Estado de Caja - Hoy
-                        </h3>
+
+                    <!-- ── Caja Hoy ── -->
+                    <div class="mb-9">
+                        <div class="section-accent"></div>
+                        <p class="section-title">
+                            <i data-lucide="wallet"></i>
+                            Estado de Caja — Hoy
+                        </p>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                            <div class="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white rounded-2xl shadow-xl p-6 relative overflow-hidden transform hover:scale-105 transition-all">
-                                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-10 rounded-full"></div>
+
+                            <div class="kpi-card kpi-green">
+                                <div class="circle-bg"></div>
                                 <div class="relative z-10">
                                     <div class="flex items-center justify-between mb-3">
-                                        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3">
-                                            <i data-lucide="trending-up" class="w-7 h-7"></i>
-                                        </div>
-                                        <span class="text-xs font-bold bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">HOY</span>
+                                        <div class="icon-box"><i data-lucide="trending-up" class="w-6 h-6"></i></div>
+                                        <span class="badge">HOY</span>
                                     </div>
-                                    <p class="text-sm uppercase tracking-wider mb-1 text-emerald-100">Ingresos de Hoy</p>
-                                    <p class="text-3xl font-black">${this.formatCurrency(ingresos)}</p>
-                                    <p class="text-xs mt-2 text-emerald-100">
-                                        ${cantidadMovimientos} movimientos hoy
-                                    </p>
+                                    <p class="kpi-label">Ingresos de Hoy</p>
+                                    <p class="kpi-value">${this.formatCurrency(ingresos)}</p>
+                                    <p class="kpi-sub">${cantidadMovimientos} movimientos registrados</p>
                                 </div>
                             </div>
 
-                            <div class="bg-gradient-to-br from-blue-500 to-blue-700 text-white rounded-2xl shadow-xl p-6 relative overflow-hidden transform hover:scale-105 transition-all">
-                                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-10 rounded-full"></div>
+                            <div class="kpi-card kpi-teal">
+                                <div class="circle-bg"></div>
                                 <div class="relative z-10">
                                     <div class="flex items-center justify-between mb-3">
-                                        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3">
-                                            <i data-lucide="wallet" class="w-7 h-7"></i>
-                                        </div>
-                                        <span class="text-xs font-bold bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">EFECTIVO</span>
+                                        <div class="icon-box"><i data-lucide="wallet" class="w-6 h-6"></i></div>
+                                        <span class="badge">EFECTIVO</span>
                                     </div>
-                                    <p class="text-sm uppercase tracking-wider mb-1 text-blue-100">Efectivo Hoy</p>
-                                    <p class="text-3xl font-black">${this.formatCurrency(ingresosEfectivo - egresosEfectivo)}</p>
-                                    <p class="text-xs mt-2 text-blue-100">
-                                        Ingresos: ${this.formatCurrency(ingresosEfectivo)}
-                                    </p>
+                                    <p class="kpi-label">Efectivo Hoy</p>
+                                    <p class="kpi-value">${this.formatCurrency(ingresosEfectivo - egresosEfectivo)}</p>
+                                    <p class="kpi-sub">Ingresos: ${this.formatCurrency(ingresosEfectivo)}</p>
                                 </div>
                             </div>
 
-                            <div class="bg-gradient-to-br from-purple-500 to-purple-700 text-white rounded-2xl shadow-xl p-6 relative overflow-hidden transform hover:scale-105 transition-all">
-                                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-10 rounded-full"></div>
+                            <div class="kpi-card kpi-lime">
+                                <div class="circle-bg"></div>
                                 <div class="relative z-10">
                                     <div class="flex items-center justify-between mb-3">
-                                        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3">
-                                            <i data-lucide="credit-card" class="w-7 h-7"></i>
-                                        </div>
-                                        <span class="text-xs font-bold bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">TRANSF</span>
+                                        <div class="icon-box"><i data-lucide="credit-card" class="w-6 h-6"></i></div>
+                                        <span class="badge">TRANSF.</span>
                                     </div>
-                                    <p class="text-sm uppercase tracking-wider mb-1 text-purple-100">Transferencias Hoy</p>
-                                    <p class="text-3xl font-black">${this.formatCurrency(ingresosTransferencia - egresosTransferencia)}</p>
-                                    <p class="text-xs mt-2 text-purple-100">
-                                        Ingresos: ${this.formatCurrency(ingresosTransferencia)}
-                                    </p>
+                                    <p class="kpi-label">Transferencias Hoy</p>
+                                    <p class="kpi-value">${this.formatCurrency(ingresosTransferencia - egresosTransferencia)}</p>
+                                    <p class="kpi-sub">Ingresos: ${this.formatCurrency(ingresosTransferencia)}</p>
                                 </div>
                             </div>
 
-                            <div class="bg-gradient-to-br from-red-500 to-red-700 text-white rounded-2xl shadow-xl p-6 relative overflow-hidden transform hover:scale-105 transition-all">
-                                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-10 rounded-full"></div>
+                            <div class="kpi-card kpi-dark">
+                                <div class="circle-bg"></div>
                                 <div class="relative z-10">
                                     <div class="flex items-center justify-between mb-3">
-                                        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3">
-                                            <i data-lucide="trending-down" class="w-7 h-7"></i>
-                                        </div>
-                                        <span class="text-xs font-bold bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">HOY</span>
+                                        <div class="icon-box"><i data-lucide="trending-down" class="w-6 h-6"></i></div>
+                                        <span class="badge">HOY</span>
                                     </div>
-                                    <p class="text-sm uppercase tracking-wider mb-1 text-red-100">Egresos de Hoy</p>
-                                    <p class="text-3xl font-black">${this.formatCurrency(egresos)}</p>
-                                    <p class="text-xs mt-2 text-red-100">
-                                        Balance: ${this.formatCurrency(balance)}
-                                    </p>
+                                    <p class="kpi-label">Egresos de Hoy</p>
+                                    <p class="kpi-value">${this.formatCurrency(egresos)}</p>
+                                    <p class="kpi-sub">Balance: ${this.formatCurrency(balance)}</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- NUEVO: Ingresos del Mes Desglosados -->
-                    <div class="mb-8">
-                        <h3 class="text-xl font-bold text-gray-800 mb-5 uppercase tracking-wide flex items-center gap-2">
-                            <i data-lucide="bar-chart-3" class="w-6 h-6 text-blue-600"></i>
+                    <!-- ── Ingresos del Mes ── -->
+                    <div class="mb-9">
+                        <p class="section-title">
+                            <i data-lucide="bar-chart-3"></i>
                             Ingresos del Mes Desglosados
-                        </h3>
-                        <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-gray-100">
+                        </p>
+                        <div class="panel-card">
                             <div class="overflow-x-auto">
-                                <table class="w-full">
-                                    <thead class="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+                                <table class="tz-table">
+                                    <thead class="thead-green">
                                         <tr>
-                                            <th class="px-6 py-4 text-left text-sm font-black uppercase tracking-wider">Categoría</th>
-                                            <th class="px-6 py-4 text-right text-sm font-black uppercase tracking-wider">Monto</th>
-                                            <th class="px-6 py-4 text-right text-sm font-black uppercase tracking-wider">% del Total</th>
+                                            <th>Categoría</th>
+                                            <th style="text-align:right">Monto</th>
+                                            <th style="text-align:right">% del Total</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="divide-y divide-gray-200">
-                                        ${this.renderFilaIngreso('Membresías', resumen.ingresosMes.membresias, resumen.ingresosMes.total, 'red')}
-                                        ${this.renderFilaIngreso('Productos', resumen.ingresosMes.productos, resumen.ingresosMes.total, 'amber')}
-                                        ${this.renderFilaIngreso('Abonos a Deudas', resumen.ingresosMes.abonos, resumen.ingresosMes.total, 'emerald')}
-                                        ${this.renderFilaIngreso('Otros', resumen.ingresosMes.otros, resumen.ingresosMes.total, 'blue')}
+                                    <tbody>
+                                        ${this.renderFilaIngreso('Membresías',      resumen.ingresosMes.membresias, resumen.ingresosMes.total, 'green')}
+                                        ${this.renderFilaIngreso('Productos',       resumen.ingresosMes.productos,  resumen.ingresosMes.total, 'teal')}
+                                        ${this.renderFilaIngreso('Abonos a Deudas',resumen.ingresosMes.abonos,     resumen.ingresosMes.total, 'lime')}
+                                        ${this.renderFilaIngreso('Otros',           resumen.ingresosMes.otros,      resumen.ingresosMes.total, 'gray')}
                                     </tbody>
-                                    <tfoot class="bg-gray-50">
-                                        <tr class="border-t-2 border-gray-300">
-                                            <td class="px-6 py-4 text-left text-sm font-black uppercase text-gray-900">TOTAL</td>
-                                            <td class="px-6 py-4 text-right text-xl font-black text-blue-600">${this.formatCurrency(resumen.ingresosMes.total)}</td>
-                                            <td class="px-6 py-4 text-right text-sm font-bold text-gray-600">100%</td>
+                                    <tfoot>
+                                        <tr>
+                                            <td style="color:#f9fafb">TOTAL</td>
+                                            <td style="color:#22c55e;font-size:1.1rem;text-align:right">${this.formatCurrency(resumen.ingresosMes.total)}</td>
+                                            <td style="color:#6b7280;text-align:right">100%</td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -198,34 +496,34 @@
                         </div>
                     </div>
 
-                    <!-- NUEVO: Egresos del Mes Desglosados -->
-                    <div class="mb-8">
-                        <h3 class="text-xl font-bold text-gray-800 mb-5 uppercase tracking-wide flex items-center gap-2">
-                            <i data-lucide="trending-down" class="w-6 h-6 text-red-600"></i>
+                    <!-- ── Egresos del Mes ── -->
+                    <div class="mb-9">
+                        <p class="section-title">
+                            <i data-lucide="trending-down" style="color:#ef4444"></i>
                             Egresos del Mes Desglosados
-                        </h3>
-                        <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-gray-100">
+                        </p>
+                        <div class="panel-card">
                             <div class="overflow-x-auto">
-                                <table class="w-full">
-                                    <thead class="bg-gradient-to-r from-red-600 to-red-700 text-white">
+                                <table class="tz-table">
+                                    <thead style="background:linear-gradient(90deg,#7f1d1d,#991b1b)">
                                         <tr>
-                                            <th class="px-6 py-4 text-left text-sm font-black uppercase tracking-wider">Categoría</th>
-                                            <th class="px-6 py-4 text-right text-sm font-black uppercase tracking-wider">Monto</th>
-                                            <th class="px-6 py-4 text-right text-sm font-black uppercase tracking-wider">% del Total</th>
+                                            <th>Categoría</th>
+                                            <th style="text-align:right">Monto</th>
+                                            <th style="text-align:right">% del Total</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="divide-y divide-gray-200">
-                                        ${this.renderFilaEgreso('Sueldos', resumen.egresosMes.sueldos, resumen.egresosMes.total, 'red')}
-                                        ${this.renderFilaEgreso('Servicios', resumen.egresosMes.servicios, resumen.egresosMes.total, 'orange')}
+                                    <tbody>
+                                        ${this.renderFilaEgreso('Sueldos',       resumen.egresosMes.sueldos,       resumen.egresosMes.total, 'red')}
+                                        ${this.renderFilaEgreso('Servicios',     resumen.egresosMes.servicios,     resumen.egresosMes.total, 'orange')}
                                         ${this.renderFilaEgreso('Mantenimiento', resumen.egresosMes.mantenimiento, resumen.egresosMes.total, 'yellow')}
-                                        ${this.renderFilaEgreso('Compras', resumen.egresosMes.compras, resumen.egresosMes.total, 'pink')}
-                                        ${this.renderFilaEgreso('Otros', resumen.egresosMes.otros, resumen.egresosMes.total, 'gray')}
+                                        ${this.renderFilaEgreso('Compras',       resumen.egresosMes.compras,       resumen.egresosMes.total, 'pink')}
+                                        ${this.renderFilaEgreso('Otros',         resumen.egresosMes.otros,         resumen.egresosMes.total, 'gray')}
                                     </tbody>
-                                    <tfoot class="bg-gray-50">
-                                        <tr class="border-t-2 border-gray-300">
-                                            <td class="px-6 py-4 text-left text-sm font-black uppercase text-gray-900">TOTAL</td>
-                                            <td class="px-6 py-4 text-right text-xl font-black text-red-600">${this.formatCurrency(resumen.egresosMes.total)}</td>
-                                            <td class="px-6 py-4 text-right text-sm font-bold text-gray-600">100%</td>
+                                    <tfoot>
+                                        <tr>
+                                            <td style="color:#f9fafb">TOTAL</td>
+                                            <td style="color:#ef4444;font-size:1.1rem;text-align:right">${this.formatCurrency(resumen.egresosMes.total)}</td>
+                                            <td style="color:#6b7280;text-align:right">100%</td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -233,56 +531,49 @@
                         </div>
                     </div>
 
-                    <!-- Estadísticas Generales -->
-                    <div class="mb-8">
-                        <h3 class="text-xl font-bold text-gray-800 mb-5 uppercase tracking-wide flex items-center gap-2">
-                            <i data-lucide="activity" class="w-6 h-6 text-blue-600"></i>
+                    <!-- ── Estadísticas Generales ── -->
+                    <div class="mb-9">
+                        <p class="section-title">
+                            <i data-lucide="activity"></i>
                             Estadísticas Generales
-                        </h3>
+                        </p>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                            <div class="bg-white rounded-2xl shadow-lg p-6 border-2 border-gray-100 transform hover:scale-105 transition-all">
+
+                            <div class="stat-card">
                                 <div class="flex items-center justify-between mb-3">
-                                    <div class="w-14 h-14 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center">
-                                        <i data-lucide="users" class="w-8 h-8 text-blue-600"></i>
-                                    </div>
-                                    <span class="text-3xl font-black text-blue-600">${resumen.totalClientes}</span>
+                                    <div class="stat-icon green"><i data-lucide="users" class="w-7 h-7" style="color:#22c55e"></i></div>
+                                    <span class="stat-value" style="color:#22c55e">${resumen.totalClientes}</span>
                                 </div>
-                                <p class="text-sm font-bold text-gray-700 uppercase tracking-wide">Clientes Activos</p>
+                                <p class="stat-label">Clientes Activos</p>
                             </div>
 
-                            <div class="bg-white rounded-2xl shadow-lg p-6 border-2 border-gray-100 transform hover:scale-105 transition-all">
+                            <div class="stat-card">
                                 <div class="flex items-center justify-between mb-3">
-                                    <div class="w-14 h-14 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-xl flex items-center justify-center">
-                                        <i data-lucide="check-circle" class="w-8 h-8 text-emerald-600"></i>
-                                    </div>
-                                    <span class="text-3xl font-black text-emerald-600">${resumen.checkInsHoy}</span>
+                                    <div class="stat-icon emerald"><i data-lucide="check-circle" class="w-7 h-7" style="color:#10b981"></i></div>
+                                    <span class="stat-value" style="color:#10b981">${resumen.checkInsHoy}</span>
                                 </div>
-                                <p class="text-sm font-bold text-gray-700 uppercase tracking-wide">Check-ins Hoy</p>
+                                <p class="stat-label">Check-ins Hoy</p>
                             </div>
 
-                            <div class="bg-white rounded-2xl shadow-lg p-6 border-2 border-gray-100 transform hover:scale-105 transition-all">
+                            <div class="stat-card">
                                 <div class="flex items-center justify-between mb-3">
-                                    <div class="w-14 h-14 bg-gradient-to-br from-orange-100 to-orange-200 rounded-xl flex items-center justify-center">
-                                        <i data-lucide="alert-triangle" class="w-8 h-8 text-orange-600"></i>
-                                    </div>
-                                    <span class="text-3xl font-black text-orange-600">${resumen.membresiasPorVencer}</span>
+                                    <div class="stat-icon orange"><i data-lucide="alert-triangle" class="w-7 h-7" style="color:#f97316"></i></div>
+                                    <span class="stat-value" style="color:#f97316">${resumen.membresiasPorVencer}</span>
                                 </div>
-                                <p class="text-sm font-bold text-gray-700 uppercase tracking-wide">Por Vencer (7 días)</p>
+                                <p class="stat-label">Por Vencer (7 días)</p>
                             </div>
 
-                            <div class="bg-white rounded-2xl shadow-lg p-6 border-2 border-gray-100 transform hover:scale-105 transition-all">
+                            <div class="stat-card">
                                 <div class="flex items-center justify-between mb-3">
-                                    <div class="w-14 h-14 bg-gradient-to-br from-red-100 to-red-200 rounded-xl flex items-center justify-center">
-                                        <i data-lucide="x-circle" class="w-8 h-8 text-red-600"></i>
-                                    </div>
-                                    <span class="text-3xl font-black text-red-600">${resumen.membresiasVencidas}</span>
+                                    <div class="stat-icon red"><i data-lucide="x-circle" class="w-7 h-7" style="color:#ef4444"></i></div>
+                                    <span class="stat-value" style="color:#ef4444">${resumen.membresiasVencidas}</span>
                                 </div>
-                                <p class="text-sm font-bold text-gray-700 uppercase tracking-wide">Membresías Vencidas</p>
+                                <p class="stat-label">Membresías Vencidas</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Alertas y Top Clientes -->
+                    <!-- ── Alertas + Top Clientes ── -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                         ${this.renderAlertas(alertas)}
                         ${this.renderTopClientes(topClientes)}
@@ -293,92 +584,83 @@
             }
 
             renderFilaIngreso(nombre, monto, total, color) {
-                const porcentaje = total > 0 ? ((monto / total) * 100).toFixed(1) : 0;
-                const colorClasses = {
-                    'red': 'bg-red-50 text-red-700',
-                    'amber': 'bg-amber-50 text-amber-700',
-                    'emerald': 'bg-emerald-50 text-emerald-700',
-                    'blue': 'bg-blue-50 text-blue-700'
+                const pct = total > 0 ? ((monto / total) * 100).toFixed(1) : 0;
+                const colors = {
+                    green:  { badge: 'rgba(34,197,94,0.15)',  text: '#22c55e',  bar: '#22c55e' },
+                    teal:   { badge: 'rgba(20,184,166,0.15)', text: '#14b8a6',  bar: '#14b8a6' },
+                    lime:   { badge: 'rgba(132,204,22,0.15)', text: '#84cc16',  bar: '#84cc16' },
+                    gray:   { badge: 'rgba(107,114,128,0.15)',text: '#9ca3af',  bar: '#9ca3af' },
                 };
-
+                const c = colors[color] || colors.gray;
                 return `
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-2">
-                                <span class="px-3 py-1 ${colorClasses[color]} rounded-full text-xs font-bold uppercase">${nombre}</span>
-                            </div>
+                    <tr>
+                        <td>
+                            <span style="background:${c.badge};color:${c.text};padding:.25rem .75rem;border-radius:99px;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em">${nombre}</span>
                         </td>
-                        <td class="px-6 py-4 text-right text-lg font-black text-gray-900">${this.formatCurrency(monto)}</td>
-                        <td class="px-6 py-4 text-right">
-                            <div class="flex items-center justify-end gap-2">
-                                <div class="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
-                                    <div class="h-full bg-${color}-500" style="width: ${porcentaje}%"></div>
+                        <td>${this.formatCurrency(monto)}</td>
+                        <td>
+                            <div style="display:flex;align-items:center;justify-content:flex-end;gap:.5rem">
+                                <div style="width:4rem;height:5px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden">
+                                    <div style="height:100%;width:${pct}%;background:${c.bar};border-radius:4px"></div>
                                 </div>
-                                <span class="text-sm font-bold text-gray-700">${porcentaje}%</span>
+                                <span style="font-size:.8rem;color:#9ca3af">${pct}%</span>
                             </div>
                         </td>
-                    </tr>
-                `;
+                    </tr>`;
             }
 
             renderFilaEgreso(nombre, monto, total, color) {
-                const porcentaje = total > 0 ? ((monto / total) * 100).toFixed(1) : 0;
-                const colorClasses = {
-                    'red': 'bg-red-50 text-red-700',
-                    'orange': 'bg-orange-50 text-orange-700',
-                    'yellow': 'bg-yellow-50 text-yellow-700',
-                    'pink': 'bg-pink-50 text-pink-700',
-                    'gray': 'bg-gray-50 text-gray-700'
+                const pct = total > 0 ? ((monto / total) * 100).toFixed(1) : 0;
+                const colors = {
+                    red:    { badge: 'rgba(239,68,68,0.15)',   text: '#ef4444', bar: '#ef4444' },
+                    orange: { badge: 'rgba(249,115,22,0.15)',  text: '#f97316', bar: '#f97316' },
+                    yellow: { badge: 'rgba(234,179,8,0.15)',   text: '#eab308', bar: '#eab308' },
+                    pink:   { badge: 'rgba(236,72,153,0.15)',  text: '#ec4899', bar: '#ec4899' },
+                    gray:   { badge: 'rgba(107,114,128,0.15)', text: '#9ca3af', bar: '#9ca3af' },
                 };
-
+                const c = colors[color] || colors.gray;
                 return `
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-2">
-                                <span class="px-3 py-1 ${colorClasses[color]} rounded-full text-xs font-bold uppercase">${nombre}</span>
-                            </div>
+                    <tr>
+                        <td>
+                            <span style="background:${c.badge};color:${c.text};padding:.25rem .75rem;border-radius:99px;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em">${nombre}</span>
                         </td>
-                        <td class="px-6 py-4 text-right text-lg font-black text-gray-900">${this.formatCurrency(monto)}</td>
-                        <td class="px-6 py-4 text-right">
-                            <div class="flex items-center justify-end gap-2">
-                                <div class="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
-                                    <div class="h-full bg-${color}-500" style="width: ${porcentaje}%"></div>
+                        <td>${this.formatCurrency(monto)}</td>
+                        <td>
+                            <div style="display:flex;align-items:center;justify-content:flex-end;gap:.5rem">
+                                <div style="width:4rem;height:5px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden">
+                                    <div style="height:100%;width:${pct}%;background:${c.bar};border-radius:4px"></div>
                                 </div>
-                                <span class="text-sm font-bold text-gray-700">${porcentaje}%</span>
+                                <span style="font-size:.8rem;color:#9ca3af">${pct}%</span>
                             </div>
                         </td>
-                    </tr>
-                `;
+                    </tr>`;
             }
 
             renderAlertas(alertas) {
                 return `
-                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-gray-100">
-                        <div class="bg-gradient-to-r from-orange-600 to-red-600 px-6 py-5">
-                            <h3 class="text-white font-black flex items-center gap-3 text-lg uppercase tracking-wide">
-                                <i data-lucide="alert-triangle" class="w-6 h-6"></i>
-                                Alertas de Membresías
-                            </h3>
+                    <div class="panel-card">
+                        <div class="panel-header">
+                            <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                            <h3>Alertas de Membresías</h3>
                         </div>
-                        <div class="p-6">
+                        <div style="padding:1.25rem">
                             ${alertas.membresiasPorVencer > 0 || alertas.membresiasVencidas > 0 ? `
-                                <div class="space-y-5">
+                                <div style="display:flex;flex-direction:column;gap:1.25rem">
+
                                     ${alertas.membresiasPorVencer > 0 ? `
                                         <div>
-                                            <div class="flex items-center justify-between mb-3">
-                                                <h4 class="font-bold text-gray-800 uppercase text-sm tracking-wide">Por Vencer (${alertas.membresiasPorVencer})</h4>
-                                                <a href="/membresias" class="text-xs text-orange-600 hover:text-orange-800 font-bold uppercase">Ver todas →</a>
+                                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem">
+                                                <span style="font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#d97706">Por Vencer (${alertas.membresiasPorVencer})</span>
+                                                <a href="/membresias" style="font-size:.7rem;font-weight:800;text-transform:uppercase;color:#22c55e;text-decoration:none">Ver todas →</a>
                                             </div>
-                                            <div class="space-y-2 max-h-48 overflow-y-auto">
+                                            <div class="custom-scroll" style="display:flex;flex-direction:column;gap:.4rem;max-height:12rem;overflow-y:auto">
                                                 ${alertas.detalleProximasVencer.slice(0, 3).map(m => `
-                                                    <div class="flex items-center justify-between p-3 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border border-orange-200 text-sm hover:shadow-md transition-shadow">
+                                                    <div class="alert-row-warn">
                                                         <div>
-                                                            <p class="font-bold text-gray-800">${m.clienteNombre}</p>
-                                                            <p class="text-xs text-gray-600">${m.planNombre}</p>
+                                                            <p style="font-weight:700;color:#f9fafb;font-size:.85rem">${m.clienteNombre}</p>
+                                                            <p style="font-size:.7rem;color:#9ca3af">${m.planNombre}</p>
                                                         </div>
-                                                        <span class="px-3 py-1 rounded-full text-xs font-black ${
-                                                            m.diasRestantes <= 3 ? 'bg-red-600 text-white' : 'bg-orange-500 text-white'
-                                                        }">
+                                                        <span style="background:${m.diasRestantes <= 3 ? '#dc2626' : '#d97706'};color:#fff;padding:.2rem .6rem;border-radius:99px;font-size:.68rem;font-weight:900">
                                                             ${m.diasRestantes}d
                                                         </span>
                                                     </div>
@@ -388,19 +670,19 @@
                                     ` : ''}
 
                                     ${alertas.membresiasVencidas > 0 ? `
-                                        <div class="${alertas.membresiasPorVencer > 0 ? 'pt-5 border-t-2 border-gray-200' : ''}">
-                                            <div class="flex items-center justify-between mb-3">
-                                                <h4 class="font-bold text-gray-800 uppercase text-sm tracking-wide">Vencidas (${alertas.membresiasVencidas})</h4>
-                                                <a href="/membresias" class="text-xs text-red-600 hover:text-red-800 font-bold uppercase">Ver todas →</a>
+                                        <div style="${alertas.membresiasPorVencer > 0 ? 'padding-top:1rem;border-top:1px solid rgba(255,255,255,0.07)' : ''}">
+                                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem">
+                                                <span style="font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#ef4444">Vencidas (${alertas.membresiasVencidas})</span>
+                                                <a href="/membresias" style="font-size:.7rem;font-weight:800;text-transform:uppercase;color:#22c55e;text-decoration:none">Ver todas →</a>
                                             </div>
-                                            <div class="space-y-2 max-h-32 overflow-y-auto">
+                                            <div class="custom-scroll" style="display:flex;flex-direction:column;gap:.4rem;max-height:9rem;overflow-y:auto">
                                                 ${alertas.detalleVencidas.slice(0, 3).map(m => `
-                                                    <div class="flex items-center justify-between p-3 bg-gradient-to-r from-red-50 to-pink-50 rounded-xl border border-red-200 text-sm hover:shadow-md transition-shadow">
+                                                    <div class="alert-row-expired">
                                                         <div>
-                                                            <p class="font-bold text-gray-800">${m.clienteNombre}</p>
-                                                            <p class="text-xs text-gray-600">${m.planNombre}</p>
+                                                            <p style="font-weight:700;color:#f9fafb;font-size:.85rem">${m.clienteNombre}</p>
+                                                            <p style="font-size:.7rem;color:#9ca3af">${m.planNombre}</p>
                                                         </div>
-                                                        <span class="px-3 py-1 bg-red-600 text-white rounded-full text-xs font-black">
+                                                        <span style="background:#dc2626;color:#fff;padding:.2rem .6rem;border-radius:99px;font-size:.68rem;font-weight:900">
                                                             ${m.diasVencido > 0 ? '-' + m.diasVencido : 'HOY'}d
                                                         </span>
                                                     </div>
@@ -410,10 +692,10 @@
                                     ` : ''}
                                 </div>
                             ` : `
-                                <div class="text-center py-12 text-gray-500">
-                                    <i data-lucide="check-circle" class="w-16 h-16 mx-auto mb-3 text-emerald-500"></i>
-                                    <p class="font-bold text-gray-700">No hay alertas pendientes</p>
-                                    <p class="text-sm text-gray-500 mt-1">Todo en orden</p>
+                                <div style="text-align:center;padding:3rem 1rem;color:#6b7280">
+                                    <i data-lucide="check-circle" style="width:3.5rem;height:3.5rem;margin:0 auto .75rem;display:block;color:#22c55e"></i>
+                                    <p style="font-weight:700;color:#d1d5db">No hay alertas pendientes</p>
+                                    <p style="font-size:.8rem;margin-top:.25rem">Todo en orden</p>
                                 </div>
                             `}
                         </div>
@@ -423,51 +705,36 @@
 
             renderTopClientes(topClientes) {
                 return `
-                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-gray-100">
-                        <div class="bg-gradient-to-r from-gray-800 to-black px-6 py-5">
-                            <h3 class="text-white font-black flex items-center gap-3 text-lg uppercase tracking-wide">
-                                <i data-lucide="trophy" class="w-6 h-6"></i>
-                                Top 10 Clientes del Mes
-                            </h3>
+                    <div class="panel-card">
+                        <div class="panel-header">
+                            <i data-lucide="trophy" class="w-5 h-5"></i>
+                            <h3>Top 10 Clientes del Mes</h3>
                         </div>
-                        <div class="p-6">
+                        <div style="padding:1.25rem">
                             ${topClientes && topClientes.length > 0 ? `
-                                <div class="space-y-2 max-h-96 overflow-y-auto">
+                                <div class="custom-scroll" style="display:flex;flex-direction:column;gap:.4rem;max-height:24rem;overflow-y:auto">
                                     ${topClientes.map((cliente, index) => `
-                                        <div class="flex items-center justify-between p-3 rounded-xl transition-all hover:shadow-md ${
-                                            index === 0 ? 'bg-gradient-to-r from-yellow-100 to-amber-100 border-2 border-yellow-400' :
-                                            index === 1 ? 'bg-gradient-to-r from-gray-100 to-slate-100 border-2 border-gray-400' :
-                                            index === 2 ? 'bg-gradient-to-r from-orange-100 to-amber-100 border-2 border-orange-400' :
-                                            'bg-gray-50 border border-gray-200'
-                                        }">
-                                            <div class="flex items-center gap-3">
-                                                <div class="w-10 h-10 rounded-full ${
-                                                    index === 0 ? 'bg-gradient-to-br from-yellow-400 to-amber-500' :
-                                                    index === 1 ? 'bg-gradient-to-br from-gray-400 to-slate-500' :
-                                                    index === 2 ? 'bg-gradient-to-br from-orange-400 to-amber-500' :
-                                                    'bg-gray-700'
-                                                } flex items-center justify-center text-white font-black text-sm shadow-lg">
+                                        <div style="display:flex;align-items:center;justify-content:space-between;padding:.65rem .85rem;border-radius:.65rem;
+                                            background:${index===0?'rgba(234,179,8,0.08)':index===1?'rgba(148,163,184,0.06)':index===2?'rgba(249,115,22,0.06)':'rgba(255,255,255,0.03)'};
+                                            border:1px solid ${index===0?'rgba(234,179,8,0.25)':index===1?'rgba(148,163,184,0.2)':index===2?'rgba(249,115,22,0.2)':'rgba(255,255,255,0.05)'}">
+                                            <div style="display:flex;align-items:center;gap:.75rem">
+                                                <div style="width:2.2rem;height:2.2rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.8rem;color:#fff;
+                                                    background:${index===0?'linear-gradient(135deg,#eab308,#a16207)':index===1?'linear-gradient(135deg,#94a3b8,#475569)':index===2?'linear-gradient(135deg,#f97316,#c2410c)':'rgba(34,197,94,0.2)'}">
                                                     ${index + 1}
                                                 </div>
                                                 <div>
-                                                    <p class="font-bold text-gray-900 text-sm">${cliente.nombre}</p>
-                                                    <p class="text-xs text-gray-600 font-semibold">${cliente.totalCheckIns} visitas</p>
+                                                    <p style="font-weight:700;color:#f9fafb;font-size:.85rem">${cliente.nombre}</p>
+                                                    <p style="font-size:.7rem;color:#6b7280;font-weight:600">${cliente.totalCheckIns} visitas</p>
                                                 </div>
                                             </div>
-                                            ${index < 3 ? `
-                                                <i data-lucide="award" class="w-6 h-6 ${
-                                                    index === 0 ? 'text-yellow-500' :
-                                                    index === 1 ? 'text-gray-500' :
-                                                    'text-orange-500'
-                                                }"></i>
-                                            ` : ''}
+                                            ${index < 3 ? `<i data-lucide="award" style="width:1.25rem;height:1.25rem;color:${index===0?'#eab308':index===1?'#94a3b8':'#f97316'}"></i>` : ''}
                                         </div>
                                     `).join('')}
                                 </div>
                             ` : `
-                                <div class="text-center py-12 text-gray-500">
-                                    <i data-lucide="users" class="w-16 h-16 mx-auto mb-3 text-gray-400"></i>
-                                    <p class="font-bold text-gray-700">No hay datos disponibles</p>
+                                <div style="text-align:center;padding:3rem 1rem;color:#6b7280">
+                                    <i data-lucide="users" style="width:3.5rem;height:3.5rem;margin:0 auto .75rem;display:block;color:#374151"></i>
+                                    <p style="font-weight:700;color:#d1d5db">No hay datos disponibles</p>
                                 </div>
                             `}
                         </div>

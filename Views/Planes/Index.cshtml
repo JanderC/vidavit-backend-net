@@ -4,212 +4,396 @@
     ViewData["Title"] = "Gestión de Planes";
 }
 
-<div class="max-w-7xl mx-auto space-y-6">
-    <!-- Header -->
-    <div class="bg-white rounded-xl shadow-md p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <h2 class="text-2xl font-bold text-gray-800">📋 Gestión de Planes de Membresía</h2>
-                <p class="text-sm text-gray-600 mt-1">Administra los planes disponibles para tus clientes</p>
-            </div>
-            <div class="flex gap-3">
-                <a href="/membresias" class="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-bold rounded-lg transition">
-                    <i data-lucide="arrow-left" class="w-5 h-5 inline mr-2"></i>
-                    Volver a Membresías
-                </a>
-                <a href="/membresias/planes/crear" class="px-6 py-3 bg-vida-primary hover:bg-vida-accent text-vida-dark font-bold rounded-lg transition">
-                    <i data-lucide="plus" class="w-5 h-5 inline mr-2"></i>
-                    Crear Plan
-                </a>
-            </div>
-        </div>
-    </div>
+@{
+    var totalPlanes = Model.Count;
+    var planesActivos = Model.Count(p => p.Activo);
+    var precioPromedio = Model.Where(p => p.Activo).Any() ? Model.Where(p => p.Activo).Average(p => p.Precio) : 0;
+    var duracionPromedio = Model.Where(p => p.Activo).Any() ? Model.Where(p => p.Activo).Average(p => p.DuracionDias) : 0;
+}
 
-    <!-- Estadísticas -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        @{
-            var totalPlanes = Model.Count;
-            var planesActivos = Model.Count(p => p.Activo);
-            var precioPromedio = Model.Where(p => p.Activo).Any() ? Model.Where(p => p.Activo).Average(p => p.Precio) : 0;
-            var duracionPromedio = Model.Where(p => p.Activo).Any() ? Model.Where(p => p.Activo).Average(p => p.DuracionDias) : 0;
+<style>
+    .tz-header-panel {
+        background: #0d0d0d;
+        border: 1px solid rgba(34,197,94,0.15);
+        border-radius: .85rem;
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: .75rem;
+        margin-bottom: 1rem;
+    }
+
+    .stat-card {
+        background: #0d0d0d;
+        border: 1px solid rgba(34,197,94,0.12);
+        border-radius: .75rem;
+        padding: 1.1rem 1.4rem;
+        border-left-width: 4px;
+    }
+
+    .stat-label {
+        font-size: .65rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .1em;
+        color: #6b7280;
+        margin-bottom: .3rem;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 900;
+    }
+
+    /* Plan cards grid */
+    .plans-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+        gap: 1.25rem;
+    }
+
+    .plan-card {
+        border-radius: .85rem;
+        overflow: hidden;
+        border: 2px solid;
+        transition: box-shadow .2s, transform .2s;
+    }
+
+        .plan-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.4);
         }
 
-        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
-            <p class="text-sm text-gray-600 mb-1">Total Planes</p>
-            <p class="text-3xl font-bold text-gray-800">@totalPlanes</p>
-        </div>
-
-        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
-            <p class="text-sm text-gray-600 mb-1">Planes Activos</p>
-            <p class="text-3xl font-bold text-green-600">@planesActivos</p>
-        </div>
-
-        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-vida-primary">
-            <p class="text-sm text-gray-600 mb-1">Precio Promedio</p>
-            <p class="text-3xl font-bold text-gray-800">$@precioPromedio.ToString("N0")</p>
-        </div>
-
-        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-purple-500">
-            <p class="text-sm text-gray-600 mb-1">Duración Promedio</p>
-            <p class="text-3xl font-bold text-gray-800">@duracionPromedio.ToString("N0") días</p>
-        </div>
-    </div>
-
-    <!-- Grid de Planes -->
-    <div class="bg-white rounded-xl shadow-md p-6">
-        <h3 class="text-lg font-bold text-gray-800 mb-4">Listado de Planes</h3>
-
-        @if (Model.Count == 0)
-        {
-            <div class="text-center py-12">
-                <i data-lucide="inbox" class="w-16 h-16 mx-auto mb-4 text-gray-400"></i>
-                <p class="text-gray-500 text-lg">No hay planes registrados</p>
-                <a href="/membresias/planes/crear" class="inline-block mt-4 px-6 py-2 bg-vida-primary text-vida-dark font-bold rounded-lg hover:bg-vida-accent transition">
-                    Crear primer plan
-                </a>
-            </div>
+        .plan-card.inactive {
+            opacity: .55;
         }
-        else
-        {
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                @foreach (var plan in Model)
-                {
-                    <div class="border-2 rounded-xl overflow-hidden hover:shadow-xl transition-all @(!plan.Activo ? "opacity-50" : "")"
-                         style="border-color: @plan.Color">
-                        <!-- Header del plan con color -->
-                        <div class="p-6 text-white relative overflow-hidden" style="background-color: @plan.Color">
-                            <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
-                            <div class="absolute bottom-0 left-0 w-24 h-24 bg-white opacity-10 rounded-full -ml-12 -mb-12"></div>
 
-                            <div class="relative z-10">
-                                <div class="flex items-center justify-between mb-4">
-                                    <span class="px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm font-bold">
-                                        @plan.Tipo
-                                    </span>
-                                    @if (!plan.Activo)
-                                    {
-                                        <span class="px-3 py-1 bg-red-500 rounded-full text-xs font-bold">
-                                            INACTIVO
-                                        </span>
-                                    }
-                                </div>
-                                <h4 class="text-2xl font-bold mb-2">@plan.Nombre</h4>
-                                <div class="flex items-baseline gap-1">
-                                    <span class="text-4xl font-bold">$@plan.Precio.ToString("N0")</span>
-                                </div>
-                            </div>
-                        </div>
+    .plan-card-header {
+        padding: 1.4rem 1.25rem;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+    }
 
-                        <!-- Cuerpo del plan -->
-                        <div class="p-6 bg-white">
-                            <div class="space-y-4 mb-6">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background-color: @(plan.Color)20">
-                                        <i data-lucide="calendar" class="w-5 h-5" style="color: @plan.Color"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm text-gray-600">Duración</p>
-                                        <p class="font-bold text-gray-800">@plan.DuracionDias días</p>
-                                    </div>
-                                </div>
+        .plan-card-header::before {
+            content: '';
+            position: absolute;
+            top: -2rem;
+            right: -2rem;
+            width: 7rem;
+            height: 7rem;
+            background: rgba(255,255,255,0.08);
+            border-radius: 50%;
+        }
 
-                                @if (!string.IsNullOrEmpty(plan.Descripcion))
+        .plan-card-header::after {
+            content: '';
+            position: absolute;
+            bottom: -1.5rem;
+            left: -1.5rem;
+            width: 5rem;
+            height: 5rem;
+            background: rgba(255,255,255,0.06);
+            border-radius: 50%;
+        }
+
+    .plan-type-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: .2rem .65rem;
+        border-radius: 99px;
+        background: rgba(255,255,255,0.18);
+        font-size: .68rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+        margin-bottom: .6rem;
+    }
+
+    .inactive-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: .2rem .65rem;
+        border-radius: 99px;
+        background: rgba(239,68,68,0.85);
+        font-size: .65rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        margin-left: .4rem;
+    }
+
+    .plan-card-body {
+        background: #111;
+        padding: 1.1rem 1.25rem;
+        border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .plan-detail-row {
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        margin-bottom: .65rem;
+    }
+
+    .plan-detail-icon {
+        width: 2rem;
+        height: 2rem;
+        border-radius: .45rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    /* Action buttons in card */
+    .card-btn {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .3rem;
+        padding: .5rem .75rem;
+        border-radius: .55rem;
+        font-size: .72rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all .18s;
+    }
+
+    .card-btn-edit {
+        background: rgba(59,130,246,0.15);
+        color: #60a5fa;
+        border: 1px solid rgba(59,130,246,0.2);
+    }
+
+        .card-btn-edit:hover {
+            background: rgba(59,130,246,0.25);
+        }
+
+    .card-btn-toggle-off {
+        background: rgba(249,115,22,0.12);
+        color: #fb923c;
+        border: 1px solid rgba(249,115,22,0.2);
+    }
+
+        .card-btn-toggle-off:hover {
+            background: rgba(249,115,22,0.22);
+        }
+
+    .card-btn-toggle-on {
+        background: rgba(34,197,94,0.12);
+        color: #22c55e;
+        border: 1px solid rgba(34,197,94,0.2);
+    }
+
+        .card-btn-toggle-on:hover {
+            background: rgba(34,197,94,0.22);
+        }
+
+    .card-btn-del {
+        background: rgba(239,68,68,0.12);
+        color: #ef4444;
+        border: 1px solid rgba(239,68,68,0.2);
+        padding: .5rem .65rem;
+        flex: 0 0 auto;
+    }
+
+        .card-btn-del:hover {
+            background: rgba(239,68,68,0.22);
+        }
+
+    /* Nav buttons */
+    .tz-btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        padding: .6rem 1.1rem;
+        border-radius: .6rem;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: #9ca3af;
+        font-weight: 800;
+        font-size: .78rem;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+        text-decoration: none;
+        transition: all .2s;
+    }
+
+        .tz-btn-back:hover {
+            border-color: rgba(34,197,94,0.25);
+            color: #d1d5db;
+        }
+
+    .tz-btn-new {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        padding: .6rem 1.25rem;
+        border-radius: .6rem;
+        background: linear-gradient(135deg,#22c55e,#15803d);
+        color: #fff;
+        font-weight: 800;
+        font-size: .78rem;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+        text-decoration: none;
+        transition: all .2s;
+    }
+
+        .tz-btn-new:hover {
+            background: linear-gradient(135deg,#16a34a,#166534);
+            box-shadow: 0 4px 14px rgba(34,197,94,0.3);
+            transform: translateY(-1px);
+        }
+
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 1rem;
+    }
+</style>
+
+<!-- Header -->
+<div class="tz-header-panel">
+    <div>
+        <h2 style="font-size:1.15rem;font-weight:900;color:#f9fafb;text-transform:uppercase;letter-spacing:.06em">
+            Gestión de Planes
+        </h2>
+        <p style="font-size:.75rem;color:#6b7280;font-weight:600;margin-top:.2rem">Administra los planes disponibles para tus clientes</p>
+    </div>
+    <div style="display:flex;gap:.6rem">
+        <a href="/membresias" class="tz-btn-back">
+            <i data-lucide="arrow-left" style="width:.85rem;height:.85rem"></i>
+            Membresías
+        </a>
+        <a href="/membresias/planes/crear" class="tz-btn-new">
+            <i data-lucide="plus" style="width:.85rem;height:.85rem"></i>
+            Crear Plan
+        </a>
+    </div>
+</div>
+
+<!-- Stats -->
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(10rem,1fr));gap:.75rem;margin-bottom:1.25rem">
+    <div class="stat-card" style="border-left-color:#60a5fa">
+        <div class="stat-label">Total</div>
+        <div class="stat-value" style="color:#60a5fa">@totalPlanes</div>
+    </div>
+    <div class="stat-card" style="border-left-color:#22c55e">
+        <div class="stat-label">Activos</div>
+        <div class="stat-value" style="color:#22c55e">@planesActivos</div>
+    </div>
+    <div class="stat-card" style="border-left-color:#22c55e">
+        <div class="stat-label">Precio Prom.</div>
+        <div class="stat-value" style="color:#f9fafb;font-size:1.5rem">$@precioPromedio.ToString("N0")</div>
+    </div>
+    <div class="stat-card" style="border-left-color:#a78bfa">
+        <div class="stat-label">Dur. Prom.</div>
+        <div class="stat-value" style="color:#a78bfa;font-size:1.5rem">@duracionPromedio.ToString("N0")d</div>
+    </div>
+</div>
+
+<!-- Plans grid -->
+<div style="background:#0d0d0d;border:1px solid rgba(34,197,94,0.12);border-radius:.85rem;padding:1.5rem">
+    <p style="font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#6b7280;margin-bottom:1.1rem">Listado de Planes</p>
+
+    @if (Model.Count == 0)
+    {
+        <div class="empty-state">
+            <i data-lucide="inbox" style="width:3rem;height:3rem;display:block;margin:0 auto .75rem;color:#374151"></i>
+            <p style="color:#6b7280;font-weight:700;font-size:.95rem">No hay planes registrados</p>
+            <a href="/membresias/planes/crear" style="display:inline-block;margin-top:.75rem;padding:.5rem 1.25rem;border-radius:.55rem;background:linear-gradient(135deg,#22c55e,#15803d);color:#fff;font-weight:800;font-size:.78rem;text-decoration:none;text-transform:uppercase;letter-spacing:.07em">
+                + Crear primer plan
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="plans-grid">
+            @foreach (var plan in Model)
+            {
+                <div class="plan-card @(!plan.Activo ? "inactive" : "")" style="border-color: @plan.Color">
+                    <div class="plan-card-header" style="background-color: @plan.Color">
+                        <div style="position:relative;z-index:1">
+                            <div style="display:flex;align-items:center;margin-bottom:.5rem">
+                                <span class="plan-type-badge">@plan.Tipo</span>
+                                @if (!plan.Activo)
                                 {
-                                    <div class="pt-3 border-t border-gray-200">
-                                        <p class="text-sm text-gray-600 leading-relaxed">@plan.Descripcion</p>
-                                    </div>
+                                    <span class="inactive-badge">Inactivo</span>
                                 }
                             </div>
-
-                            <!-- Acciones -->
-                            <div class="flex gap-2">
-                                <a href="/membresias/planes/editar/@plan.Id"
-                                   class="flex-1 bg-blue-600 text-white text-center py-2 rounded-lg hover:bg-blue-700 transition text-sm font-bold">
-                                    <i data-lucide="edit" class="w-4 h-4 inline mr-1"></i>
-                                    Editar
-                                </a>
-                                <button onclick="toggleActivoPlan('@plan.Id', @(plan.Activo ? "false" : "true"), '@plan.Nombre')"
-                                        class="flex-1 @(plan.Activo ? "bg-orange-600 hover:bg-orange-700" : "bg-green-600 hover:bg-green-700") text-white py-2 rounded-lg transition text-sm font-bold">
-                                    <i data-lucide="@(plan.Activo ? "toggle-right" : "toggle-left")" class="w-4 h-4 inline mr-1"></i>
-                                    @(plan.Activo ? "Desactivar" : "Activar")
-                                </button>
-                                <button onclick="eliminarPlan('@plan.Id', '@plan.Nombre')"
-                                        class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm font-bold">
-                                    <i data-lucide="trash-2" class="w-4 h-4 inline"></i>
-                                </button>
-                            </div>
+                            <h4 style="font-size:1.3rem;font-weight:900;margin-bottom:.4rem">@plan.Nombre</h4>
+                            <div style="font-size:2rem;font-weight:900;line-height:1">$@plan.Precio.ToString("N0")</div>
                         </div>
                     </div>
-                }
-            </div>
-        }
-    </div>
+
+                    <div class="plan-card-body">
+                        <div class="plan-detail-row">
+                            <div class="plan-detail-icon" style="background:@(plan.Color)22">
+                                <i data-lucide="calendar" style="width:.9rem;height:.9rem;color:@plan.Color"></i>
+                            </div>
+                            <div>
+                                <p style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:#6b7280">Duración</p>
+                                <p style="font-weight:800;color:#d1d5db;font-size:.88rem">@plan.DuracionDias días</p>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(plan.Descripcion))
+                        {
+                            <p style="font-size:.75rem;color:#6b7280;font-weight:500;padding-top:.65rem;border-top:1px solid rgba(255,255,255,0.05);line-height:1.5;margin-bottom:.65rem">@plan.Descripcion</p>
+                        }
+
+                        <div style="display:flex;gap:.4rem;margin-top:.5rem">
+                            <a href="/membresias/planes/editar/@plan.Id" class="card-btn card-btn-edit">
+                                <i data-lucide="edit" style="width:.75rem;height:.75rem"></i>
+                                Editar
+                            </a>
+                            <button onclick="toggleActivoPlan('@plan.Id', @(plan.Activo ? "false" : "true"), '@plan.Nombre')"
+                                    class="card-btn @(plan.Activo ? "card-btn-toggle-off" : "card-btn-toggle-on")">
+                                <i data-lucide="@(plan.Activo ? "toggle-right" : "toggle-left")" style="width:.75rem;height:.75rem"></i>
+                                @(plan.Activo ? "Desactivar" : "Activar")
+                            </button>
+                            <button onclick="eliminarPlan('@plan.Id', '@plan.Nombre')" class="card-btn card-btn-del">
+                                <i data-lucide="trash-2" style="width:.75rem;height:.75rem"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
 </div>
 
 @section Scripts {
     <script>
-        // Eliminar plan
         async function eliminarPlan(id, nombre) {
-            const confirmar = confirm(
-                `⚠️ ¿Está seguro de eliminar el plan?\n\n` +
-                `Plan: ${nombre}\n\n` +
-                `Esta acción no se puede deshacer.\n` +
-                `Si el plan tiene membresías asociadas, no se podrá eliminar.`
-            );
-
-            if (!confirmar) return;
-
+            if (!confirm(`⚠️ ¿Eliminar el plan "${nombre}"?\n\nEsta acción no se puede deshacer.\nSi tiene membresías asociadas, no se podrá eliminar.`)) return;
             try {
-                const response = await fetch(`/api/Planes/${id}`, {
-                    method: 'DELETE'
-                });
-
-                if (response.ok) {
-                    alert(`✅ Plan "${nombre}" eliminado exitosamente`);
-                    window.location.reload();
-                } else {
-                    const error = await response.json();
-                    alert(`❌ Error: ${error.mensaje || 'No se pudo eliminar el plan'}`);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al eliminar el plan: ' + error.message);
-            }
+                const resp = await fetch(`/api/Planes/${id}`, { method: 'DELETE' });
+                if (resp.ok) { alert(`✅ Plan "${nombre}" eliminado`); window.location.reload(); }
+                else { const e = await resp.json(); alert(`❌ Error: ${e.mensaje || 'No se pudo eliminar'}`); }
+            } catch (err) { alert('❌ Error: ' + err.message); }
         }
 
-        // Toggle Activo/Inactivo
         async function toggleActivoPlan(id, nuevoEstado, nombre) {
             const accion = nuevoEstado === 'true' ? 'activar' : 'desactivar';
-            const confirmar = confirm(
-                `¿Está seguro de ${accion} el plan?\n\n` +
-                `Plan: ${nombre}`
-            );
-
-            if (!confirmar) return;
-
+            if (!confirm(`¿${accion.charAt(0).toUpperCase() + accion.slice(1)} el plan "${nombre}"?`)) return;
             try {
-                const response = await fetch(`/api/Planes/${id}/toggle-activo`, {
-                    method: 'PATCH'
-                });
-
-                if (response.ok) {
-                    alert(`✅ Plan "${nombre}" ${accion === 'activar' ? 'activado' : 'desactivado'} exitosamente`);
-                    window.location.reload();
-                } else {
-                    const error = await response.json();
-                    alert(`❌ Error: ${error.mensaje || 'No se pudo actualizar el plan'}`);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al actualizar el plan: ' + error.message);
-            }
+                const resp = await fetch(`/api/Planes/${id}/toggle-activo`, { method: 'PATCH' });
+                if (resp.ok) { alert(`✅ Plan "${nombre}" ${accion === 'activar' ? 'activado' : 'desactivado'}`); window.location.reload(); }
+                else { const e = await resp.json(); alert(`❌ Error: ${e.mensaje || 'No se pudo actualizar'}`); }
+            } catch (err) { alert('❌ Error: ' + err.message); }
         }
 
-        // Exponer funciones globalmente
         window.eliminarPlan = eliminarPlan;
         window.toggleActivoPlan = toggleActivoPlan;
-
-        // Inicializar iconos
         lucide.createIcons();
     </script>
 }

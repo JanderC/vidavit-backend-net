@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Login - Tauro GYM Admin";
+    ViewData["Title"] = "Login - Tallest GYM Admin";
 }
 
 <!DOCTYPE html>
@@ -7,7 +7,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Iniciar Sesión - TAURO GYM</title>
+    <title>Iniciar Sesión - Tallest GYM</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -16,10 +16,10 @@
             theme: {
                 extend: {
                     colors: {
-                        'tauro-red': '#E31E24',
-                        'tauro-dark': '#000000',
-                        'tauro-gray': '#1a1a1a',
-                        'tauro-accent': '#C41E23'
+                        'tallest-green': '#22c55e',
+                        'tallest-green-dark': '#15803d',
+                        'tallest-black': '#000000',
+                        'tallest-dark': '#0a0a0a',
                     }
                 }
             }
@@ -30,128 +30,192 @@
             font-family: 'Inter', sans-serif;
         }
 
-        h1, h2 {
+        h1, h2, h3 {
             font-family: 'Bebas Neue', sans-serif;
             letter-spacing: 3px;
         }
 
-
-        .logo-container {
-            animation: pulse-glow 3s ease-in-out infinite;
+        .grid-pattern {
+            background-image: linear-gradient(rgba(34, 197, 94, 0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(34, 197, 94, 0.06) 1px, transparent 1px);
+            background-size: 50px 50px;
         }
 
-        .grid-pattern {
-            background-image:
-                linear-gradient(rgba(227, 30, 36, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(227, 30, 36, 0.05) 1px, transparent 1px);
-            background-size: 50px 50px;
+        .green-glow {
+            box-shadow: 0 0 40px rgba(34, 197, 94, 0.25), 0 0 80px rgba(34, 197, 94, 0.08);
+        }
+
+        .input-field {
+            background: rgba(0,0,0,0.7);
+            border: 1px solid rgba(75, 85, 99, 0.5);
+            transition: all 0.3s ease;
+        }
+
+            .input-field:focus {
+                border-color: #22c55e;
+                box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
+                outline: none;
+            }
+
+        .btn-green {
+            background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+            transition: all 0.3s ease;
+        }
+
+            .btn-green:hover {
+                background: linear-gradient(135deg, #16a34a 0%, #166534 100%);
+                box-shadow: 0 8px 30px rgba(34, 197, 94, 0.4);
+                transform: translateY(-2px);
+            }
+
+        .logo-ring {
+            border: 3px solid #22c55e;
+            box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.1), 0 0 30px rgba(34, 197, 94, 0.25);
+            animation: pulse-ring 3s ease-in-out infinite;
+        }
+       
+
+        .card-bg {
+            background: linear-gradient(145deg, rgba(15,15,15,0.97) 0%, rgba(0,0,0,0.99) 100%);
+            border: 1px solid rgba(34, 197, 94, 0.22);
+        }
+
+        .accent-line {
+            background: linear-gradient(90deg, transparent, #22c55e, transparent);
+            height: 1px;
         }
     </style>
 </head>
 <body>
     <div class="min-h-screen bg-black relative overflow-hidden flex items-center justify-center p-4">
+
+        <!-- Background pattern -->
         <div class="absolute inset-0 grid-pattern"></div>
 
-        <div class="absolute inset-0 opacity-20">
-            <div class="absolute top-0 left-1/4 w-96 h-96 bg-red-600 rounded-full blur-3xl animate-pulse"></div>
-            <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-red-800 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+        <!-- Ambient blobs -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute -top-32 left-1/3 w-[500px] h-[500px] bg-green-600 rounded-full blur-[130px] opacity-10 animate-pulse"></div>
+            <div class="absolute -bottom-32 right-1/3 w-[400px] h-[400px] bg-green-800 rounded-full blur-[110px] opacity-10 animate-pulse" style="animation-delay:1.5s"></div>
+        </div>
+
+        <!-- Corner accents -->
+        <div class="absolute top-5 left-5 opacity-30 flex items-center gap-1.5">
+            <div class="w-6 h-[2px] bg-green-500"></div><div class="w-2 h-2 bg-green-500 rotate-45"></div>
+        </div>
+        <div class="absolute top-5 right-5 opacity-30 flex items-center gap-1.5">
+            <div class="w-2 h-2 bg-green-500 rotate-45"></div><div class="w-6 h-[2px] bg-green-500"></div>
+        </div>
+        <div class="absolute bottom-5 left-5 opacity-30 flex items-center gap-1.5">
+            <div class="w-6 h-[2px] bg-green-500"></div><div class="w-2 h-2 bg-green-500 rotate-45"></div>
+        </div>
+        <div class="absolute bottom-5 right-5 opacity-30 flex items-center gap-1.5">
+            <div class="w-2 h-2 bg-green-500 rotate-45"></div><div class="w-6 h-[2px] bg-green-500"></div>
         </div>
 
         <div class="w-full max-w-md relative z-10">
-            <div class="text-center mb-10">
-                <div class="mb-8 flex justify-center">
-                    <div class="logo-container inline-block px-10 py-5 bg-gradient-to-r from-red-600 to-red-800 rounded-2xl transform hover:scale-105 transition-transform duration-300">
-                        <h1 class="text-6xl font-black text-white tracking-widest">
-                            TAURO GYM
-                        </h1>
+
+            <!-- Brand header -->
+            <div class="text-center mb-8">
+                <div class="flex justify-center mb-5">
+                    <div class="logo-ring w-28 h-28 rounded-full bg-gradient-to-br from-green-900 to-black flex items-center justify-center">
+                        <i data-lucide="zap" class="w-12 h-12 text-green-400"></i>
                     </div>
                 </div>
-                <div class="inline-block px-6 py-2 bg-gray-900 border border-red-600 rounded-full">
-                    <p class="text-red-500 uppercase tracking-widest text-sm font-bold">Panel Administrativo</p>
+                <h1 class="text-5xl text-white tracking-[6px] leading-none">TALLEST GYM</h1>
+                <div class="accent-line w-52 mx-auto mt-3 mb-3"></div>
+                <div class="inline-flex items-center gap-2 px-5 py-1.5 rounded-full" style="background:rgba(20,83,45,0.3); border:1px solid rgba(34,197,94,0.3)">
+                    <div class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></div>
+                    <p class="text-green-400 uppercase tracking-[3px] text-xs font-bold">Panel Administrativo</p>
                 </div>
             </div>
 
-            <div class="bg-gradient-to-br from-gray-900 to-black backdrop-blur-lg rounded-3xl border-2 border-red-600 shadow-2xl p-8 relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-40 h-40 bg-red-600 rounded-full blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"></div>
+            <!-- Card -->
+            <div class="card-bg rounded-2xl shadow-2xl green-glow p-8 relative overflow-hidden">
 
-                <div class="text-center mb-8 relative z-10">
-                    <div class="w-24 h-24 bg-gradient-to-br from-red-600 to-red-800 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-2xl transform hover:rotate-3 transition-transform">
-                        <i data-lucide="shield-check" class="w-12 h-12 text-white"></i>
+                <!-- Top line glow -->
+                <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-green-500 to-transparent"></div>
+                <!-- BG corner glow -->
+                <div class="absolute top-0 right-0 w-56 h-56 bg-green-600 rounded-full blur-3xl opacity-[0.04] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+
+                <!-- Icon + title -->
+                <div class="text-center mb-7 relative z-10">
+                    <div class="w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg" style="background:linear-gradient(135deg,#22c55e,#15803d)">
+                        <i data-lucide="shield-check" class="w-8 h-8 text-white"></i>
                     </div>
-                    <h2 class="text-4xl font-black text-white uppercase tracking-wider">Iniciar Sesión</h2>
-                    <p class="text-gray-400 text-sm mt-2 font-semibold uppercase tracking-wide">Acceso al Sistema</p>
+                    <h2 class="text-3xl text-white">Iniciar Sesión</h2>
+                    <p class="text-gray-500 text-xs mt-1 font-semibold uppercase tracking-widest">Acceso Seguro al Sistema</p>
                 </div>
 
                 @if (ViewBag.Error != null)
                 {
-                    <div class="bg-red-900/40 border-2 border-red-500 rounded-xl p-4 mb-6 flex items-center gap-3 backdrop-blur-sm">
-                        <i data-lucide="alert-circle" class="w-6 h-6 text-red-400"></i>
+                    <div class="mb-5 p-4 rounded-xl flex items-center gap-3" style="background:rgba(127,29,29,0.3);border:1px solid rgba(239,68,68,0.4)">
+                        <i data-lucide="alert-circle" class="w-5 h-5 text-red-400 shrink-0"></i>
                         <p class="text-red-300 text-sm font-semibold">@ViewBag.Error</p>
                     </div>
                 }
 
-                <form method="post" action="/admin/login" class="space-y-6 relative z-10">
+                <form method="post" action="/admin/login" class="space-y-5 relative z-10">
                     @Html.AntiForgeryToken()
 
                     <div>
-                        <label class="block text-gray-300 text-sm font-bold mb-3 uppercase tracking-wide">
-                            <i data-lucide="mail" class="w-4 h-4 inline mr-2"></i>
+                        <label class="block text-gray-400 text-xs font-bold mb-2 uppercase tracking-widest">
+                            <i data-lucide="mail" class="w-3.5 h-3.5 inline mr-1.5 text-green-500"></i>
                             Correo Electrónico
                         </label>
-                        <input type="email" name="email" required placeholder="admin@taurogym.com"
-                               class="w-full px-5 py-4 bg-black/60 border-2 border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-red-600 transition-all font-semibold" />
+                        <input type="email" name="email" required placeholder="admin@tallestgym.com"
+                               class="input-field w-full px-5 py-3.5 rounded-xl text-white placeholder-gray-700 font-semibold text-sm" />
                     </div>
 
                     <div>
-                        <label class="block text-gray-300 text-sm font-bold mb-3 uppercase tracking-wide">
-                            <i data-lucide="lock" class="w-4 h-4 inline mr-2"></i>
+                        <label class="block text-gray-400 text-xs font-bold mb-2 uppercase tracking-widest">
+                            <i data-lucide="lock" class="w-3.5 h-3.5 inline mr-1.5 text-green-500"></i>
                             Contraseña
                         </label>
                         <input type="password" name="password" required placeholder="••••••••"
-                               class="w-full px-5 py-4 bg-black/60 border-2 border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-red-600 transition-all font-semibold" />
+                               class="input-field w-full px-5 py-3.5 rounded-xl text-white placeholder-gray-700 font-semibold text-sm" />
                     </div>
 
-                    <button type="submit"
-                            class="w-full py-5 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black text-lg rounded-xl transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-red-600/50 flex items-center justify-center gap-3 uppercase tracking-wider">
-                        <i data-lucide="log-in" class="w-6 h-6"></i>
-                        <span>Ingresar al Sistema</span>
-                    </button>
+                    <div class="pt-2">
+                        <button type="submit" class="btn-green w-full py-4 text-white font-black text-sm rounded-xl flex items-center justify-center gap-3 uppercase tracking-widest">
+                            <i data-lucide="log-in" class="w-5 h-5"></i>
+                            <span>Ingresar al Sistema</span>
+                        </button>
+                    </div>
                 </form>
 
-                <div class="mt-8 pt-6 border-t-2 border-gray-800 relative z-10">
-                    <p class="text-xs text-gray-500 text-center mb-3 uppercase tracking-wide font-bold">Credenciales por defecto:</p>
-                    <div class="bg-black/70 rounded-xl p-4 font-mono text-xs text-center border-2 border-gray-800">
+                <!-- Default credentials hint -->
+                <div class="mt-7 relative z-10">
+                    <div class="accent-line mb-5"></div>
+                    <p class="text-xs text-gray-600 text-center mb-3 uppercase tracking-widest font-bold">Credenciales por defecto</p>
+                    <div class="rounded-xl p-4 font-mono text-xs text-center" style="background:rgba(0,0,0,0.8);border:1px solid rgba(55,65,81,0.5)">
                         <div class="flex items-center justify-center gap-2 mb-2">
-                            <span class="text-gray-400">Email:</span>
-                            <span class="text-red-500 font-bold">admin@taurogym.com</span>
+                            <span class="text-gray-600">Email:</span>
+                            <span class="text-green-500 font-bold">admin@tallestgym.com</span>
                         </div>
                         <div class="flex items-center justify-center gap-2">
-                            <span class="text-gray-400">Password:</span>
-                            <span class="text-red-500 font-bold">admin123</span>
+                            <span class="text-gray-600">Password:</span>
+                            <span class="text-green-500 font-bold">admin123</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="text-center mt-8">
-                <a href="/kiosko" class="text-gray-400 hover:text-red-500 transition-colors inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wide group">
-                    <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i>
+            <!-- Back link -->
+            <div class="text-center mt-6">
+                <a href="/kiosko" class="text-gray-600 hover:text-green-500 transition-colors inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest group">
+                    <i data-lucide="arrow-left" class="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform"></i>
                     Volver al Kiosko
                 </a>
             </div>
 
-            <div class="mt-10 text-center">
-                <div class="inline-block px-6 py-2 bg-gray-900 border border-gray-800 rounded-full">
-                    <p class="text-gray-600 text-xs font-bold uppercase tracking-wider">
-                        TAURO GYM © 2024
-                    </p>
-                </div>
+            <!-- Footer -->
+            <div class="mt-8 text-center">
+                <p class="text-gray-700 text-[10px] font-bold uppercase tracking-widest">
+                    Tallest GYM © 2024 · Fundación Deportiva Escuela Nacional de Artes Marciales
+                </p>
             </div>
         </div>
     </div>
 
-    <script>
-        lucide.createIcons();
-    </script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>

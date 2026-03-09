@@ -2,43 +2,212 @@
 
 @{
     ViewData["Title"] = "Productos";
-    ViewData["Subtitle"] = "Gestión de productos - TAURO GYM";
+    ViewData["Subtitle"] = "Gestión de productos - Tallest GYM";
     Layout = "_AdminLayout";
 }
 
+<style>
+    :root {
+        --tg-green: #2EAD4B;
+        --tg-green-dark: #1e8a38;
+        --tg-green-light: #e8f7ec;
+        --tg-black: #1a1a1a;
+        --tg-dark: #2D2D2D;
+        --tg-gray: #3d3d3d;
+        --tg-white: #ffffff;
+        --tg-border: #d4f0db;
+    }
+
+    .tg-btn-primary {
+        background: linear-gradient(135deg, var(--tg-green), var(--tg-green-dark));
+        color: var(--tg-white);
+        font-weight: 900;
+        padding: .75rem 1.5rem;
+        border-radius: .75rem;
+        transition: all .2s;
+        box-shadow: 0 4px 14px rgba(46,173,75,0.35);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        font-size: .85rem;
+    }
+
+        .tg-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(46,173,75,0.45);
+            color: var(--tg-white);
+            text-decoration: none;
+        }
+
+    .tg-btn-secondary {
+        background: linear-gradient(135deg, var(--tg-dark), var(--tg-black));
+        color: var(--tg-white);
+        font-weight: 900;
+        padding: .75rem 1.5rem;
+        border-radius: .75rem;
+        transition: all .2s;
+        box-shadow: 0 4px 14px rgba(45,45,45,0.3);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        font-size: .85rem;
+    }
+
+        .tg-btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(45,45,45,0.4);
+            color: var(--tg-white);
+            text-decoration: none;
+        }
+
+    .tg-btn-warning {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: var(--tg-white);
+        font-weight: 900;
+        padding: .75rem 1.5rem;
+        border-radius: .75rem;
+        transition: all .2s;
+        box-shadow: 0 4px 14px rgba(245,158,11,0.3);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        font-size: .85rem;
+    }
+
+        .tg-btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(245,158,11,0.4);
+            color: var(--tg-white);
+            text-decoration: none;
+        }
+
+    .tg-card {
+        background: var(--tg-white);
+        border-radius: 1rem;
+        border: 2px solid var(--tg-border);
+        box-shadow: 0 2px 12px rgba(46,173,75,0.07);
+    }
+
+    .tg-table-head {
+        background: linear-gradient(135deg, var(--tg-black), var(--tg-dark));
+    }
+
+    .tg-input {
+        border: 2px solid #e5e7eb;
+        border-radius: .6rem;
+        padding: .7rem 1rem;
+        font-weight: 600;
+        transition: border-color .2s, box-shadow .2s;
+        width: 100%;
+    }
+
+        .tg-input:focus {
+            outline: none;
+            border-color: var(--tg-green);
+            box-shadow: 0 0 0 3px rgba(46,173,75,0.15);
+        }
+
+    .tg-badge-green {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .tg-badge-yellow {
+        background: #fef9c3;
+        color: #854d0e;
+    }
+
+    .tg-badge-red {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .tg-badge-blue {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .tg-badge-gray {
+        background: #f3f4f6;
+        color: #374151;
+    }
+
+    .tg-badge {
+        padding: .25rem .75rem;
+        border-radius: 9999px;
+        font-size: .72rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+    }
+
+    .tg-title {
+        font-size: 1.8rem;
+        font-weight: 900;
+        color: var(--tg-black);
+        text-transform: uppercase;
+        letter-spacing: .04em;
+    }
+
+    .tg-accent-bar {
+        width: 4px;
+        height: 2rem;
+        background: var(--tg-green);
+        border-radius: 4px;
+        display: inline-block;
+        margin-right: .6rem;
+        vertical-align: middle;
+    }
+
+    tr.producto-row:hover td {
+        background-color: #f0fdf4;
+    }
+</style>
+
 <div class="max-w-7xl mx-auto">
+
+    <!-- Header -->
     <div class="flex justify-between items-center mb-6">
-        <h2 class="text-4xl font-black text-gray-900 uppercase tracking-wide">Gestión de Productos</h2>
-        <div class="flex gap-3">
-            <a href="/productos/crear"
-               class="bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black py-3 px-8 rounded-xl transition-all shadow-xl hover:shadow-2xl flex items-center gap-2 uppercase tracking-wide transform hover:scale-105">
-                <i data-lucide="plus-circle" class="w-5 h-5"></i>
+        <h2 class="tg-title">
+            <span class="tg-accent-bar"></span>
+            Gestión de Productos
+        </h2>
+        <div class="flex gap-3 flex-wrap">
+            <a href="/productos/crear" class="tg-btn-primary">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i>
                 Nuevo Producto
             </a>
-            <a href="/productos/vender"
-               class="bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900 text-white font-black py-3 px-8 rounded-xl transition-all shadow-xl hover:shadow-2xl flex items-center gap-2 uppercase tracking-wide transform hover:scale-105">
-                <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+            <a href="/productos/vender" class="tg-btn-secondary">
+                <i data-lucide="shopping-cart" class="w-4 h-4"></i>
                 Vender Productos
             </a>
-            <a href="/caja"
-               class="bg-gradient-to-r from-orange-600 to-orange-800 hover:from-orange-700 hover:to-orange-900 text-white font-black py-3 px-8 rounded-xl transition-all shadow-xl hover:shadow-2xl flex items-center gap-2 uppercase tracking-wide transform hover:scale-105">
-                <i data-lucide="alert-circle" class="w-5 h-5"></i>
+            <a href="/caja" class="tg-btn-warning">
+                <i data-lucide="alert-circle" class="w-4 h-4"></i>
                 Ver deudas en caja
             </a>
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-xl p-6 mb-6 border-2 border-gray-200">
+    <!-- Filtros -->
+    <div class="tg-card p-6 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Buscar</label>
+                <label class="block text-xs font-black text-gray-600 mb-2 uppercase tracking-widest">Buscar</label>
                 <input type="text" id="buscarProducto" placeholder="Nombre o categoría..."
-                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                       class="tg-input">
             </div>
             <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Categoría</label>
-                <select id="filtroCategoria"
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold bg-white">
+                <label class="block text-xs font-black text-gray-600 mb-2 uppercase tracking-widest">Categoría</label>
+                <select id="filtroCategoria" class="tg-input bg-white">
                     <option value="">Todas</option>
                     <option value="suplementos">Suplementos</option>
                     <option value="bebidas">Bebidas</option>
@@ -48,9 +217,8 @@
                 </select>
             </div>
             <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Estado</label>
-                <select id="filtroEstado"
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold bg-white">
+                <label class="block text-xs font-black text-gray-600 mb-2 uppercase tracking-widest">Estado</label>
+                <select id="filtroEstado" class="tg-input bg-white">
                     <option value="">Todos</option>
                     <option value="activo">Activos</option>
                     <option value="inactivo">Inactivos</option>
@@ -60,73 +228,72 @@
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-gray-200">
-        <table class="min-w-full divide-y-2 divide-gray-200">
-            <thead class="bg-gradient-to-r from-gray-900 to-black">
+    <!-- Tabla -->
+    <div class="tg-card overflow-hidden">
+        <table class="min-w-full divide-y-2 divide-gray-100">
+            <thead class="tg-table-head">
                 <tr>
-                    <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-wider">Imagen</th>
-                    <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-wider">Producto</th>
-                    <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-wider">Categoría</th>
-                    <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-wider">Precio</th>
-                    <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-wider">Stock</th>
-                    <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-wider">Estado</th>
-                    <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-wider">Acciones</th>
+                    <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-widest">Imagen</th>
+                    <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-widest">Producto</th>
+                    <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-widest">Categoría</th>
+                    <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-widest">Precio</th>
+                    <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-widest">Stock</th>
+                    <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-widest">Estado</th>
+                    <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-widest">Acciones</th>
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y-2 divide-gray-200" id="productosTable">
+            <tbody class="bg-white divide-y-2 divide-gray-100" id="productosTable">
                 @foreach (var producto in Model)
                 {
-                    <tr class="hover:bg-gray-50 transition-colors producto-row"
+                    <tr class="transition-colors producto-row"
                         data-nombre="@producto.Nombre.ToLower()"
                         data-categoria="@producto.Categoria?.ToLower()"
                         data-activo="@producto.Activo.ToString().ToLower()"
                         data-stock="@producto.Stock">
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="w-16 h-16 bg-gray-200 rounded-xl flex items-center justify-center overflow-hidden border-2 border-gray-300">
+                            <div class="w-14 h-14 bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden border-2 border-gray-200">
                                 @if (!string.IsNullOrEmpty(producto.ImagenBase64))
                                 {
                                     <img src="@producto.ImagenBase64" class="w-full h-full object-cover" alt="@producto.Nombre">
                                 }
                                 else
                                 {
-                                    <i data-lucide="package" class="w-8 h-8 text-gray-400"></i>
+                                    <i data-lucide="package" class="w-7 h-7 text-gray-400"></i>
                                 }
                             </div>
                         </td>
                         <td class="px-6 py-4">
                             <div class="text-sm font-black text-gray-900">@producto.Nombre</div>
-                            <div class="text-sm text-gray-600 font-semibold">@producto.Descripcion</div>
+                            <div class="text-xs text-gray-500 font-semibold mt-1">@producto.Descripcion</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-black rounded-full bg-blue-100 text-blue-800 uppercase tracking-wide">
-                                @producto.Categoria
+                            <span class="tg-badge tg-badge-blue">@producto.Categoria</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-base font-black" style="color:var(--tg-green);">$@producto.Precio.ToString("N2")</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="tg-badge @(producto.Stock > 10 ? "tg-badge-green" : producto.Stock > 0 ? "tg-badge-yellow" : "tg-badge-red")">
+                                @producto.Stock uds
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-black text-emerald-600 text-lg">$@producto.Precio.ToString("N2")</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-black rounded-full uppercase tracking-wide @(producto.Stock > 10 ? "bg-green-100 text-green-800" : producto.Stock > 0 ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800")">
-                                @producto.Stock unidades
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-black rounded-full uppercase tracking-wide @(producto.Activo ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800")">
+                            <span class="tg-badge @(producto.Activo ? "tg-badge-green" : "tg-badge-gray")">
                                 @(producto.Activo ? "Activo" : "Inactivo")
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div class="flex gap-2">
+                            <div class="flex gap-1">
                                 <a href="/productos/detalle/@producto.Id"
-                                   class="text-blue-600 hover:text-blue-900 p-2 hover:bg-blue-50 rounded-lg transition-colors" title="Ver detalles">
+                                   class="p-2 rounded-lg transition-colors text-blue-600 hover:text-blue-900 hover:bg-blue-50" title="Ver detalles">
                                     <i data-lucide="eye" class="w-5 h-5"></i>
                                 </a>
                                 <a href="/productos/editar/@producto.Id"
-                                   class="text-amber-600 hover:text-amber-900 p-2 hover:bg-amber-50 rounded-lg transition-colors" title="Editar">
+                                   class="p-2 rounded-lg transition-colors text-amber-600 hover:text-amber-900 hover:bg-amber-50" title="Editar">
                                     <i data-lucide="edit" class="w-5 h-5"></i>
                                 </a>
                                 <button type="button" onclick="eliminarProducto('@producto.Id', '@producto.Nombre')"
-                                        class="text-red-600 hover:text-red-900 p-2 hover:bg-red-50 rounded-lg transition-colors cursor-pointer border-0 bg-transparent" title="Eliminar">
+                                        class="p-2 rounded-lg transition-colors text-red-600 hover:text-red-900 hover:bg-red-50 cursor-pointer border-0 bg-transparent" title="Eliminar">
                                     <i data-lucide="trash-2" class="w-5 h-5"></i>
                                 </button>
                             </div>
@@ -148,7 +315,6 @@
             const busqueda = document.getElementById('buscarProducto').value.toLowerCase();
             const categoria = document.getElementById('filtroCategoria').value.toLowerCase();
             const estado = document.getElementById('filtroEstado').value.toLowerCase();
-
             const rows = document.querySelectorAll('.producto-row');
 
             rows.forEach(row => {
@@ -156,17 +322,10 @@
                 const cat = row.dataset.categoria;
                 const activo = row.dataset.activo === 'true';
                 const stock = parseInt(row.dataset.stock);
-
                 let mostrar = true;
 
-                if (busqueda && !nombre.includes(busqueda) && !cat.includes(busqueda)) {
-                    mostrar = false;
-                }
-
-                if (categoria && cat !== categoria) {
-                    mostrar = false;
-                }
-
+                if (busqueda && !nombre.includes(busqueda) && !cat.includes(busqueda)) mostrar = false;
+                if (categoria && cat !== categoria) mostrar = false;
                 if (estado === 'activo' && !activo) mostrar = false;
                 if (estado === 'inactivo' && activo) mostrar = false;
                 if (estado === 'sin-stock' && stock > 0) mostrar = false;
@@ -175,11 +334,8 @@
             });
         }
 
-
         async function eliminarProducto(id, nombre) {
-            if (!confirm(`¿Estás seguro de que deseas eliminar el producto "${nombre}"?\n\nEsta acción no se puede deshacer.`)) {
-                return;
-            }
+            if (!confirm(`¿Estás seguro de que deseas eliminar el producto "${nombre}"?\n\nEsta acción no se puede deshacer.`)) return;
 
             try {
                 const response = await fetch(`/api/Productos/${id}`, {

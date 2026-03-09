@@ -3,149 +3,402 @@
     Layout = "_AdminLayout";
 }
 
-<div class="max-w-4xl mx-auto p-6">
-    <div class="bg-white rounded-xl shadow-lg p-8">
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-2xl font-bold text-gray-800">📋 Crear Nuevo Plan</h2>
-            <a href="/membresias/planes" class="text-gray-600 hover:text-gray-800">
-                <i data-lucide="x" class="w-6 h-6"></i>
-            </a>
-        </div>
+<style>
+    .tz-card {
+        background: #0d0d0d;
+        border: 1px solid rgba(34,197,94,0.15);
+        border-radius: 1rem;
+        padding: 2rem;
+    }
 
-        <form id="planForm" class="space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Plan *</label>
-                    <input type="text" name="nombre" required
-                           placeholder="Ej: Plan Mensual, Plan Trimestral, etc."
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-vida-primary">
-                </div>
+    .tz-label {
+        display: block;
+        font-size: .68rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .1em;
+        color: #6b7280;
+        margin-bottom: .4rem;
+    }
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Plan *</label>
-                    <select name="tipo" required
-                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-vida-primary bg-white">
-                        <option value="">Seleccione un tipo...</option>
-                        <option value="diario">Diario</option>
-                        <option value="semanal">Semanal</option>
-                        <option value="mensual">Mensual</option>
-                        <option value="trimestral">Trimestral</option>
-                        <option value="semestral">Semestral</option>
-                        <option value="anual">Anual</option>
-                        <option value="personalizado">Personalizado</option>
-                        <option value="otro">Otro</option>
-                    </select>
-                </div>
+        .tz-label .req {
+            color: #ef4444;
+        }
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Color del Plan *</label>
-                    <div class="flex gap-2">
-                        <input type="color" name="color" value="#00FF00" id="colorPicker"
-                               class="h-12 w-20 border-2 border-gray-300 rounded-lg cursor-pointer">
-                        <input type="text" id="colorValue" value="#00FF00" readonly
-                               class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-50 font-mono text-sm">
-                    </div>
-                    <p class="text-xs text-gray-500 mt-1">El color se usa para identificar visualmente el plan</p>
-                </div>
+        .tz-label .opt {
+            color: #4b5563;
+            font-weight: 500;
+            text-transform: none;
+            font-size: .65rem;
+        }
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Duración (días) *</label>
-                    <input type="number" name="duracionDias" required min="1" value="30"
-                           placeholder="30"
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-vida-primary">
-                    <p class="text-xs text-gray-500 mt-1">Duración del plan en días</p>
-                </div>
+    .tz-input {
+        width: 100%;
+        padding: .7rem 1rem;
+        background: #111;
+        border: 1px solid rgba(34,197,94,0.2);
+        border-radius: .65rem;
+        color: #f9fafb;
+        font-weight: 600;
+        font-size: .9rem;
+        transition: border-color .2s, box-shadow .2s;
+        box-sizing: border-box;
+    }
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Precio *</label>
-                    <div class="relative">
-                        <span class="absolute left-4 top-3.5 text-gray-600 font-bold">$</span>
-                        <input type="number" name="precio" required min="0" step="0.01" value="0"
-                               placeholder="0.00"
-                               class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-vida-primary">
-                    </div>
-                </div>
+        .tz-input::placeholder {
+            color: #374151;
+        }
 
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Descripción (Opcional)</label>
-                    <textarea name="descripcion" rows="3"
-                              placeholder="Describe los beneficios y características de este plan..."
-                              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-vida-primary focus:border-vida-primary resize-none"></textarea>
-                </div>
+        .tz-input:focus {
+            outline: none;
+            border-color: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34,197,94,0.1);
+        }
 
-                <div class="md:col-span-2">
-                    <label class="flex items-center gap-3 cursor-pointer">
-                        <input type="checkbox" name="activo" checked
-                               class="w-5 h-5 text-vida-primary rounded focus:ring-2 focus:ring-vida-primary">
-                        <span class="text-sm font-medium text-gray-700">Plan activo (visible para asignar a clientes)</span>
-                    </label>
-                </div>
-            </div>
+    .tz-select {
+        width: 100%;
+        padding: .7rem 1rem;
+        background: #111;
+        border: 1px solid rgba(34,197,94,0.2);
+        border-radius: .65rem;
+        color: #f9fafb;
+        font-weight: 600;
+        font-size: .9rem;
+        transition: border-color .2s;
+    }
 
-            <div id="planPreview" class="border-2 rounded-xl overflow-hidden transition-all" style="border-color: #00FF00">
-                <div class="p-6 text-white" style="background-color: #00FF00">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm font-bold" id="previewTipo">
-                            mensual
-                        </span>
-                    </div>
-                    <h4 class="text-2xl font-bold mb-2" id="previewNombre">Nombre del Plan</h4>
-                    <div class="flex items-baseline gap-1">
-                        <span class="text-4xl font-bold">$<span id="previewPrecio">0</span></span>
-                    </div>
-                </div>
-                <div class="p-6 bg-white">
-                    <div class="flex items-center gap-3 mb-4">
-                        <i data-lucide="calendar" class="w-5 h-5 text-gray-600"></i>
-                        <span class="font-bold text-gray-800"><span id="previewDuracion">30</span> días</span>
-                    </div>
-                    <p class="text-sm text-gray-600" id="previewDescripcion">Sin descripción</p>
-                </div>
-            </div>
+        .tz-select:focus {
+            outline: none;
+            border-color: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34,197,94,0.1);
+        }
 
-            <div class="flex gap-4">
-                <button type="submit"
-                        class="flex-1 bg-vida-primary text-vida-dark font-bold py-3 px-6 rounded-lg hover:bg-vida-accent transition flex items-center justify-center gap-2">
-                    <i data-lucide="check" class="w-5 h-5"></i>
-                    Crear Plan
-                </button>
-                <a href="/membresias/planes"
-                   class="flex-1 bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-lg hover:bg-gray-400 transition text-center flex items-center justify-center gap-2">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                    Cancelar
+    .tz-section-title {
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        font-size: 1.1rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: #f9fafb;
+        padding-bottom: .9rem;
+        border-bottom: 1px solid rgba(34,197,94,0.12);
+        margin-bottom: 1.5rem;
+    }
+
+        .tz-section-title i {
+            color: #22c55e;
+        }
+
+    /* Color picker row */
+    .color-row {
+        display: flex;
+        gap: .65rem;
+        align-items: center;
+    }
+
+    .color-picker-wrap {
+        width: 3rem;
+        height: 3rem;
+        border-radius: .55rem;
+        overflow: hidden;
+        border: 2px solid rgba(34,197,94,0.25);
+        flex-shrink: 0;
+        cursor: pointer;
+    }
+
+        .color-picker-wrap input[type=color] {
+            width: 4rem;
+            height: 4rem;
+            margin: -.5rem;
+            border: none;
+            cursor: pointer;
+            background: transparent;
+        }
+
+    /* Preview card */
+    .plan-preview {
+        border-radius: .85rem;
+        overflow: hidden;
+        border: 2px solid #22c55e;
+        transition: border-color .2s;
+    }
+
+    .preview-header {
+        padding: 1.4rem 1.25rem;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+        transition: background-color .2s;
+    }
+
+        .preview-header::before {
+            content: '';
+            position: absolute;
+            top: -2rem;
+            right: -2rem;
+            width: 7rem;
+            height: 7rem;
+            background: rgba(255,255,255,0.08);
+            border-radius: 50%;
+        }
+
+        .preview-header::after {
+            content: '';
+            position: absolute;
+            bottom: -1.5rem;
+            left: -1.5rem;
+            width: 5rem;
+            height: 5rem;
+            background: rgba(255,255,255,0.06);
+            border-radius: 50%;
+        }
+
+    .preview-body {
+        background: #111;
+        border-top: 1px solid rgba(255,255,255,0.06);
+        padding: 1.1rem 1.25rem;
+    }
+
+    /* Buttons */
+    .tz-btn-primary {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        padding: .9rem 1.5rem;
+        border-radius: .65rem;
+        background: linear-gradient(135deg,#22c55e,#15803d);
+        color: #fff;
+        font-weight: 800;
+        font-size: .82rem;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        border: none;
+        cursor: pointer;
+        transition: all .2s;
+    }
+
+        .tz-btn-primary:hover {
+            background: linear-gradient(135deg,#16a34a,#166534);
+            box-shadow: 0 4px 16px rgba(34,197,94,0.3);
+            transform: translateY(-1px);
+        }
+
+    .tz-btn-ghost {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        padding: .9rem 1.5rem;
+        border-radius: .65rem;
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.1);
+        color: #6b7280;
+        font-weight: 800;
+        font-size: .82rem;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        text-decoration: none;
+        transition: all .2s;
+    }
+
+        .tz-btn-ghost:hover {
+            border-color: rgba(34,197,94,0.25);
+            color: #d1d5db;
+        }
+
+    /* Checkbox */
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: .65rem;
+        cursor: pointer;
+        padding: .85rem 1.1rem;
+        border-radius: .65rem;
+        border: 1px solid rgba(34,197,94,0.15);
+        transition: border-color .2s;
+    }
+
+        .checkbox-label:hover {
+            border-color: rgba(34,197,94,0.3);
+        }
+
+        .checkbox-label input[type=checkbox] {
+            width: 1.1rem;
+            height: 1.1rem;
+            accent-color: #22c55e;
+            cursor: pointer;
+        }
+
+        .checkbox-label span {
+            font-size: .82rem;
+            font-weight: 700;
+            color: #d1d5db;
+        }
+
+        .checkbox-label small {
+            font-size: .72rem;
+            color: #6b7280;
+            font-weight: 500;
+            display: block;
+            margin-top: .1rem;
+        }
+</style>
+
+<div class="max-w-4xl mx-auto">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start">
+
+        <!-- Form panel -->
+        <div class="tz-card" style="grid-column:1 / -1">
+
+            <div class="tz-section-title">
+                <i data-lucide="credit-card" style="width:1.2rem;height:1.2rem"></i>
+                Crear Nuevo Plan
+                <a href="/membresias/planes" style="margin-left:auto;color:#6b7280;display:flex;align-items:center;gap:.3rem;font-size:.75rem;font-weight:700;text-decoration:none;text-transform:none;letter-spacing:0">
+                    <i data-lucide="x" style="width:.9rem;height:.9rem"></i>
                 </a>
             </div>
-        </form>
+
+            <form id="planForm" class="space-y-5">
+
+                <div>
+                    <label class="tz-label">Nombre del Plan <span class="req">*</span></label>
+                    <input type="text" name="nombre" required
+                           placeholder="Ej: Plan Mensual, Plan Trimestral..."
+                           class="tz-input" />
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+                    <div>
+                        <label class="tz-label">Tipo de Plan <span class="req">*</span></label>
+                        <select name="tipo" required class="tz-select">
+                            <option value="">Seleccione un tipo...</option>
+                            <option value="diario">Diario</option>
+                            <option value="semanal">Semanal</option>
+                            <option value="mensual">Mensual</option>
+                            <option value="trimestral">Trimestral</option>
+                            <option value="semestral">Semestral</option>
+                            <option value="anual">Anual</option>
+                            <option value="personalizado">Personalizado</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="tz-label">Color del Plan <span class="req">*</span></label>
+                        <div class="color-row">
+                            <div class="color-picker-wrap">
+                                <input type="color" name="color" id="colorPicker" value="#22c55e" />
+                            </div>
+                            <input type="text" id="colorValue" value="#22c55e" readonly
+                                   class="tz-input" style="font-family:monospace;font-size:.85rem" />
+                        </div>
+                        <p style="font-size:.68rem;color:#4b5563;font-weight:600;margin-top:.3rem">Identifica visualmente el plan</p>
+                    </div>
+
+                    <div>
+                        <label class="tz-label">Duración (días) <span class="req">*</span></label>
+                        <input type="number" name="duracionDias" required min="1" value="30"
+                               class="tz-input" />
+                    </div>
+
+                    <div>
+                        <label class="tz-label">Precio <span class="req">*</span></label>
+                        <div style="position:relative">
+                            <span style="position:absolute;left:.9rem;top:50%;transform:translateY(-50%);color:#6b7280;font-weight:700">$</span>
+                            <input type="number" name="precio" required min="0" step="0.01" value="0"
+                                   class="tz-input" style="padding-left:1.75rem" />
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="tz-label">Descripción <span class="opt">(opcional)</span></label>
+                    <textarea name="descripcion" rows="3"
+                              placeholder="Describe los beneficios y características de este plan..."
+                              class="tz-input" style="resize:vertical"></textarea>
+                </div>
+
+                <label class="checkbox-label">
+                    <input type="checkbox" name="activo" checked />
+                    <div>
+                        <span>Plan Activo</span>
+                        <small>Los planes activos estarán disponibles para asignar a clientes</small>
+                    </div>
+                </label>
+
+                <!-- Preview -->
+                <div>
+                    <p style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#6b7280;margin-bottom:.6rem">Vista Previa</p>
+                    <div id="planPreview" class="plan-preview">
+                        <div class="preview-header" id="previewHeader" style="background-color:#22c55e">
+                            <div style="position:relative;z-index:1">
+                                <div style="margin-bottom:.5rem">
+                                    <span id="previewTipo" style="display:inline-block;padding:.2rem .65rem;border-radius:99px;background:rgba(255,255,255,0.18);font-size:.7rem;font-weight:800;text-transform:uppercase">mensual</span>
+                                </div>
+                                <h4 id="previewNombre" style="font-size:1.15rem;font-weight:900;margin-bottom:.4rem">Nombre del Plan</h4>
+                                <div style="font-size:1.75rem;font-weight:900">$<span id="previewPrecio">0</span></div>
+                            </div>
+                        </div>
+                        <div class="preview-body">
+                            <div style="display:flex;align-items:center;gap:.55rem;margin-bottom:.5rem">
+                                <i data-lucide="calendar" id="previewCalIcon" style="width:.9rem;height:.9rem;color:#22c55e;flex-shrink:0"></i>
+                                <span style="font-weight:800;color:#d1d5db;font-size:.85rem"><span id="previewDuracion">30</span> días</span>
+                            </div>
+                            <p id="previewDescripcion" style="font-size:.75rem;color:#6b7280;font-weight:500">Sin descripción</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div style="display:flex;gap:.75rem;padding-top:1.25rem;border-top:1px solid rgba(34,197,94,0.1)">
+                    <button type="submit" class="tz-btn-primary">
+                        <i data-lucide="check" style="width:.9rem;height:.9rem"></i>
+                        Crear Plan
+                    </button>
+                    <a href="/membresias/planes" class="tz-btn-ghost">
+                        <i data-lucide="x" style="width:.9rem;height:.9rem"></i>
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        const colorPicker = document.querySelector('input[name="color"]');
-        const colorValue = document.getElementById('colorValue');
-        const previewContainer = document.getElementById('planPreview');
-        const previewHeader = previewContainer.querySelector('div[style*="background-color"]');
+        const colorPicker    = document.querySelector('input[name="color"]');
+        const colorValue     = document.getElementById('colorValue');
+        const previewCard    = document.getElementById('planPreview');
+        const previewHeader  = document.getElementById('previewHeader');
+        const previewCalIcon = document.getElementById('previewCalIcon');
 
         function updatePreview() {
-            const nombre = document.querySelector('input[name="nombre"]').value || 'Nombre del Plan';
-            const tipo = document.querySelector('select[name="tipo"]').value || 'mensual';
-            const duracion = document.querySelector('input[name="duracionDias"]').value || '30';
-            const precio = document.querySelector('input[name="precio"]').value || '0';
+            const nombre      = document.querySelector('input[name="nombre"]').value      || 'Nombre del Plan';
+            const tipo        = document.querySelector('select[name="tipo"]').value        || 'mensual';
+            const duracion    = document.querySelector('input[name="duracionDias"]').value || '30';
+            const precio      = document.querySelector('input[name="precio"]').value       || '0';
             const descripcion = document.querySelector('textarea[name="descripcion"]').value || 'Sin descripción';
-            const color = colorPicker.value;
+            const color       = colorPicker.value;
 
-            document.getElementById('previewNombre').textContent = nombre;
-            document.getElementById('previewTipo').textContent = tipo;
-            document.getElementById('previewDuracion').textContent = duracion;
-            document.getElementById('previewPrecio').textContent = parseFloat(precio).toFixed(0);
+            document.getElementById('previewNombre').textContent    = nombre;
+            document.getElementById('previewTipo').textContent      = tipo;
+            document.getElementById('previewDuracion').textContent  = duracion;
+            document.getElementById('previewPrecio').textContent    = parseFloat(precio).toFixed(0);
             document.getElementById('previewDescripcion').textContent = descripcion;
 
-            previewContainer.style.borderColor = color;
+            previewCard.style.borderColor       = color;
             previewHeader.style.backgroundColor = color;
+            previewCalIcon.style.color          = color;
         }
 
-        colorPicker.addEventListener('input', function() {
-            colorValue.value = this.value;
+        colorPicker.addEventListener('input', function () {
+            colorValue.value = this.value.toUpperCase();
             updatePreview();
         });
 
@@ -155,38 +408,27 @@
         document.querySelector('input[name="precio"]').addEventListener('input', updatePreview);
         document.querySelector('textarea[name="descripcion"]').addEventListener('input', updatePreview);
 
-        document.getElementById('planForm').addEventListener('submit', async function(e) {
+        document.getElementById('planForm').addEventListener('submit', async function (e) {
             e.preventDefault();
-
-            const formData = new FormData(e.target);
+            const fd = new FormData(e.target);
             const data = {
-                nombre: formData.get('nombre'),
-                tipo: formData.get('tipo'),
-                duracionDias: parseInt(formData.get('duracionDias')),
-                precio: parseFloat(formData.get('precio')),
-                color: formData.get('color'),
-                descripcion: formData.get('descripcion'),
-                activo: formData.get('activo') === 'on'
+                nombre:       fd.get('nombre'),
+                tipo:         fd.get('tipo'),
+                duracionDias: parseInt(fd.get('duracionDias')),
+                precio:       parseFloat(fd.get('precio')),
+                color:        fd.get('color'),
+                descripcion:  fd.get('descripcion') || null,
+                activo:       fd.get('activo') === 'on'
             };
-
             try {
-                const response = await fetch('/api/Planes', {
+                const resp = await fetch('/api/Planes', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
-
-                if (response.ok) {
-                    alert('✅ Plan creado exitosamente');
-                    window.location.href = '/membresias/planes';
-                } else {
-                    const error = await response.text();
-                    alert('❌ Error al crear plan: ' + error);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al crear plan: ' + error.message);
-            }
+                if (resp.ok) { alert('✅ Plan creado exitosamente'); window.location.href = '/membresias/planes'; }
+                else alert('❌ Error al crear plan: ' + await resp.text());
+            } catch (err) { alert('❌ Error: ' + err.message); }
         });
 
         lucide.createIcons();

@@ -1,44 +1,303 @@
 @{
     ViewData["Title"] = "Vender Productos";
-    ViewData["Subtitle"] = "Punto de venta con opción de pago parcial - TAURO GYM";
+    ViewData["Subtitle"] = "Punto de venta con opción de pago parcial - Tallest GYM";
     Layout = "_AdminLayout";
 }
 
+<style>
+    :root {
+        --tg-green: #2EAD4B;
+        --tg-green-dark: #1e8a38;
+        --tg-green-light: #f0fdf4;
+        --tg-border: #c6e8cf;
+        --tg-black: #1a1a1a;
+        --tg-dark: #2D2D2D;
+        --tg-text: #111827;
+        --tg-muted: #6b7280;
+        --tg-white: #ffffff;
+    }
+
+    .tg-card {
+        background: var(--tg-white);
+        border-radius: 1.25rem;
+        border: 2px solid #e5e7eb;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+
+    .tg-section-header {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .tg-section-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: .65rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--tg-green), var(--tg-green-dark));
+        box-shadow: 0 3px 10px rgba(46,173,75,0.3);
+        flex-shrink: 0;
+    }
+
+    .tg-section-title {
+        font-size: 1.1rem;
+        font-weight: 900;
+        color: var(--tg-text);
+        text-transform: uppercase;
+        letter-spacing: .06em;
+    }
+
+    .tg-input {
+        width: 100%;
+        border: 2px solid #e5e7eb;
+        color: var(--tg-text);
+        border-radius: .65rem;
+        padding: .75rem 1rem;
+        outline: none;
+        font-weight: 600;
+        transition: border-color .2s, box-shadow .2s;
+        background: #fafafa;
+    }
+
+        .tg-input:focus {
+            border-color: var(--tg-green);
+            box-shadow: 0 0 0 3px rgba(46,173,75,0.15);
+            background: #fff;
+        }
+
+        .tg-input::placeholder {
+            color: #9ca3af;
+        }
+
+    .tg-panel-green {
+        background: var(--tg-green-light);
+        border: 2px solid var(--tg-border);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .tg-panel-dark {
+        background: #f8f9fa;
+        border: 2px solid #e5e7eb;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .tg-panel-amber {
+        background: #fffbeb;
+        border: 2px solid #fde68a;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .tg-btn-primary {
+        background: linear-gradient(135deg, var(--tg-green), var(--tg-green-dark));
+        color: var(--tg-white);
+        font-weight: 900;
+        padding: 1rem 1.5rem;
+        border-radius: .75rem;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        transition: all .2s;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+        box-shadow: 0 4px 16px rgba(46,173,75,0.35);
+        flex: 1;
+        font-size: .9rem;
+    }
+
+        .tg-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(46,173,75,0.45);
+        }
+
+    .tg-btn-gray {
+        background: #f3f4f6;
+        color: var(--tg-dark);
+        font-weight: 800;
+        padding: 1rem 1.5rem;
+        border-radius: .75rem;
+        border: 2px solid #e5e7eb;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        transition: all .2s;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+        font-size: .9rem;
+        text-decoration: none;
+    }
+
+        .tg-btn-gray:hover {
+            background: #e5e7eb;
+            text-decoration: none;
+            color: var(--tg-dark);
+        }
+
+    .tg-pay-option {
+        display: flex;
+        align-items: center;
+        padding: 1rem 1.25rem;
+        border: 2px solid #e5e7eb;
+        border-radius: .85rem;
+        cursor: pointer;
+        background: var(--tg-white);
+        transition: all .2s;
+    }
+
+        .tg-pay-option:hover {
+            border-color: var(--tg-green);
+        }
+
+        .tg-pay-option.selected-green {
+            border-color: var(--tg-green);
+            background: #f0fdf4;
+        }
+
+        .tg-pay-option.selected-orange {
+            border-color: #f97316;
+            background: #fff7ed;
+        }
+
+        .tg-pay-option.selected-red {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+
+    .tg-product-card {
+        background: var(--tg-white);
+        border: 2px solid #e5e7eb;
+        border-radius: .85rem;
+        padding: 1rem;
+        transition: all .2s;
+    }
+
+        .tg-product-card:hover {
+            border-color: var(--tg-green);
+            box-shadow: 0 4px 12px rgba(46,173,75,0.15);
+        }
+
+    .tg-add-btn {
+        width: 100%;
+        padding: .5rem;
+        background: linear-gradient(135deg, var(--tg-green), var(--tg-green-dark));
+        color: white;
+        font-weight: 800;
+        border-radius: .55rem;
+        border: none;
+        cursor: pointer;
+        font-size: .82rem;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        transition: all .2s;
+    }
+
+        .tg-add-btn:hover {
+            opacity: .88;
+        }
+
+        .tg-add-btn:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+        }
+
+    .tg-cart-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        background: var(--tg-white);
+        border-radius: .75rem;
+        border: 2px solid #e5e7eb;
+    }
+
+    .tg-qty-btn {
+        width: 2.25rem;
+        height: 2.25rem;
+        background: #f3f4f6;
+        border-radius: .5rem;
+        border: 2px solid #e5e7eb;
+        font-weight: 900;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all .15s;
+        font-size: 1rem;
+    }
+
+        .tg-qty-btn:hover {
+            background: #e5e7eb;
+            border-color: var(--tg-green);
+        }
+
+    .tg-total-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.25rem;
+        background: linear-gradient(135deg, var(--tg-black), var(--tg-dark));
+        border-radius: .85rem;
+        margin-top: 1rem;
+    }
+</style>
+
 <div class="max-w-6xl mx-auto">
-    <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
-        <div class="flex items-center gap-4 mb-8 pb-6 border-b-2 border-gray-200">
-            <div class="bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-xl p-4">
-                <i data-lucide="shopping-cart" class="w-8 h-8 text-white"></i>
+    <div class="tg-card p-8">
+
+        <!-- Header principal -->
+        <div class="tg-section-header mb-8 pb-6 border-b-2 border-gray-100">
+            <div class="tg-section-icon">
+                <i data-lucide="shopping-cart" class="w-5 h-5 text-white"></i>
             </div>
             <div>
-                <h2 class="text-3xl font-black text-gray-900 uppercase tracking-wide">Venta de Productos</h2>
-                <p class="text-sm text-gray-600 font-semibold mt-1">Con opción de pago parcial o fiado</p>
+                <h2 class="tg-section-title">Venta de Productos</h2>
+                <p class="text-sm font-semibold" style="color:var(--tg-muted);">Con opción de pago parcial o fiado · Tallest GYM</p>
             </div>
         </div>
 
         <!-- CLIENTE -->
-        <div class="mb-6 p-6 bg-blue-50 rounded-2xl border-2 border-blue-300">
-            <label class="block text-sm font-black text-gray-900 mb-3 uppercase tracking-wide">Cliente (Opcional)</label>
-            <p class="text-xs text-gray-600 mb-3 font-semibold">Deja vacío para venta rápida sin cliente</p>
+        <div class="tg-panel-green">
+            <div class="tg-section-header">
+                <div style="width:2rem;height:2rem;border-radius:.5rem;background:var(--tg-green);display:flex;align-items:center;justify-content:center;">
+                    <i data-lucide="user" class="w-4 h-4 text-white"></i>
+                </div>
+                <div>
+                    <p class="tg-section-title" style="font-size:.9rem;">Cliente (Opcional)</p>
+                    <p class="text-xs font-semibold" style="color:var(--tg-muted);">Deja vacío para venta rápida sin cliente</p>
+                </div>
+            </div>
 
             <div class="mb-3">
                 <input type="text" id="buscarClienteInput" placeholder="Buscar por nombre, apellido o cédula..."
-                       class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 font-semibold">
-
-                <div id="resultadosBusqueda" class="hidden mt-2 bg-white border-2 border-gray-300 rounded-xl shadow-xl max-h-60 overflow-y-auto"></div>
+                       class="tg-input">
+                <div id="resultadosBusqueda" class="hidden mt-2 bg-white border-2 border-gray-200 rounded-xl shadow-xl max-h-60 overflow-y-auto"></div>
             </div>
 
             <div id="clienteInfo" class="hidden">
-                <div class="flex items-center gap-3 p-5 bg-white rounded-xl border-2 border-blue-600">
-                    <div class="w-14 h-14 bg-gray-300 rounded-full flex items-center justify-center">
-                        <i data-lucide="user" class="w-7 h-7 text-gray-600"></i>
+                <div class="flex items-center gap-3 p-4 bg-white rounded-xl border-2" style="border-color:var(--tg-green);">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background:var(--tg-green-light);border:2px solid var(--tg-border);">
+                        <i data-lucide="user" class="w-6 h-6" style="color:var(--tg-green);"></i>
                     </div>
                     <div class="flex-1">
-                        <p class="font-black text-gray-900 text-lg" id="clienteNombre"></p>
-                        <p class="text-sm text-gray-600 font-bold" id="clienteCedula"></p>
+                        <p class="font-black text-gray-900" id="clienteNombre"></p>
+                        <p class="text-sm text-gray-500 font-bold" id="clienteCedula"></p>
                     </div>
                     <button type="button" id="btnCambiarCliente"
-                            class="px-6 py-3 bg-gray-200 text-gray-900 rounded-xl hover:bg-gray-300 font-black uppercase tracking-wide">
+                            class="px-4 py-2 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 font-black text-sm uppercase tracking-wide border-none cursor-pointer">
                         Quitar
                     </button>
                 </div>
@@ -47,109 +306,113 @@
 
         <!-- PRODUCTOS -->
         <div class="mb-6">
-            <h3 class="text-xl font-black text-gray-900 mb-4 uppercase tracking-wide">Productos Disponibles</h3>
-            <div class="mb-4">
-                <input type="text" id="buscarProducto" placeholder="Buscar producto..."
-                       class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+            <div class="tg-section-header">
+                <div style="width:2rem;height:2rem;border-radius:.5rem;background:var(--tg-dark);display:flex;align-items:center;justify-content:center;">
+                    <i data-lucide="package" class="w-4 h-4 text-white"></i>
+                </div>
+                <p class="tg-section-title" style="font-size:.9rem;">Productos Disponibles</p>
             </div>
-            <div id="productosGrid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-96 overflow-y-auto">
-                <div class="col-span-full text-center py-8 text-gray-500">
+            <div class="mb-4">
+                <input type="text" id="buscarProducto" placeholder="Buscar producto..." class="tg-input">
+            </div>
+            <div id="productosGrid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-96 overflow-y-auto pr-1">
+                <div class="col-span-full text-center py-8 text-gray-400">
                     <i data-lucide="loader" class="w-8 h-8 mx-auto mb-2 animate-spin"></i>
-                    <p class="font-bold">Cargando productos...</p>
+                    <p class="font-bold text-sm">Cargando productos...</p>
                 </div>
             </div>
         </div>
 
         <!-- CARRITO -->
-        <div class="mb-6 p-6 bg-gray-50 rounded-2xl border-2 border-gray-200">
-            <h3 class="text-xl font-black text-gray-900 mb-4 uppercase tracking-wide">Carrito de Compra</h3>
-            <div id="carritoItems" class="space-y-3 mb-4">
-                <p class="text-gray-500 text-center py-4 font-semibold">No hay productos en el carrito</p>
+        <div class="tg-panel-dark">
+            <div class="tg-section-header">
+                <div style="width:2rem;height:2rem;border-radius:.5rem;background:var(--tg-dark);display:flex;align-items:center;justify-content:center;">
+                    <i data-lucide="shopping-bag" class="w-4 h-4 text-white"></i>
+                </div>
+                <p class="tg-section-title" style="font-size:.9rem;">Carrito de Compra</p>
             </div>
 
-            <div class="border-t-2 border-gray-300 pt-6">
-                <div class="flex justify-between items-center text-2xl font-black">
-                    <span class="uppercase tracking-wide">Total:</span>
-                    <span id="totalCarrito" class="text-emerald-600">$0.00</span>
-                </div>
+            <div id="carritoItems" class="space-y-3 mb-4">
+                <p class="text-gray-400 text-center py-4 font-semibold text-sm">No hay productos en el carrito</p>
+            </div>
+
+            <div class="tg-total-bar">
+                <span class="text-white font-black uppercase tracking-wide">Total:</span>
+                <span id="totalCarrito" class="font-black text-2xl" style="color:var(--tg-green);">$0.00</span>
             </div>
         </div>
 
-        <!-- MÉTODO DE PAGO Y PAGO PARCIAL -->
-        <div class="mb-6 p-6 bg-amber-50 rounded-2xl border-2 border-amber-300">
-            <h3 class="text-xl font-black text-gray-900 mb-4 uppercase tracking-wide">Forma de Pago</h3>
+        <!-- MÉTODO DE PAGO -->
+        <div class="tg-panel-amber">
+            <div class="tg-section-header">
+                <div style="width:2rem;height:2rem;border-radius:.5rem;background:#d97706;display:flex;align-items:center;justify-content:center;">
+                    <i data-lucide="credit-card" class="w-4 h-4 text-white"></i>
+                </div>
+                <p class="tg-section-title" style="font-size:.9rem;">Forma de Pago</p>
+            </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <label class="flex items-center p-5 border-2 border-gray-300 rounded-xl cursor-pointer hover:border-emerald-600 transition-all bg-white tipo-pago-option">
-                    <input type="radio" name="tipoPago" value="pagado" checked class="mr-3 w-5 h-5 text-emerald-600">
+                <label class="tg-pay-option tipo-pago-option selected-green">
+                    <input type="radio" name="tipoPago" value="pagado" checked class="mr-3 w-4 h-4" style="accent-color:var(--tg-green);">
                     <div>
-                        <p class="font-black text-gray-900 uppercase tracking-wide">Pago Completo</p>
-                        <p class="text-sm text-gray-600 font-semibold">100% del total</p>
+                        <p class="font-black text-gray-900 uppercase tracking-wide text-sm">Pago Completo</p>
+                        <p class="text-xs text-gray-500 font-semibold">100% del total</p>
                     </div>
                 </label>
-
-                <label class="flex items-center p-5 border-2 border-gray-300 rounded-xl cursor-pointer hover:border-orange-600 transition-all bg-white tipo-pago-option">
-                    <input type="radio" name="tipoPago" value="parcial" class="mr-3 w-5 h-5 text-orange-600">
+                <label class="tg-pay-option tipo-pago-option">
+                    <input type="radio" name="tipoPago" value="parcial" class="mr-3 w-4 h-4" style="accent-color:#f97316;">
                     <div>
-                        <p class="font-black text-gray-900 uppercase tracking-wide">Pago Parcial</p>
-                        <p class="text-sm text-gray-600 font-semibold">Abono + Deuda</p>
+                        <p class="font-black text-gray-900 uppercase tracking-wide text-sm">Pago Parcial</p>
+                        <p class="text-xs text-gray-500 font-semibold">Abono + Deuda</p>
                     </div>
                 </label>
-
-                <label class="flex items-center p-5 border-2 border-gray-300 rounded-xl cursor-pointer hover:border-red-600 transition-all bg-white tipo-pago-option">
-                    <input type="radio" name="tipoPago" value="fiado" class="mr-3 w-5 h-5 text-red-600">
+                <label class="tg-pay-option tipo-pago-option">
+                    <input type="radio" name="tipoPago" value="fiado" class="mr-3 w-4 h-4" style="accent-color:#ef4444;">
                     <div>
-                        <p class="font-black text-gray-900 uppercase tracking-wide">Fiado Completo</p>
-                        <p class="text-sm text-gray-600 font-semibold">Todo a deuda</p>
+                        <p class="font-black text-gray-900 uppercase tracking-wide text-sm">Fiado Completo</p>
+                        <p class="text-xs text-gray-500 font-semibold">Todo a deuda</p>
                     </div>
                 </label>
             </div>
+
             <div class="mb-4">
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Método de Pago</label>
-                <select id="metodoPago" class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-600 focus:border-amber-600 font-semibold">
+                <label class="block text-xs font-black text-gray-600 mb-2 uppercase tracking-widest">Método de Pago</label>
+                <select id="metodoPago" class="tg-input bg-white" style="max-width:320px;">
                     <option value="efectivo" selected>Efectivo</option>
                     <option value="transferencia">Transferencia</option>
                 </select>
             </div>
 
-            <!-- CAMPO DE PAGO PARCIAL (oculto inicialmente) -->
-            <div id="montoPagadoContainer" class="hidden mb-4 p-4 bg-white rounded-xl border-2 border-orange-400">
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
-                    Monto a Pagar Ahora
-                </label>
+            <div id="montoPagadoContainer" class="hidden mb-4 p-4 bg-white rounded-xl border-2 border-orange-300">
+                <label class="block text-xs font-black text-gray-700 mb-2 uppercase tracking-widest">Monto a Pagar Ahora</label>
                 <div class="flex gap-4 items-end">
                     <div class="flex-1">
-                        <input type="number" id="montoPagado" step="0.01" min="0" placeholder="0.00"
-                               class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 font-semibold text-lg">
+                        <input type="number" id="montoPagado" step="0.01" min="0" placeholder="0.00" class="tg-input text-lg">
                     </div>
                     <div class="flex-1">
-                        <p class="text-sm text-gray-600 font-bold mb-1">Saldo a Deber:</p>
+                        <p class="text-xs text-gray-500 font-bold mb-1 uppercase tracking-wide">Saldo a Deber:</p>
                         <p id="saldoPendiente" class="text-2xl font-black text-red-600">$0.00</p>
                     </div>
                 </div>
             </div>
 
-            <div class="mt-4">
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Notas</label>
-                <textarea id="notasVenta" rows="2" placeholder="Observaciones adicionales..."
-                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-600 focus:border-amber-600 font-semibold"></textarea>
+            <div>
+                <label class="block text-xs font-black text-gray-600 mb-2 uppercase tracking-widest">Notas</label>
+                <textarea id="notasVenta" rows="2" placeholder="Observaciones adicionales..." class="tg-input"></textarea>
             </div>
         </div>
 
         <!-- BOTONES -->
         <div class="flex gap-4">
-            <button type="button" id="btnRegistrarVenta"
-                    class="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900 text-white font-black py-4 px-6 rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
-                <i data-lucide="check-circle" class="w-5 h-5 inline mr-2"></i>
+            <button type="button" id="btnRegistrarVenta" class="tg-btn-primary">
+                <i data-lucide="check-circle" class="w-5 h-5"></i>
                 Registrar Venta
             </button>
-            <button type="button" id="btnLimpiar"
-                    class="px-8 py-4 bg-gray-300 text-gray-900 font-black rounded-xl hover:bg-gray-400 transition-all uppercase tracking-wide">
-                <i data-lucide="x-circle" class="w-5 h-5 inline mr-2"></i>
+            <button type="button" id="btnLimpiar" class="tg-btn-gray">
+                <i data-lucide="x-circle" class="w-5 h-5"></i>
                 Limpiar
             </button>
-            <a href="/productos"
-               class="px-8 py-4 bg-gray-300 text-gray-900 font-black rounded-xl hover:bg-gray-400 transition-all text-center uppercase tracking-wide">
+            <a href="/productos" class="tg-btn-gray">
                 Cancelar
             </a>
         </div>
@@ -163,17 +426,14 @@
         let carrito = [];
         let clienteSeleccionado = null;
 
-        // Cargar datos
         async function cargarDatos() {
             try {
                 const [clientesRes, productosRes] = await Promise.all([
                     fetch('/api/Clientes'),
                     fetch('/api/Productos')
                 ]);
-
                 clientes = await clientesRes.json();
                 productos = await productosRes.json();
-
                 renderProductos(productos);
             } catch (error) {
                 console.error('Error cargando datos:', error);
@@ -181,24 +441,16 @@
             }
         }
 
-        // Buscar clientes
         document.getElementById('buscarClienteInput').addEventListener('input', function(e) {
             const termino = e.target.value.toLowerCase().trim();
             const resultados = document.getElementById('resultadosBusqueda');
-
-            if (termino.length < 2) {
-                resultados.classList.add('hidden');
-                return;
-            }
+            if (termino.length < 2) { resultados.classList.add('hidden'); return; }
 
             const coincidencias = clientes.filter(c => {
                 const nombre = (c.Nombre || c.nombre || '').toLowerCase();
                 const apellido = (c.Apellido || c.apellido || '').toLowerCase();
                 const cedula = c.Cedula || c.cedula || '';
-
-                return nombre.includes(termino) ||
-                       apellido.includes(termino) ||
-                       cedula.includes(termino);
+                return nombre.includes(termino) || apellido.includes(termino) || cedula.includes(termino);
             }).slice(0, 5);
 
             if (coincidencias.length > 0) {
@@ -206,43 +458,32 @@
                     const nombre = c.Nombre || c.nombre;
                     const apellido = c.Apellido || c.apellido;
                     const cedula = c.Cedula || c.cedula;
-
                     return `
                     <div onclick='seleccionarCliente(${JSON.stringify(c).replace(/'/g, "&apos;")})'
-                         class="flex items-center gap-3 p-4 hover:bg-blue-50 cursor-pointer border-b last:border-b-0">
-                        <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                            <i data-lucide="user" class="w-5 h-5 text-gray-600"></i>
+                         class="flex items-center gap-3 p-4 hover:bg-green-50 cursor-pointer border-b last:border-b-0">
+                        <div class="w-9 h-9 bg-gray-200 rounded-full flex items-center justify-center">
+                            <i data-lucide="user" class="w-4 h-4 text-gray-600"></i>
                         </div>
                         <div>
-                            <p class="font-black text-gray-900">${nombre} ${apellido}</p>
-                            <p class="text-sm text-gray-600">Cédula: ${cedula}</p>
+                            <p class="font-black text-gray-900 text-sm">${nombre} ${apellido}</p>
+                            <p class="text-xs text-gray-500">Cédula: ${cedula}</p>
                         </div>
-                    </div>
-                    `;
+                    </div>`;
                 }).join('');
                 resultados.classList.remove('hidden');
                 lucide.createIcons();
             } else {
-                resultados.innerHTML = '<p class="p-4 text-gray-500 text-center">No se encontraron clientes</p>';
+                resultados.innerHTML = '<p class="p-4 text-gray-500 text-center text-sm">No se encontraron clientes</p>';
                 resultados.classList.remove('hidden');
             }
         });
 
         function seleccionarCliente(cliente) {
-            // Normalizar propiedades
             const id = cliente.Id || cliente.id;
             const nombre = cliente.Nombre || cliente.nombre;
             const apellido = cliente.Apellido || cliente.apellido;
             const cedula = cliente.Cedula || cliente.cedula;
-
-            clienteSeleccionado = {
-                id,
-                nombre,
-                apellido,
-                cedula,
-                ...cliente
-            };
-
+            clienteSeleccionado = { id, nombre, apellido, cedula, ...cliente };
             document.getElementById('buscarClienteInput').value = '';
             document.getElementById('resultadosBusqueda').classList.add('hidden');
             document.getElementById('clienteNombre').textContent = `${nombre} ${apellido}`;
@@ -255,7 +496,6 @@
             document.getElementById('clienteInfo').classList.add('hidden');
         });
 
-        // Buscar productos
         document.getElementById('buscarProducto').addEventListener('input', function(e) {
             const termino = e.target.value.toLowerCase();
             const filtrados = productos.filter(p => {
@@ -270,39 +510,33 @@
         function renderProductos(lista) {
             const grid = document.getElementById('productosGrid');
             grid.innerHTML = lista.map(p => {
-                // Normalizar propiedades (soportar tanto camelCase como PascalCase)
                 const precio = p.Precio !== undefined ? p.Precio : (p.precio || 0);
                 const stock = p.Stock !== undefined ? p.Stock : (p.stock || 0);
                 const nombre = p.Nombre || p.nombre || 'Sin nombre';
                 const imagenBase64 = p.ImagenBase64 || p.imagenBase64 || null;
-
                 return `
-                <div class="bg-white border-2 border-gray-200 rounded-xl p-4 hover:shadow-lg transition-all ${stock === 0 ? 'opacity-50' : ''}">
-                    <div class="aspect-square bg-gray-200 rounded-lg mb-3 overflow-hidden flex items-center justify-center">
-                        ${imagenBase64 ? `<img src="${imagenBase64}" class="w-full h-full object-cover">` : `<i data-lucide="package" class="w-12 h-12 text-gray-400"></i>`}
+                <div class="tg-product-card ${stock === 0 ? 'opacity-50' : ''}">
+                    <div class="aspect-square bg-gray-100 rounded-lg mb-3 overflow-hidden flex items-center justify-center">
+                        ${imagenBase64 ? `<img src="${imagenBase64}" class="w-full h-full object-cover">` : `<i data-lucide="package" class="w-10 h-10 text-gray-400"></i>`}
                     </div>
                     <h4 class="font-black text-sm text-gray-900 mb-1">${nombre}</h4>
-                    <p class="text-xs text-gray-600 mb-2">Stock: ${stock}</p>
-                    <p class="text-lg font-black text-emerald-600 mb-3">$${precio.toFixed(2)}</p>
+                    <p class="text-xs text-gray-500 mb-2">Stock: ${stock}</p>
+                    <p class="text-base font-black mb-3" style="color:var(--tg-green);">$${precio.toFixed(2)}</p>
                     <button onclick='agregarAlCarrito(${JSON.stringify(p).replace(/'/g, "&apos;")})'
                             ${stock === 0 ? 'disabled' : ''}
-                            class="w-full px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-sm disabled:bg-gray-300 disabled:cursor-not-allowed">
-                        ${stock === 0 ? 'Sin Stock' : 'Agregar'}
+                            class="tg-add-btn">
+                        ${stock === 0 ? 'Sin Stock' : '+ Agregar'}
                     </button>
-                </div>
-                `;
+                </div>`;
             }).join('');
             lucide.createIcons();
         }
 
-
         function agregarAlCarrito(producto) {
-            // Normalizar propiedades
             const precio = producto.Precio !== undefined ? producto.Precio : (producto.precio || 0);
             const stock = producto.Stock !== undefined ? producto.Stock : (producto.stock || 0);
             const id = producto.Id || producto.id;
             const nombre = producto.Nombre || producto.nombre;
-
             const existente = carrito.find(item => item.producto.id === id);
             if (existente) {
                 if (existente.cantidad < stock) {
@@ -312,48 +546,39 @@
                     mostrarError('No hay más stock disponible');
                 }
             } else {
-                carrito.push({
-                    producto: { ...producto, id, precio, stock, nombre },
-                    cantidad: 1,
-                    precioUnitario: precio,
-                    total: precio
-                });
+                carrito.push({ producto: { ...producto, id, precio, stock, nombre }, cantidad: 1, precioUnitario: precio, total: precio });
             }
             renderCarrito();
         }
 
         function renderCarrito() {
             const container = document.getElementById('carritoItems');
-
             if (carrito.length === 0) {
-                container.innerHTML = '<p class="text-gray-500 text-center py-4 font-semibold">No hay productos en el carrito</p>';
+                container.innerHTML = '<p class="text-gray-400 text-center py-4 font-semibold text-sm">No hay productos en el carrito</p>';
                 document.getElementById('totalCarrito').textContent = '$0.00';
                 calcularSaldoPendiente();
                 return;
             }
-
             let total = 0;
             container.innerHTML = carrito.map(item => {
                 total += item.total;
                 return `
-                    <div class="flex items-center justify-between p-4 bg-white rounded-xl border-2 border-gray-200">
-                        <div class="flex-1">
-                            <p class="font-black text-sm text-gray-900">${item.producto.nombre}</p>
-                            <p class="text-xs text-gray-600">$${item.precioUnitario.toFixed(2)} c/u</p>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="cambiarCantidad('${item.producto.id}', ${item.cantidad - 1})" class="w-10 h-10 bg-gray-200 rounded-lg hover:bg-gray-300 font-black">-</button>
-                            <span class="w-12 text-center font-black text-lg">${item.cantidad}</span>
-                            <button onclick="cambiarCantidad('${item.producto.id}', ${item.cantidad + 1})" class="w-10 h-10 bg-gray-200 rounded-lg hover:bg-gray-300 font-black">+</button>
-                        </div>
-                        <p class="font-black text-emerald-600 text-lg w-24 text-right">$${item.total.toFixed(2)}</p>
-                        <button onclick="eliminarDelCarrito('${item.producto.id}')" class="ml-3 text-red-600 hover:text-red-800 p-2">
-                            <i data-lucide="trash-2" class="w-5 h-5"></i>
-                        </button>
+                <div class="tg-cart-item">
+                    <div class="flex-1">
+                        <p class="font-black text-sm text-gray-900">${item.producto.nombre}</p>
+                        <p class="text-xs text-gray-500">$${item.precioUnitario.toFixed(2)} c/u</p>
                     </div>
-                `;
+                    <div class="flex items-center gap-2">
+                        <button onclick="cambiarCantidad('${item.producto.id}', ${item.cantidad - 1})" class="tg-qty-btn">−</button>
+                        <span class="w-10 text-center font-black">${item.cantidad}</span>
+                        <button onclick="cambiarCantidad('${item.producto.id}', ${item.cantidad + 1})" class="tg-qty-btn">+</button>
+                    </div>
+                    <p class="font-black text-base w-24 text-right" style="color:var(--tg-green);">$${item.total.toFixed(2)}</p>
+                    <button onclick="eliminarDelCarrito('${item.producto.id}')" class="ml-3 text-red-500 hover:text-red-700 p-1 border-none bg-transparent cursor-pointer">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>`;
             }).join('');
-
             document.getElementById('totalCarrito').textContent = `$${total.toFixed(2)}`;
             calcularSaldoPendiente();
             lucide.createIcons();
@@ -375,7 +600,6 @@
             renderCarrito();
         }
 
-        // Manejar tipo de pago
         document.querySelectorAll('input[name="tipoPago"]').forEach(radio => {
             radio.addEventListener('change', function() {
                 const container = document.getElementById('montoPagadoContainer');
@@ -386,43 +610,31 @@
                 } else {
                     container.classList.add('hidden');
                 }
-
-                // Actualizar estilo visual
                 document.querySelectorAll('.tipo-pago-option').forEach(opt => {
-                    opt.classList.remove('border-emerald-600', 'border-orange-600', 'border-red-600', 'bg-emerald-50', 'bg-orange-50', 'bg-red-50');
+                    opt.classList.remove('selected-green', 'selected-orange', 'selected-red');
                 });
                 this.closest('.tipo-pago-option').classList.add(
-                    this.value === 'pagado' ? 'border-emerald-600' : this.value === 'parcial' ? 'border-orange-600' : 'border-red-600',
-                    this.value === 'pagado' ? 'bg-emerald-50' : this.value === 'parcial' ? 'bg-orange-50' : 'bg-red-50'
+                    this.value === 'pagado' ? 'selected-green' : this.value === 'parcial' ? 'selected-orange' : 'selected-red'
                 );
             });
         });
 
-        // Calcular saldo pendiente
         document.getElementById('montoPagado')?.addEventListener('input', calcularSaldoPendiente);
 
         function calcularSaldoPendiente() {
             const total = carrito.reduce((sum, item) => sum + item.total, 0);
             const montoPagado = parseFloat(document.getElementById('montoPagado')?.value || 0);
             const saldo = Math.max(0, total - montoPagado);
-
             if (document.getElementById('saldoPendiente')) {
                 document.getElementById('saldoPendiente').textContent = `$${saldo.toFixed(2)}`;
             }
         }
 
-        // Registrar venta
         document.getElementById('btnRegistrarVenta').addEventListener('click', async function() {
-
-            if (carrito.length === 0) {
-                mostrarError('Debe agregar productos al carrito');
-                return;
-            }
-
+            if (carrito.length === 0) { mostrarError('Debe agregar productos al carrito'); return; }
             const tipoPago = document.querySelector('input[name="tipoPago"]:checked').value;
             const notas = document.getElementById('notasVenta').value;
             const total = carrito.reduce((sum, item) => sum + item.total, 0);
-
             let montoPagado = total;
             let mensajeConfirmacion = '';
 
@@ -431,12 +643,9 @@
                 mensajeConfirmacion = `¿Confirmar venta FIADA por $${total.toFixed(2)}? Se registrará como deuda.`;
             } else if (tipoPago === 'parcial') {
                 montoPagado = parseFloat(document.getElementById('montoPagado').value || 0);
-                if (montoPagado <= 0 || montoPagado > total) {
-                    mostrarError('El monto a pagar debe ser mayor a 0 y menor o igual al total');
-                    return;
-                }
+                if (montoPagado <= 0 || montoPagado > total) { mostrarError('El monto a pagar debe ser mayor a 0 y menor o igual al total'); return; }
                 const saldo = total - montoPagado;
-                mensajeConfirmacion = `¿Confirmar venta con PAGO PARCIAL?\\nPaga ahora: $${montoPagado.toFixed(2)}\\nQueda a deber: $${saldo.toFixed(2)}`;
+                mensajeConfirmacion = `¿Confirmar venta con PAGO PARCIAL?\nPaga ahora: $${montoPagado.toFixed(2)}\nQueda a deber: $${saldo.toFixed(2)}`;
             } else {
                 mensajeConfirmacion = `¿Confirmar venta PAGADA por $${total.toFixed(2)}?`;
             }
@@ -454,8 +663,8 @@
                         montoPagado: tipoPago === 'pagado' ? item.total : (montoPagado * (item.total / total)),
                         estadoPago: tipoPago,
                         notas: notas || null,
-                        usuarioId: null, // TODO: Obtener ID del usuario logueado,
-                        metodoPago: document.getElementById('metodoPago')?.value || 'efectivo' // NUEVO
+                        usuarioId: null,
+                        metodoPago: document.getElementById('metodoPago')?.value || 'efectivo'
                     };
 
                     const response = await fetch('/api/VentasProductos', {
@@ -465,13 +674,11 @@
                     });
 
                     const result = await response.json();
-                    if (!result.success) {
-                        throw new Error(result.message || 'Error al registrar venta');
-                    }
+                    if (!result.success) throw new Error(result.message || 'Error al registrar venta');
                 }
 
                 alert('✓ Venta registrada exitosamente');
-                inicio()
+                inicio();
                 limpiar();
                 await cargarDatos();
             } catch (error) {
@@ -496,21 +703,14 @@
             renderProductos(productos);
         }
 
-        function inicio() {
-            window.location.href = '/productos';
-        }
+        function inicio() { window.location.href = '/productos'; }
+        function mostrarError(mensaje) { alert('⚠ ' + mensaje); }
 
-        function mostrarError(mensaje) {
-            alert('⚠ ' + mensaje);
-        }
-
-        // Exponer funciones
         window.agregarAlCarrito = agregarAlCarrito;
         window.cambiarCantidad = cambiarCantidad;
         window.eliminarDelCarrito = eliminarDelCarrito;
         window.seleccionarCliente = seleccionarCliente;
 
-        // Inicializar
         cargarDatos();
         lucide.createIcons();
     </script>

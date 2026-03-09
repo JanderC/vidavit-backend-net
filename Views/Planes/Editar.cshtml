@@ -1,346 +1,470 @@
 ﻿@model VidaFitBackend.Models.Plan
 @{
     ViewData["Title"] = "Editar Plan";
+    Layout = "_AdminLayout";
 }
 
-<div class="max-w-4xl mx-auto p-6">
-    <!-- Header con el color del plan -->
-    <div class="rounded-xl shadow-lg overflow-hidden mb-6" style="border: 3px solid @Model.Color">
-        <div class="p-6 text-white relative overflow-hidden" style="background: linear-gradient(135deg, @Model.Color 0%, @Model.Color 100%);">
-            <div class="absolute top-0 right-0 w-40 h-40 bg-white opacity-10 rounded-full -mr-20 -mt-20"></div>
-            <div class="absolute bottom-0 left-0 w-32 h-32 bg-white opacity-10 rounded-full -ml-16 -mb-16"></div>
+<style>
+    .tz-card {
+        background: #0d0d0d;
+        border: 1px solid rgba(34,197,94,0.15);
+        border-radius: 1rem;
+        padding: 2rem;
+    }
 
-            <div class="relative z-10 flex items-center justify-between">
-                <div>
-                    <div class="flex items-center gap-3 mb-2">
-                        <i data-lucide="edit-3" class="w-8 h-8"></i>
-                        <h2 class="text-3xl font-bold">Editar Plan</h2>
-                    </div>
-                    <p class="text-white text-opacity-90 ml-11">Modifica la información del plan de membresía</p>
+    .tz-label {
+        display: block;
+        font-size: .68rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .1em;
+        color: #6b7280;
+        margin-bottom: .4rem;
+    }
+
+        .tz-label .req {
+            color: #ef4444;
+        }
+
+    .tz-input {
+        width: 100%;
+        padding: .7rem 1rem;
+        background: #111;
+        border: 1px solid rgba(34,197,94,0.2);
+        border-radius: .65rem;
+        color: #f9fafb;
+        font-weight: 600;
+        font-size: .9rem;
+        transition: border-color .2s, box-shadow .2s;
+        box-sizing: border-box;
+    }
+
+        .tz-input::placeholder {
+            color: #374151;
+        }
+
+        .tz-input:focus {
+            outline: none;
+            border-color: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34,197,94,0.1);
+        }
+
+    .tz-select {
+        width: 100%;
+        padding: .7rem 1rem;
+        background: #111;
+        border: 1px solid rgba(34,197,94,0.2);
+        border-radius: .65rem;
+        color: #f9fafb;
+        font-weight: 600;
+        font-size: .9rem;
+        transition: border-color .2s;
+    }
+
+        .tz-select:focus {
+            outline: none;
+            border-color: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34,197,94,0.1);
+        }
+
+    /* Plan header banner */
+    .plan-banner {
+        border-radius: .85rem;
+        overflow: hidden;
+        border: 2px solid @Model.Color;
+        margin-bottom: 1.5rem;
+    }
+
+    .plan-banner-inner {
+        padding: 1.5rem;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+        .plan-banner-inner::before {
+            content: '';
+            position: absolute;
+            top: -2rem;
+            right: -2rem;
+            width: 8rem;
+            height: 8rem;
+            background: rgba(255,255,255,0.07);
+            border-radius: 50%;
+        }
+
+        .plan-banner-inner::after {
+            content: '';
+            position: absolute;
+            bottom: -1.5rem;
+            left: -1.5rem;
+            width: 5rem;
+            height: 5rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+        }
+
+    /* Color picker */
+    .color-row {
+        display: flex;
+        gap: .65rem;
+        align-items: center;
+    }
+
+    .color-picker-wrap {
+        width: 3rem;
+        height: 3rem;
+        border-radius: .55rem;
+        overflow: hidden;
+        border: 2px solid rgba(34,197,94,0.25);
+        flex-shrink: 0;
+        cursor: pointer;
+        position: relative;
+    }
+
+        .color-picker-wrap input[type=color] {
+            width: 4rem;
+            height: 4rem;
+            margin: -.5rem;
+            border: none;
+            cursor: pointer;
+            background: transparent;
+        }
+    /* Color dot on picker */
+    .color-dot {
+        position: absolute;
+        top: -.2rem;
+        right: -.2rem;
+        width: .85rem;
+        height: .85rem;
+        border-radius: 50%;
+        border: 2px solid #0d0d0d;
+        background: @Model.Color;
+        pointer-events: none;
+    }
+
+    /* Activo toggle box */
+    .activo-box {
+        padding: .85rem 1.1rem;
+        border-radius: .65rem;
+        border: 2px solid @Model.Color;
+        background: @Model.Color + "10";
+        display: flex;
+        align-items: flex-start;
+        gap: .75rem;
+        cursor: pointer;
+        transition: border-color .2s;
+    }
+
+        .activo-box input[type=checkbox] {
+            width: 1.15rem;
+            height: 1.15rem;
+            accent-color: #22c55e;
+            cursor: pointer;
+            margin-top: .15rem;
+        }
+
+    /* Buttons */
+    .tz-btn-save {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        padding: .9rem 1.5rem;
+        border-radius: .65rem;
+        font-weight: 800;
+        font-size: .82rem;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        border: none;
+        cursor: pointer;
+        transition: all .2s;
+        /* Color set dynamically */
+    }
+
+        .tz-btn-save:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 18px rgba(0,0,0,0.35);
+        }
+
+        .tz-btn-save:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+    .tz-btn-ghost {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        padding: .9rem 1.5rem;
+        border-radius: .65rem;
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.1);
+        color: #6b7280;
+        font-weight: 800;
+        font-size: .82rem;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        text-decoration: none;
+        transition: all .2s;
+    }
+
+        .tz-btn-ghost:hover {
+            border-color: rgba(34,197,94,0.25);
+            color: #d1d5db;
+        }
+</style>
+
+<!-- Plan header banner -->
+<div class="plan-banner" id="planBanner" style="border-color: @Model.Color">
+    <div class="plan-banner-inner" id="planBannerInner" style="background: linear-gradient(135deg, @Model.Color, @Model.Color)">
+        <div style="position:relative;z-index:1">
+            <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.4rem">
+                <i data-lucide="edit-3" style="width:1.25rem;height:1.25rem"></i>
+                <h2 style="font-size:1.35rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em">Editar Plan</h2>
+            </div>
+            <p style="font-size:.8rem;font-weight:600;opacity:.85;margin-left:1.85rem">Modifica la información del plan de membresía</p>
+        </div>
+        <a href="/membresias/planes"
+           style="display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1rem;border-radius:.55rem;background:rgba(255,255,255,0.15);color:#fff;font-weight:800;font-size:.75rem;text-decoration:none;text-transform:uppercase;letter-spacing:.07em;transition:background .2s;position:relative;z-index:1"
+           onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
+            <i data-lucide="arrow-left" style="width:.85rem;height:.85rem"></i>
+            Volver
+        </a>
+    </div>
+</div>
+
+<div class="tz-card max-w-4xl mx-auto">
+    <form id="planForm" class="space-y-5">
+        <input type="hidden" id="planId" value="@Model.Id" />
+
+        <!-- Nombre -->
+        <div>
+            <label class="tz-label" style="display:flex;align-items:center;gap:.35rem">
+                <i data-lucide="tag" id="iconNombre" style="width:.75rem;height:.75rem;color:@Model.Color"></i>
+                Nombre del Plan <span class="req">*</span>
+            </label>
+            <input type="text" id="nombre" value="@Model.Nombre" required class="tz-input" />
+        </div>
+
+        <!-- Descripción -->
+        <div>
+            <label class="tz-label" style="display:flex;align-items:center;gap:.35rem">
+                <i data-lucide="align-left" id="iconDesc" style="width:.75rem;height:.75rem;color:@Model.Color"></i>
+                Descripción
+            </label>
+            <textarea id="descripcion" rows="3" class="tz-input" style="resize:none">@Model.Descripcion</textarea>
+        </div>
+
+        <!-- Grid -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+            <!-- Tipo -->
+            <div>
+                <label class="tz-label" style="display:flex;align-items:center;gap:.35rem">
+                    <i data-lucide="layers" id="iconTipo" style="width:.75rem;height:.75rem;color:@Model.Color"></i>
+                    Tipo <span class="req">*</span>
+                </label>
+                <div style="position:relative">
+                    <select id="tipo" required class="tz-select">
+                        <option value="semanal" selected="@(Model.Tipo == "semanal"       ? "selected" : null)">📅 Semanal</option>
+                        <option value="mensual" selected="@(Model.Tipo == "mensual"       ? "selected" : null)">📆 Mensual</option>
+                        <option value="personalizado" selected="@(Model.Tipo == "personalizado" ? "selected" : null)">⚙️ Personalizado</option>
+                        <option value="diario" selected="@(Model.Tipo == "diario"        ? "selected" : null)">☀️ Diario</option>
+                        <option value="trimestral" selected="@(Model.Tipo == "trimestral"    ? "selected" : null)">📊 Trimestral</option>
+                        <option value="semestral" selected="@(Model.Tipo == "semestral"     ? "selected" : null)">📈 Semestral</option>
+                        <option value="anual" selected="@(Model.Tipo == "anual"         ? "selected" : null)">🎯 Anual</option>
+                        <option value="otro" selected="@(Model.Tipo == "otro"          ? "selected" : null)">➕ Otro</option>
+                    </select>
+                    <i data-lucide="chevron-down" style="width:.85rem;height:.85rem;position:absolute;right:.85rem;top:50%;transform:translateY(-50%);pointer-events:none;color:#6b7280"></i>
                 </div>
-                <a href="/membresias/planes"
-                   class="px-5 py-2.5 bg-white bg-opacity-20 hover:bg-opacity-30 text-white font-bold rounded-lg transition-all backdrop-blur-sm flex items-center gap-2">
-                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                    Volver
-                </a>
+            </div>
+
+            <!-- Duración -->
+            <div>
+                <label class="tz-label" style="display:flex;align-items:center;gap:.35rem">
+                    <i data-lucide="calendar-days" id="iconDur" style="width:.75rem;height:.75rem;color:@Model.Color"></i>
+                    Duración (días) <span class="req">*</span>
+                </label>
+                <div style="position:relative">
+                    <input type="number" id="duracionDias" value="@Model.DuracionDias" required min="1" class="tz-input" style="padding-right:3.5rem" />
+                    <span style="position:absolute;right:.9rem;top:50%;transform:translateY(-50%);color:#4b5563;font-weight:600;font-size:.78rem;pointer-events:none">días</span>
+                </div>
+            </div>
+
+            <!-- Precio -->
+            <div>
+                <label class="tz-label" style="display:flex;align-items:center;gap:.35rem">
+                    <i data-lucide="dollar-sign" id="iconPrice" style="width:.75rem;height:.75rem;color:@Model.Color"></i>
+                    Precio <span class="req">*</span>
+                </label>
+                <div style="position:relative">
+                    <span style="position:absolute;left:.9rem;top:50%;transform:translateY(-50%);color:#6b7280;font-weight:700">$</span>
+                    <input type="number" id="precio" value="@Model.Precio" required min="0" step="0.01" class="tz-input" style="padding-left:1.75rem;font-weight:900" />
+                </div>
+            </div>
+
+            <!-- Color -->
+            <div>
+                <label class="tz-label" style="display:flex;align-items:center;gap:.35rem">
+                    <i data-lucide="palette" id="iconPalette" style="width:.75rem;height:.75rem;color:@Model.Color"></i>
+                    Color de Identificación
+                </label>
+                <div class="color-row">
+                    <div class="color-picker-wrap">
+                        <input type="color" id="color" value="@Model.Color" />
+                        <div class="color-dot" id="colorDot"></div>
+                    </div>
+                    <input type="text" id="colorHex" value="@Model.Color" placeholder="#22c55e"
+                           class="tz-input" style="font-family:monospace;font-size:.85rem;text-transform:uppercase" />
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Formulario -->
-    <div class="bg-white rounded-xl shadow-lg p-8">
-        <form id="planForm" class="space-y-6">
-            <input type="hidden" id="planId" value="@Model.Id">
-
-            <!-- Nombre -->
-            <div class="group">
-                <label class="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
-                    <i data-lucide="tag" class="w-4 h-4" style="color: @Model.Color"></i>
-                    Nombre del Plan <span class="text-red-500">*</span>
-                </label>
-                <input type="text" id="nombre" value="@Model.Nombre" required
-                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:border-transparent text-gray-800 transition-all"
-                       style="focus:ring-color: @Model.Color;">
-            </div>
-
-            <!-- Descripción -->
-            <div class="group">
-                <label class="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
-                    <i data-lucide="align-left" class="w-4 h-4" style="color: @Model.Color"></i>
-                    Descripción
-                </label>
-                <textarea id="descripcion" rows="3"
-                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:border-transparent text-gray-800 resize-none transition-all">@Model.Descripcion</textarea>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Tipo -->
-                <div class="group">
-                    <label class="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
-                        <i data-lucide="layers" class="w-4 h-4" style="color: @Model.Color"></i>
-                        Tipo <span class="text-red-500">*</span>
-                    </label>
-                    <div class="relative">
-                        <select id="tipo" required
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:border-transparent text-gray-800 appearance-none cursor-pointer transition-all">
-                            <option value="semanal" selected="@(Model.Tipo == "semanal" ? "selected" : null)">📅 Semanal</option>
-                            <option value="mensual" selected="@(Model.Tipo == "mensual" ? "selected" : null)">📆 Mensual</option>
-                            <option value="personalizado" selected="@(Model.Tipo == "personalizado" ? "selected" : null)">⚙️ Personalizado</option>
-                            <option value="diario" selected="@(Model.Tipo == "diario" ? "selected" : null)">☀️ Diario</option>
-                            <option value="trimestral" selected="@(Model.Tipo == "trimestral" ? "selected" : null)">📊 Trimestral</option>
-                            <option value="semestral" selected="@(Model.Tipo == "semestral" ? "selected" : null)">📈 Semestral</option>
-                            <option value="anual" selected="@(Model.Tipo == "anual" ? "selected" : null)">🎯 Anual</option>
-                            <option value="otro" selected="@(Model.Tipo == "otro" ? "selected" : null)">➕ Otro</option>
-                        </select>
-                        <i data-lucide="chevron-down" class="w-5 h-5 absolute right-3 top-3.5 pointer-events-none text-gray-500"></i>
-                    </div>
+        <!-- Activo -->
+        <label class="activo-box" id="activoBox">
+            <input type="checkbox" id="activo" @(Model.Activo ? "checked" : "") />
+            <div>
+                <div style="display:flex;align-items:center;gap:.4rem">
+                    <i data-lucide="check-circle" id="iconActivo" style="width:.9rem;height:.9rem;color:@Model.Color"></i>
+                    <span style="font-weight:800;color:#d1d5db;font-size:.88rem">Plan Activo</span>
                 </div>
-
-                <!-- Duración -->
-                <div class="group">
-                    <label class="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
-                        <i data-lucide="calendar-days" class="w-4 h-4" style="color: @Model.Color"></i>
-                        Duración (días) <span class="text-red-500">*</span>
-                    </label>
-                    <div class="relative">
-                        <input type="number" id="duracionDias" value="@Model.DuracionDias" required min="1"
-                               class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:border-transparent text-gray-800 transition-all">
-                        <span class="absolute right-4 top-3.5 text-gray-400 font-medium">días</span>
-                    </div>
-                </div>
-
-                <!-- Precio -->
-                <div class="group">
-                    <label class="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
-                        <i data-lucide="dollar-sign" class="w-4 h-4" style="color: @Model.Color"></i>
-                        Precio <span class="text-red-500">*</span>
-                    </label>
-                    <div class="relative">
-                        <span class="absolute left-4 top-3.5 text-gray-500 font-bold text-lg">$</span>
-                        <input type="number" id="precio" value="@Model.Precio" required min="0" step="0.01"
-                               class="w-full pl-9 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:border-transparent text-gray-800 font-semibold transition-all">
-                    </div>
-                </div>
-
-                <!-- Color -->
-                <div class="group">
-                    <label class="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
-                        <i data-lucide="palette" class="w-4 h-4" style="color: @Model.Color"></i>
-                        Color de Identificación
-                    </label>
-                    <div class="flex gap-3">
-                        <div class="relative">
-                            <input type="color" id="color" value="@Model.Color"
-                                   class="h-12 w-16 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-gray-400 transition-all">
-                            <div class="absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 border-white shadow-lg" style="background-color: @Model.Color"></div>
-                        </div>
-                        <input type="text" id="colorHex" value="@Model.Color" placeholder="#00FF00"
-                               class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:border-transparent text-gray-800 font-mono font-bold uppercase transition-all">
-                    </div>
-                </div>
+                <p style="font-size:.72rem;color:#6b7280;font-weight:500;margin-top:.2rem">Los planes inactivos no estarán disponibles para nuevas membresías</p>
             </div>
+        </label>
 
-            <!-- Estado con diseño mejorado -->
-            <div class="p-5 rounded-lg border-2 transition-all" style="border-color: @Model.Color; background-color: @(Model.Color)10;">
-                <label class="flex items-center gap-3 cursor-pointer">
-                    <div class="relative">
-                        <input type="checkbox" id="activo" @(Model.Activo ? "checked" : "")
-                               class="w-6 h-6 border-2 rounded focus:ring-2 cursor-pointer transition-all"
-                               style="color: @Model.Color; border-color: @Model.Color;">
-                    </div>
-                    <div class="flex-1">
-                        <span class="text-base font-bold text-gray-800 flex items-center gap-2">
-                            <i data-lucide="check-circle" class="w-5 h-5" style="color: @Model.Color"></i>
-                            Plan Activo
-                        </span>
-                        <p class="text-sm text-gray-600 mt-1">Los planes inactivos no estarán disponibles para crear nuevas membresías</p>
-                    </div>
-                </label>
-            </div>
-
-            <!-- Botones con el color del plan -->
-            <div class="flex gap-4 pt-6 border-t-2 border-gray-200">
-                <button type="submit" id="btnGuardar"
-                        class="flex-1 font-bold py-4 px-6 rounded-lg transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 transform hover:scale-105"
-                        style="background-color: @Model.Color;">
-                    <i data-lucide="save" class="w-5 h-5"></i>
-                    <span>Guardar Cambios</span>
-                </button>
-                <a href="/membresias/planes"
-                   class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold py-4 px-6 rounded-lg transition-all text-center flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
-                    <i data-lucide="x-circle" class="w-5 h-5"></i>
-                    Cancelar
-                </a>
-            </div>
-        </form>
-    </div>
+        <!-- Buttons -->
+        <div style="display:flex;gap:.75rem;padding-top:1.25rem;border-top:1px solid rgba(34,197,94,0.1)">
+            <button type="submit" id="btnGuardar" class="tz-btn-save"
+                    style="background-color:@Model.Color;color:#fff">
+                <i data-lucide="save" style="width:.9rem;height:.9rem"></i>
+                <span>Guardar Cambios</span>
+            </button>
+            <a href="/membresias/planes" class="tz-btn-ghost">
+                <i data-lucide="x-circle" style="width:.9rem;height:.9rem"></i>
+                Cancelar
+            </a>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
     <script>
-        const planColor = '@Model.Color';
+        const planColorOriginal = '@Model.Color';
 
-        // Función para determinar si un color es claro u oscuro
-        function getContrastColor(hexColor) {
-            // Convertir hex a RGB
-            const r = parseInt(hexColor.substr(1, 2), 16);
-            const g = parseInt(hexColor.substr(3, 2), 16);
-            const b = parseInt(hexColor.substr(5, 2), 16);
-
-            // Calcular luminosidad
-            const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-
-            // Si es claro, usar texto oscuro; si es oscuro, usar texto claro
-            return luminance > 0.5 ? '#1f2937' : '#ffffff';
+        // Luminance helper — determines readable text color on colored bg
+        function getContrastColor(hex) {
+            const r = parseInt(hex.substr(1,2),16);
+            const g = parseInt(hex.substr(3,2),16);
+            const b = parseInt(hex.substr(5,2),16);
+            return (0.299*r + 0.587*g + 0.114*b)/255 > 0.5 ? '#1f2937' : '#ffffff';
         }
 
-        // Aplicar color de texto al botón
-        function aplicarColorTextoBoton() {
-            const btn = document.getElementById('btnGuardar');
-            const textColor = getContrastColor(planColor);
-            btn.style.color = textColor;
-
-            // También aplicar a los iconos dentro del botón
-            const icon = btn.querySelector('[data-lucide]');
-            if (icon) {
-                icon.style.color = textColor;
-            }
-        }
-
-        // Sincronizar color picker con input hex
         const colorPicker = document.getElementById('color');
-        const colorHex = document.getElementById('colorHex');
+        const colorHex    = document.getElementById('colorHex');
+        const colorDot    = document.getElementById('colorDot');
+        const btn         = document.getElementById('btnGuardar');
 
-        colorPicker.addEventListener('input', function() {
-            colorHex.value = this.value.toUpperCase();
-            actualizarVistaPreviaColor(this.value);
-        });
-
-        colorHex.addEventListener('input', function() {
-            const value = this.value.trim();
-            if (/^#[0-9A-F]{6}$/i.test(value)) {
-                colorPicker.value = value;
-                actualizarVistaPreviaColor(value);
-            }
-        });
-
-        function actualizarVistaPreviaColor(color) {
-            // Actualizar el botón con el nuevo color
-            const btn = document.getElementById('btnGuardar');
-            btn.style.backgroundColor = color;
-
-            const textColor = getContrastColor(color);
-            btn.style.color = textColor;
-
-            // Actualizar icono del botón
-            const btnIcon = btn.querySelector('[data-lucide]');
-            if (btnIcon) {
-                btnIcon.style.color = textColor;
-            }
-
-            // Actualizar iconos de etiquetas con el nuevo color
-            document.querySelectorAll('label [data-lucide]').forEach(icon => {
-                if (icon.style.color) {
-                    icon.style.color = color;
-                }
+        function applyColor(c) {
+            // Banner
+            document.getElementById('planBanner').style.borderColor = c;
+            document.getElementById('planBannerInner').style.background = `linear-gradient(135deg, ${c}, ${c})`;
+            // Activo box
+            document.getElementById('activoBox').style.borderColor = c;
+            document.getElementById('activoBox').style.backgroundColor = c + '12';
+            // Color dot
+            colorDot.style.backgroundColor = c;
+            // Label icons
+            ['iconNombre','iconDesc','iconTipo','iconDur','iconPrice','iconPalette','iconActivo'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.color = c;
             });
+            // Save button
+            btn.style.backgroundColor = c;
+            btn.style.color = getContrastColor(c);
         }
 
-        // Añadir efecto focus a los inputs
-        document.querySelectorAll('input:not([type="checkbox"]):not([type="color"]), textarea, select').forEach(input => {
-            input.addEventListener('focus', function() {
-                this.style.borderColor = planColor;
-                this.style.boxShadow = `0 0 0 3px ${planColor}20`;
-            });
-
-            input.addEventListener('blur', function() {
-                this.style.borderColor = '';
-                this.style.boxShadow = '';
-            });
+        colorPicker.addEventListener('input', function () {
+            const val = this.value.toUpperCase();
+            colorHex.value = val;
+            applyColor(val);
         });
 
-        // Submit formulario
-        document.getElementById('planForm').addEventListener('submit', async function(e) {
+        colorHex.addEventListener('input', function () {
+            const val = this.value.trim();
+            if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+                colorPicker.value = val;
+                applyColor(val.toUpperCase());
+            }
+        });
+
+        // Submit
+        document.getElementById('planForm').addEventListener('submit', async function (e) {
             e.preventDefault();
+            const planId     = document.getElementById('planId').value;
+            const nombreVal  = document.getElementById('nombre').value.trim();
+            const tipoVal    = document.getElementById('tipo').value;
+            const duracionVal= parseInt(document.getElementById('duracionDias').value);
+            const precioVal  = parseFloat(document.getElementById('precio').value);
+            const colorVal   = document.getElementById('color').value;
 
-            const planId = document.getElementById('planId').value;
-            const nombreVal = document.getElementById('nombre').value.trim();
-            const tipoVal = document.getElementById('tipo').value;
-            const duracionVal = parseInt(document.getElementById('duracionDias').value);
-            const precioVal = parseFloat(document.getElementById('precio').value);
-            const colorVal = document.getElementById('color').value;
-
-            // Validaciones
-            if (!nombreVal) {
-                alert('⚠️ El nombre del plan es requerido');
-                return;
-            }
-
-            if (!tipoVal) {
-                alert('⚠️ El tipo de plan es requerido');
-                return;
-            }
-
-            if (isNaN(duracionVal) || duracionVal <= 0) {
-                alert('⚠️ La duración debe ser mayor a 0');
-                return;
-            }
-
-            if (isNaN(precioVal) || precioVal <= 0) {
-                alert('⚠️ El precio debe ser mayor a 0');
-                return;
-            }
+            if (!nombreVal)                          { alert('⚠️ El nombre es requerido'); return; }
+            if (!tipoVal)                            { alert('⚠️ El tipo es requerido');   return; }
+            if (isNaN(duracionVal)||duracionVal <= 0){ alert('⚠️ La duración debe ser mayor a 0'); return; }
+            if (isNaN(precioVal)||precioVal <= 0)    { alert('⚠️ El precio debe ser mayor a 0');   return; }
 
             const data = {
-                id: planId,
-                nombre: nombreVal,
-                descripcion: document.getElementById('descripcion').value.trim() || null,
-                tipo: tipoVal,
+                id:           planId,
+                nombre:       nombreVal,
+                descripcion:  document.getElementById('descripcion').value.trim() || null,
+                tipo:         tipoVal,
                 duracionDias: duracionVal,
-                precio: precioVal,
-                color: colorVal,
-                activo: document.getElementById('activo').checked
+                precio:       precioVal,
+                color:        colorVal,
+                activo:       document.getElementById('activo').checked
             };
 
-            const btn = document.getElementById('btnGuardar');
-            const btnTexto = btn.innerHTML;
+            const originalHTML = btn.innerHTML;
             btn.disabled = true;
-            btn.innerHTML = '<i data-lucide="loader" class="w-5 h-5 animate-spin"></i> <span>Guardando...</span>';
+            btn.innerHTML = '<i data-lucide="loader" style="width:.9rem;height:.9rem"></i> <span>Guardando...</span>';
             lucide.createIcons();
 
             try {
-                const response = await fetch(`/api/Planes/${planId}`, {
+                const resp = await fetch(`/api/Planes/${planId}`, {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                     body: JSON.stringify(data)
                 });
 
-                if (response.ok || response.status === 204) {
-                    // Mostrar mensaje de éxito con el color del plan
-                    const successDiv = document.createElement('div');
-                    successDiv.className = 'fixed top-4 right-4 px-6 py-4 rounded-lg shadow-2xl font-bold z-50 animate-bounce';
-                    successDiv.style.backgroundColor = colorVal;
-
-                    const successTextColor = getContrastColor(colorVal);
-                    successDiv.style.color = successTextColor;
-                    successDiv.innerHTML = '<i data-lucide="check-circle" class="w-5 h-5 inline mr-2"></i>Plan actualizado exitosamente';
-                    document.body.appendChild(successDiv);
-                    lucide.createIcons();
-
-                    setTimeout(() => {
-                        window.location.href = '/membresias/planes';
-                    }, 1000);
+                if (resp.ok || resp.status === 204) {
+                    alert('✅ Plan actualizado exitosamente');
+                    window.location.href = '/membresias/planes';
                 } else {
-                    let errorMsg = 'Error desconocido';
-                    try {
-                        const errorData = await response.json();
-                        errorMsg = errorData.mensaje || errorData.title || JSON.stringify(errorData);
-                    } catch {
-                        errorMsg = await response.text();
-                    }
-                    alert('❌ Error: ' + errorMsg);
-                    btn.disabled = false;
-                    btn.innerHTML = btnTexto;
-                    lucide.createIcons();
-                    aplicarColorTextoBoton();
+                    let msg = 'Error desconocido';
+                    try { const err = await resp.json(); msg = err.mensaje || err.title || JSON.stringify(err); }
+                    catch { msg = await resp.text(); }
+                    alert('❌ Error: ' + msg);
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al actualizar el plan: ' + error.message);
+            } catch (err) {
+                alert('❌ Error al actualizar el plan: ' + err.message);
+            } finally {
                 btn.disabled = false;
-                btn.innerHTML = btnTexto;
+                btn.innerHTML = originalHTML;
                 lucide.createIcons();
-                aplicarColorTextoBoton();
+                applyColor(colorVal);
             }
         });
 
-        // Inicializar iconos y colores cuando el DOM esté listo
-        document.addEventListener('DOMContentLoaded', function() {
+        // Init
+        document.addEventListener('DOMContentLoaded', function () {
             lucide.createIcons();
-            aplicarColorTextoBoton();
+            applyColor(planColorOriginal);
         });
     </script>
 }

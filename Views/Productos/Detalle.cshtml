@@ -5,26 +5,191 @@
     ViewData["Subtitle"] = "Información completa del producto";
 }
 
+<style>
+    :root {
+        --tg-green: #2EAD4B;
+        --tg-green-dark: #1e8a38;
+        --tg-border: #c6e8cf;
+        --tg-black: #1a1a1a;
+        --tg-dark: #2D2D2D;
+        --tg-text: #111827;
+        --tg-muted: #6b7280;
+        --tg-white: #ffffff;
+    }
+
+    .tg-hero {
+        background: linear-gradient(135deg, var(--tg-black) 0%, var(--tg-dark) 100%);
+        padding: 2.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .tg-hero::before {
+            content: '';
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 160px;
+            height: 160px;
+            background: var(--tg-green);
+            border-radius: 50%;
+            opacity: .12;
+        }
+
+        .tg-hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30px;
+            left: 10%;
+            width: 100px;
+            height: 100px;
+            background: var(--tg-green);
+            border-radius: 50%;
+            opacity: .08;
+        }
+
+    .tg-card {
+        background: var(--tg-white);
+        border-radius: 1.25rem;
+        border: 2px solid #e5e7eb;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .tg-info-box {
+        background: #fafafa;
+        border: 2px solid #e5e7eb;
+        border-radius: .85rem;
+        padding: 1.25rem 1.5rem;
+    }
+
+    .tg-info-box-green {
+        background: #f0fdf4;
+        border: 2px solid var(--tg-border);
+        border-radius: .85rem;
+        padding: 1.25rem 1.5rem;
+    }
+
+    .tg-info-box-blue {
+        background: #eff6ff;
+        border: 2px solid #bfdbfe;
+        border-radius: .85rem;
+        padding: 1.25rem 1.5rem;
+    }
+
+    .tg-info-label {
+        font-size: .7rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: .1em;
+        margin-bottom: .4rem;
+        color: var(--tg-muted);
+    }
+
+    .tg-btn-primary {
+        background: linear-gradient(135deg, var(--tg-green), var(--tg-green-dark));
+        color: var(--tg-white);
+        font-weight: 900;
+        padding: 1rem 1.5rem;
+        border-radius: .75rem;
+        transition: all .2s;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+        box-shadow: 0 4px 16px rgba(46,173,75,0.3);
+        flex: 1;
+        font-size: .9rem;
+    }
+
+        .tg-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(46,173,75,0.4);
+            color: var(--tg-white);
+            text-decoration: none;
+        }
+
+    .tg-btn-secondary {
+        background: #f3f4f6;
+        color: var(--tg-dark);
+        font-weight: 800;
+        padding: 1rem 1.5rem;
+        border-radius: .75rem;
+        transition: all .2s;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+        border: 2px solid #e5e7eb;
+        flex: 1;
+        font-size: .9rem;
+    }
+
+        .tg-btn-secondary:hover {
+            background: #e5e7eb;
+            text-decoration: none;
+            color: var(--tg-dark);
+        }
+
+    .tg-status-active {
+        background: var(--tg-green);
+        color: var(--tg-white);
+        padding: .5rem 1.5rem;
+        border-radius: 9999px;
+        font-weight: 900;
+        font-size: .8rem;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        box-shadow: 0 2px 8px rgba(46,173,75,0.4);
+    }
+
+    .tg-status-inactive {
+        background: #6b7280;
+        color: var(--tg-white);
+        padding: .5rem 1.5rem;
+        border-radius: 9999px;
+        font-weight: 900;
+        font-size: .8rem;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+    }
+</style>
+
 <div class="max-w-4xl mx-auto">
-    <div class="bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-gray-200">
-        <div class="bg-gradient-to-r from-red-600 to-red-800 p-8">
-            <div class="flex items-center justify-between">
+    <div class="tg-card">
+
+        <!-- Hero Header -->
+        <div class="tg-hero">
+            <div class="flex items-center justify-between relative z-10">
                 <div>
-                    <h2 class="text-3xl font-black text-white mb-2 uppercase tracking-wide">Detalle de Producto</h2>
-                    <p class="text-white opacity-90 font-bold">@Model.Nombre</p>
+                    <p class="text-xs font-black uppercase tracking-widest mb-2" style="color:var(--tg-green);">Tallest GYM · Inventario</p>
+                    <h2 class="text-3xl font-black text-white mb-1 uppercase tracking-wide">Detalle de Producto</h2>
+                    <p class="text-gray-300 font-bold text-lg">@Model.Nombre</p>
                 </div>
-                <div class="text-right">
+                <div>
                     @if (Model.Activo)
                     {
-                        <span class="inline-flex items-center px-6 py-3 bg-emerald-500 text-white rounded-full font-black uppercase tracking-wide shadow-xl">
-                            <i data-lucide="check-circle" class="w-5 h-5 mr-2"></i>
+                        <span class="tg-status-active">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i>
                             Activo
                         </span>
                     }
                     else
                     {
-                        <span class="inline-flex items-center px-6 py-3 bg-gray-500 text-white rounded-full font-black uppercase tracking-wide shadow-xl">
-                            <i data-lucide="x-circle" class="w-5 h-5 mr-2"></i>
+                        <span class="tg-status-inactive">
+                            <i data-lucide="x-circle" class="w-4 h-4"></i>
                             Inactivo
                         </span>
                     }
@@ -32,70 +197,72 @@
             </div>
         </div>
 
+        <!-- Body -->
         <div class="p-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+
+                <!-- Imagen -->
                 <div class="md:col-span-2 flex justify-center">
                     @if (!string.IsNullOrEmpty(Model.ImagenBase64))
                     {
-                        <div class="w-64 h-64 bg-gray-100 rounded-2xl overflow-hidden shadow-lg">
+                        <div class="w-56 h-56 rounded-2xl overflow-hidden shadow-lg border-2 border-gray-200">
                             <img src="@Model.ImagenBase64" alt="@Model.Nombre" class="w-full h-full object-cover">
                         </div>
                     }
                     else
                     {
-                        <div class="w-64 h-64 bg-gray-100 rounded-2xl flex items-center justify-center shadow-lg">
-                            <i data-lucide="package" class="w-24 h-24 text-gray-400"></i>
+                        <div class="w-56 h-56 bg-gray-100 rounded-2xl flex items-center justify-center shadow-lg border-2 border-gray-200">
+                            <i data-lucide="package" class="w-20 h-20 text-gray-400"></i>
                         </div>
                     }
                 </div>
 
-                <div class="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
-                    <p class="text-sm font-black text-gray-600 uppercase tracking-wide mb-2">Nombre</p>
+                <div class="tg-info-box">
+                    <p class="tg-info-label">Nombre</p>
                     <p class="text-xl font-bold text-gray-900">@Model.Nombre</p>
                 </div>
 
-                <div class="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
-                    <p class="text-sm font-black text-gray-600 uppercase tracking-wide mb-2">Categoría</p>
+                <div class="tg-info-box">
+                    <p class="tg-info-label">Categoría</p>
                     <p class="text-xl font-bold text-gray-900">@(string.IsNullOrEmpty(Model.Categoria) ? "Sin categoría" : Model.Categoria)</p>
                 </div>
 
-                <div class="bg-emerald-50 p-6 rounded-xl border-2 border-emerald-300">
-                    <p class="text-sm font-black text-emerald-800 uppercase tracking-wide mb-2">Precio</p>
-                    <p class="text-3xl font-black text-emerald-600">$@Model.Precio.ToString("N2")</p>
+                <div class="tg-info-box-green">
+                    <p class="tg-info-label" style="color:#166534;">Precio</p>
+                    <p class="text-3xl font-black" style="color:var(--tg-green);">$@Model.Precio.ToString("N2")</p>
                 </div>
 
-                <div class="bg-blue-50 p-6 rounded-xl border-2 border-blue-300">
-                    <p class="text-sm font-black text-blue-800 uppercase tracking-wide mb-2">Stock Disponible</p>
+                <div class="tg-info-box-blue">
+                    <p class="tg-info-label" style="color:#1e40af;">Stock Disponible</p>
                     <p class="text-3xl font-black text-blue-600">@Model.Stock</p>
                 </div>
 
                 @if (!string.IsNullOrEmpty(Model.Descripcion))
                 {
-                    <div class="md:col-span-2 bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
-                        <p class="text-sm font-black text-gray-600 uppercase tracking-wide mb-2">Descripción</p>
+                    <div class="md:col-span-2 tg-info-box">
+                        <p class="tg-info-label">Descripción</p>
                         <p class="text-gray-800 font-semibold">@Model.Descripcion</p>
                     </div>
                 }
 
-                <div class="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
-                    <p class="text-sm font-black text-gray-600 uppercase tracking-wide mb-2">Fecha de Creación</p>
+                <div class="tg-info-box">
+                    <p class="tg-info-label">Fecha de Creación</p>
                     <p class="text-gray-900 font-bold">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
                 </div>
 
-                <div class="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
-                    <p class="text-sm font-black text-gray-600 uppercase tracking-wide mb-2">Última Actualización</p>
+                <div class="tg-info-box">
+                    <p class="tg-info-label">Última Actualización</p>
                     <p class="text-gray-900 font-bold">@Model.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</p>
                 </div>
             </div>
 
-            <div class="flex gap-4 pt-6 border-t-2 border-gray-200">
-                <a href="/productos/editar/@Model.Id"
-                   class="flex-1 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-black py-4 px-6 rounded-xl transition-all shadow-xl hover:shadow-2xl text-center uppercase tracking-wide flex items-center justify-center gap-2">
+            <!-- Acciones -->
+            <div class="flex gap-4 pt-6 border-t-2 border-gray-100">
+                <a href="/productos/editar/@Model.Id" class="tg-btn-primary">
                     <i data-lucide="edit" class="w-5 h-5"></i>
                     Editar Producto
                 </a>
-                <a href="/productos"
-                   class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 font-black py-4 px-6 rounded-xl transition-all text-center uppercase tracking-wide flex items-center justify-center gap-2">
+                <a href="/productos" class="tg-btn-secondary">
                     <i data-lucide="arrow-left" class="w-5 h-5"></i>
                     Volver al Listado
                 </a>
