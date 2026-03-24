@@ -630,43 +630,64 @@
         }
 
         /**
-         * Formatea una fecha UTC mostrando la hora UTC (no la convierte a local)
-         * Ejemplo: "2026-02-06T11:19:11.703466Z" -> "6/2/2026 11:19"
+         * Parsea un string de fecha del servidor como hora LOCAL.
+         * El backend guarda DateTime.Now (hora local) sin sufijo 'Z',
+         * por eso NO debemos dejar que el navegador lo trate como UTC.
+         * Soporta: "2026-03-24T12:39:08", "2026-03-24T12:39:08.123", "2026-03-24"
+         */
+        function parsearFechaLocal(fechaString) {
+            if (!fechaString) return null;
+            // Extraer partes del string directamente sin involucrar zona horaria
+            const partes = fechaString.split('T');
+            const fecha = partes[0].split('-');
+            const anio = parseInt(fecha[0], 10);
+            const mes = parseInt(fecha[1], 10) - 1;
+            const dia = parseInt(fecha[2], 10);
+            let horas = 0, minutos = 0, segundos = 0;
+            if (partes[1]) {
+                const tiempo = partes[1].split(':');
+                horas = parseInt(tiempo[0], 10) || 0;
+                minutos = parseInt(tiempo[1], 10) || 0;
+                segundos = parseInt(tiempo[2], 10) || 0;
+            }
+            return new Date(anio, mes, dia, horas, minutos, segundos);
+        }
+
+        /**
+         * Formatea fecha+hora del servidor como hora local (sin desfase UTC).
+         * Ejemplo: "2026-03-24T12:39:08" → "24/3/2026 12:39"
          */
         function formatearFechaHoraUTC(fechaString) {
-            const fecha = new Date(fechaString);
-
-            // Obtener componentes UTC directamente
-            const dia = fecha.getUTCDate();
-            const mes = fecha.getUTCMonth() + 1;
-            const anio = fecha.getUTCFullYear();
-            const horas = String(fecha.getUTCHours()).padStart(2, '0');
-            const minutos = String(fecha.getUTCMinutes()).padStart(2, '0');
-
-            // Formatear como "DD/MM/YYYY HH:MM"
-            return `${dia}/${mes}/${anio} ${horas}:${minutos}`;
+            const fecha = parsearFechaLocal(fechaString);
+            if (!fecha || isNaN(fecha.getTime())) return '—';
+            const dia = fecha.getDate();
+            const mes = fecha.getMonth() + 1;
+            const anio = fecha.getFullYear();
+            const horas24 = fecha.getHours();
+            const minutos = String(fecha.getMinutes()).padStart(2, '0');
+            const ampm = horas24 >= 12 ? 'PM' : 'AM';
+            const horas12 = horas24 % 12 || 12;
+            return `${dia}/${mes}/${anio} ${horas12}:${minutos} ${ampm}`;
         }
 
         /**
-         * Formatea solo la fecha UTC (sin hora)
+         * Formatea solo la fecha (sin hora).
+         * Ejemplo: "2026-03-24T12:39:08" → "24/3/2026"
          */
         function formatearFechaUTC(fechaString) {
-            const fecha = new Date(fechaString);
-            const dia = fecha.getUTCDate();
-            const mes = fecha.getUTCMonth() + 1;
-            const anio = fecha.getUTCFullYear();
-            return `${dia}/${mes}/${anio}`;
+            const fecha = parsearFechaLocal(fechaString);
+            if (!fecha || isNaN(fecha.getTime())) return '—';
+            return `${fecha.getDate()}/${fecha.getMonth() + 1}/${fecha.getFullYear()}`;
         }
 
         /**
-         * Formatea fecha UTC con formato largo
-         * Ejemplo: "miércoles, 6 de febrero de 2026"
+         * Formatea fecha con formato largo.
+         * Ejemplo: "2026-03-24" → "martes, 24 de marzo de 2026"
          */
         function formatearFechaLargaUTC(fechaString) {
-            const fecha = new Date(fechaString);
-            // Crear fecha local con los valores UTC para formatear correctamente
-            const fechaUTC = new Date(fecha.getUTCFullYear(), fecha.getUTCMonth(), fecha.getUTCDate());
-            return fechaUTC.toLocaleDateString('es-ES', {
+            const fecha = parsearFechaLocal(fechaString);
+            if (!fecha || isNaN(fecha.getTime())) return '—';
+            return fecha.toLocaleDateString('es-ES', {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',
@@ -854,7 +875,7 @@
                         return `
                             <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="px-6 py-4 text-sm font-semibold text-gray-900">
-                                    ${formatearFechaHoraUTC(m.Fecha)}
+                                    ${formatearFechaHoraUTC(m.fecha || m.Fecha)}
                                 </td>
                                 <td class="px-6 py-4">
                                     <span class="px-3 py-1 ${tipoColor} bg-opacity-10 rounded-full text-xs font-black uppercase">${m.Tipo}</span>

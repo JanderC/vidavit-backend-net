@@ -48,6 +48,10 @@
             <button onclick="abrirModalTransferencia()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all text-sm flex items-center gap-2">
                 <i data-lucide="arrow-left-right" class="w-4 h-4"></i> Enviar a Caja Diaria
             </button>
+            <!-- ✅ NUEVO: Botón de auditoría -->
+            <button onclick="abrirPanelAuditoria()" class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-all text-sm flex items-center gap-2" title="Ver movimientos eliminados">
+                <i data-lucide="history" class="w-4 h-4"></i> Auditoría
+            </button>
             <button onclick="abrirModalPassword()" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-bold rounded-xl transition-all text-sm flex items-center gap-2">
                 <i data-lucide="key" class="w-4 h-4"></i> Cambiar Clave
             </button>
@@ -198,7 +202,7 @@
             <div class="flex items-center justify-between mb-6">
                 <div>
                     <h3 class="text-lg font-black text-gray-800 uppercase tracking-wide">Consolidados Mensuales</h3>
-                    <p class="text-xs text-gray-500 mt-1">Historial archivado por mes. Use "Recalcular" si los montos no cuadran con los movimientos reales.</p>
+                    <p class="text-xs text-gray-500 mt-1">Historial archivado por mes.</p>
                 </div>
                 <div class="flex gap-2">
                     <button onclick="abrirModalPreview()" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl text-sm flex items-center gap-2">
@@ -326,21 +330,23 @@
 <!-- MODAL TRANSFERENCIA A CAJA DIARIA -->
 <div id="modal-transferencia" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm">
     <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md border-2 border-blue-400">
-        <h3 class="text-lg font-black text-gray-800 mb-4 flex items-center gap-2">
-            <i data-lucide="arrow-left-right" class="w-5 h-5 text-blue-600"></i> Enviar Efectivo a Caja Diaria
+        <h3 class="text-lg font-black text-gray-800 mb-2 flex items-center gap-2">
+            <i data-lucide="arrow-left-right" class="w-5 h-5 text-blue-600"></i> Enviar a Caja Diaria
         </h3>
-        <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-4 text-sm text-blue-700">
-            <p>Disponible en efectivo: <strong id="disp-efectivo-transfer" class="text-blue-800 text-base">$0</strong></p>
-        </div>
+        <p class="text-xs text-gray-500 mb-4">El monto se descuenta de Caja Fuerte y aparece como ingreso en Caja Diaria. Si eliminas este movimiento, también desaparece de Caja Diaria.</p>
         <div class="space-y-4">
-            <div>
-                <label class="block text-xs font-black text-gray-600 mb-1 uppercase">Monto a Enviar (Efectivo) *</label>
-                <input type="number" id="transfer-monto" placeholder="0.00" step="0.01" min="0.01"
-                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-xl font-black text-center">
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 flex items-center justify-between">
+                <span class="text-xs text-blue-700 font-bold uppercase">Disponible en efectivo</span>
+                <span class="font-black text-blue-800 text-lg" id="disp-efectivo-transfer">$0</span>
             </div>
             <div>
-                <label class="block text-xs font-black text-gray-600 mb-1 uppercase">Descripción (Opcional)</label>
-                <input type="text" id="transfer-descripcion" placeholder="Ej: Capital de trabajo semana"
+                <label class="block text-xs font-black text-gray-600 mb-1 uppercase">Monto a Enviar *</label>
+                <input type="number" id="transfer-monto" placeholder="0.00" step="0.01" min="0.01"
+                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xl font-black text-center">
+            </div>
+            <div>
+                <label class="block text-xs font-black text-gray-600 mb-1 uppercase">Descripción / Motivo</label>
+                <input type="text" id="transfer-descripcion" placeholder="Ej: Caja chica del día, Fondo para cambios..."
                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500">
             </div>
         </div>
@@ -354,45 +360,34 @@
 
 <!-- MODAL CAMBIAR CONTRASEÑA -->
 <div id="modal-password" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm">
-    <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md border-2 border-gray-400">
+    <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm border-2 border-gray-400">
         <h3 class="text-lg font-black text-gray-800 mb-4 flex items-center gap-2">
             <i data-lucide="key" class="w-5 h-5 text-gray-600"></i> Cambiar Contraseña
         </h3>
-        <div class="space-y-4">
-            <div>
-                <label class="block text-xs font-black text-gray-600 mb-1 uppercase">Contraseña Actual</label>
-                <input type="password" id="pwd-actual" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-500">
-            </div>
-            <div>
-                <label class="block text-xs font-black text-gray-600 mb-1 uppercase">Nueva Contraseña</label>
-                <input type="password" id="pwd-nueva" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-500">
-            </div>
-            <div>
-                <label class="block text-xs font-black text-gray-600 mb-1 uppercase">Confirmar Nueva Contraseña</label>
-                <input type="password" id="pwd-confirmar" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-500">
-            </div>
+        <div class="space-y-3">
+            <input type="password" id="pwd-actual" placeholder="Contraseña actual" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-500">
+            <input type="password" id="pwd-nueva" placeholder="Nueva contraseña" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-500">
+            <input type="password" id="pwd-confirmar" placeholder="Confirmar nueva contraseña" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-500">
         </div>
         <div id="pwd-error" class="hidden mt-2 text-red-600 text-sm font-semibold"></div>
         <div class="flex gap-3 mt-6">
             <button onclick="cerrarModal('modal-password')" class="flex-1 py-3 border-2 border-gray-300 text-gray-600 font-bold rounded-xl hover:bg-gray-50">Cancelar</button>
-            <button onclick="cambiarPassword()" class="flex-1 py-3 bg-gray-700 hover:bg-gray-800 text-white font-black rounded-xl">Cambiar Contraseña</button>
+            <button onclick="cambiarPassword()" class="flex-1 py-3 bg-gray-700 hover:bg-gray-800 text-white font-black rounded-xl">Cambiar</button>
         </div>
     </div>
 </div>
 
 <!-- MODAL CONSOLIDAR MES -->
 <div id="modal-consolidar" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm">
-    <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md border-2 border-purple-400">
+    <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm border-2 border-purple-400">
         <h3 class="text-lg font-black text-gray-800 mb-4 flex items-center gap-2">
             <i data-lucide="archive" class="w-5 h-5 text-purple-600"></i> Consolidar Mes
         </h3>
-        <div class="bg-yellow-50 border border-yellow-300 rounded-xl p-3 mb-4 text-sm text-yellow-800">
-            <strong>⚠️ Importante:</strong> Solo consolide meses ya cerrados. El mes en curso no se puede consolidar. Los datos se toman de los movimientos reales actuales.
-        </div>
-        <div class="grid grid-cols-2 gap-4">
-            <div>
+        <p class="text-xs text-gray-500 mb-4">Solo se pueden consolidar meses ya cerrados (no el mes en curso).</p>
+        <div class="flex gap-3">
+            <div class="flex-1">
                 <label class="block text-xs font-black text-gray-600 mb-1 uppercase">Mes</label>
-                <select id="consolidar-mes" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500">
+                <select id="consolidar-mes" class="w-full px-3 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500">
                     <option value="1">Enero</option>
                     <option value="2">Febrero</option>
                     <option value="3">Marzo</option>
@@ -407,10 +402,9 @@
                     <option value="12">Diciembre</option>
                 </select>
             </div>
-            <div>
+            <div class="flex-1">
                 <label class="block text-xs font-black text-gray-600 mb-1 uppercase">Año</label>
-                <input type="number" id="consolidar-anio" value="2025" min="2020" max="2099"
-                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500">
+                <input type="number" id="consolidar-anio" class="w-full px-3 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500" min="2020" max="2030">
             </div>
         </div>
         <div id="consolidar-error" class="hidden mt-2 text-red-600 text-sm font-semibold"></div>
@@ -421,47 +415,148 @@
     </div>
 </div>
 
-<!-- MODAL PREVIEW CONSOLIDADO (en tiempo real) -->
+<!-- MODAL PREVIEW CONSOLIDADO -->
 <div id="modal-preview" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm">
     <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-2xl border-2 border-teal-400 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-black text-gray-800 flex items-center gap-2">
-                <i data-lucide="eye" class="w-5 h-5 text-teal-600"></i> Preview en Tiempo Real
+                <i data-lucide="eye" class="w-5 h-5 text-teal-600"></i> Preview Consolidado
             </h3>
-            <button onclick="cerrarModal('modal-preview')" class="p-2 hover:bg-gray-100 rounded-lg">
-                <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
-            </button>
+            <button onclick="cerrarModal('modal-preview')" class="p-2 hover:bg-gray-100 rounded-lg"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
         </div>
-        <div class="grid grid-cols-2 gap-4 mb-4">
-            <div>
-                <label class="block text-xs font-black text-gray-600 mb-1 uppercase">Mes</label>
-                <select id="preview-mes" onchange="cargarPreview()" class="w-full px-3 py-2 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500">
-                    <option value="1">Enero</option>
-                    <option value="2">Febrero</option>
-                    <option value="3">Marzo</option>
-                    <option value="4">Abril</option>
-                    <option value="5">Mayo</option>
-                    <option value="6">Junio</option>
-                    <option value="7">Julio</option>
-                    <option value="8">Agosto</option>
-                    <option value="9">Septiembre</option>
-                    <option value="10">Octubre</option>
-                    <option value="11">Noviembre</option>
-                    <option value="12">Diciembre</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-xs font-black text-gray-600 mb-1 uppercase">Año</label>
-                <input type="number" id="preview-anio" min="2020" max="2099"
-                       class="w-full px-3 py-2 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500"
-                       onchange="cargarPreview()">
-            </div>
+        <div class="flex gap-3 mb-4">
+            <select id="preview-mes" class="flex-1 px-3 py-2 border-2 border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-teal-500" onchange="cargarPreview()">
+                <option value="1">Enero</option>
+                <option value="2">Febrero</option>
+                <option value="3">Marzo</option>
+                <option value="4">Abril</option>
+                <option value="5">Mayo</option>
+                <option value="6">Junio</option>
+                <option value="7">Julio</option>
+                <option value="8">Agosto</option>
+                <option value="9">Septiembre</option>
+                <option value="10">Octubre</option>
+                <option value="11">Noviembre</option>
+                <option value="12">Diciembre</option>
+            </select>
+            <input type="number" id="preview-anio" class="w-24 px-3 py-2 border-2 border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-teal-500" min="2020" max="2030" onchange="cargarPreview()">
         </div>
         <div id="preview-contenido">
-            <div class="text-center py-8 text-gray-400">
-                <div class="animate-spin w-8 h-8 border-4 border-teal-500 border-t-transparent rounded-full mx-auto mb-3"></div>
-                <p>Calculando...</p>
+            <div class="text-center py-8 text-gray-400"><div class="animate-spin w-8 h-8 border-4 border-teal-500 border-t-transparent rounded-full mx-auto mb-3"></div><p>Calculando...</p></div>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ MODAL DETALLE DEL DÍA — Al hacer clic en el encabezado de un día -->
+<div id="modal-detalle-dia" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col border-2 border-amber-400 mx-4">
+        <!-- Header del modal -->
+        <div class="flex items-center justify-between px-6 py-4 border-b-2 border-amber-100 bg-amber-50 rounded-t-2xl flex-shrink-0">
+            <div>
+                <h3 class="text-lg font-black text-gray-800 flex items-center gap-2">
+                    <i data-lucide="calendar-days" class="w-5 h-5 text-amber-600"></i>
+                    <span id="modal-dia-titulo">Movimientos del día</span>
+                </h3>
+                <p class="text-xs text-gray-500 mt-0.5" id="modal-dia-subtitulo">Detalle de todos los movimientos que generaron el cierre</p>
             </div>
+            <button onclick="cerrarModal('modal-detalle-dia')" class="p-2 hover:bg-amber-100 rounded-xl transition-all">
+                <i data-lucide="x" class="w-5 h-5 text-gray-600"></i>
+            </button>
+        </div>
+
+        <!-- Resumen rápido del día -->
+        <div class="px-6 pt-4 pb-2 flex-shrink-0">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="modal-dia-resumen">
+                <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-center">
+                    <p class="text-xs text-emerald-700 font-bold uppercase">Ing. Efectivo</p>
+                    <p class="text-lg font-black text-emerald-700" id="res-dia-ing-ef">$0</p>
+                </div>
+                <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 text-center">
+                    <p class="text-xs text-blue-700 font-bold uppercase">Ing. Transferencia</p>
+                    <p class="text-lg font-black text-blue-700" id="res-dia-ing-tr">$0</p>
+                </div>
+                <div class="bg-red-50 border border-red-200 rounded-xl p-3 text-center">
+                    <p class="text-xs text-red-700 font-bold uppercase">Egresos</p>
+                    <p class="text-lg font-black text-red-700" id="res-dia-egr">$0</p>
+                </div>
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-center">
+                    <p class="text-xs text-amber-700 font-bold uppercase">Balance Neto</p>
+                    <p class="text-lg font-black" id="res-dia-balance">$0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de movimientos del día -->
+        <div class="flex-1 overflow-y-auto px-6 pb-2">
+            <div id="modal-dia-contenido">
+                <div class="text-center py-10 text-gray-400">
+                    <div class="animate-spin w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full mx-auto mb-3"></div>
+                    <p class="font-semibold">Cargando movimientos del día...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 rounded-b-2xl flex-shrink-0">
+            <p class="text-xs text-gray-400 italic flex items-center gap-1">
+                <i data-lucide="info" class="w-3 h-3"></i>
+                Los movimientos de cierre de caja no se pueden eliminar. Solo los manuales y transferencias son eliminables.
+                Si eliminas uno, el capital de Caja Fuerte se ajusta automáticamente.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ PANEL LATERAL DE AUDITORÍA (movimientos eliminados) -->
+<div id="panel-auditoria" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/50" onclick="cerrarPanelAuditoria()"></div>
+    <div class="absolute top-0 right-0 h-full w-full max-w-2xl bg-white shadow-2xl flex flex-col">
+        <div class="flex items-center justify-between px-6 py-5 border-b-2 border-orange-200 bg-orange-50 flex-shrink-0">
+            <div>
+                <h3 class="text-lg font-black text-gray-800 flex items-center gap-2">
+                    <i data-lucide="history" class="w-5 h-5 text-orange-600"></i> Auditoría — Movimientos Eliminados
+                </h3>
+                <p class="text-xs text-gray-500 mt-0.5">Registro de todo lo que se ha eliminado. Puede restaurarse si fue un error.</p>
+            </div>
+            <button onclick="cerrarPanelAuditoria()" class="p-2 hover:bg-orange-100 rounded-xl"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button>
+        </div>
+        <div class="flex-1 overflow-y-auto px-6 py-4">
+            <div id="auditoria-contenido">
+                <div class="text-center py-10 text-gray-400">
+                    <div class="animate-spin w-8 h-8 border-4 border-orange-400 border-t-transparent rounded-full mx-auto mb-3"></div>
+                    <p>Cargando historial...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ MODAL CONFIRMAR ELIMINACIÓN CON MOTIVO -->
+<div id="modal-eliminar" class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/70 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md border-2 border-red-400 mx-4">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <i data-lucide="trash-2" class="w-6 h-6 text-red-600"></i>
+            </div>
+            <div>
+                <h3 class="text-base font-black text-gray-800">Eliminar Movimiento</h3>
+                <p class="text-xs text-gray-500 mt-0.5" id="elim-descripcion-label">¿Seguro que deseas eliminar este movimiento?</p>
+            </div>
+        </div>
+        <div class="bg-red-50 border border-red-200 rounded-xl p-3 mb-4">
+            <p class="text-xs text-red-700 font-bold">⚠️ Esta acción descuenta el monto del balance de Caja Fuerte y queda registrada en auditoría para poder recuperarse.</p>
+        </div>
+        <div>
+            <label class="block text-xs font-black text-gray-600 mb-1 uppercase">Motivo de eliminación *</label>
+            <textarea id="elim-motivo" rows="2" placeholder="Ej: Movimiento duplicado, Error de registro..."
+                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 text-sm resize-none"></textarea>
+        </div>
+        <div id="elim-error" class="hidden mt-2 text-red-600 text-sm font-semibold"></div>
+        <div class="flex gap-3 mt-5">
+            <button onclick="cerrarModal('modal-eliminar')" class="flex-1 py-3 border-2 border-gray-300 text-gray-600 font-bold rounded-xl hover:bg-gray-50">Cancelar</button>
+            <button onclick="confirmarEliminacion()" id="btn-confirmar-elim" class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white font-black rounded-xl flex items-center justify-center gap-2">
+                <i data-lucide="trash-2" class="w-4 h-4"></i> Eliminar
+            </button>
         </div>
     </div>
 </div>
@@ -469,7 +564,7 @@
 <!-- TOAST -->
 <div id="toast-cf" class="fixed bottom-6 right-6 z-[100] hidden">
     <div id="toast-cf-inner" class="px-6 py-4 rounded-xl shadow-2xl text-white font-bold text-sm flex items-center gap-3 max-w-sm bg-emerald-600">
-        <i id="toast-cf-icon" data-lucide="check-circle" class="w-5 h-5 flex-shrink-0"></i>
+        <i data-lucide="check-circle" id="toast-cf-icon" class="w-5 h-5 flex-shrink-0"></i>
         <span id="toast-cf-msg"></span>
     </div>
 </div>
@@ -479,6 +574,10 @@
         let vistaActual = 'mensual';
         let balanceEfectivoActual = 0;
         let autenticado = false;
+
+        // Estado para la eliminación en curso
+        let _eliminarId = null;
+        let _eliminarOrigen = null; // 'cf' = caja fuerte, 'cd' = detalle del cierre (caja diaria)
 
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
@@ -519,7 +618,7 @@
                     document.getElementById('auth-password').focus();
                 }
             } catch (e) {
-                errorEl.textContent = 'Error de conexión. Intente de nuevo.';
+                errorEl.textContent = 'Error de conexión.';
                 errorEl.classList.remove('hidden');
             }
         }
@@ -527,8 +626,6 @@
         // =========================================================
         // BALANCES
         // =========================================================
-        async function cargarDashboard() { return cargarBalances(); }
-
         async function cargarBalances() {
             try {
                 const res = await fetch('/api/cajafuerte/balances');
@@ -545,7 +642,7 @@
         }
 
         // =========================================================
-        // MOVIMIENTOS
+        // MOVIMIENTOS (agrupados por día)
         // =========================================================
         async function cargarMovimientos(vistaParm = null, desdeParm = null, hastaParm = null) {
             const vista = vistaParm || vistaActual;
@@ -594,121 +691,53 @@
                 for (const dia of data.movimientosPorDia) {
                     const fecha = new Date(dia.fecha + 'T00:00:00');
                     const fechaStr = fecha.toLocaleDateString('es-CO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                    const fechaISO = dia.fecha;
                     const balColor = dia.balance >= 0 ? 'text-emerald-700 bg-emerald-50' : 'text-red-600 bg-red-50';
 
                     html += `
                     <div class="mb-4 border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-                        <div class="bg-gray-50 px-4 py-3 flex items-center justify-between border-b border-gray-200 cursor-pointer hover:bg-gray-100 transition-all" onclick="toggleDia(this)">
+                        <!-- ✅ Encabezado del día — hace clic para abrir modal con detalle completo -->
+                        <div class="bg-gray-50 px-4 py-3 flex items-center justify-between border-b border-gray-200 cursor-pointer hover:bg-amber-50 transition-all group"
+                             onclick="abrirDetalleDia('${fechaISO}', '${fechaStr}')">
                             <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
+                                <div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center group-hover:bg-amber-200 transition-all">
                                     <i data-lucide="calendar" class="w-4 h-4 text-amber-700"></i>
                                 </div>
                                 <div>
                                     <p class="font-black text-gray-800 text-sm capitalize">${fechaStr}</p>
-                                    <p class="text-xs text-gray-500">${dia.cantidad} movimiento${dia.cantidad !== 1 ? 's' : ''}</p>
+                                    <p class="text-xs text-gray-500">${dia.cantidad} movimiento${dia.cantidad !== 1 ? 's' : ''} — <span class="text-amber-600 font-semibold">Clic para ver detalle y gestionar</span></p>
                                 </div>
                             </div>
                             <div class="flex items-center gap-4 text-xs font-bold">
                                 <span class="text-emerald-600">↑ ${fmt(dia.totalIngresos)}</span>
                                 <span class="text-red-600">↓ ${fmt(dia.totalEgresos)}</span>
                                 <span class="px-2 py-1 rounded-lg ${balColor} font-black">${dia.balance >= 0 ? '+' : ''}${fmt(dia.balance)}</span>
-                                <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400 toggle-icon transition-transform"></i>
+                                <i data-lucide="external-link" class="w-4 h-4 text-amber-500 group-hover:text-amber-700 transition-all"></i>
                             </div>
                         </div>
-                        <div class="dia-movimientos">
-                            <table class="w-full text-sm">
-                                <thead class="bg-gray-50/50">
-                                    <tr class="text-xs text-gray-500 font-bold uppercase border-b border-gray-100">
-                                        <th class="px-4 py-2 text-left">Tipo</th>
-                                        <th class="px-4 py-2 text-left">Origen</th>
-                                        <th class="px-4 py-2 text-left">Método</th>
-                                        <th class="px-4 py-2 text-left">Descripción</th>
-                                        <th class="px-4 py-2 text-left">Categoría</th>
-                                        <th class="px-4 py-2 text-right">Monto</th>
-                                        <th class="px-4 py-2 text-center">Hora</th>
-                                        <th class="px-4 py-2 text-center">Acción</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-50">`;
 
-                    for (const _m of dia.movimientos) {
-                        const m = {
-                            id:          (_m.Id          ?? _m.id          ?? '').toString(),
-                            tipo:        (_m.Tipo        ?? _m.tipo        ?? '').toLowerCase(),
-                            origen:      (_m.Origen      ?? _m.origen      ?? ''),
-                            origenLabel: (_m.origenLabel ?? _m.OrigenLabel ?? ''),
-                            metodoPago:  (_m.MetodoPago  ?? _m.metodoPago  ?? '').toLowerCase(),
-                            monto:       (_m.Monto       ?? _m.monto       ?? 0),
-                            descripcion: (_m.Descripcion ?? _m.descripcion ?? ''),
-                            categoria:   (_m.Categoria   ?? _m.categoria   ?? null),
-                            fecha:       (_m.fecha       ?? _m.Fecha       ?? ''),
-                            esCierreCaja:(_m.esCierreCaja ?? false),
-                            cierreCajaId:(_m.cierreCajaId ?? _m.CierreCajaId ?? null),
-                        };
-                        const esIngreso  = m.tipo === 'ingreso';
-                        const tipoClass  = esIngreso ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700';
-                        const metClass   = m.metodoPago === 'efectivo' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700';
-                        const metIcon    = m.metodoPago === 'efectivo' ? 'banknote' : 'credit-card';
-                        const montoClass = esIngreso ? 'text-emerald-700 font-black' : 'text-red-600 font-black';
-                        const hora       = new Date(m.fecha).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
-                        const detalleId  = `detalle-cierre-${m.id.replace(/-/g,'').substring(0,8)}`;
+                        <!-- Vista previa rápida (solo los 3 primeros movimientos sin eliminar) -->
+                        <div class="px-4 py-2 divide-y divide-gray-50">`;
 
+                    const preview = dia.movimientos.slice(0, 3);
+                    for (const _m of preview) {
+                        const m = normalizarMovimiento(_m);
+                        const esIngreso = m.tipo === 'ingreso';
                         html += `
-                            <tr class="hover:bg-amber-50/40 transition-all ${m.esCierreCaja ? 'border-l-4 border-amber-400' : ''}">
-                                <td class="px-4 py-3">
-                                    <span class="px-2 py-1 rounded-lg text-xs font-bold ${tipoClass}">${esIngreso ? '↑ INGRESO' : '↓ EGRESO'}</span>
-                                </td>
-                                <td class="px-4 py-3 text-gray-600 text-xs font-semibold">${getOrigenBadge(m.origen, m.origenLabel)}</td>
-                                <td class="px-4 py-3">
-                                    <span class="px-2 py-1 rounded-lg text-xs font-bold ${metClass} flex items-center gap-1 w-fit">
-                                        <i data-lucide="${metIcon}" class="w-3 h-3"></i>
-                                        ${m.metodoPago === 'efectivo' ? 'Efectivo' : 'Transferencia'}
-                                    </span>
-                                </td>
-                                <td class="px-4 py-3 text-gray-700 text-xs max-w-[180px] truncate" title="${m.descripcion || ''}">${m.descripcion || '—'}</td>
-                                <td class="px-4 py-3 text-gray-500 text-xs">
-                                    ${m.categoria ? `<span class="bg-gray-100 px-2 py-0.5 rounded-lg">${formatCategoria(m.categoria)}</span>` : '—'}
-                                </td>
-                                <td class="px-4 py-3 text-right ${montoClass} text-sm">${esIngreso ? '+' : '-'}${fmt(m.monto)}</td>
-                                <td class="px-4 py-3 text-center text-xs text-gray-400 font-mono">${hora}</td>
-                                <td class="px-4 py-3 text-center">
-                                    ${m.esCierreCaja
-                                        ? `<button onclick="toggleDetalleCierre('${detalleId}', '${m.id}')"
-                                            class="px-2 py-1 text-xs font-bold text-amber-700 bg-amber-50 border border-amber-300 hover:bg-amber-100 rounded-lg transition-all flex items-center gap-1"
-                                            id="btn-${detalleId}" data-cierre-id="${m.cierreCajaId || ''}" title="Ver ventas del día">
-                                            <i data-lucide="receipt-text" class="w-3 h-3"></i> Ver ventas
-                                           </button>`
-                                        : `<button onclick="eliminarMovimiento('${m.id}', '${(m.descripcion || 'Sin descripcion').replace(/'/g, '')}')"
-                                            class="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-all" title="Eliminar">
-                                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                                           </button>`
-                                    }
-                                </td>
-                            </tr>
-                            ${m.esCierreCaja ? `
-                            <tr id="${detalleId}" class="hidden">
-                                <td colspan="8" class="px-0 py-0 bg-amber-50/30">
-                                    <div class="border-t border-amber-200 px-6 py-4">
-                                        <p class="text-xs font-black text-amber-800 uppercase mb-3 flex items-center gap-2">
-                                            <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
-                                            Detalle de ventas del día (Caja Diaria)
-                                        </p>
-                                        <div id="contenido-${detalleId}" class="text-xs text-gray-500">
-                                            <div class="flex items-center gap-2">
-                                                <div class="animate-spin w-3 h-3 border-2 border-amber-500 border-t-transparent rounded-full"></div>
-                                                <span>Cargando ventas...</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>` : ''}`;
+                            <div class="flex items-center justify-between py-2 text-xs">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="px-1.5 py-0.5 rounded font-bold flex-shrink-0 ${esIngreso ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}">${esIngreso ? '↑' : '↓'}</span>
+                                    <span class="text-gray-500 flex-shrink-0">${getOrigenBadge(m.origen, m.origenLabel)}</span>
+                                    <span class="text-gray-600 truncate">${m.descripcion || '—'}</span>
+                                </div>
+                                <span class="font-black flex-shrink-0 ml-2 ${esIngreso ? 'text-emerald-700' : 'text-red-600'}">${esIngreso ? '+' : '-'}${fmt(m.monto)}</span>
+                            </div>`;
+                    }
+                    if (dia.movimientos.length > 3) {
+                        html += `<div class="py-2 text-xs text-center text-amber-600 font-semibold">... y ${dia.movimientos.length - 3} más. <span class="underline cursor-pointer" onclick="abrirDetalleDia('${fechaISO}', '${fechaStr}')">Ver todos</span></div>`;
                     }
 
-                    html += `
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>`;
+                    html += `</div></div>`;
                 }
 
                 container.innerHTML = html;
@@ -719,173 +748,506 @@
             }
         }
 
-        function toggleDia(header) {
-            const content = header.nextElementSibling;
-            const icon = header.querySelector('.toggle-icon');
-            content.classList.toggle('hidden');
-            icon.classList.toggle('rotate-180');
-        }
-
-        function setVista(vista) {
-            vistaActual = vista;
-            document.querySelectorAll('.vista-btn').forEach(b => {
-                b.classList.remove('border-amber-600', 'bg-amber-50', 'text-amber-700');
-                b.classList.add('border-gray-300', 'text-gray-600');
-            });
-            const btn = document.getElementById(`btn-vista-${vista}`);
-            if (btn) {
-                btn.classList.add('border-amber-600', 'bg-amber-50', 'text-amber-700');
-                btn.classList.remove('border-gray-300', 'text-gray-600');
-            }
-            cargarMovimientos(vista);
-        }
-
-        function buscarConRango() {
-            const desde = document.getElementById('cf-fecha-desde').value;
-            const hasta = document.getElementById('cf-fecha-hasta').value;
-            if (!desde || !hasta) { showToast('Seleccione fechas de inicio y fin', 'error'); return; }
-            if (desde > hasta) { showToast('La fecha inicio no puede ser mayor a la fecha fin', 'error'); return; }
-            document.querySelectorAll('.vista-btn').forEach(b => {
-                b.classList.remove('border-amber-600', 'bg-amber-50', 'text-amber-700');
-                b.classList.add('border-gray-300', 'text-gray-600');
-            });
-            vistaActual = 'rango';
-            cargarMovimientos(null, desde, hasta);
-        }
-
-        function limpiarFiltros() {
-            document.getElementById('cf-filtro-tipo').value = '';
-            document.getElementById('cf-filtro-metodo').value = '';
-            setVista('mensual');
-        }
-
         // =========================================================
-        // TABS
+        // ✅ MODAL DETALLE DEL DÍA
         // =========================================================
-        function cambiarTab(tab) {
-            document.querySelectorAll('.tab-cf-content').forEach(c => c.classList.add('hidden'));
-            document.querySelectorAll('.tab-cf-btn').forEach(b => {
-                b.classList.remove('border-amber-600', 'bg-amber-50', 'text-amber-700');
-                b.classList.add('text-gray-500', 'border-transparent');
-            });
-            document.getElementById(`content-${tab}`)?.classList.remove('hidden');
-            const btn = document.getElementById(`tab-${tab}`);
-            if (btn) {
-                btn.classList.add('border-amber-600', 'bg-amber-50', 'text-amber-700');
-                btn.classList.remove('text-gray-500', 'border-transparent');
-            }
-            if (tab === 'consolidados') cargarConsolidados();
-        }
+        async function abrirDetalleDia(fechaISO, fechaStr) {
+            document.getElementById('modal-dia-titulo').textContent = fechaStr.charAt(0).toUpperCase() + fechaStr.slice(1);
+            document.getElementById('modal-dia-subtitulo').textContent = 'Cargando movimientos...';
 
-        // =========================================================
-        // CONSOLIDADOS
-        // =========================================================
-        async function cargarConsolidados() {
-            const container = document.getElementById('lista-consolidados');
-            container.innerHTML = '<div class="text-center py-12 text-gray-400"><div class="animate-spin w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full mx-auto mb-3"></div><p>Cargando...</p></div>';
+            // Resetear resumen
+            ['res-dia-ing-ef','res-dia-ing-tr','res-dia-egr'].forEach(id => document.getElementById(id).textContent = '$0');
+            document.getElementById('res-dia-balance').textContent = '$0';
+            document.getElementById('modal-dia-contenido').innerHTML = `
+                <div class="text-center py-10 text-gray-400">
+                    <div class="animate-spin w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full mx-auto mb-3"></div>
+                    <p class="font-semibold">Cargando...</p>
+                </div>`;
+
+            abrirModal('modal-detalle-dia');
 
             try {
-                const res = await fetch('/api/cajafuerte/consolidados');
+                const res = await fetch(`/api/cajafuerte/movimientos?vista=diario&desde=${fechaISO}&hasta=${fechaISO}`);
                 const data = await res.json();
+                if (!data.success) throw new Error('error api');
 
-                if (!data.consolidados || data.consolidados.length === 0) {
-                    container.innerHTML = `
-                        <div class="text-center py-12 text-gray-400">
-                            <i data-lucide="archive" class="w-12 h-12 mx-auto mb-3 opacity-40"></i>
-                            <p class="font-bold text-lg">No hay consolidados mensuales aún</p>
-                            <p class="text-sm mt-1">Use el botón "Consolidar Mes" para archivar un mes cerrado.</p>
+                const movs = data.movimientos || [];
+
+                // Calcular resumen
+                const ingEf = movs.filter(m => m.tipo === 'ingreso' && m.metodoPago === 'efectivo').reduce((s, m) => s + m.monto, 0);
+                const ingTr = movs.filter(m => m.tipo === 'ingreso' && m.metodoPago === 'transferencia').reduce((s, m) => s + m.monto, 0);
+                const egr   = movs.filter(m => m.tipo === 'egreso').reduce((s, m) => s + m.monto, 0);
+                const bal   = (ingEf + ingTr) - egr;
+
+                document.getElementById('res-dia-ing-ef').textContent = fmt(ingEf);
+                document.getElementById('res-dia-ing-tr').textContent = fmt(ingTr);
+                document.getElementById('res-dia-egr').textContent = fmt(egr);
+                const balEl = document.getElementById('res-dia-balance');
+                balEl.textContent = fmt(bal);
+                balEl.className = `text-lg font-black ${bal >= 0 ? 'text-emerald-700' : 'text-red-600'}`;
+                document.getElementById('modal-dia-subtitulo').textContent = `${movs.length} movimiento${movs.length !== 1 ? 's' : ''} en este día`;
+
+                if (movs.length === 0) {
+                    document.getElementById('modal-dia-contenido').innerHTML = `
+                        <div class="text-center py-10 text-gray-400">
+                            <i data-lucide="inbox" class="w-10 h-10 mx-auto mb-2 opacity-40"></i>
+                            <p class="font-semibold">Sin movimientos para este día</p>
                         </div>`;
                     lucide.createIcons();
                     return;
                 }
 
+                renderTablaMovimientosDia(movs);
+
+            } catch (e) {
+                document.getElementById('modal-dia-contenido').innerHTML = '<p class="text-center text-red-500 py-8 font-semibold">Error al cargar los movimientos del día</p>';
+            }
+        }
+
+        function renderTablaMovimientosDia(movs) {
+            let html = `
+            <div class="overflow-x-auto rounded-xl border border-gray-200 mt-2">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50 sticky top-0">
+                        <tr class="text-xs text-gray-500 font-black uppercase border-b border-gray-200">
+                            <th class="px-4 py-3 text-left">Tipo</th>
+                            <th class="px-4 py-3 text-left">Origen</th>
+                            <th class="px-4 py-3 text-left">Método</th>
+                            <th class="px-4 py-3 text-left">Descripción</th>
+                            <th class="px-4 py-3 text-left">Categoría</th>
+                            <th class="px-4 py-3 text-right">Monto</th>
+                            <th class="px-4 py-3 text-center">Hora</th>
+                            <th class="px-4 py-3 text-center">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50">`;
+
+            for (const _m of movs) {
+                const m = normalizarMovimiento(_m);
+                const esIngreso  = m.tipo === 'ingreso';
+                const tipoClass  = esIngreso ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700';
+                const metClass   = m.metodoPago === 'efectivo' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700';
+                const metIcon    = m.metodoPago === 'efectivo' ? 'banknote' : 'credit-card';
+                const montoClass = esIngreso ? 'text-emerald-700 font-black' : 'text-red-600 font-black';
+                const _fd832 = parsearFechaLocal(m.fecha); const _h832 = _fd832 ? _fd832.getHours() : 0; const _m832 = _fd832 ? String(_fd832.getMinutes()).padStart(2,'0') : '00'; const hora = _fd832 ? `${_h832 % 12 || 12}:${_m832} ${_h832 >= 12 ? 'PM' : 'AM'}` : '—';
+                const esCierre   = m.origen === 'cierre_caja';
+                const esTransf   = m.origen === 'transferencia_a_caja';
+
+                // Los cierres NO son eliminables, el resto sí
+                let accionHtml = '';
+                if (esCierre) {
+                    accionHtml = `<span class="text-xs text-amber-600 font-bold bg-amber-50 px-2 py-1 rounded-lg flex items-center gap-1 w-fit mx-auto">
+                                    <i data-lucide="lock" class="w-3 h-3"></i> Cierre
+                                  </span>`;
+                } else {
+                    accionHtml = `<button onclick="abrirModalEliminar('${m.id}', '${(m.descripcion || '').replace(/'/g,'')}', 'cf')"
+                                    class="p-1.5 text-red-500 hover:bg-red-50 border border-red-200 hover:border-red-400 rounded-lg transition-all mx-auto flex items-center gap-1 text-xs font-bold"
+                                    title="Eliminar movimiento">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                  </button>`;
+                }
+
+                html += `
+                    <tr class="hover:bg-amber-50/40 transition-all ${esCierre ? 'border-l-4 border-amber-300' : ''} ${esTransf ? 'border-l-4 border-blue-300' : ''}">
+                        <td class="px-4 py-3">
+                            <span class="px-2 py-1 rounded-lg text-xs font-bold ${tipoClass}">${esIngreso ? '↑ INGRESO' : '↓ EGRESO'}</span>
+                        </td>
+                        <td class="px-4 py-3">${getOrigenBadge(m.origen, m.origenLabel)}</td>
+                        <td class="px-4 py-3">
+                            <span class="px-2 py-1 rounded-lg text-xs font-bold ${metClass} flex items-center gap-1 w-fit">
+                                <i data-lucide="${metIcon}" class="w-3 h-3"></i>
+                                ${m.metodoPago === 'efectivo' ? 'Efectivo' : 'Transferencia'}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-gray-700 text-xs max-w-[180px] truncate" title="${m.descripcion || ''}">${m.descripcion || '—'}</td>
+                        <td class="px-4 py-3 text-gray-500 text-xs">
+                            ${m.categoria ? `<span class="bg-gray-100 px-2 py-0.5 rounded-lg">${formatCategoria(m.categoria)}</span>` : '—'}
+                        </td>
+                        <td class="px-4 py-3 text-right ${montoClass} text-sm">${esIngreso ? '+' : '-'}${fmt(m.monto)}</td>
+                        <td class="px-4 py-3 text-center text-xs text-gray-400 font-mono">${hora}</td>
+                        <td class="px-4 py-3 text-center">${accionHtml}</td>
+                    </tr>`;
+
+                // Si es cierre, expandir debajo las ventas del día
+                if (esCierre && m.cierreCajaId) {
+                    const detalleId = `dd-cierre-${m.id.replace(/-/g,'').substring(0,8)}`;
+                    html += `
+                        <tr>
+                            <td colspan="8" class="px-0 py-0 bg-amber-50/30">
+                                <div class="px-6 py-3 border-t border-amber-100">
+                                    <button onclick="toggleDetalleCierreEnModal('${detalleId}','${m.cierreCajaId}')"
+                                        class="text-xs font-bold text-amber-700 flex items-center gap-1 hover:text-amber-900 transition-all"
+                                        id="btn-${detalleId}">
+                                        <i data-lucide="receipt-text" class="w-3.5 h-3.5"></i>
+                                        <span>Ver ventas del día (Caja Diaria)</span>
+                                        <i data-lucide="chevron-down" class="w-3 h-3 toggle-icon-dd transition-transform"></i>
+                                    </button>
+                                    <div id="${detalleId}" class="hidden mt-3">
+                                        <div class="text-center text-gray-400 text-xs py-3 flex items-center gap-2 justify-center">
+                                            <div class="animate-spin w-3 h-3 border-2 border-amber-500 border-t-transparent rounded-full"></div>
+                                            <span>Cargando ventas...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>`;
+                }
+            }
+
+            html += '</tbody></table></div>';
+            document.getElementById('modal-dia-contenido').innerHTML = html;
+            lucide.createIcons();
+        }
+
+        // Expandir/colapsar ventas del cierre dentro del modal de día
+        const _detalleDiaCache = {};
+        async function toggleDetalleCierreEnModal(detalleId, cierreId) {
+            const panel = document.getElementById(detalleId);
+            const btn = document.getElementById(`btn-${detalleId}`);
+            const icon = btn?.querySelector('.toggle-icon-dd');
+            const visible = !panel.classList.contains('hidden');
+
+            panel.classList.toggle('hidden');
+            icon?.classList.toggle('rotate-180');
+
+            if (!visible && !_detalleDiaCache[cierreId]) {
+                try {
+                    const res = await fetch(`/api/cajafuerte/movimientos-diarios?cierreId=${cierreId}`);
+                    const data = await res.json();
+                    _detalleDiaCache[cierreId] = data;
+                    renderVentasCierreEnModal(detalleId, data);
+                } catch (e) {
+                    panel.innerHTML = '<p class="text-xs text-red-500">Error al cargar ventas</p>';
+                }
+            } else if (!visible && _detalleDiaCache[cierreId]) {
+                renderVentasCierreEnModal(detalleId, _detalleDiaCache[cierreId]);
+            }
+        }
+
+        function renderVentasCierreEnModal(detalleId, data) {
+            const panel = document.getElementById(detalleId);
+            if (!data?.success || !data.data?.length) {
+                panel.innerHTML = '<p class="text-xs text-gray-400 italic py-2">No hay movimientos de caja diaria para este cierre.</p>';
+                return;
+            }
+            const catMap = { membresia:'Membresía', renovacion:'Renovación', producto:'Producto', abono_deuda:'Abono Deuda', transferencia_cajafuerte:'Desde CF', otro:'Otro' };
+            let html = `
+            <div class="overflow-x-auto rounded-xl border border-amber-200 mt-2">
+                <table class="w-full text-xs">
+                    <thead><tr class="bg-amber-100 text-amber-800 font-black uppercase">
+                        <th class="px-3 py-2 text-left">Tipo</th>
+                        <th class="px-3 py-2 text-left">Categoría</th>
+                        <th class="px-3 py-2 text-left">Método</th>
+                        <th class="px-3 py-2 text-left">Descripción</th>
+                        <th class="px-3 py-2 text-right">Monto</th>
+                        <th class="px-3 py-2 text-center">Hora</th>
+                    </tr></thead>
+                    <tbody class="divide-y divide-amber-100 bg-white">`;
+            for (const _v of data.data) {
+                const v = { tipo: (_v.Tipo??_v.tipo??'').toLowerCase(), monto: _v.Monto??_v.monto??0, descripcion: _v.Descripcion??_v.descripcion??'', categoria: _v.Categoria??_v.categoria??null, metodoPago: (_v.MetodoPago??_v.metodoPago??'').toLowerCase(), fecha: _v.Fecha??_v.fecha??'' };
+                const esIng = v.tipo === 'ingreso';
+                const _fd949 = parsearFechaLocal(v.fecha); const _h949 = _fd949 ? _fd949.getHours() : 0; const _m949 = _fd949 ? String(_fd949.getMinutes()).padStart(2,'0') : '00'; const hora = _fd949 ? `${_h949 % 12 || 12}:${_m949} ${_h949 >= 12 ? 'PM' : 'AM'}` : '—';
+                const cat = catMap[v.categoria] || v.categoria || '—';
+                html += `<tr class="hover:bg-amber-50/50">
+                    <td class="px-3 py-2"><span class="px-1.5 py-0.5 rounded font-bold ${esIng?'bg-emerald-100 text-emerald-700':'bg-red-100 text-red-700'}">${esIng?'↑ Ingreso':'↓ Egreso'}</span></td>
+                    <td class="px-3 py-2 text-gray-600">${cat}</td>
+                    <td class="px-3 py-2"><span class="px-1.5 py-0.5 rounded font-bold ${v.metodoPago==='efectivo'?'bg-green-100 text-green-700':'bg-blue-100 text-blue-700'}">${v.metodoPago==='efectivo'?'Efectivo':'Transferencia'}</span></td>
+                    <td class="px-3 py-2 text-gray-700 max-w-[200px] truncate" title="${v.descripcion||''}">${v.descripcion||'—'}</td>
+                    <td class="px-3 py-2 text-right font-black ${esIng?'text-emerald-700':'text-red-600'}">${esIng?'+':'-'}${fmt(v.monto)}</td>
+                    <td class="px-3 py-2 text-center text-gray-400 font-mono">${hora}</td>
+                </tr>`;
+            }
+            html += `</tbody><tfoot><tr class="bg-amber-50 font-black text-amber-800">
+                <td colspan="4" class="px-3 py-2 text-xs uppercase">Totales</td>
+                <td class="px-3 py-2 text-right text-xs">
+                    <span class="block text-emerald-700">+${fmt(data.totalIngresos)}</span>
+                    <span class="block text-red-600">-${fmt(data.totalEgresos)}</span>
+                </td>
+                <td class="px-3 py-2 text-center text-xs font-black ${data.balance>=0?'text-emerald-700':'text-red-600'}">${data.balance>=0?'+':''}${fmt(data.balance)}</td>
+            </tr></tfoot></table></div>`;
+            panel.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        // =========================================================
+        // ✅ ELIMINAR MOVIMIENTO — Flujo con modal de motivo
+        // =========================================================
+        function abrirModalEliminar(id, descripcion, origen) {
+            _eliminarId = id;
+            _eliminarOrigen = origen;
+            document.getElementById('elim-descripcion-label').textContent = `"${descripcion || 'Sin descripción'}"`;
+            document.getElementById('elim-motivo').value = '';
+            document.getElementById('elim-error').classList.add('hidden');
+            const btn = document.getElementById('btn-confirmar-elim');
+            btn.disabled = false;
+            btn.innerHTML = '<i data-lucide="trash-2" class="w-4 h-4"></i> Eliminar';
+            abrirModal('modal-eliminar');
+        }
+
+        async function confirmarEliminacion() {
+            const motivo = document.getElementById('elim-motivo').value.trim();
+            const errorEl = document.getElementById('elim-error');
+            errorEl.classList.add('hidden');
+
+            if (!motivo) {
+                errorEl.textContent = 'El motivo es obligatorio para continuar';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            const btn = document.getElementById('btn-confirmar-elim');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div> Eliminando...';
+
+            try {
+                const res = await fetch(`/api/cajafuerte/movimientos/${_eliminarId}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ motivo })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    cerrarModal('modal-eliminar');
+                    cerrarModal('modal-detalle-dia');
+                    showToast('Movimiento eliminado y balance actualizado', 'success');
+                    cargarBalances();
+                    cargarMovimientos();
+                } else {
+                    errorEl.textContent = data.message || 'No se pudo eliminar el movimiento';
+                    errorEl.classList.remove('hidden');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i data-lucide="trash-2" class="w-4 h-4"></i> Eliminar';
+                    lucide.createIcons();
+                }
+            } catch (e) {
+                errorEl.textContent = 'Error de conexión';
+                errorEl.classList.remove('hidden');
+                btn.disabled = false;
+                btn.innerHTML = '<i data-lucide="trash-2" class="w-4 h-4"></i> Eliminar';
+                lucide.createIcons();
+            }
+        }
+
+        // =========================================================
+        // ✅ PANEL AUDITORÍA — Movimientos eliminados + Restaurar
+        // =========================================================
+        function abrirPanelAuditoria() {
+            document.getElementById('panel-auditoria').classList.remove('hidden');
+            cargarAuditoria();
+            lucide.createIcons();
+        }
+
+        function cerrarPanelAuditoria() {
+            document.getElementById('panel-auditoria').classList.add('hidden');
+        }
+
+        async function cargarAuditoria() {
+            const cont = document.getElementById('auditoria-contenido');
+            cont.innerHTML = `<div class="text-center py-10 text-gray-400">
+                <div class="animate-spin w-8 h-8 border-4 border-orange-400 border-t-transparent rounded-full mx-auto mb-3"></div>
+                <p>Cargando historial de eliminados...</p></div>`;
+            try {
+                const res = await fetch('/api/cajafuerte/eliminados');
+                const data = await res.json();
+                if (!data.success || !data.data?.length) {
+                    cont.innerHTML = `<div class="text-center py-12 text-gray-400">
+                        <i data-lucide="check-circle" class="w-12 h-12 mx-auto mb-3 opacity-40 text-emerald-400"></i>
+                        <p class="font-bold text-lg">Sin eliminaciones registradas</p>
+                        <p class="text-sm mt-1 text-gray-400">Todo está en orden. Aquí aparecerán los movimientos que se eliminen.</p>
+                    </div>`;
+                    lucide.createIcons();
+                    return;
+                }
+
+                let html = `
+                <div class="mb-3 flex items-center justify-between">
+                    <p class="text-sm font-bold text-gray-700">${data.cantidad} eliminación${data.cantidad !== 1 ? 'es' : ''} registrada${data.cantidad !== 1 ? 's' : ''}</p>
+                    <span class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full font-semibold">Monto total: ${fmt(data.totalMonto)}</span>
+                </div>
+                <div class="space-y-3">`;
+
+                for (const e of data.data) {
+                    const esIngreso = e.tipo === 'ingreso';
+                    const tipoClass = esIngreso ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700';
+                    html += `
+                    <div class="border border-orange-200 rounded-xl p-4 bg-orange-50/30 hover:bg-orange-50 transition-all">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    <span class="px-2 py-0.5 rounded-lg text-xs font-bold ${tipoClass}">${esIngreso ? '↑ INGRESO' : '↓ EGRESO'}</span>
+                                    ${getOrigenBadge(e.origen, e.origen)}
+                                    <span class="text-xs text-gray-400 font-mono">${fmtFechaCorta(e.fechaOriginal)}</span>
+                                </div>
+                                <p class="text-sm font-bold text-gray-800 truncate">${e.descripcion || '(Sin descripción)'}</p>
+                                <p class="text-xs text-gray-500 mt-0.5">
+                                    <span class="font-semibold text-orange-700">Eliminado:</span> ${fmtFecha(e.fechaEliminacion)}
+                                </p>
+                                <p class="text-xs text-gray-500 mt-0.5 italic">"${e.motivoEliminacion}"</p>
+                            </div>
+                            <div class="text-right flex-shrink-0">
+                                <p class="font-black text-base ${esIngreso ? 'text-emerald-700' : 'text-red-600'}">${esIngreso ? '+' : '-'}${fmt(e.monto)}</p>
+                                <!-- ✅ Botón restaurar -->
+                                <button onclick="restaurarMovimiento('${e.movimientoOriginalId}', '${e.tipo}', '${e.origen}', '${e.metodoPago}', ${e.monto}, '${(e.descripcion||'').replace(/'/g,'')}', '${e.categoria||''}')"
+                                    class="mt-2 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 hover:border-emerald-500 text-emerald-700 font-bold text-xs rounded-lg transition-all flex items-center gap-1">
+                                    <i data-lucide="rotate-ccw" class="w-3 h-3"></i> Restaurar
+                                </button>
+                            </div>
+                        </div>
+                    </div>`;
+                }
+                html += '</div>';
+                cont.innerHTML = html;
+                lucide.createIcons();
+            } catch (e) {
+                cont.innerHTML = '<p class="text-center text-red-500 py-8">Error al cargar auditoría</p>';
+            }
+        }
+
+        // ✅ Restaurar un movimiento eliminado
+        async function restaurarMovimiento(movimientoOriginalId, tipo, origen, metodoPago, monto, descripcion, categoria) {
+            if (!confirm(`¿Restaurar este movimiento?\n"${descripcion}" — ${fmt(monto)}\n\nEsto creará un nuevo movimiento con los mismos datos y ajustará el balance.`)) return;
+
+            try {
+                // Registrar el ingreso/egreso manualmente para restaurar el balance
+                const esIngreso = tipo === 'ingreso';
+                const endpoint = esIngreso ? '/api/cajafuerte/registrar-ingreso' : '/api/cajafuerte/registrar-egreso';
+
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        monto,
+                        descripcion: `[RESTAURADO] ${descripcion}`,
+                        metodoPago,
+                        categoria: categoria || (esIngreso ? 'ajuste' : 'otros')
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('Movimiento restaurado correctamente', 'success');
+                    cargarBalances();
+                    cargarMovimientos();
+                    cargarAuditoria();
+                } else {
+                    showToast(data.message || 'Error al restaurar', 'error');
+                }
+            } catch (e) {
+                showToast('Error de conexión al restaurar', 'error');
+            }
+        }
+
+        // =========================================================
+        // VISTA PREVIA Y CONSOLIDADOS
+        // =========================================================
+        function abrirModalPreview() { abrirModal('modal-preview'); cargarPreview(); }
+
+        async function cargarPreview() {
+            const mes  = document.getElementById('preview-mes').value;
+            const anio = document.getElementById('preview-anio').value;
+            const cont = document.getElementById('preview-contenido');
+            cont.innerHTML = '<div class="text-center py-8 text-gray-400"><div class="animate-spin w-8 h-8 border-4 border-teal-500 border-t-transparent rounded-full mx-auto mb-3"></div><p>Calculando...</p></div>';
+            try {
+                const res  = await fetch(`/api/cajafuerte/consolidados/preview?mes=${mes}&anio=${anio}`);
+                const data = await res.json();
+                if (!data.success) { cont.innerHTML = `<p class="text-red-500 text-center py-4">${data.message || 'Error'}</p>`; return; }
+                cont.innerHTML = `
+                <div class="space-y-4">
+                    ${data.yaConsolidado ? '<div class="bg-yellow-50 border border-yellow-200 rounded-xl p-3 text-xs text-yellow-700 font-semibold">⚠️ Este mes ya está consolidado. Los datos mostrados son en tiempo real y pueden diferir del consolidado guardado.</div>' : ''}
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+                            <p class="text-xs text-emerald-700 font-bold uppercase mb-1">Ingresos</p>
+                            <p class="text-2xl font-black text-emerald-700">+${fmt(data.totales.ingresos)}</p>
+                        </div>
+                        <div class="bg-red-50 border border-red-200 rounded-xl p-4">
+                            <p class="text-xs text-red-700 font-bold uppercase mb-1">Egresos</p>
+                            <p class="text-2xl font-black text-red-700">-${fmt(data.totales.egresos)}</p>
+                        </div>
+                        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                            <p class="text-xs text-amber-700 font-bold uppercase mb-1">Balance</p>
+                            <p class="text-2xl font-black ${data.totales.balance >= 0 ? 'text-emerald-700' : 'text-red-600'}">${fmt(data.totales.balance)}</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+                            <p class="text-xs font-black text-green-700 uppercase mb-2 flex items-center gap-1"><i data-lucide="banknote" class="w-3 h-3"></i> Efectivo</p>
+                            <div class="flex justify-between text-sm"><span>Ingresos</span><span class="font-black text-emerald-700">+${fmt(data.efectivo.ingresos)}</span></div>
+                            <div class="flex justify-between text-sm"><span>Egresos</span><span class="font-black text-red-600">-${fmt(data.efectivo.egresos)}</span></div>
+                            <div class="flex justify-between text-sm font-black border-t border-green-200 mt-1 pt-1"><span>Balance</span><span class="${data.efectivo.balance >= 0 ? 'text-emerald-700' : 'text-red-600'}">${fmt(data.efectivo.balance)}</span></div>
+                        </div>
+                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                            <p class="text-xs font-black text-blue-700 uppercase mb-2 flex items-center gap-1"><i data-lucide="credit-card" class="w-3 h-3"></i> Transferencias</p>
+                            <div class="flex justify-between text-sm"><span>Ingresos</span><span class="font-black text-emerald-700">+${fmt(data.transferencias.ingresos)}</span></div>
+                            <div class="flex justify-between text-sm"><span>Egresos</span><span class="font-black text-red-600">-${fmt(data.transferencias.egresos)}</span></div>
+                            <div class="flex justify-between text-sm font-black border-t border-blue-200 mt-1 pt-1"><span>Balance</span><span class="${data.transferencias.balance >= 0 ? 'text-emerald-700' : 'text-red-600'}">${fmt(data.transferencias.balance)}</span></div>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-400 text-right italic">* Calculado en tiempo real — ${data.cantidadMovimientos} movimiento${data.cantidadMovimientos !== 1 ? 's' : ''} en el período</p>
+                </div>`;
+                lucide.createIcons();
+            } catch (e) { cont.innerHTML = '<p class="text-red-500 text-center py-4">Error de conexión</p>'; }
+        }
+
+        async function cargarConsolidados() {
+            const container = document.getElementById('lista-consolidados');
+            container.innerHTML = '<div class="text-center py-12 text-gray-400"><div class="animate-spin w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full mx-auto mb-3"></div><p>Cargando...</p></div>';
+            try {
+                const res = await fetch('/api/cajafuerte/consolidados');
+                const data = await res.json();
+                if (!data.consolidados?.length) {
+                    container.innerHTML = `<div class="text-center py-12 text-gray-400">
+                        <i data-lucide="archive" class="w-12 h-12 mx-auto mb-3 opacity-40"></i>
+                        <p class="font-bold text-lg">No hay consolidados mensuales aún</p>
+                        <p class="text-sm mt-1">Use el botón "Consolidar Mes" para archivar un mes cerrado.</p></div>`;
+                    lucide.createIcons();
+                    return;
+                }
                 let html = '<div class="space-y-4">';
                 for (const c of data.consolidados) {
-                    const inconsistencia = c.totales.balance !== (c.efectivo.balance + c.transferencias.balance);
-
                     html += `
                     <div class="border-2 border-purple-200 rounded-2xl overflow-hidden shadow-sm">
-
-                        <!-- Cabecera del consolidado -->
                         <div class="bg-gradient-to-r from-purple-50 to-purple-100 px-5 py-4 flex items-center justify-between border-b border-purple-200">
                             <div>
                                 <p class="font-black text-gray-800 text-base">${c.periodo}</p>
-                                <p class="text-xs text-gray-500 mt-0.5">
-                                    Consolidado el ${fmtFecha(c.FechaConsolidacion ?? c.fechaConsolidacion)}
-                                    ${inconsistencia ? '<span class="ml-2 text-orange-600 font-bold">⚠️ Posible inconsistencia</span>' : ''}
-                                </p>
+                                <p class="text-xs text-gray-500 mt-0.5">Consolidado el ${fmtFecha(c.FechaConsolidacion ?? c.fechaConsolidacion)}</p>
                             </div>
                             <div class="flex items-center gap-3">
                                 <div class="text-right">
                                     <p class="text-xl font-black ${c.totales.balance >= 0 ? 'text-emerald-700' : 'text-red-600'}">${fmt(c.totales.balance)}</p>
-                                    <p class="text-xs text-gray-500">Balance neto del mes</p>
+                                    <p class="text-xs text-gray-500">Balance neto</p>
                                 </div>
-                                <!-- Botón Recalcular -->
                                 <button onclick="recalcularConsolidado(${c.Mes ?? c.mes}, ${c.Anio ?? c.anio}, this)"
-                                    class="px-3 py-2 text-xs font-bold text-purple-700 bg-purple-100 border border-purple-300 hover:bg-purple-200 rounded-xl transition-all flex items-center gap-1"
-                                    title="Recalcular desde movimientos reales">
+                                    class="px-3 py-2 text-xs font-bold text-purple-700 bg-purple-100 border border-purple-300 hover:bg-purple-200 rounded-xl transition-all flex items-center gap-1">
                                     <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Recalcular
                                 </button>
                             </div>
                         </div>
-
-                        <!-- Desglose principal: Efectivo / Transferencias / Total -->
                         <div class="grid grid-cols-3 divide-x divide-gray-100 bg-white text-center">
                             <div class="p-4">
-                                <p class="text-xs text-gray-500 font-bold uppercase mb-2 flex items-center justify-center gap-1">
-                                    <i data-lucide="banknote" class="w-3 h-3 text-green-600"></i> Efectivo
-                                </p>
+                                <p class="text-xs text-gray-500 font-bold uppercase mb-2 flex items-center justify-center gap-1"><i data-lucide="banknote" class="w-3 h-3 text-green-600"></i> Efectivo</p>
                                 <div class="space-y-1">
-                                    <div class="flex justify-between text-xs px-2">
-                                        <span class="text-gray-400">Ingresos</span>
-                                        <span class="text-emerald-600 font-bold">+${fmt(c.efectivo.ingresos)}</span>
-                                    </div>
-                                    <div class="flex justify-between text-xs px-2">
-                                        <span class="text-gray-400">Egresos</span>
-                                        <span class="text-red-600 font-bold">-${fmt(c.efectivo.egresos)}</span>
-                                    </div>
-                                    <div class="border-t border-gray-100 pt-1 mt-1">
-                                        <p class="font-black text-sm ${c.efectivo.balance >= 0 ? 'text-emerald-700' : 'text-red-600'}">${fmt(c.efectivo.balance)}</p>
-                                    </div>
+                                    <div class="flex justify-between text-xs px-2"><span class="text-gray-400">Ingresos</span><span class="text-emerald-600 font-bold">+${fmt(c.efectivo.ingresos)}</span></div>
+                                    <div class="flex justify-between text-xs px-2"><span class="text-gray-400">Egresos</span><span class="text-red-600 font-bold">-${fmt(c.efectivo.egresos)}</span></div>
+                                    <div class="border-t border-gray-100 pt-1 mt-1"><p class="font-black text-sm ${c.efectivo.balance >= 0 ? 'text-emerald-700' : 'text-red-600'}">${fmt(c.efectivo.balance)}</p></div>
                                 </div>
                             </div>
                             <div class="p-4">
-                                <p class="text-xs text-gray-500 font-bold uppercase mb-2 flex items-center justify-center gap-1">
-                                    <i data-lucide="credit-card" class="w-3 h-3 text-blue-600"></i> Transferencias
-                                </p>
+                                <p class="text-xs text-gray-500 font-bold uppercase mb-2 flex items-center justify-center gap-1"><i data-lucide="credit-card" class="w-3 h-3 text-blue-600"></i> Transferencias</p>
                                 <div class="space-y-1">
-                                    <div class="flex justify-between text-xs px-2">
-                                        <span class="text-gray-400">Ingresos</span>
-                                        <span class="text-emerald-600 font-bold">+${fmt(c.transferencias.ingresos)}</span>
-                                    </div>
-                                    <div class="flex justify-between text-xs px-2">
-                                        <span class="text-gray-400">Egresos</span>
-                                        <span class="text-red-600 font-bold">-${fmt(c.transferencias.egresos)}</span>
-                                    </div>
-                                    <div class="border-t border-gray-100 pt-1 mt-1">
-                                        <p class="font-black text-sm ${c.transferencias.balance >= 0 ? 'text-emerald-700' : 'text-red-600'}">${fmt(c.transferencias.balance)}</p>
-                                    </div>
+                                    <div class="flex justify-between text-xs px-2"><span class="text-gray-400">Ingresos</span><span class="text-emerald-600 font-bold">+${fmt(c.transferencias.ingresos)}</span></div>
+                                    <div class="flex justify-between text-xs px-2"><span class="text-gray-400">Egresos</span><span class="text-red-600 font-bold">-${fmt(c.transferencias.egresos)}</span></div>
+                                    <div class="border-t border-gray-100 pt-1 mt-1"><p class="font-black text-sm ${c.transferencias.balance >= 0 ? 'text-emerald-700' : 'text-red-600'}">${fmt(c.transferencias.balance)}</p></div>
                                 </div>
                             </div>
                             <div class="p-4 bg-gray-50">
                                 <p class="text-xs text-gray-500 font-bold uppercase mb-2">Total del Mes</p>
                                 <div class="space-y-1">
-                                    <div class="flex justify-between text-xs px-2">
-                                        <span class="text-gray-400">Ingresos</span>
-                                        <span class="text-emerald-600 font-bold">+${fmt(c.totales.ingresos)}</span>
-                                    </div>
-                                    <div class="flex justify-between text-xs px-2">
-                                        <span class="text-gray-400">Egresos</span>
-                                        <span class="text-red-600 font-bold">-${fmt(c.totales.egresos)}</span>
-                                    </div>
-                                    <div class="border-t border-gray-100 pt-1 mt-1">
-                                        <p class="font-black text-sm ${c.totales.balance >= 0 ? 'text-emerald-700' : 'text-red-600'}">${fmt(c.totales.balance)}</p>
-                                    </div>
+                                    <div class="flex justify-between text-xs px-2"><span class="text-gray-400">Ingresos</span><span class="text-emerald-600 font-bold">+${fmt(c.totales.ingresos)}</span></div>
+                                    <div class="flex justify-between text-xs px-2"><span class="text-gray-400">Egresos</span><span class="text-red-600 font-bold">-${fmt(c.totales.egresos)}</span></div>
+                                    <div class="border-t border-gray-100 pt-1 mt-1"><p class="font-black text-sm ${c.totales.balance >= 0 ? 'text-emerald-700' : 'text-red-600'}">${fmt(c.totales.balance)}</p></div>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Botón para ver desglose por origen -->
                         <div class="border-t border-purple-100 bg-purple-50/50 px-5 py-2 flex justify-end">
                             <button onclick="toggleDesgloseCons(this, ${c.Mes ?? c.mes}, ${c.Anio ?? c.anio})"
                                 class="text-xs font-bold text-purple-600 hover:text-purple-800 flex items-center gap-1 transition-all">
@@ -894,8 +1256,6 @@
                                 <i data-lucide="chevron-down" class="w-3.5 h-3.5 toggle-cons-icon transition-transform"></i>
                             </button>
                         </div>
-
-                        <!-- Desglose por origen (expandible) -->
                         <div class="desglose-consolidado hidden border-t border-purple-100">
                             <div class="px-5 py-4 bg-white">
                                 <div class="desglose-contenido text-center py-4 text-gray-400">
@@ -909,499 +1269,147 @@
                 html += '</div>';
                 container.innerHTML = html;
                 lucide.createIcons();
-            } catch (e) {
-                container.innerHTML = '<p class="text-center text-red-500 py-8">Error al cargar consolidados</p>';
-            }
+            } catch (e) { container.innerHTML = '<p class="text-center text-red-500 py-8">Error al cargar consolidados</p>'; }
         }
 
         function toggleDesgloseCons(btn, mes, anio) {
-            const card     = btn.closest('.border-2');
-            const panel    = card.querySelector('.desglose-consolidado');
-            const icon     = btn.querySelector('.toggle-cons-icon');
-            const contenido= panel.querySelector('.desglose-contenido');
-            const yaVisible= !panel.classList.contains('hidden');
-
+            const card = btn.closest('.border-2');
+            const panel = card.querySelector('.desglose-consolidado');
+            const icon = btn.querySelector('.toggle-cons-icon');
+            const contenido = panel.querySelector('.desglose-contenido');
+            const yaVisible = !panel.classList.contains('hidden');
             panel.classList.toggle('hidden');
             icon.classList.toggle('rotate-180');
-
-            if (!yaVisible && contenido.querySelector('.animate-spin')) {
-                // Cargar por primera vez
-                cargarDesgloseCons(mes, anio, contenido);
-            }
+            if (!yaVisible && contenido.querySelector('.animate-spin')) cargarDesgloseCons(mes, anio, contenido);
         }
 
         async function cargarDesgloseCons(mes, anio, contenedorEl) {
             try {
-                const res  = await fetch(`/api/cajafuerte/consolidados/preview?mes=${mes}&anio=${anio}`);
+                const res = await fetch(`/api/cajafuerte/consolidados/preview?mes=${mes}&anio=${anio}`);
                 const data = await res.json();
-
-                if (!data.success || !data.desglosePorOrigen || data.desglosePorOrigen.length === 0) {
-                    contenedorEl.innerHTML = '<p class="text-xs text-gray-400 italic text-center py-4">Sin movimientos para mostrar en este período.</p>';
-                    return;
+                if (!data.success || !data.desglosePorOrigen?.length) {
+                    contenedorEl.innerHTML = '<p class="text-xs text-gray-400 italic text-center py-4">Sin movimientos para mostrar.</p>'; return;
                 }
-
-                // Agrupar por origen para mostrar tabla bonita
                 const ingresos = data.desglosePorOrigen.filter(x => x.tipo === 'ingreso');
                 const egresos  = data.desglosePorOrigen.filter(x => x.tipo === 'egreso');
-
-                let html = `
-                <div class="grid md:grid-cols-2 gap-4">`;
-
-                // Columna Ingresos
-                html += `
-                    <div>
-                        <p class="text-xs font-black text-emerald-700 uppercase mb-2 flex items-center gap-1">
-                            <i data-lucide="trending-up" class="w-3.5 h-3.5"></i> Origen de Ingresos
-                        </p>
-                        <div class="space-y-1">`;
-                if (ingresos.length === 0) {
-                    html += '<p class="text-xs text-gray-400 italic">Sin ingresos</p>';
-                } else {
-                    for (const x of ingresos) {
-                        const metBadge = x.metodoPago === 'efectivo'
-                            ? '<span class="bg-green-100 text-green-700 px-1.5 py-0.5 rounded text-xs font-bold ml-1">EF</span>'
-                            : '<span class="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-xs font-bold ml-1">TR</span>';
-                        html += `
-                            <div class="flex items-center justify-between bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2">
-                                <div class="flex items-center gap-1 text-xs text-gray-700">
-                                    ${getOrigenBadge(x.origen, x.origenLabel)}
-                                    ${metBadge}
-                                    <span class="text-gray-400 ml-1">(${x.cantidad})</span>
-                                </div>
-                                <span class="text-emerald-700 font-black text-xs">+${fmt(x.total)}</span>
-                            </div>`;
-                    }
-                    const totalIng = ingresos.reduce((s, x) => s + x.total, 0);
-                    html += `
-                            <div class="flex justify-between border-t border-emerald-200 pt-1 mt-1 px-1">
-                                <span class="text-xs font-black text-emerald-800">Total Ingresos</span>
-                                <span class="text-xs font-black text-emerald-800">+${fmt(totalIng)}</span>
-                            </div>`;
-                }
-                html += `</div></div>`;
-
-                // Columna Egresos
-                html += `
-                    <div>
-                        <p class="text-xs font-black text-red-700 uppercase mb-2 flex items-center gap-1">
-                            <i data-lucide="trending-down" class="w-3.5 h-3.5"></i> Origen de Egresos
-                        </p>
-                        <div class="space-y-1">`;
-                if (egresos.length === 0) {
-                    html += '<p class="text-xs text-gray-400 italic">Sin egresos</p>';
-                } else {
-                    for (const x of egresos) {
-                        const metBadge = x.metodoPago === 'efectivo'
-                            ? '<span class="bg-green-100 text-green-700 px-1.5 py-0.5 rounded text-xs font-bold ml-1">EF</span>'
-                            : '<span class="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-xs font-bold ml-1">TR</span>';
-                        const catLabel = x.categoria ? ` — ${formatCategoria(x.categoria)}` : '';
-                        html += `
-                            <div class="flex items-center justify-between bg-red-50 border border-red-100 rounded-lg px-3 py-2">
-                                <div class="flex items-center gap-1 text-xs text-gray-700">
-                                    ${getOrigenBadge(x.origen, x.origenLabel)}
-                                    ${metBadge}
-                                    ${catLabel ? `<span class="text-gray-400 text-xs">${catLabel}</span>` : ''}
-                                    <span class="text-gray-400 ml-1">(${x.cantidad})</span>
-                                </div>
-                                <span class="text-red-600 font-black text-xs">-${fmt(x.total)}</span>
-                            </div>`;
-                    }
-                    const totalEgr = egresos.reduce((s, x) => s + x.total, 0);
-                    html += `
-                            <div class="flex justify-between border-t border-red-200 pt-1 mt-1 px-1">
-                                <span class="text-xs font-black text-red-800">Total Egresos</span>
-                                <span class="text-xs font-black text-red-800">-${fmt(totalEgr)}</span>
-                            </div>`;
-                }
-                html += `</div></div></div>`;
-
-                // Nota si es calculado en tiempo real
-                html += `
-                <p class="text-xs text-gray-400 italic text-right mt-3">
-                    * Desglose calculado en tiempo real desde los movimientos actuales de Caja Fuerte.
-                    ${data.yaConsolidado ? 'Los totales del consolidado guardado pueden diferir si hubo cambios después de consolidar.' : ''}
-                </p>`;
-
+                let html = '<div class="grid md:grid-cols-2 gap-4">';
+                html += buildDesgloseColumna(ingresos, true);
+                html += buildDesgloseColumna(egresos, false);
+                html += '</div><p class="text-xs text-gray-400 italic text-right mt-3">* Calculado en tiempo real desde movimientos actuales.</p>';
                 contenedorEl.innerHTML = html;
                 lucide.createIcons();
-            } catch (e) {
-                contenedorEl.innerHTML = '<p class="text-xs text-red-500 text-center py-4">Error al cargar desglose</p>';
+            } catch (e) { contenedorEl.innerHTML = '<p class="text-xs text-red-500 text-center py-4">Error al cargar desglose</p>'; }
+        }
+
+        function buildDesgloseColumna(items, esIngreso) {
+            const color = esIngreso ? 'emerald' : 'red';
+            const icon  = esIngreso ? 'trending-up' : 'trending-down';
+            const label = esIngreso ? 'Origen de Ingresos' : 'Origen de Egresos';
+            let html = `<div><p class="text-xs font-black text-${color}-700 uppercase mb-2 flex items-center gap-1"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i> ${label}</p><div class="space-y-1">`;
+            if (!items.length) { html += '<p class="text-xs text-gray-400 italic">Sin registros</p>'; }
+            else {
+                for (const x of items) {
+                    const met = x.metodoPago === 'efectivo' ? '<span class="bg-green-100 text-green-700 px-1.5 py-0.5 rounded text-xs font-bold ml-1">EF</span>' : '<span class="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-xs font-bold ml-1">TR</span>';
+                    html += `<div class="flex items-center justify-between bg-${color}-50 border border-${color}-100 rounded-lg px-3 py-2">
+                        <div class="flex items-center gap-1 text-xs text-gray-700">${getOrigenBadge(x.origen, x.origenLabel)}${met}<span class="text-gray-400 ml-1">(${x.cantidad})</span></div>
+                        <span class="text-${color}-700 font-black text-xs">${esIngreso ? '+' : '-'}${fmt(x.total)}</span>
+                    </div>`;
+                }
+                const total = items.reduce((s, x) => s + x.total, 0);
+                html += `<div class="flex justify-between border-t border-${color}-200 pt-1 mt-1 px-1"><span class="text-xs font-black text-${color}-800">Total</span><span class="text-xs font-black text-${color}-800">${esIngreso ? '+' : '-'}${fmt(total)}</span></div>`;
             }
+            html += '</div></div>';
+            return html;
         }
 
         async function recalcularConsolidado(mes, anio, btnEl) {
-            if (!confirm(`¿Recalcular el consolidado de ${mes}/${anio} desde los movimientos reales?\nEsto sobrescribirá los totales guardados.`)) return;
-
+            if (!confirm(`¿Recalcular el consolidado de ${mes}/${anio}?`)) return;
             btnEl.disabled = true;
             btnEl.innerHTML = '<div class="animate-spin w-3 h-3 border-2 border-purple-500 border-t-transparent rounded-full inline-block mr-1"></div> Recalculando...';
-
             try {
-                const res  = await fetch('/api/cajafuerte/recalcular-consolidado', {
-                    method: 'PUT', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ mes, anio })
-                });
+                const res = await fetch('/api/cajafuerte/recalcular-consolidado', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mes, anio }) });
                 const data = await res.json();
-
-                if (data.success) {
-                    showToast(data.message, 'success');
-                    cargarConsolidados();
-                } else {
-                    showToast(data.message || 'Error al recalcular', 'error');
-                    btnEl.disabled = false;
-                    btnEl.innerHTML = '<i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Recalcular';
-                    lucide.createIcons();
-                }
-            } catch (e) {
-                showToast('Error de conexión al recalcular', 'error');
-                btnEl.disabled = false;
-                btnEl.innerHTML = '<i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Recalcular';
-                lucide.createIcons();
-            }
+                if (data.success) { showToast(data.message, 'success'); cargarConsolidados(); }
+                else { showToast(data.message || 'Error al recalcular', 'error'); btnEl.disabled = false; btnEl.innerHTML = '<i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Recalcular'; lucide.createIcons(); }
+            } catch (e) { showToast('Error de conexión', 'error'); btnEl.disabled = false; btnEl.innerHTML = '<i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Recalcular'; lucide.createIcons(); }
         }
 
         // =========================================================
-        // PREVIEW CONSOLIDADO (tiempo real)
-        // =========================================================
-        function abrirModalPreview() {
-            abrirModal('modal-preview');
-            cargarPreview();
-        }
-
-        async function cargarPreview() {
-            const mes  = document.getElementById('preview-mes').value;
-            const anio = document.getElementById('preview-anio').value;
-            const cont = document.getElementById('preview-contenido');
-
-            cont.innerHTML = '<div class="text-center py-8 text-gray-400"><div class="animate-spin w-8 h-8 border-4 border-teal-500 border-t-transparent rounded-full mx-auto mb-3"></div><p>Calculando...</p></div>';
-
-            try {
-                const res  = await fetch(`/api/cajafuerte/consolidados/preview?mes=${mes}&anio=${anio}`);
-                const data = await res.json();
-                if (!data.success) { cont.innerHTML = `<p class="text-red-500 text-center py-4">${data.message || 'Error'}</p>`; return; }
-
-                let html = `
-                <div class="space-y-4">
-                    <!-- Estado -->
-                    <div class="flex items-center gap-3 p-3 rounded-xl ${data.yaConsolidado ? 'bg-purple-50 border border-purple-200' : 'bg-teal-50 border border-teal-200'}">
-                        <i data-lucide="${data.yaConsolidado ? 'archive' : 'clock'}" class="w-5 h-5 ${data.yaConsolidado ? 'text-purple-600' : 'text-teal-600'}"></i>
-                        <div>
-                            <p class="text-sm font-bold ${data.yaConsolidado ? 'text-purple-800' : 'text-teal-800'}">
-                                ${data.yaConsolidado ? '✅ Ya consolidado — mostrando datos actuales vs guardados' : '📋 Sin consolidar — preview en tiempo real'}
-                            </p>
-                            <p class="text-xs text-gray-500">${data.cantidadMovimientos} movimiento(s) en ${data.periodo}</p>
-                        </div>
-                    </div>
-
-                    <!-- Resumen general -->
-                    <div class="grid grid-cols-3 gap-3">
-                        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-center">
-                            <p class="text-xs text-emerald-700 font-bold uppercase mb-1">Ingresos</p>
-                            <p class="text-lg font-black text-emerald-700">+${fmt(data.totales.ingresos)}</p>
-                            <p class="text-xs text-gray-400 mt-1">Ef: +${fmt(data.efectivo.ingresos)}<br>Tr: +${fmt(data.transferencias.ingresos)}</p>
-                        </div>
-                        <div class="bg-red-50 border border-red-200 rounded-xl p-3 text-center">
-                            <p class="text-xs text-red-700 font-bold uppercase mb-1">Egresos</p>
-                            <p class="text-lg font-black text-red-700">-${fmt(data.totales.egresos)}</p>
-                            <p class="text-xs text-gray-400 mt-1">Ef: -${fmt(data.efectivo.egresos)}<br>Tr: -${fmt(data.transferencias.egresos)}</p>
-                        </div>
-                        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-center">
-                            <p class="text-xs text-amber-700 font-bold uppercase mb-1">Balance Neto</p>
-                            <p class="text-lg font-black ${data.totales.balance >= 0 ? 'text-emerald-700' : 'text-red-600'}">${fmt(data.totales.balance)}</p>
-                            <p class="text-xs text-gray-400 mt-1">Ef: ${fmt(data.efectivo.balance)}<br>Tr: ${fmt(data.transferencias.balance)}</p>
-                        </div>
-                    </div>`;
-
-                // Desglose por origen
-                if (data.desglosePorOrigen && data.desglosePorOrigen.length > 0) {
-                    html += `
-                    <div>
-                        <p class="text-xs font-black text-gray-600 uppercase mb-2">Desglose por origen de movimientos</p>
-                        <div class="space-y-1">`;
-                    for (const x of data.desglosePorOrigen) {
-                        const esIng = x.tipo === 'ingreso';
-                        const cls   = esIng ? 'bg-emerald-50 border-emerald-100 text-emerald-700' : 'bg-red-50 border-red-100 text-red-600';
-                        const metBadge = x.metodoPago === 'efectivo'
-                            ? '<span class="bg-green-100 text-green-700 px-1.5 py-0.5 rounded text-xs font-bold">EF</span>'
-                            : '<span class="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-xs font-bold">TR</span>';
-                        html += `
-                            <div class="flex items-center justify-between border rounded-lg px-3 py-2 ${cls}">
-                                <div class="flex items-center gap-2 text-xs">
-                                    <span class="font-bold">${x.origenLabel}</span>
-                                    ${metBadge}
-                                    <span class="text-gray-400">${esIng ? 'Ingreso' : 'Egreso'} · ${x.cantidad} mov.</span>
-                                </div>
-                                <span class="font-black text-xs">${esIng ? '+' : '-'}${fmt(x.total)}</span>
-                            </div>`;
-                    }
-                    html += `</div></div>`;
-                }
-
-                html += `</div>`;
-                cont.innerHTML = html;
-                lucide.createIcons();
-            } catch (e) {
-                cont.innerHTML = '<p class="text-red-500 text-center py-4">Error de conexión</p>';
-            }
-        }
-
-        // =========================================================
-        // DETALLE DE VENTAS (cierre de caja diaria)
-        // =========================================================
-        const _detalleCierreCache = {};
-
-        async function toggleDetalleCierre(detalleId, movimientoId) {
-            const fila = document.getElementById(detalleId);
-            const btn  = document.getElementById(`btn-${detalleId}`);
-            if (!fila) return;
-
-            const estaOculto = fila.classList.contains('hidden');
-            fila.classList.toggle('hidden');
-            lucide.createIcons();
-
-            if (!estaOculto) {
-                btn.innerHTML = '<i data-lucide="receipt-text" class="w-3 h-3"></i> Ver ventas';
-                lucide.createIcons();
-                return;
-            }
-
-            btn.innerHTML = '<i data-lucide="chevron-up" class="w-3 h-3"></i> Ocultar';
-            lucide.createIcons();
-
-            if (_detalleCierreCache[movimientoId]) {
-                renderDetalleVentas(detalleId, _detalleCierreCache[movimientoId]);
-                return;
-            }
-
-            const cierreId = btn.dataset.cierreId;
-            if (!cierreId) {
-                renderDetalleVentas(detalleId, null, 'No se encontró el ID del cierre');
-                return;
-            }
-
-            try {
-                const res  = await fetch(`/api/cajafuerte/movimientos-diarios?cierreId=${cierreId}`);
-                const data = await res.json();
-                _detalleCierreCache[movimientoId] = data;
-                renderDetalleVentas(detalleId, data);
-            } catch (e) {
-                renderDetalleVentas(detalleId, null, 'Error al cargar ventas');
-            }
-        }
-
-        function renderDetalleVentas(detalleId, data, errorMsg = null) {
-            const container = document.getElementById(`contenido-${detalleId}`);
-            if (!container) return;
-
-            if (errorMsg || !data || !data.success) {
-                container.innerHTML = `<p class="text-red-500 text-xs font-semibold">${errorMsg || 'Sin datos'}</p>`;
-                return;
-            }
-            if (!data.data || data.data.length === 0) {
-                container.innerHTML = '<p class="text-gray-400 text-xs italic">No se encontraron movimientos de caja diaria para este cierre.</p>';
-                return;
-            }
-
-            const catMap = {
-                membresia: 'Membresía', renovacion: 'Renovación', producto: 'Producto',
-                abono_deuda: 'Abono Deuda', transferencia_cajafuerte: 'Desde Caja Fuerte', otro: 'Otro'
-            };
-
-            // Desglose rápido antes de la tabla
-            const ingEf = data.data.filter(v => (v.Tipo ?? v.tipo ?? '').toLowerCase() === 'ingreso' && (v.MetodoPago ?? v.metodoPago ?? '') === 'efectivo').reduce((s, v) => s + (v.Monto ?? v.monto ?? 0), 0);
-            const ingTr = data.data.filter(v => (v.Tipo ?? v.tipo ?? '').toLowerCase() === 'ingreso' && (v.MetodoPago ?? v.metodoPago ?? '') === 'transferencia').reduce((s, v) => s + (v.Monto ?? v.monto ?? 0), 0);
-            const egrEf = data.data.filter(v => (v.Tipo ?? v.tipo ?? '').toLowerCase() === 'egreso'  && (v.MetodoPago ?? v.metodoPago ?? '') === 'efectivo').reduce((s, v) => s + (v.Monto ?? v.monto ?? 0), 0);
-            const egrTr = data.data.filter(v => (v.Tipo ?? v.tipo ?? '').toLowerCase() === 'egreso'  && (v.MetodoPago ?? v.metodoPago ?? '') === 'transferencia').reduce((s, v) => s + (v.Monto ?? v.monto ?? 0), 0);
-
-            let html = `
-            <!-- Mini resumen del cierre -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
-                <div class="bg-green-50 border border-green-200 rounded-lg px-3 py-2 text-center">
-                    <p class="text-xs text-green-700 font-bold">Ing. Efectivo</p>
-                    <p class="text-sm font-black text-green-700">+${fmt(ingEf)}</p>
-                </div>
-                <div class="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 text-center">
-                    <p class="text-xs text-blue-700 font-bold">Ing. Transf.</p>
-                    <p class="text-sm font-black text-blue-700">+${fmt(ingTr)}</p>
-                </div>
-                <div class="bg-orange-50 border border-orange-200 rounded-lg px-3 py-2 text-center">
-                    <p class="text-xs text-orange-700 font-bold">Egr. Efectivo</p>
-                    <p class="text-sm font-black text-orange-700">-${fmt(egrEf)}</p>
-                </div>
-                <div class="bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-center">
-                    <p class="text-xs text-red-700 font-bold">Egr. Transf.</p>
-                    <p class="text-sm font-black text-red-700">-${fmt(egrTr)}</p>
-                </div>
-            </div>
-
-            <!-- Tabla de movimientos -->
-            <div class="overflow-x-auto rounded-xl border border-amber-200">
-                <table class="w-full text-xs">
-                    <thead>
-                        <tr class="bg-amber-100 text-amber-800 font-black uppercase">
-                            <th class="px-3 py-2 text-left">Tipo</th>
-                            <th class="px-3 py-2 text-left">Categoría</th>
-                            <th class="px-3 py-2 text-left">Método</th>
-                            <th class="px-3 py-2 text-left">Descripción</th>
-                            <th class="px-3 py-2 text-right">Monto</th>
-                            <th class="px-3 py-2 text-center">Hora</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-amber-100 bg-white">`;
-
-            for (const _v of data.data) {
-                const v = {
-                    tipo:       (_v.Tipo       ?? _v.tipo       ?? '').toLowerCase(),
-                    monto:      (_v.Monto      ?? _v.monto      ?? 0),
-                    descripcion:(_v.Descripcion?? _v.descripcion?? ''),
-                    categoria:  (_v.Categoria  ?? _v.categoria  ?? null),
-                    metodoPago: (_v.MetodoPago ?? _v.metodoPago ?? '').toLowerCase(),
-                    fecha:      (_v.Fecha      ?? _v.fecha      ?? ''),
-                };
-                const esIng   = v.tipo === 'ingreso';
-                const montoClass = esIng ? 'text-emerald-700 font-black' : 'text-red-600 font-black';
-                const tipoClass  = esIng ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700';
-                const metClass   = v.metodoPago === 'efectivo' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700';
-                const hora = new Date(v.fecha).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
-                const cat  = catMap[v.categoria] || v.categoria || '—';
-                html += `
-                    <tr class="hover:bg-amber-50/50">
-                        <td class="px-3 py-2"><span class="px-1.5 py-0.5 rounded font-bold ${tipoClass}">${esIng ? '↑ Ingreso' : '↓ Egreso'}</span></td>
-                        <td class="px-3 py-2 text-gray-600">${cat}</td>
-                        <td class="px-3 py-2"><span class="px-1.5 py-0.5 rounded font-bold ${metClass}">${v.metodoPago === 'efectivo' ? 'Efectivo' : 'Transferencia'}</span></td>
-                        <td class="px-3 py-2 text-gray-700 max-w-[220px] truncate" title="${v.descripcion || ''}">${v.descripcion || '—'}</td>
-                        <td class="px-3 py-2 text-right ${montoClass}">${esIng ? '+' : '-'}${fmt(v.monto)}</td>
-                        <td class="px-3 py-2 text-center text-gray-400 font-mono">${hora}</td>
-                    </tr>`;
-            }
-
-            html += `
-                    </tbody>
-                    <tfoot>
-                        <tr class="bg-amber-50 font-black text-amber-800">
-                            <td colspan="4" class="px-3 py-2 text-xs uppercase">Totales del cierre</td>
-                            <td class="px-3 py-2 text-right text-xs">
-                                <span class="block text-emerald-700">+${fmt(data.totalIngresos)}</span>
-                                <span class="block text-red-600">-${fmt(data.totalEgresos)}</span>
-                            </td>
-                            <td class="px-3 py-2 text-center text-xs font-black ${data.balance >= 0 ? 'text-emerald-700' : 'text-red-600'}">
-                                ${data.balance >= 0 ? '+' : ''}${fmt(data.balance)}
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>`;
-
-            container.innerHTML = html;
-            lucide.createIcons();
-        }
-
-        // =========================================================
-        // ACCIONES CRUD
+        // ACCIONES CRUD — Ingreso, Egreso, Transferencia, Password
         // =========================================================
         function selectMetodo(form, metodo) {
             document.getElementById(`${form}-metodo`).value = metodo;
             const ef = document.getElementById(`${form}-efectivo-btn`);
             const tr = document.getElementById(`${form}-transferencia-btn`);
-            const colorActivo = form === 'ingreso'
-                ? ['border-emerald-600', 'bg-emerald-50', 'text-emerald-700']
-                : ['border-red-600', 'bg-red-50', 'text-red-700'];
-            const colorInactivo = ['border-gray-300', 'text-gray-500', 'bg-white'];
-
+            const colorActivo = form === 'ingreso' ? ['border-emerald-600','bg-emerald-50','text-emerald-700'] : ['border-red-600','bg-red-50','text-red-700'];
+            const colorInactivo = ['border-gray-300','text-gray-500','bg-white'];
             ef.classList.remove(...colorActivo, ...colorInactivo);
             tr.classList.remove(...colorActivo, ...colorInactivo);
-
-            const base = ['border-2', 'font-bold', 'rounded-xl', 'text-sm', 'flex-1', 'py-3'];
-
-            if (metodo === 'efectivo') {
-                ef.classList.add(...colorActivo, ...base);
-                tr.classList.add(...colorInactivo, ...base, 'hover:border-blue-500', 'hover:bg-blue-50');
-            } else {
-                tr.classList.add('border-blue-600', 'bg-blue-50', 'text-blue-700', ...base);
-                ef.classList.add(...colorInactivo, ...base);
-            }
+            const base = ['border-2','font-bold','rounded-xl','text-sm','flex-1','py-3'];
+            if (metodo === 'efectivo') { ef.classList.add(...colorActivo, ...base); tr.classList.add(...colorInactivo, ...base, 'hover:border-blue-500','hover:bg-blue-50'); }
+            else { tr.classList.add('border-blue-600','bg-blue-50','text-blue-700', ...base); ef.classList.add(...colorInactivo, ...base); }
         }
 
         async function registrarIngreso() {
-            const monto      = parseFloat(document.getElementById('ingreso-monto').value);
-            const descripcion= document.getElementById('ingreso-descripcion').value.trim();
-            const metodo     = document.getElementById('ingreso-metodo').value;
-            const categoria  = document.getElementById('ingreso-categoria').value;
-            const errorEl    = document.getElementById('ingreso-error');
+            const monto = parseFloat(document.getElementById('ingreso-monto').value);
+            const descripcion = document.getElementById('ingreso-descripcion').value.trim();
+            const metodo = document.getElementById('ingreso-metodo').value;
+            const categoria = document.getElementById('ingreso-categoria').value;
+            const errorEl = document.getElementById('ingreso-error');
             errorEl.classList.add('hidden');
             if (!monto || monto <= 0) { errorEl.textContent = 'El monto debe ser mayor a 0'; errorEl.classList.remove('hidden'); return; }
-            if (!descripcion)         { errorEl.textContent = 'Ingrese una descripción';       errorEl.classList.remove('hidden'); return; }
+            if (!descripcion) { errorEl.textContent = 'Ingrese una descripción'; errorEl.classList.remove('hidden'); return; }
             try {
-                const res  = await fetch('/api/cajafuerte/registrar-ingreso', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ monto, descripcion, metodoPago: metodo, categoria })
-                });
+                const res = await fetch('/api/cajafuerte/registrar-ingreso', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ monto, descripcion, metodoPago: metodo, categoria }) });
                 const data = await res.json();
-                if (data.success) {
-                    cerrarModal('modal-ingreso');
-                    showToast(`Ingreso de ${fmt(monto)} registrado correctamente`, 'success');
-                    cargarBalances(); cargarMovimientos();
-                } else { errorEl.textContent = data.message || 'Error al registrar'; errorEl.classList.remove('hidden'); }
+                if (data.success) { cerrarModal('modal-ingreso'); showToast(`Ingreso de ${fmt(monto)} registrado`, 'success'); cargarBalances(); cargarMovimientos(); }
+                else { errorEl.textContent = data.message || 'Error'; errorEl.classList.remove('hidden'); }
             } catch (e) { errorEl.textContent = 'Error de conexión'; errorEl.classList.remove('hidden'); }
         }
 
         async function registrarEgreso() {
-            const monto      = parseFloat(document.getElementById('egreso-monto').value);
-            const descripcion= document.getElementById('egreso-descripcion').value.trim();
-            const metodo     = document.getElementById('egreso-metodo').value;
-            const categoria  = document.getElementById('egreso-categoria').value;
-            const errorEl    = document.getElementById('egreso-error');
+            const monto = parseFloat(document.getElementById('egreso-monto').value);
+            const descripcion = document.getElementById('egreso-descripcion').value.trim();
+            const metodo = document.getElementById('egreso-metodo').value;
+            const categoria = document.getElementById('egreso-categoria').value;
+            const errorEl = document.getElementById('egreso-error');
             errorEl.classList.add('hidden');
             if (!monto || monto <= 0) { errorEl.textContent = 'El monto debe ser mayor a 0'; errorEl.classList.remove('hidden'); return; }
-            if (!descripcion)         { errorEl.textContent = 'Ingrese una descripción';       errorEl.classList.remove('hidden'); return; }
+            if (!descripcion) { errorEl.textContent = 'Ingrese una descripción'; errorEl.classList.remove('hidden'); return; }
             try {
-                const res  = await fetch('/api/cajafuerte/registrar-egreso', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ monto, descripcion, metodoPago: metodo, categoria })
-                });
+                const res = await fetch('/api/cajafuerte/registrar-egreso', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ monto, descripcion, metodoPago: metodo, categoria }) });
                 const data = await res.json();
-                if (data.success) {
-                    cerrarModal('modal-egreso');
-                    showToast(`Egreso de ${fmt(monto)} registrado correctamente`, 'success');
-                    cargarBalances(); cargarMovimientos();
-                } else { errorEl.textContent = data.message || 'Error al registrar'; errorEl.classList.remove('hidden'); }
+                if (data.success) { cerrarModal('modal-egreso'); showToast(`Egreso de ${fmt(monto)} registrado`, 'success'); cargarBalances(); cargarMovimientos(); }
+                else { errorEl.textContent = data.message || 'Error'; errorEl.classList.remove('hidden'); }
             } catch (e) { errorEl.textContent = 'Error de conexión'; errorEl.classList.remove('hidden'); }
         }
 
         async function realizarTransferencia() {
-            const monto      = parseFloat(document.getElementById('transfer-monto').value);
-            const descripcion= document.getElementById('transfer-descripcion').value.trim();
-            const errorEl    = document.getElementById('transfer-error');
+            const monto = parseFloat(document.getElementById('transfer-monto').value);
+            const descripcion = document.getElementById('transfer-descripcion').value.trim();
+            const errorEl = document.getElementById('transfer-error');
             errorEl.classList.add('hidden');
             if (!monto || monto <= 0) { errorEl.textContent = 'El monto debe ser mayor a 0'; errorEl.classList.remove('hidden'); return; }
             if (monto > balanceEfectivoActual) { errorEl.textContent = `Saldo insuficiente. Disponible: ${fmt(balanceEfectivoActual)}`; errorEl.classList.remove('hidden'); return; }
             try {
-                const res  = await fetch('/api/cajafuerte/transferir-a-caja', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ monto, descripcion })
-                });
+                const res = await fetch('/api/cajafuerte/transferir-a-caja', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ monto, descripcion }) });
                 const data = await res.json();
-                if (data.success) {
-                    cerrarModal('modal-transferencia');
-                    showToast(`${fmt(monto)} enviados a Caja Diaria`, 'success');
-                    cargarBalances(); cargarMovimientos();
-                } else { errorEl.textContent = data.message || 'Error al realizar transferencia'; errorEl.classList.remove('hidden'); }
+                if (data.success) { cerrarModal('modal-transferencia'); showToast(`${fmt(monto)} enviados a Caja Diaria`, 'success'); cargarBalances(); cargarMovimientos(); }
+                else { errorEl.textContent = data.message || 'Error'; errorEl.classList.remove('hidden'); }
             } catch (e) { errorEl.textContent = 'Error de conexión'; errorEl.classList.remove('hidden'); }
         }
 
         async function cambiarPassword() {
-            const actual    = document.getElementById('pwd-actual').value;
-            const nueva     = document.getElementById('pwd-nueva').value;
+            const actual = document.getElementById('pwd-actual').value;
+            const nueva = document.getElementById('pwd-nueva').value;
             const confirmar = document.getElementById('pwd-confirmar').value;
-            const errorEl   = document.getElementById('pwd-error');
+            const errorEl = document.getElementById('pwd-error');
             errorEl.classList.add('hidden');
             if (!actual || !nueva || !confirmar) { errorEl.textContent = 'Complete todos los campos'; errorEl.classList.remove('hidden'); return; }
-            if (nueva !== confirmar) { errorEl.textContent = 'Las contraseñas nuevas no coinciden'; errorEl.classList.remove('hidden'); return; }
-            if (nueva.length < 4)   { errorEl.textContent = 'La nueva contraseña debe tener al menos 4 caracteres'; errorEl.classList.remove('hidden'); return; }
+            if (nueva !== confirmar) { errorEl.textContent = 'Las contraseñas no coinciden'; errorEl.classList.remove('hidden'); return; }
+            if (nueva.length < 4) { errorEl.textContent = 'Mínimo 4 caracteres'; errorEl.classList.remove('hidden'); return; }
             try {
-                const res  = await fetch('/api/cajafuerte/cambiar-password', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ passwordActual: actual, passwordNueva: nueva })
-                });
+                const res = await fetch('/api/cajafuerte/cambiar-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ passwordActual: actual, passwordNueva: nueva }) });
                 const data = await res.json();
                 if (data.success) { cerrarModal('modal-password'); showToast('Contraseña cambiada exitosamente', 'success'); }
                 else { errorEl.textContent = data.message || 'Error'; errorEl.classList.remove('hidden'); }
@@ -1409,33 +1417,52 @@
         }
 
         async function consolidarMes() {
-            const mes    = parseInt(document.getElementById('consolidar-mes').value);
-            const anio   = parseInt(document.getElementById('consolidar-anio').value);
-            const errorEl= document.getElementById('consolidar-error');
+            const mes = parseInt(document.getElementById('consolidar-mes').value);
+            const anio = parseInt(document.getElementById('consolidar-anio').value);
+            const errorEl = document.getElementById('consolidar-error');
             errorEl.classList.add('hidden');
             try {
-                const res  = await fetch('/api/cajafuerte/consolidar-mes', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ mes, anio })
-                });
+                const res = await fetch('/api/cajafuerte/consolidar-mes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mes, anio }) });
                 const data = await res.json();
                 if (data.success) { cerrarModal('modal-consolidar'); showToast(data.message, 'success'); cargarConsolidados(); }
-                else { errorEl.textContent = data.message || 'Error al consolidar'; errorEl.classList.remove('hidden'); }
+                else { errorEl.textContent = data.message || 'Error'; errorEl.classList.remove('hidden'); }
             } catch (e) { errorEl.textContent = 'Error de conexión'; errorEl.classList.remove('hidden'); }
         }
 
-        async function eliminarMovimiento(id, descripcion) {
-            if (!confirm(`¿Eliminar el movimiento "${descripcion}"?\nEsta acción revertirá el monto del balance.`)) return;
-            const motivo = prompt('Motivo de eliminación (opcional):') || 'Sin motivo especificado';
-            try {
-                const res  = await fetch(`/api/cajafuerte/movimientos/${id}`, {
-                    method: 'DELETE', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ motivo })
-                });
-                const data = await res.json();
-                if (data.success) { showToast('Movimiento eliminado y balance actualizado', 'success'); cargarBalances(); cargarMovimientos(); }
-                else { showToast(data.message || 'Error al eliminar', 'error'); }
-            } catch (e) { showToast('Error de conexión al eliminar', 'error'); }
+        // =========================================================
+        // TABS Y FILTROS
+        // =========================================================
+        function cambiarTab(tab) {
+            document.querySelectorAll('.tab-cf-content').forEach(c => c.classList.add('hidden'));
+            document.querySelectorAll('.tab-cf-btn').forEach(b => { b.classList.remove('border-amber-600','bg-amber-50','text-amber-700'); b.classList.add('text-gray-500','border-transparent'); });
+            document.getElementById(`content-${tab}`)?.classList.remove('hidden');
+            const btn = document.getElementById(`tab-${tab}`);
+            if (btn) { btn.classList.add('border-amber-600','bg-amber-50','text-amber-700'); btn.classList.remove('text-gray-500','border-transparent'); }
+            if (tab === 'consolidados') cargarConsolidados();
+        }
+
+        function setVista(vista) {
+            vistaActual = vista;
+            document.querySelectorAll('.vista-btn').forEach(b => { b.classList.remove('border-amber-600','bg-amber-50','text-amber-700'); b.classList.add('border-gray-300','text-gray-600'); });
+            const btn = document.getElementById(`btn-vista-${vista}`);
+            if (btn) { btn.classList.add('border-amber-600','bg-amber-50','text-amber-700'); btn.classList.remove('border-gray-300','text-gray-600'); }
+            cargarMovimientos(vista);
+        }
+
+        function buscarConRango() {
+            const desde = document.getElementById('cf-fecha-desde').value;
+            const hasta = document.getElementById('cf-fecha-hasta').value;
+            if (!desde || !hasta) { showToast('Seleccione fechas de inicio y fin', 'error'); return; }
+            if (desde > hasta) { showToast('La fecha inicio no puede ser mayor al fin', 'error'); return; }
+            document.querySelectorAll('.vista-btn').forEach(b => { b.classList.remove('border-amber-600','bg-amber-50','text-amber-700'); b.classList.add('border-gray-300','text-gray-600'); });
+            vistaActual = 'rango';
+            cargarMovimientos(null, desde, hasta);
+        }
+
+        function limpiarFiltros() {
+            document.getElementById('cf-filtro-tipo').value = '';
+            document.getElementById('cf-filtro-metodo').value = '';
+            setVista('mensual');
         }
 
         // =========================================================
@@ -1448,10 +1475,10 @@
         function abrirModalConsolidar()  { document.getElementById('consolidar-error').classList.add('hidden'); abrirModal('modal-consolidar'); }
 
         function abrirModal(id) { document.getElementById(id).classList.remove('hidden'); document.getElementById(id).classList.add('flex'); lucide.createIcons(); }
-        function cerrarModal(id){ document.getElementById(id).classList.add('hidden');    document.getElementById(id).classList.remove('flex'); }
+        function cerrarModal(id){ document.getElementById(id).classList.add('hidden'); document.getElementById(id).classList.remove('flex'); }
 
         document.addEventListener('click', (e) => {
-            ['modal-ingreso','modal-egreso','modal-transferencia','modal-password','modal-consolidar','modal-preview'].forEach(id => {
+            ['modal-ingreso','modal-egreso','modal-transferencia','modal-password','modal-consolidar','modal-preview','modal-eliminar','modal-detalle-dia'].forEach(id => {
                 const modal = document.getElementById(id);
                 if (modal && e.target === modal) cerrarModal(id);
             });
@@ -1460,27 +1487,46 @@
         // =========================================================
         // HELPERS DE RENDER
         // =========================================================
+        function normalizarMovimiento(_m) {
+            return {
+                id:          (_m.Id          ?? _m.id          ?? '').toString(),
+                tipo:        (_m.Tipo        ?? _m.tipo        ?? '').toLowerCase(),
+                origen:      (_m.Origen      ?? _m.origen      ?? ''),
+                origenLabel: (_m.origenLabel ?? _m.OrigenLabel ?? ''),
+                metodoPago:  (_m.MetodoPago  ?? _m.metodoPago  ?? '').toLowerCase(),
+                monto:       (_m.Monto       ?? _m.monto       ?? 0),
+                descripcion: (_m.Descripcion ?? _m.descripcion ?? ''),
+                categoria:   (_m.Categoria   ?? _m.categoria   ?? null),
+                fecha:       (_m.fecha       ?? _m.Fecha       ?? ''),
+                esCierreCaja:(_m.esCierreCaja ?? (_m.origen ?? _m.Origen) === 'cierre_caja' ?? false),
+                cierreCajaId:(_m.cierreCajaId ?? _m.CierreCajaId ?? null),
+            };
+        }
+
         function getOrigenBadge(origen, label) {
             const cfg = {
-                'cierre_caja':              { cls: 'bg-amber-100 text-amber-700',   icon: 'lock' },
-                'retiro_manual':            { cls: 'bg-red-100 text-red-700',       icon: 'arrow-up-right' },
-                'transferencia_a_caja':     { cls: 'bg-blue-100 text-blue-700',     icon: 'arrow-right' },
-                'transferencia_desde_caja': { cls: 'bg-indigo-100 text-indigo-700', icon: 'arrow-left' },
-                'ingreso_manual':           { cls: 'bg-emerald-100 text-emerald-700',icon: 'plus' },
+                'cierre_caja':              { cls: 'bg-amber-100 text-amber-700',    icon: 'lock' },
+                'retiro_manual':            { cls: 'bg-red-100 text-red-700',        icon: 'arrow-up-right' },
+                'transferencia_a_caja':     { cls: 'bg-blue-100 text-blue-700',      icon: 'arrow-right' },
+                'transferencia_desde_caja': { cls: 'bg-indigo-100 text-indigo-700',  icon: 'arrow-left' },
+                'ingreso_manual':           { cls: 'bg-emerald-100 text-emerald-700', icon: 'plus' },
             };
             const c = cfg[origen] || { cls: 'bg-gray-100 text-gray-600', icon: 'circle' };
+            const displayLabel = label && label !== origen ? label : (cfg[origen] ? ({
+                'cierre_caja':'Cierre Caja','retiro_manual':'Retiro Manual',
+                'transferencia_a_caja':'→ Caja Diaria','transferencia_desde_caja':'← Desde Caja',
+                'ingreso_manual':'Ingreso Manual'
+            }[origen] || origen) : origen);
             return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-bold ${c.cls}">
-                        <i data-lucide="${c.icon}" class="w-2.5 h-2.5"></i>${label || origen}
+                        <i data-lucide="${c.icon}" class="w-2.5 h-2.5"></i>${displayLabel}
                     </span>`;
         }
 
         function formatCategoria(cat) {
-            const map = {
-                nomina:'Nómina', pago_proveedores:'Proveedores', servicios_publicos:'Servicios',
+            const map = { nomina:'Nómina', pago_proveedores:'Proveedores', servicios_publicos:'Servicios',
                 mantenimiento:'Mantenimiento', arriendo:'Arriendo', impuestos:'Impuestos',
                 equipos:'Equipos', marketing:'Marketing', capital:'Capital',
-                prestamo:'Préstamo', ajuste:'Ajuste', otros:'Otros'
-            };
+                prestamo:'Préstamo', ajuste:'Ajuste', otros:'Otros' };
             return map[cat] || cat || '—';
         }
 
@@ -1490,15 +1536,42 @@
         function fmt(val) {
             return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(val || 0);
         }
-
+        // Parsea el string del servidor como hora LOCAL (sin conversión UTC)
+        function parsearFechaLocal(iso) {
+            if (!iso) return null;
+            const partes = iso.split('T');
+            const f = partes[0].split('-');
+            const anio = parseInt(f[0], 10), mes = parseInt(f[1], 10) - 1, dia = parseInt(f[2], 10);
+            let h = 0, m = 0, s = 0;
+            if (partes[1]) {
+                const t = partes[1].split(':');
+                h = parseInt(t[0], 10) || 0;
+                m = parseInt(t[1], 10) || 0;
+                s = parseInt(t[2], 10) || 0;
+            }
+            return new Date(anio, mes, dia, h, m, s);
+        }
+        // Fecha + hora en formato 12h AM/PM — sin desfase UTC
         function fmtFecha(iso) {
             if (!iso) return '—';
-            return new Date(iso).toLocaleString('es-CO', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+            const d = parsearFechaLocal(iso);
+            if (!d || isNaN(d.getTime())) return '—';
+            const dia  = d.getDate();
+            const mes  = d.toLocaleString('es-CO', { month: 'short' });
+            const anio = d.getFullYear();
+            const h24  = d.getHours();
+            const min  = String(d.getMinutes()).padStart(2, '0');
+            const ampm = h24 >= 12 ? 'PM' : 'AM';
+            const h12  = h24 % 12 || 12;
+            return `${dia} ${mes} ${anio}, ${h12}:${min} ${ampm}`;
         }
-
+        // Solo fecha — sin desfase UTC
         function fmtFechaCorta(iso) {
             if (!iso) return '—';
-            return new Date(iso + 'T00:00:00').toLocaleDateString('es-CO', { day:'2-digit', month:'short', year:'numeric' });
+            // Si viene solo fecha (YYYY-MM-DD) agregar T00:00:00 para evitar offset
+            const d = parsearFechaLocal(iso.includes('T') ? iso : iso + 'T00:00:00');
+            if (!d || isNaN(d.getTime())) return '—';
+            return d.toLocaleDateString('es-CO', { day:'2-digit', month:'short', year:'numeric' });
         }
 
         let toastTimeout;

@@ -17,9 +17,14 @@ namespace VidaFitBackend.Models
         public Guid UsuarioId { get; set; }
         public DateTime Fecha { get; set; }
         public string MetodoPago { get; set; }
-        public bool Cerrado { get; set; } // Indica si el movimiento ya fue cerrado
-        public Guid? CierreCajaId { get; set; } // Referencia al cierre que incluyó este movimiento
+        public bool Cerrado { get; set; }
+        public Guid? CierreCajaId { get; set; }
         public DateTime CreatedAt { get; set; }
+
+        // ✅ NUEVO: Referencia al movimiento de Caja Fuerte que originó este movimiento
+        // Se usa cuando la transferencia viene desde Caja Fuerte → Caja Diaria.
+        // Si se elimina ese movimiento CF, este campo permite encontrar y eliminar el espejo aquí.
+        public Guid? MovimientoCajaFuerteId { get; set; }
 
         // Navegación
         public Usuario Usuario { get; set; }
@@ -106,9 +111,9 @@ namespace VidaFitBackend.Models
     public class CajaFuerte
     {
         public Guid Id { get; set; }
-        public decimal BalanceEfectivo { get; set; } // Dinero físico real
-        public decimal BalanceTransferencias { get; set; } // Registro contable de transferencias
-        public decimal BalanceTotal { get; set; } // Suma de ambos
+        public decimal BalanceEfectivo { get; set; }
+        public decimal BalanceTransferencias { get; set; }
+        public decimal BalanceTotal { get; set; }
         public DateTime UltimaActualizacion { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
@@ -125,8 +130,8 @@ namespace VidaFitBackend.Models
         public string MetodoPago { get; set; } // efectivo/transferencia
         public decimal Monto { get; set; }
         public string Descripcion { get; set; }
-        public string? Categoria { get; set; } // Para egresos: pago_proveedores, servicios_publicos, mantenimiento, nomina, otros
-        public Guid? CierreCajaId { get; set; } // Si viene de un cierre
+        public string? Categoria { get; set; }
+        public Guid? CierreCajaId { get; set; }
         public Guid? MovimientoCajaId { get; set; } // Referencia al movimiento original de caja diaria
         public Guid UsuarioId { get; set; }
         public DateTime Fecha { get; set; }
@@ -144,15 +149,15 @@ namespace VidaFitBackend.Models
     public class ConsolidadoMensual
     {
         public Guid Id { get; set; }
-        public int Mes { get; set; } // 1-12
-        public int Anio { get; set; } // 2025, 2026, etc
+        public int Mes { get; set; }
+        public int Anio { get; set; }
         public decimal TotalIngresosEfectivo { get; set; }
         public decimal TotalIngresosTransferencia { get; set; }
         public decimal TotalEgresosEfectivo { get; set; }
         public decimal TotalEgresosTransferencia { get; set; }
         public decimal BalanceFinalEfectivo { get; set; }
         public decimal BalanceFinalTransferencia { get; set; }
-        public DateTime FechaConsolidacion { get; set; } // Cuándo se consolidó
+        public DateTime FechaConsolidacion { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 
@@ -162,19 +167,24 @@ namespace VidaFitBackend.Models
     public class ConfiguracionCajaFuerte
     {
         public Guid Id { get; set; }
-        public string PasswordHash { get; set; } // Contraseña encriptada
-        public bool RequiereCambioPassword { get; set; } // True si es primera vez (123456)
+        public string PasswordHash { get; set; }
+        public bool RequiereCambioPassword { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
     }
 
     /// <summary>
-    /// Registro de movimientos eliminados de Caja Fuerte
+    /// Registro de movimientos eliminados (auditoría)
+    /// Aplica tanto para movimientos de Caja Fuerte como de Caja Diaria
     /// </summary>
     public class MovimientoEliminado
     {
         public Guid Id { get; set; }
         public Guid MovimientoOriginalId { get; set; }
+
+        // ✅ NUEVO: Indica si el movimiento eliminado era de Caja Fuerte o Caja Diaria
+        public string ModuloOrigen { get; set; } // "caja_fuerte" | "caja_diaria"
+
         public string Tipo { get; set; } // ingreso/egreso
         public string Origen { get; set; }
         public string MetodoPago { get; set; }

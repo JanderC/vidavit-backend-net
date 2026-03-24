@@ -37,7 +37,6 @@ namespace VidaFit.Data
         public DbSet<MovimientoCajaFuerte> MovimientosCajaFuerte { get; set; }
         public DbSet<ConsolidadoMensual> ConsolidadosMensuales { get; set; }
         public DbSet<ConfiguracionCajaFuerte> ConfiguracionesCajaFuerte { get; set; }
-        // TEMPORAL: Comentado hasta ejecutar migración
         public DbSet<MovimientoEliminado> MovimientosEliminados { get; set; }
 
         // ✅ No necesitamos OnConfiguring adicional
@@ -223,7 +222,6 @@ namespace VidaFit.Data
                 entity.Property(e => e.Tipo).IsRequired().HasMaxLength(20);
 
                 // ✅ IMPORTANTE: Fecha debe ser TIMESTAMP para guardar hora exacta
-                // NO usamos 'date' porque necesitamos saber la hora del movimiento
                 entity.Property(e => e.Fecha).HasColumnType("timestamp");
 
                 // CreatedAt puede ser date (solo auditoría del día)
@@ -246,6 +244,8 @@ namespace VidaFit.Data
                 entity.HasIndex(m => m.Tipo);
                 entity.HasIndex(m => m.Cerrado);
                 entity.HasIndex(m => m.CierreCajaId);
+                // ✅ FIX: Índice para FK hacia MovimientoCajaFuerte
+                entity.HasIndex(m => m.MovimientoCajaFuerteId);
             });
 
             // ==================== OTRAS TABLAS ====================
@@ -326,6 +326,7 @@ namespace VidaFit.Data
                     .OnDelete(DeleteBehavior.SetNull);
 
                 entity.HasIndex(m => m.MovimientoCajaId);
+
                 // ✅ Configurar relación con Usuario
                 entity.HasOne(m => m.Usuario)
                     .WithMany()
@@ -367,7 +368,6 @@ namespace VidaFit.Data
                 entity.Property(e => e.PasswordHash).IsRequired().HasMaxLength(255);
             });
 
-            // TEMPORAL: Comentado hasta ejecutar migración
             modelBuilder.Entity<MovimientoEliminado>(entity =>
             {
                 entity.ToTable("movimientos_eliminados");
@@ -375,6 +375,12 @@ namespace VidaFit.Data
                 entity.Property(e => e.Monto).HasColumnType("decimal(10,2)");
                 entity.Property(e => e.Tipo).IsRequired().HasMaxLength(20);
                 entity.Property(e => e.MetodoPago).IsRequired().HasMaxLength(50);
+
+                // ✅ FIX: Configurar ModuloOrigen con valor por defecto
+                entity.Property(e => e.ModuloOrigen)
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .HasDefaultValue("caja_fuerte");
 
                 // ✅ Configurar relación con Usuario que eliminó
                 entity.HasOne(m => m.Usuario)
@@ -387,6 +393,8 @@ namespace VidaFit.Data
                 entity.HasIndex(m => m.FechaOriginal);
                 entity.HasIndex(m => m.MovimientoOriginalId);
                 entity.HasIndex(m => m.UsuarioEliminacion);
+                // ✅ FIX: Índice para filtrar por módulo (auditoría)
+                entity.HasIndex(m => m.ModuloOrigen);
             });
 
 
@@ -499,6 +507,11 @@ namespace VidaFit.Data
                         "RequiereCambioPassword" => "requiere_cambio_password",
                         "Peso" => "peso",
                         "MovimientoCajaId" => "movimiento_caja_id",
+                        // ✅ FIX PRINCIPAL: estas dos propiedades faltaban en el switch,
+                        // causando que EF Core las convirtiera a minúsculas sin guiones
+                        // (ej: "movimientocajafuerteid" en lugar de "movimiento_caja_fuerte_id")
+                        "MovimientoCajaFuerteId" => "movimiento_caja_fuerte_id",
+                        "ModuloOrigen" => "modulo_origen",
                         "MovimientoOriginalId" => "movimiento_original_id",
                         "FechaOriginal" => "fecha_original",
                         "FechaEliminacion" => "fecha_eliminacion",
