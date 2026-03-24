@@ -1,0 +1,4 @@
+C:\d\CajaFuerteGymTauro\appsettings.Development.json
+C:\d\CajaFuerteGymTauro\appsettings.json
+C:\d\CajaFuerteGymTauro\VidaFit.pdb
+C:\d\CajaFuerteGymTauro\VidaFit.exe
