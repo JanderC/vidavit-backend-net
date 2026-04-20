@@ -291,6 +291,54 @@ namespace VidaFit.Controllers.API
         }
 
         // =============================================
+        // BALANCES DEL MES EN CURSO
+        // =============================================
+
+        /// <summary>
+        /// GET /api/cajafuerte/balances-mes
+        /// Devuelve balance neto calculado SOLO con movimientos del mes actual.
+        /// </summary>
+        [HttpGet("balances-mes")]
+        public async Task<IActionResult> GetBalancesMes()
+        {
+            try
+            {
+                var hoy = DateTime.Now;
+                var primerDia = new DateTime(hoy.Year, hoy.Month, 1);
+                var ultimoDia = primerDia.AddMonths(1);
+
+                var movimientos = await _context.MovimientosCajaFuerte
+                    .Where(m => m.Fecha >= primerDia && m.Fecha < ultimoDia)
+                    .ToListAsync();
+
+                var ingEf = movimientos.Where(m => m.Tipo == "ingreso" && m.MetodoPago == "efectivo").Sum(m => m.Monto);
+                var ingTr = movimientos.Where(m => m.Tipo == "ingreso" && m.MetodoPago == "transferencia").Sum(m => m.Monto);
+                var egrEf = movimientos.Where(m => m.Tipo == "egreso" && m.MetodoPago == "efectivo").Sum(m => m.Monto);
+                var egrTr = movimientos.Where(m => m.Tipo == "egreso" && m.MetodoPago == "transferencia").Sum(m => m.Monto);
+
+                var efectivoMes = ingEf - egrEf;
+                var transferenciasMes = ingTr - egrTr;
+                var totalMes = efectivoMes + transferenciasMes;
+
+                return Ok(new
+                {
+                    success = true,
+                    mes = hoy.ToString("MMMM yyyy", new System.Globalization.CultureInfo("es-ES")),
+                    efectivo = efectivoMes,
+                    transferencias = transferenciasMes,
+                    total = totalMes,
+                    detalle = new { ingresosEfectivo = ingEf, ingresosTransferencia = ingTr, egresosEfectivo = egrEf, egresosTransferencia = egrTr },
+                    ultimaActualizacion = hoy
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener balances del mes");
+                return StatusCode(500, new { success = false, message = "Error al obtener balances del mes" });
+            }
+        }
+
+        // =============================================
         // MOVIMIENTOS DE CAJA DIARIA (detalle dentro de CF)
         // =============================================
 

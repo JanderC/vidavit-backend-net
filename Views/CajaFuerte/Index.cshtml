@@ -68,7 +68,7 @@
                 </div>
             </div>
             <p class="text-4xl font-black" id="balance-efectivo">$0</p>
-            <p class="mt-3 pt-3 border-t border-emerald-500/50 text-xs text-emerald-200">Dinero físico acumulado de cierres y ajustes</p>
+            <p class="mt-3 pt-3 border-t border-emerald-500/50 text-xs text-emerald-200">Efectivo del mes de <span class="cf-subtitulo-mes font-bold">...</span></p>
         </div>
         <div class="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl shadow-xl p-6 text-white">
             <div class="flex items-center justify-between mb-4">
@@ -78,17 +78,17 @@
                 </div>
             </div>
             <p class="text-4xl font-black" id="balance-transferencias">$0</p>
-            <p class="mt-3 pt-3 border-t border-blue-500/50 text-xs text-blue-200">Registro contable de pagos por transferencia</p>
+            <p class="mt-3 pt-3 border-t border-blue-500/50 text-xs text-blue-200">Transferencias del mes de <span class="cf-subtitulo-mes font-bold">...</span></p>
         </div>
         <div class="bg-gradient-to-br from-amber-500 to-amber-700 rounded-2xl shadow-xl p-6 text-white">
             <div class="flex items-center justify-between mb-4">
-                <p class="text-amber-100 font-bold uppercase text-xs tracking-widest">Balance Total Acumulado</p>
+                <p class="text-amber-100 font-bold uppercase text-xs tracking-widest">Balance del Mes en Curso</p>
                 <div class="w-10 h-10 bg-amber-400/50 rounded-full flex items-center justify-center">
                     <i data-lucide="vault" class="w-5 h-5 text-white"></i>
                 </div>
             </div>
             <p class="text-4xl font-black" id="balance-total">$0</p>
-            <p class="mt-3 pt-3 border-t border-amber-400/50 text-xs text-amber-100">Efectivo + Transferencias acumulados</p>
+            <p class="mt-3 pt-3 border-t border-amber-400/50 text-xs text-amber-100">Total del mes de <span class="cf-subtitulo-mes font-bold">...</span></p>
         </div>
     </div>
 
@@ -628,7 +628,7 @@
         // =========================================================
         async function cargarBalances() {
             try {
-                const res = await fetch('/api/cajafuerte/balances');
+                const res = await fetch('/api/cajafuerte/balances-mes');
                 const data = await res.json();
                 if (!data.success) return;
                 balanceEfectivoActual = data.efectivo;
@@ -637,6 +637,11 @@
                 document.getElementById('balance-total').textContent = fmt(data.total);
                 document.getElementById('ultima-actualizacion').textContent = fmtFecha(data.ultimaActualizacion);
                 document.getElementById('disp-efectivo-transfer').textContent = fmt(data.efectivo);
+                // Mostrar el mes en curso en los subtítulos de las tarjetas
+                if (data.mes) {
+                    const mesCapitalizado = data.mes.charAt(0).toUpperCase() + data.mes.slice(1);
+                    document.querySelectorAll(".cf-subtitulo-mes").forEach(el => el.textContent = mesCapitalizado);
+                }
                 lucide.createIcons();
             } catch (e) { console.error('Error cargando balances CF:', e); }
         }
@@ -771,7 +776,8 @@
                 const data = await res.json();
                 if (!data.success) throw new Error('error api');
 
-                const movs = data.movimientos || [];
+                const movsRaw = data.movimientos || [];
+                const movs = movsRaw.map(m => ({ ...m, tipo: (m.tipo ?? m.Tipo ?? "").toLowerCase(), metodoPago: (m.metodoPago ?? m.MetodoPago ?? "").toLowerCase(), monto: m.monto ?? m.Monto ?? 0, fecha: m.fecha ?? m.Fecha ?? "", origen: (m.origen ?? m.Origen ?? "").toLowerCase(), descripcion: m.descripcion ?? m.Descripcion ?? "", categoria: m.categoria ?? m.Categoria ?? null, id: m.id ?? m.Id ?? "", cierreCajaId: m.cierreCajaId ?? m.CierreCajaId ?? null, movimientoCajaId: m.movimientoCajaId ?? m.MovimientoCajaId ?? null, esCierreCaja: m.esCierreCaja ?? false, esTransferenciaCaja: m.esTransferenciaCaja ?? false }));
 
                 // Calcular resumen
                 const ingEf = movs.filter(m => m.tipo === 'ingreso' && m.metodoPago === 'efectivo').reduce((s, m) => s + m.monto, 0);
@@ -1587,5 +1593,12 @@
             toast.classList.remove('hidden');
             toastTimeout = setTimeout(() => toast.classList.add('hidden'), 3500);
         }
+         document.querySelectorAll('input[type="number"]').forEach(function(input) {
+            input.addEventListener('wheel', function(e) {
+                e.preventDefault();
+            }, { passive: false });
+        });
+
+
     </script>
 }

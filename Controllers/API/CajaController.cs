@@ -472,6 +472,40 @@ namespace VidaFit.Controllers.API
         }
 
         // =============================================
+        // ENDPOINTS ALIAS: /ingreso y /egreso
+        // El frontend llama a estas rutas por separado.
+        // Reutilizan el mismo RegistrarMovimiento seteando Tipo.
+        // =============================================
+
+        [HttpPost("ingreso")]
+        public async Task<IActionResult> RegistrarIngreso([FromBody] IngresoEgresoRequest request)
+        {
+            return await RegistrarMovimiento(new RegistrarMovimientoRequest
+            {
+                Tipo = "ingreso",
+                Categoria = request.Categoria,
+                Monto = request.Monto,
+                Descripcion = request.Descripcion,
+                MetodoPago = request.MetodoPago,
+                ReferenciaId = request.ReferenciaId
+            });
+        }
+
+        [HttpPost("egreso")]
+        public async Task<IActionResult> RegistrarEgreso([FromBody] IngresoEgresoRequest request)
+        {
+            return await RegistrarMovimiento(new RegistrarMovimientoRequest
+            {
+                Tipo = "egreso",
+                Categoria = request.Categoria,
+                Monto = request.Monto,
+                Descripcion = request.Descripcion,
+                MetodoPago = request.MetodoPago,
+                ReferenciaId = request.ReferenciaId
+            });
+        }
+
+        // =============================================
         // CIERRE DE CAJA
         // =============================================
 
@@ -839,6 +873,16 @@ namespace VidaFit.Controllers.API
             public Guid? ReferenciaId { get; set; }
         }
 
+
+        // Igual que RegistrarMovimientoRequest pero sin Tipo (lo pone el endpoint alias)
+        public class IngresoEgresoRequest
+        {
+            public string? Categoria { get; set; }
+            public decimal Monto { get; set; }
+            public string Descripcion { get; set; }
+            public string MetodoPago { get; set; }
+            public Guid? ReferenciaId { get; set; }
+        }
         public class RecibirDesdeCajaFuerteRequest
         {
             public decimal Monto { get; set; }

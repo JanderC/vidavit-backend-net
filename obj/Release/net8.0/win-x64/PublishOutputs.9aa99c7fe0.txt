@@ -1,0 +1,4 @@
+C:\d\Taurofix\appsettings.Development.json
+C:\d\Taurofix\appsettings.json
+C:\d\Taurofix\VidaFit.pdb
+C:\d\Taurofix\VidaFit.exe

@@ -248,6 +248,12 @@
                 alert('Error al crear producto');
             }
         });
+         document.querySelectorAll('input[type="number"]').forEach(function(input) {
+            input.addEventListener('wheel', function(e) {
+                e.preventDefault();
+            }, { passive: false });
+        });
+
 
         lucide.createIcons();
     </script>

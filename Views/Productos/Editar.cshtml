@@ -139,6 +139,11 @@
                 alert('Error de conexión: ' + error.message);
             }
         });
+                document.querySelectorAll('input[type="number"]').forEach(function(input) {
+            input.addEventListener('wheel', function(e) {
+                e.preventDefault();
+            }, { passive: false });
+        });
 
         lucide.createIcons();
     </script>
