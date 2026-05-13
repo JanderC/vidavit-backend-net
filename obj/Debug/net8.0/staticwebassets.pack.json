@@ -17,6 +17,10 @@
       "PackagePath": "staticwebassets\\images\\tauro-gym-logo.png"
     },
     {
+      "Id": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\images\\vida-fit-logo.png",
+      "PackagePath": "staticwebassets\\images\\vida-fit-logo.png"
+    },
+    {
       "Id": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\js\\site.js",
       "PackagePath": "staticwebassets\\js\\site.js"
     },

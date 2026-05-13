@@ -1,0 +1,4 @@
+C:\d\VidaFitVersionFinal\appsettings.Development.json
+C:\d\VidaFitVersionFinal\appsettings.json
+C:\d\VidaFitVersionFinal\VidaFit.pdb
+C:\d\VidaFitVersionFinal\VidaFit.exe

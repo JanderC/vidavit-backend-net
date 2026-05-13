@@ -12,16 +12,13 @@ namespace VidaFit.Controllers.API
     public class CheckInController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly IFingerprintService _fingerprintService;
         private readonly INotificationService _notificationService;
 
         public CheckInController(
             AppDbContext context,
-            IFingerprintService fingerprintService,
             INotificationService notificationService)
         {
             _context = context;
-            _fingerprintService = fingerprintService;
             _notificationService = notificationService;
         }
 
@@ -393,9 +390,9 @@ namespace VidaFit.Controllers.API
         /// Verificar estado del lector de huellas
         /// </summary>
         [HttpGet("status")]
-        public IActionResult GetReaderStatus()
+        public IActionResult GetReaderStatus([FromServices] IFingerprintService fingerprintService)
         {
-            var connected = _fingerprintService.IsReaderConnected();
+            var connected = fingerprintService.IsReaderConnected();
 
             return Ok(new
             {

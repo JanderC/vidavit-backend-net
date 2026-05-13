@@ -331,6 +331,88 @@
       ]
     },
     {
+      "Route": "images/vida-fit-logo.kwkj5m8mei.png",
+      "AssetFile": "images/vida-fit-logo.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "114387"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"lC1QdMHASfxGX7v9nx03a3yE0xAljm/gZpuDE0y1kLI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 04 May 2026 21:13:16 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "kwkj5m8mei"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-lC1QdMHASfxGX7v9nx03a3yE0xAljm/gZpuDE0y1kLI="
+        },
+        {
+          "Name": "label",
+          "Value": "images/vida-fit-logo.png"
+        }
+      ]
+    },
+    {
+      "Route": "images/vida-fit-logo.png",
+      "AssetFile": "images/vida-fit-logo.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "114387"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"lC1QdMHASfxGX7v9nx03a3yE0xAljm/gZpuDE0y1kLI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 04 May 2026 21:13:16 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-lC1QdMHASfxGX7v9nx03a3yE0xAljm/gZpuDE0y1kLI="
+        }
+      ]
+    },
+    {
       "Route": "js/site.js",
       "AssetFile": "js/site.js",
       "Selectors": [],

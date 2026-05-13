@@ -195,7 +195,7 @@ lifetime.ApplicationStarted.Register(() =>
 
         await Task.Delay(800);
 
-        OpenBrowser("http://localhost:3000/verify");
+        OpenBrowser("http://localhost:5000/kiosko");
         Console.WriteLine("   ✓ Kiosko abierto");
 
         Console.WriteLine("═══════════════════════════════════════════════════════");
