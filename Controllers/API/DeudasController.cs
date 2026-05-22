@@ -1,311 +1,357 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VidaFit.Data;
 using VidaFitBackend.Models;
-using System.Text.Json;
 
 namespace VidaFit.Controllers.API
 {
+    /// <summary>
+    /// API: Gestión completa de deudas de clientes.
+    /// Rutas base: /api/Deudas
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class DeudasController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly ILogger<DeudasController> _logger;
 
-        public DeudasController(AppDbContext context)
+        public DeudasController(AppDbContext context, ILogger<DeudasController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
-        /// <summary>
-        /// Obtener todas las deudas
-        /// </summary>
+        // ─────────────────────────────────────────────
+        // HELPER: obtener primer usuario activo del sistema
+        // ─────────────────────────────────────────────
+        private async Task<Guid> ObtenerUsuarioSistemaAsync()
+        {
+            var usuario = await _context.Usuarios
+                .Where(u => u.Activo)
+                .OrderBy(u => u.CreatedAt)
+                .Select(u => u.Id)
+                .FirstOrDefaultAsync();
+
+            if (usuario == Guid.Empty)
+                throw new Exception("No hay usuarios activos en el sistema");
+
+            return usuario;
+        }
+
+        // ─────────────────────────────────────────────
+        // HELPER: Normalizar estado teniendo en cuenta vencimiento real
+        // ✅ FIX CRÍTICO: El estado se calcula dinámicamente en cada lectura,
+        //    no se confía solo en el valor guardado en BD.
+        // ─────────────────────────────────────────────
+        private static string CalcularEstadoReal(DeudaCliente deuda)
+        {
+            if (deuda.Estado == "pagada" || deuda.Estado == "cancelada")
+                return deuda.Estado;
+
+            // Si tiene fecha de vencimiento y ya pasó → vencida (independiente del estado en BD)
+            if (deuda.FechaVencimiento.HasValue &&
+                deuda.FechaVencimiento.Value.Date < DateTime.Now.Date &&
+                deuda.Saldo > 0)
+            {
+                return "vencida";
+            }
+
+            return deuda.Estado; // "pendiente" o el que esté guardado
+        }
+
+        // ─────────────────────────────────────────────
+        // GET /api/Deudas
+        // Lista todas las deudas con filtros opcionales
+        // ─────────────────────────────────────────────
         [HttpGet]
-        public async Task<IActionResult> GetDeudas([FromQuery] string estado = null)
+        public async Task<IActionResult> GetDeudas(
+            [FromQuery] string? estado = null,
+            [FromQuery] string? busqueda = null,
+            [FromQuery] bool incluirPagadas = false,
+            [FromQuery] int pagina = 1,
+            [FromQuery] int porPagina = 50)
         {
             try
             {
                 var query = _context.DeudasClientes
                     .Include(d => d.Cliente)
-                    .Include(d => d.Abonos)
                     .AsQueryable();
 
-                if (!string.IsNullOrWhiteSpace(estado))
+                // Buscar por nombre o cédula del cliente
+                if (!string.IsNullOrWhiteSpace(busqueda))
                 {
-                    query = query.Where(d => d.Estado == estado);
+                    var b = busqueda.ToLower();
+                    query = query.Where(d =>
+                        d.Cliente.Nombre.ToLower().Contains(b) ||
+                        d.Cliente.Apellido.ToLower().Contains(b) ||
+                        d.Cliente.Cedula.ToLower().Contains(b) ||
+                        d.Concepto.ToLower().Contains(b));
                 }
+
+                if (!incluirPagadas)
+                    query = query.Where(d => d.Estado != "pagada" && d.Estado != "cancelada");
 
                 var deudas = await query
                     .OrderByDescending(d => d.FechaCreacion)
-                    .Select(d => new
-                    {
-                        d.Id,
-                        d.ClienteId,
-                        clienteNombre = $"{d.Cliente.Nombre} {d.Cliente.Apellido}",
-                        clienteCedula = d.Cliente.Cedula,
-                        d.Concepto,
-                        d.MontoTotal,
-                        d.MontoPagado,
-                        d.Saldo,
-                        d.Estado,
-                        d.FechaCreacion,
-                        d.FechaVencimiento,
-                        d.Notas,
-                        cantidadAbonos = d.Abonos.Count
-                    })
                     .ToListAsync();
 
-                var totalDeudas = deudas.Sum(d => d.MontoTotal);
-                var totalSaldoPendiente = deudas.Where(d => d.Estado != "pagada").Sum(d => d.Saldo);
+                // ✅ FIX: Recalcular estado real en cada deuda antes de devolver
+                //    Esto garantiza que las vencidas SIEMPRE aparezcan como vencidas,
+                //    aunque en BD diga "pendiente".
+                var resultado = deudas.Select(d => new
+                {
+                    d.Id,
+                    // Estado calculado dinámicamente (no solo el de BD)
+                    Estado = CalcularEstadoReal(d),
+                    EstadoBD = d.Estado, // para debug si necesario
+                    d.Concepto,
+                    d.MontoTotal,
+                    d.MontoPagado,
+                    d.Saldo,
+                    fechaCreacion = d.FechaCreacion.ToString("yyyy-MM-ddTHH:mm:ss"),
+                    fechaVencimiento = d.FechaVencimiento.HasValue
+                        ? d.FechaVencimiento.Value.ToString("yyyy-MM-ddTHH:mm:ss")
+                        : (string?)null,
+                    diasParaVencer = d.FechaVencimiento.HasValue
+                        ? (int)(d.FechaVencimiento.Value.Date - DateTime.Now.Date).TotalDays
+                        : (int?)null,
+                    estaVencida = d.FechaVencimiento.HasValue &&
+                                  d.FechaVencimiento.Value.Date < DateTime.Now.Date &&
+                                  d.Saldo > 0,
+                    venceProximamente = d.FechaVencimiento.HasValue &&
+                                        d.FechaVencimiento.Value.Date >= DateTime.Now.Date &&
+                                        (d.FechaVencimiento.Value.Date - DateTime.Now.Date).TotalDays <= 7 &&
+                                        d.Saldo > 0,
+                    cliente = new
+                    {
+                        d.Cliente.Id,
+                        nombre = $"{d.Cliente.Nombre} {d.Cliente.Apellido}".Trim(),
+                        cedula = d.Cliente.Cedula
+                    }
+                }).ToList();
+
+                // Aplicar filtro de estado DESPUÉS del cálculo real
+                if (!string.IsNullOrWhiteSpace(estado))
+                    resultado = resultado.Where(d => d.Estado == estado).ToList();
+
+                // Totales para el dashboard de caja
+                var totalDeudas = resultado.Count;
+                var totalPendiente = resultado.Where(d => d.Estado == "pendiente").Sum(d => d.Saldo);
+                var totalVencido = resultado.Where(d => d.Estado == "vencida").Sum(d => d.Saldo);
+                var countVencidas = resultado.Count(d => d.Estado == "vencida");
+                var countPendientes = resultado.Count(d => d.Estado == "pendiente");
+                var countVenceProximamente = resultado.Count(d => d.venceProximamente);
+
+                // Paginación
+                var total = resultado.Count;
+                var items = resultado
+                    .Skip((pagina - 1) * porPagina)
+                    .Take(porPagina)
+                    .ToList();
 
                 return Ok(new
                 {
                     success = true,
-                    totalDeudas,
-                    totalSaldoPendiente,
-                    cantidadDeudas = deudas.Count,
-                    data = deudas
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Error al obtener deudas",
-                    error = ex.Message
-                });
-            }
-        }
-
-        /// <summary>
-        /// Obtener deudas de un cliente específico
-        /// </summary>
-        [HttpGet("cliente/{clienteId}")]
-        public async Task<IActionResult> GetDeudasCliente(Guid clienteId)
-        {
-            try
-            {
-                var deudas = await _context.DeudasClientes
-                    .Include(d => d.Abonos)
-                    .Where(d => d.ClienteId == clienteId)
-                    .OrderByDescending(d => d.FechaCreacion)
-                    .Select(d => new
+                    items,
+                    total,
+                    pagina,
+                    porPagina,
+                    totalPaginas = (int)Math.Ceiling((double)total / porPagina),
+                    resumen = new
                     {
-                        d.Id,
-                        d.Concepto,
-                        d.MontoTotal,
-                        d.MontoPagado,
-                        d.Saldo,
-                        d.Estado,
-                        d.FechaCreacion,
-                        d.FechaVencimiento,
-                        d.Notas,
-                        abonos = d.Abonos.Select(a => new
-                        {
-                            a.Id,
-                            a.Monto,
-                            a.FechaAbono,
-                            a.MetodoPago,
-                            a.Notas
-                        }).OrderByDescending(a => a.FechaAbono).ToList()
-                    })
-                    .ToListAsync();
-
-                var totalAdeudado = deudas.Where(d => d.Estado != "pagada").Sum(d => d.Saldo);
-
-                return Ok(new
-                {
-                    success = true,
-                    totalAdeudado,
-                    cantidadDeudas = deudas.Count,
-                    data = deudas
+                        totalDeudas,
+                        totalPendiente,
+                        totalVencido,
+                        countVencidas,
+                        countPendientes,
+                        countVenceProximamente
+                    }
                 });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Error al obtener deudas del cliente",
-                    error = ex.Message
-                });
+                _logger.LogError(ex, "Error al obtener deudas");
+                return StatusCode(500, new { success = false, message = "Error al obtener deudas", error = ex.Message });
             }
         }
 
-        /// <summary>
-        /// Crear una nueva deuda
-        /// </summary>
+        // ─────────────────────────────────────────────
+        // POST /api/Deudas
+        // Registrar nueva deuda
+        // ─────────────────────────────────────────────
         [HttpPost]
-        public async Task<IActionResult> CreateDeuda([FromBody] JsonElement data)
+        public async Task<IActionResult> CrearDeuda([FromBody] CrearDeudaRequest request)
         {
             try
             {
-                var clienteId = Guid.Parse(data.GetProperty("clienteId").GetString());
-                var concepto = data.GetProperty("concepto").GetString();
-                var montoTotal = data.GetProperty("montoTotal").GetDecimal();
-                var notas = data.TryGetProperty("notas", out var notasEl) ? notasEl.GetString() : null;
+                if (request.Monto <= 0)
+                    return BadRequest(new { success = false, message = "El monto debe ser mayor a 0" });
 
-                DateTime? fechaVencimiento = null;
-                if (data.TryGetProperty("fechaVencimiento", out var fechaEl) && !string.IsNullOrWhiteSpace(fechaEl.GetString()))
-                {
-                    fechaVencimiento = DateTime.SpecifyKind(DateTime.Parse(fechaEl.GetString()), DateTimeKind.Utc);
-                }
+                if (request.ClienteId == Guid.Empty)
+                    return BadRequest(new { success = false, message = "Debe especificar un cliente válido" });
 
-                var cliente = await _context.Clientes.FindAsync(clienteId);
+                var cliente = await _context.Clientes.FindAsync(request.ClienteId);
                 if (cliente == null)
-                {
-                    return Ok(new { success = false, message = "Cliente no encontrado" });
-                }
+                    return NotFound(new { success = false, message = "Cliente no encontrado" });
 
                 var deuda = new DeudaCliente
                 {
                     Id = Guid.NewGuid(),
-                    ClienteId = clienteId,
-                    Concepto = concepto,
-                    MontoTotal = montoTotal,
+                    ClienteId = request.ClienteId,
+                    Concepto = request.Concepto?.Trim() ?? "Deuda sin concepto",
+                    MontoTotal = request.Monto,
                     MontoPagado = 0,
-                    Saldo = montoTotal,
+                    Saldo = request.Monto,
                     Estado = "pendiente",
                     FechaCreacion = DateTime.Now,
-                    FechaVencimiento = fechaVencimiento,
-                    Notas = notas,
-                    CreatedAt = DateTime.Now
+                    FechaVencimiento = request.FechaVencimiento
                 };
 
                 _context.DeudasClientes.Add(deuda);
                 await _context.SaveChangesAsync();
 
-                return Ok(new
-                {
-                    success = true,
-                    message = "Deuda creada correctamente",
-                    data = deuda
-                });
-            }
-            catch (Exception ex)
-            {
-                return Ok(new
-                {
-                    success = false,
-                    message = "Error al crear deuda",
-                    error = ex.Message,
-                    inner = ex.InnerException?.Message
-                });
-            }
-        }
-
-        /// <summary>
-        /// Registrar un abono a una deuda
-        /// </summary>
-        [HttpPost("abonar")]
-        public async Task<IActionResult> AbonarDeuda([FromBody] JsonElement data)
-        {
-            try
-            {
-                var deudaId = Guid.Parse(data.GetProperty("deudaId").GetString());
-                var monto = data.GetProperty("monto").GetDecimal();
-                var metodoPago = data.GetProperty("metodoPago").GetString();
-
-                // Manejar usuarioId que puede ser null
-                Guid? usuarioId = null;
-                if (data.TryGetProperty("usuarioId", out var userEl) &&
-                    !string.IsNullOrWhiteSpace(userEl.GetString()) &&
-                    userEl.GetString() != "null")
-                {
-                    usuarioId = Guid.Parse(userEl.GetString());
-                }
-
-                var notas = data.TryGetProperty("notas", out var notasEl) ? notasEl.GetString() : null;
-
-                var deuda = await _context.DeudasClientes
-                    .Include(d => d.Cliente)
-                    .FirstOrDefaultAsync(d => d.Id == deudaId);
-
-                if (deuda == null)
-                {
-                    return NotFound(new { success = false, message = "Deuda no encontrada" });
-                }
-
-                if (deuda.Estado == "pagada")
-                {
-                    return Ok(new { success = false, message = "Esta deuda ya está pagada" });
-                }
-
-                if (monto > deuda.Saldo)
-                {
-                    return Ok(new { success = false, message = "El monto del abono supera el saldo pendiente" });
-                }
-
-                // Registrar abono
-                var abono = new AbonoDeuda
-                {
-                    Id = Guid.NewGuid(),
-                    DeudaId = deudaId,
-                    Monto = monto,
-                    MetodoPago = metodoPago,
-                    FechaAbono = DateTime.Now,
-                    Notas = notas
-                };
-
-                _context.AbonosDeuda.Add(abono);
-
-                // Actualizar deuda
-                deuda.MontoPagado += monto;
-                deuda.Saldo -= monto;
-
-                if (deuda.Saldo <= 0)
-                {
-                    deuda.Estado = "pagada";
-                    deuda.Saldo = 0; // Asegurar que quede en 0
-                }
-                else if (deuda.FechaVencimiento.HasValue && deuda.FechaVencimiento < DateTime.Now)
-                {
-                    deuda.Estado = "vencida";
-                }
-
-                // Registrar ingreso en caja SIEMPRE
-                // SIEMPRE registrar en caja
-                {
-                    var movimientoCaja = new MovimientoCaja
-                    {
-                        Id = Guid.NewGuid(),
-                        Tipo = "ingreso",
-                        Categoria = "abono_deuda",
-                        Monto = monto,
-                        Descripcion = $"Abono deuda - {deuda.Cliente.Nombre} {deuda.Cliente.Apellido} - {deuda.Concepto}",
-                        ReferenciaId = deuda.Id,
-                        UsuarioId = usuarioId ?? Guid.Parse("00000000-0000-0000-0000-000000000000"),
-                        MetodoPago = metodoPago,
-                        Fecha = DateTime.Now,
-                        CreatedAt = DateTime.Now
-                    };
-
-                    _context.MovimientosCaja.Add(movimientoCaja);
-                }
-
-                await _context.SaveChangesAsync();
+                _logger.LogInformation("💳 Nueva deuda creada: ${Monto} — Cliente {ClienteId} — Concepto: {Concepto}",
+                    request.Monto, request.ClienteId, deuda.Concepto);
 
                 return Ok(new
                 {
                     success = true,
-                    message = deuda.Estado == "pagada" ? "Deuda pagada completamente" : "Abono registrado correctamente",
-                    data = new
+                    message = $"Deuda de ${request.Monto:N2} registrada correctamente para {cliente.Nombre} {cliente.Apellido}",
+                    deudaId = deuda.Id,
+                    deuda = new
                     {
-                        abono,
-                        deuda = new
+                        deuda.Id,
+                        deuda.Estado,
+                        deuda.Concepto,
+                        deuda.MontoTotal,
+                        deuda.MontoPagado,
+                        deuda.Saldo,
+                        fechaCreacion = deuda.FechaCreacion.ToString("yyyy-MM-ddTHH:mm:ss"),
+                        fechaVencimiento = deuda.FechaVencimiento.HasValue
+                            ? deuda.FechaVencimiento.Value.ToString("yyyy-MM-ddTHH:mm:ss")
+                            : (string?)null,
+                        cliente = new
                         {
-                            deuda.Id,
-                            deuda.Saldo,
-                            deuda.MontoPagado,
-                            deuda.Estado
+                            cliente.Id,
+                            nombre = $"{cliente.Nombre} {cliente.Apellido}".Trim(),
+                            cedula = cliente.Cedula
                         }
                     }
                 });
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error al crear deuda");
+                return StatusCode(500, new { success = false, message = "Error al crear deuda", error = ex.Message });
+            }
+        }
+
+        // ─────────────────────────────────────────────
+        // POST /api/Deudas/abonar
+        // Registra un abono a una deuda
+        // ─────────────────────────────────────────────
+        [HttpPost("abonar")]
+        public async Task<IActionResult> Abonar([FromBody] AbonarRequest request)
+        {
+            try
+            {
+                if (request.Monto <= 0)
+                    return BadRequest(new { success = false, message = "El monto debe ser mayor a 0" });
+
+                var deuda = await _context.DeudasClientes
+                    .Include(d => d.Cliente)
+                    .FirstOrDefaultAsync(d => d.Id == request.DeudaId);
+
+                if (deuda == null)
+                    return NotFound(new { success = false, message = "Deuda no encontrada" });
+
+                if (deuda.Estado == "pagada")
+                    return BadRequest(new { success = false, message = "Esta deuda ya está completamente pagada" });
+
+                if (deuda.Estado == "cancelada")
+                    return BadRequest(new { success = false, message = "Esta deuda fue cancelada y no admite abonos" });
+
+                if (request.Monto > deuda.Saldo)
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = $"El monto (${request.Monto:N2}) supera el saldo pendiente (${deuda.Saldo:N2})"
+                    });
+
+                var usuarioId = await ObtenerUsuarioSistemaAsync();
+                var metodoPago = request.MetodoPago ?? "efectivo";
+
+                // Registrar abono en AbonosDeuda
+                var abono = new AbonoDeuda
+                {
+                    Id = Guid.NewGuid(),
+                    DeudaId = deuda.Id,
+                    Monto = request.Monto,
+                    MetodoPago = metodoPago,
+                    FechaAbono = DateTime.Now,
+                    Notas = string.IsNullOrWhiteSpace(request.Notas)
+                        ? $"Abono — {deuda.Concepto}"
+                        : request.Notas
+                };
+                _context.AbonosDeuda.Add(abono);
+
+                // Registrar en MovimientosCaja
+                var movimiento = new MovimientoCaja
+                {
+                    Id = Guid.NewGuid(),
+                    Tipo = "ingreso",
+                    Categoria = "abono_deuda",
+                    MetodoPago = metodoPago,
+                    Monto = request.Monto,
+                    Descripcion = $"Abono deuda — {deuda.Cliente.Nombre} {deuda.Cliente.Apellido} — {deuda.Concepto}",
+                    ReferenciaId = deuda.Id,
+                    UsuarioId = usuarioId,
+                    Fecha = DateTime.Now,
+                    Cerrado = false,
+                    CierreCajaId = null,
+                    MovimientoCajaFuerteId = null,
+                    CreatedAt = DateTime.Now
+                };
+                _context.MovimientosCaja.Add(movimiento);
+
+                // Actualizar deuda
+                deuda.MontoPagado += request.Monto;
+                deuda.Saldo = deuda.MontoTotal - deuda.MontoPagado;
+
+                if (deuda.Saldo <= 0)
+                {
+                    deuda.Saldo = 0;
+                    deuda.Estado = "pagada";
+                    _logger.LogInformation("✅ Deuda {DeudaId} marcada como PAGADA", deuda.Id);
+                }
+                else
+                {
+                    // ✅ FIX: Actualizar estado en BD también si está vencida
+                    var estadoReal = CalcularEstadoReal(deuda);
+                    if (deuda.Estado != estadoReal)
+                        deuda.Estado = estadoReal;
+                }
+
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("💰 Abono registrado: ${Monto} → Deuda {DeudaId}", request.Monto, deuda.Id);
+
                 return Ok(new
+                {
+                    success = true,
+                    message = deuda.Estado == "pagada"
+                        ? $"Deuda pagada completamente por ${request.Monto:N2}"
+                        : $"Abono de ${request.Monto:N2} registrado. Saldo: ${deuda.Saldo:N2}",
+                    estadoDeuda = deuda.Estado,
+                    saldoRestante = deuda.Saldo,
+                    montoPagado = deuda.MontoPagado
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al registrar abono");
+                return StatusCode(500, new
                 {
                     success = false,
                     message = "Error al registrar abono",
@@ -315,171 +361,64 @@ namespace VidaFit.Controllers.API
             }
         }
 
-        /// <summary>
-        /// Actualizar el estado de una deuda
-        /// </summary>
-        [HttpPut("{id}/estado")]
-        public async Task<IActionResult> ActualizarEstado(Guid id, [FromBody] JsonElement data)
+        // ─────────────────────────────────────────────
+        // GET /api/Deudas/sincronizar-vencidas
+        // Tarea de mantenimiento: actualiza en BD las deudas que ya vencieron
+        // Se puede llamar desde un job o manualmente
+        // ─────────────────────────────────────────────
+        [HttpPost("sincronizar-vencidas")]
+        public async Task<IActionResult> SincronizarVencidas()
         {
             try
             {
-                var nuevoEstado = data.GetProperty("estado").GetString();
+                var hoy = DateTime.Now.Date;
 
-                var deuda = await _context.DeudasClientes.FindAsync(id);
-                if (deuda == null)
-                {
-                    return NotFound(new { success = false, message = "Deuda no encontrada" });
-                }
-
-                if (!new[] { "pendiente", "pagada", "vencida" }.Contains(nuevoEstado))
-                {
-                    return Ok(new { success = false, message = "Estado no válido" });
-                }
-
-                deuda.Estado = nuevoEstado;
-                await _context.SaveChangesAsync();
-
-                return Ok(new
-                {
-                    success = true,
-                    message = "Estado actualizado correctamente",
-                    data = deuda
-                });
-            }
-            catch (Exception ex)
-            {
-                return Ok(new
-                {
-                    success = false,
-                    message = "Error al actualizar estado",
-                    error = ex.Message
-                });
-            }
-        }
-
-        /// <summary>
-        /// Eliminar una deuda
-        /// </summary>
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteDeuda(Guid id)
-        {
-            try
-            {
-                var deuda = await _context.DeudasClientes
-                    .Include(d => d.Abonos)
-                    .FirstOrDefaultAsync(d => d.Id == id);
-
-                if (deuda == null)
-                {
-                    return NotFound(new { success = false, message = "Deuda no encontrada" });
-                }
-
-                if (deuda.Abonos.Any())
-                {
-                    return Ok(new
-                    {
-                        success = false,
-                        message = "No se puede eliminar una deuda con abonos registrados"
-                    });
-                }
-
-                _context.DeudasClientes.Remove(deuda);
-                await _context.SaveChangesAsync();
-
-                return Ok(new { success = true, message = "Deuda eliminada correctamente" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Error al eliminar deuda",
-                    error = ex.Message
-                });
-            }
-        }
-
-        /// <summary>
-        /// Obtener deudas vencidas
-        /// </summary>
-        [HttpGet("vencidas")]
-        public async Task<IActionResult> GetDeudasVencidas()
-        {
-            try
-            {
-                var hoy = DateTime.SpecifyKind(DateTime.Now.Date, DateTimeKind.Utc);
-
-                var deudas = await _context.DeudasClientes
-                    .Include(d => d.Cliente)
-                    .Where(d => d.FechaVencimiento.HasValue &&
-                                d.FechaVencimiento < hoy &&
-                                d.Estado != "pagada")
-                    .OrderBy(d => d.FechaVencimiento)
-                    .Select(d => new
-                    {
-                        d.Id,
-                        d.ClienteId,
-                        clienteNombre = $"{d.Cliente.Nombre} {d.Cliente.Apellido}",
-                        clienteTelefono = d.Cliente.Telefono,
-                        d.Concepto,
-                        d.MontoTotal,
-                        d.Saldo,
-                        d.FechaVencimiento,
-                        diasVencidos = (hoy - d.FechaVencimiento.Value).Days
-                    })
+                var deudasAVencer = await _context.DeudasClientes
+                    .Where(d => d.Estado == "pendiente" &&
+                                d.FechaVencimiento.HasValue &&
+                                d.FechaVencimiento.Value.Date < hoy &&
+                                d.Saldo > 0)
                     .ToListAsync();
 
+                foreach (var d in deudasAVencer)
+                    d.Estado = "vencida";
+
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("🔄 Sincronización: {Count} deudas marcadas como vencidas", deudasAVencer.Count);
+
                 return Ok(new
                 {
                     success = true,
-                    totalVencidas = deudas.Count,
-                    montoTotal = deudas.Sum(d => d.Saldo),
-                    data = deudas
+                    actualizadas = deudasAVencer.Count,
+                    message = $"{deudasAVencer.Count} deudas marcadas como vencidas"
                 });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Error al obtener deudas vencidas",
-                    error = ex.Message
-                });
+                _logger.LogError(ex, "Error al sincronizar deudas vencidas");
+                return StatusCode(500, new { success = false, message = "Error al sincronizar", error = ex.Message });
             }
         }
 
-        /// <summary>
-        /// Obtener historial de abonos de una deuda
-        /// </summary>
-        [HttpGet("{deudaId}/abonos")]
-        public async Task<IActionResult> GetAbonosDeuda(Guid deudaId)
+        // ─────────────────────────────────────────────
+        // MODELOS DE REQUEST
+        // ─────────────────────────────────────────────
+
+        public class CrearDeudaRequest
         {
-            try
-            {
-                var abonos = await _context.AbonosDeuda
-                    .Where(a => a.DeudaId == deudaId)
-                    .OrderByDescending(a => a.FechaAbono)
-                    .ToListAsync();
+            public Guid ClienteId { get; set; }
+            public string? Concepto { get; set; }
+            public decimal Monto { get; set; }
+            public DateTime? FechaVencimiento { get; set; }
+        }
 
-                var totalAbonado = abonos.Sum(a => a.Monto);
-
-                return Ok(new
-                {
-                    success = true,
-                    totalAbonado,
-                    cantidadAbonos = abonos.Count,
-                    data = abonos
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Error al obtener abonos",
-                    error = ex.Message
-                });
-            }
+        public class AbonarRequest
+        {
+            public Guid DeudaId { get; set; }
+            public decimal Monto { get; set; }
+            public string? MetodoPago { get; set; }
+            public string? Notas { get; set; }
         }
     }
 }

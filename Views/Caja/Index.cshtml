@@ -234,16 +234,54 @@
 
     <!-- TAB: DEUDAS CLIENTES -->
     <div id="content-deudas" class="tab-content hidden">
-        <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200 mb-4">
-            <input type="text" id="buscar-deuda" placeholder="Buscar cliente..."
-                   class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
-                   onkeyup="filtrarDeudas()">
+        <!-- Banner vencidas -->
+        <div id="banner-vencidas-caja" class="hidden mb-4 flex items-center gap-3 px-5 py-4 bg-red-50 border-2 border-red-200 rounded-2xl text-red-800 font-bold">
+            <i data-lucide="alert-triangle" class="w-5 h-5 flex-shrink-0 text-red-600"></i>
+            <span id="banner-vencidas-texto"></span>
         </div>
-
-        <div id="lista-deudas" class="space-y-4">
-            <div class="text-center py-12 text-gray-500 font-bold">
-                Cargando deudas...
+        <!-- Tarjetas resumen rapido deudas -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <div onclick="filtroEstadoDeuda('')" class="bg-white rounded-2xl shadow-xl p-4 border-2 border-gray-200 cursor-pointer hover:shadow-2xl transition-all border-l-4 border-l-slate-500">
+                <p class="text-xs text-gray-500 font-black uppercase mb-1">Total activo</p>
+                <p class="text-2xl font-black text-slate-700" id="rv-deuda-total">—</p>
+                <p class="text-xs text-gray-400 font-semibold" id="rs-deuda-total">0 deudas</p>
             </div>
+            <div onclick="filtroEstadoDeuda('vencida')" class="bg-white rounded-2xl shadow-xl p-4 border-2 border-gray-200 cursor-pointer hover:shadow-2xl transition-all border-l-4 border-l-red-500">
+                <p class="text-xs text-gray-500 font-black uppercase mb-1">Vencidas</p>
+                <p class="text-2xl font-black text-red-600" id="rv-deuda-vencida">—</p>
+                <p class="text-xs text-gray-400 font-semibold" id="rs-deuda-vencida">0 deudas</p>
+            </div>
+            <div onclick="filtroEstadoDeuda('pendiente')" class="bg-white rounded-2xl shadow-xl p-4 border-2 border-gray-200 cursor-pointer hover:shadow-2xl transition-all border-l-4 border-l-amber-500">
+                <p class="text-xs text-gray-500 font-black uppercase mb-1">Pendientes</p>
+                <p class="text-2xl font-black text-amber-600" id="rv-deuda-pendiente">—</p>
+                <p class="text-xs text-gray-400 font-semibold" id="rs-deuda-pendiente">0 deudas</p>
+            </div>
+            <div onclick="filtroEstadoDeuda('pronto')" class="bg-white rounded-2xl shadow-xl p-4 border-2 border-gray-200 cursor-pointer hover:shadow-2xl transition-all border-l-4 border-l-blue-500">
+                <p class="text-xs text-gray-500 font-black uppercase mb-1">Vence en 7d</p>
+                <p class="text-2xl font-black text-blue-600" id="rv-deuda-pronto">—</p>
+                <p class="text-xs text-gray-400 font-semibold" id="rs-deuda-pronto">0 deudas</p>
+            </div>
+        </div>
+        <!-- Busqueda + filtros -->
+        <div class="bg-white rounded-2xl shadow-xl p-4 border-2 border-gray-200 mb-4 flex flex-wrap items-center gap-3">
+            <div class="flex-1 min-w-[200px] relative">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input type="text" id="buscar-deuda" placeholder="Buscar por nombre, cedula o concepto..."
+                       class="w-full pl-9 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
+                       oninput="debounceBusquedaDeuda(this.value)">
+            </div>
+            <div class="flex gap-1 bg-gray-100 rounded-xl p-1">
+                <button onclick="filtroEstadoDeuda('')" id="ft-d-todos" class="ftd-btn px-4 py-2 rounded-lg text-sm font-black uppercase tracking-wide bg-white shadow text-red-600">Todos</button>
+                <button onclick="filtroEstadoDeuda('vencida')" id="ft-d-vencida" class="ftd-btn px-4 py-2 rounded-lg text-sm font-black uppercase tracking-wide text-gray-500 hover:bg-gray-50">Vencidas</button>
+                <button onclick="filtroEstadoDeuda('pendiente')" id="ft-d-pendiente" class="ftd-btn px-4 py-2 rounded-lg text-sm font-black uppercase tracking-wide text-gray-500 hover:bg-gray-50">Pendientes</button>
+            </div>
+            <button onclick="sincronizarVencidas()"
+                    class="px-4 py-2 border-2 border-gray-300 rounded-xl text-sm font-black uppercase text-gray-600 hover:bg-gray-50 transition-all flex items-center gap-2">
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i> Sincronizar
+            </button>
+        </div>
+        <div id="lista-deudas" class="space-y-4">
+            <div class="text-center py-12 text-gray-500 font-bold">Cargando deudas...</div>
         </div>
     </div>
 
@@ -1370,126 +1408,279 @@
         }
 
         // ========================================
-        // DEUDAS
+        // DEUDAS — CON FIX DE VENCIDAS Y RESUMEN
         // ========================================
         let deudasData = [];
         let deudaSeleccionada = null;
+        let _filtroEstadoDeuda = '';
+        let _busquedaDeuda = '';
+        let _debounceDeuda = null;
+
+        // FIX CRITICO: calcular estado real en cliente (no confiar solo en BD)
+        function calcularEstadoRealDeuda(d) {
+            if (d.Estado === 'pagada' || d.Estado === 'cancelada') return d.Estado;
+            if (d.FechaVencimiento) {
+                const hoy = new Date(); hoy.setHours(0,0,0,0);
+                const vence = parsearFechaLocal(d.FechaVencimiento);
+                if (vence && vence < hoy && (d.Saldo || 0) > 0) return 'vencida';
+                const diasRestantes = Math.round((vence - hoy) / 86400000);
+                if (diasRestantes >= 0 && diasRestantes <= 7 && (d.Saldo || 0) > 0) d._venceProximamente = true;
+            }
+            return d.Estado || 'pendiente';
+        }
+
+        async function sincronizarVencidas() {
+            try {
+                const r = await fetch(`${API_URL}/Deudas/sincronizar-vencidas`, { method: 'POST' });
+                const d = await r.json();
+                if (d.success) {
+                    alert(`✅ ${d.actualizadas} deudas actualizadas a vencidas`);
+                    cargarDeudas();
+                }
+            } catch(e) { console.error('Error sincronizando:', e); }
+        }
 
         async function cargarDeudas() {
             try {
-                const response = await fetch(`${API_URL}/Deudas?estado=pendiente`);
+                // Cargar TODAS (activas + vencidas) para el resumen correcto
+                const response = await fetch(`${API_URL}/Deudas?incluirPagadas=false&porPagina=500`);
                 const data = await response.json();
 
                 if (!data.success) {
-                    document.getElementById('lista-deudas').innerHTML = `
-                        <div class="text-center py-12 text-red-500 font-bold">
-                            Error al cargar deudas
-                        </div>
-                    `;
+                    document.getElementById('lista-deudas').innerHTML =
+                        '<div class="text-center py-12 text-red-500 font-bold">Error al cargar deudas</div>';
                     return;
                 }
 
-                deudasData = data.data;
+                // Compatible con ambas formas de respuesta (items o data)
+                deudasData = (data.items || data.data || []).map(d => {
+                    d._estadoReal = calcularEstadoRealDeuda(d);
+                    return d;
+                });
 
-                if (deudasData.length === 0) {
-                    document.getElementById('lista-deudas').innerHTML = `
-                        <div class="bg-white rounded-2xl shadow-xl p-12 text-center border-2 border-gray-200">
-                            <i data-lucide="check-circle" class="w-16 h-16 mx-auto text-emerald-600 mb-4"></i>
-                            <p class="text-xl font-black text-gray-900 uppercase">No hay deudas pendientes</p>
-                            <p class="text-gray-600 mt-2 font-semibold">Todos los clientes están al día</p>
-                        </div>
-                    `;
-                    lucide.createIcons();
-                    return;
-                }
-
+                actualizarResumenDeudas();
                 renderDeudas(deudasData);
+                lucide.createIcons();
             } catch (error) {
                 console.error('Error cargando deudas:', error);
             }
         }
 
+        function actualizarResumenDeudas() {
+            const activas = deudasData.filter(d => d._estadoReal !== 'pagada' && d._estadoReal !== 'cancelada');
+            const vencidas = deudasData.filter(d => d._estadoReal === 'vencida');
+            const pendientes = deudasData.filter(d => d._estadoReal === 'pendiente');
+            const pronto = deudasData.filter(d => d._venceProximamente && d._estadoReal !== 'vencida');
+
+            const totalSaldo = activas.reduce((s, d) => s + (d.Saldo || 0), 0);
+            const saldoVencidas = vencidas.reduce((s, d) => s + (d.Saldo || 0), 0);
+            const saldoPendientes = pendientes.reduce((s, d) => s + (d.Saldo || 0), 0);
+
+            const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+            set('rv-deuda-total', `$${totalSaldo.toFixed(2)}`);
+            set('rs-deuda-total', `${activas.length} deudas`);
+            set('rv-deuda-vencida', `$${saldoVencidas.toFixed(2)}`);
+            set('rs-deuda-vencida', `${vencidas.length} ${vencidas.length === 1 ? 'deuda' : 'deudas'}`);
+            set('rv-deuda-pendiente', `$${saldoPendientes.toFixed(2)}`);
+            set('rs-deuda-pendiente', `${pendientes.length} ${pendientes.length === 1 ? 'deuda' : 'deudas'}`);
+            set('rv-deuda-pronto', `${pronto.length}`);
+            set('rs-deuda-pronto', `${pronto.length} ${pronto.length === 1 ? 'deuda' : 'deudas'}`);
+
+            // Banner vencidas
+            const banner = document.getElementById('banner-vencidas-caja');
+            const bannerTxt = document.getElementById('banner-vencidas-texto');
+            if (banner && vencidas.length > 0) {
+                banner.classList.remove('hidden');
+                bannerTxt.textContent =
+                    `${vencidas.length} ${vencidas.length === 1 ? 'deuda vencida' : 'deudas vencidas'} — Saldo total: $${saldoVencidas.toFixed(2)}. Haz clic en "Vencidas" para filtrar.`;
+            } else if (banner) {
+                banner.classList.add('hidden');
+            }
+
+            // Actualizar también el card global de deudas pendientes en el header
+            const dpEl = document.getElementById('deudas-pendientes');
+            if (dpEl) dpEl.textContent = `$${totalSaldo.toFixed(2)}`;
+        }
+
+        function filtroEstadoDeuda(estado) {
+            _filtroEstadoDeuda = estado;
+            // Actualizar tabs activos
+            document.querySelectorAll('.ftd-btn').forEach(b => {
+                b.classList.remove('bg-white', 'shadow', 'text-red-600');
+                b.classList.add('text-gray-500');
+            });
+            const mapTab = { '': 'ft-d-todos', 'vencida': 'ft-d-vencida', 'pendiente': 'ft-d-pendiente' };
+            if (mapTab[estado]) {
+                const el = document.getElementById(mapTab[estado]);
+                if (el) {
+                    el.classList.add('bg-white', 'shadow', 'text-red-600');
+                    el.classList.remove('text-gray-500');
+                }
+            }
+            renderDeudas(deudasData);
+        }
+
+        function debounceBusquedaDeuda(val) {
+            _busquedaDeuda = val;
+            clearTimeout(_debounceDeuda);
+            _debounceDeuda = setTimeout(() => renderDeudas(deudasData), 300);
+        }
+
+        // Mantener compatibilidad con onkeyup="filtrarDeudas()"
+        function filtrarDeudas() {
+            _busquedaDeuda = (document.getElementById('buscar-deuda') || {}).value || '';
+            renderDeudas(deudasData);
+        }
+
+        function chipEstadoDeuda(estado, venceProximamente) {
+            if (estado === 'vencida')   return '<span class="px-3 py-1 rounded-full text-xs font-black uppercase bg-red-100 text-red-800">Vencida</span>';
+            if (estado === 'pagada')    return '<span class="px-3 py-1 rounded-full text-xs font-black uppercase bg-green-100 text-green-800">Pagada</span>';
+            if (estado === 'cancelada') return '<span class="px-3 py-1 rounded-full text-xs font-black uppercase bg-gray-100 text-gray-600">Cancelada</span>';
+            if (venceProximamente)      return '<span class="px-3 py-1 rounded-full text-xs font-black uppercase bg-blue-100 text-blue-800">Vence pronto</span>';
+            return '<span class="px-3 py-1 rounded-full text-xs font-black uppercase bg-amber-100 text-amber-800">Pendiente</span>';
+        }
+
+        function infoVencimientoDeuda(d) {
+            if (!d.FechaVencimiento) return '';
+            const hoy = new Date(); hoy.setHours(0,0,0,0);
+            const vence = parsearFechaLocal(d.FechaVencimiento);
+            if (!vence) return '';
+            const dias = Math.round((vence - hoy) / 86400000);
+            const fechaStr = formatearFechaUTC(d.FechaVencimiento);
+            if (dias < 0)  return `<p class="text-xs text-red-600 font-bold mt-1"><i data-lucide="alert-circle" class="w-3 h-3 inline-block mr-1"></i>Vencida hace ${Math.abs(dias)} día(s) — ${fechaStr}</p>`;
+            if (dias === 0) return `<p class="text-xs text-red-600 font-bold mt-1"><i data-lucide="alert-circle" class="w-3 h-3 inline-block mr-1"></i>Vence HOY</p>`;
+            if (dias <= 7)  return `<p class="text-xs text-blue-600 font-bold mt-1"><i data-lucide="clock" class="w-3 h-3 inline-block mr-1"></i>Vence en ${dias} día(s) — ${fechaStr}</p>`;
+            return `<p class="text-xs text-gray-400 font-semibold mt-1">Vence: ${fechaStr}</p>`;
+        }
+
         function renderDeudas(deudas) {
             const container = document.getElementById('lista-deudas');
 
-            container.innerHTML = deudas.map(deuda => `
-                <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200 hover:shadow-2xl transition-shadow">
+            // Aplicar filtro de estado
+            let filtradas = deudas;
+            if (_filtroEstadoDeuda === 'pronto') {
+                filtradas = deudas.filter(d => d._venceProximamente && d._estadoReal !== 'vencida' && d._estadoReal !== 'pagada');
+            } else if (_filtroEstadoDeuda) {
+                filtradas = deudas.filter(d => d._estadoReal === _filtroEstadoDeuda);
+            }
+
+            // Aplicar busqueda
+            if (_busquedaDeuda.trim()) {
+                const q = _busquedaDeuda.toLowerCase();
+                filtradas = filtradas.filter(d =>
+                    (d.clienteNombre || d.cliente?.nombre || '').toLowerCase().includes(q) ||
+                    (d.clienteCedula || d.cliente?.cedula || '').toLowerCase().includes(q) ||
+                    (d.Concepto || d.concepto || '').toLowerCase().includes(q)
+                );
+            }
+
+            if (filtradas.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white rounded-2xl shadow-xl p-12 text-center border-2 border-gray-200">
+                        <i data-lucide="inbox" class="w-16 h-16 mx-auto text-gray-400 mb-4"></i>
+                        <p class="text-xl font-black text-gray-900 uppercase">Sin resultados</p>
+                        <p class="text-gray-600 mt-2 font-semibold">Prueba ajustando los filtros</p>
+                    </div>`;
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = filtradas.map(deuda => {
+                const nombre  = deuda.clienteNombre || deuda.cliente?.nombre || '—';
+                const cedula  = deuda.clienteCedula || deuda.cliente?.cedula || '—';
+                const concepto = deuda.Concepto || deuda.concepto || '—';
+                const total   = deuda.MontoTotal   || deuda.montoTotal   || 0;
+                const pagado  = deuda.MontoPagado  || deuda.montoPagado  || 0;
+                const saldo   = deuda.Saldo        || deuda.saldo        || 0;
+                const id      = deuda.Id           || deuda.id;
+                const estado  = deuda._estadoReal;
+                const pct     = total > 0 ? Math.min(100, (pagado / total) * 100) : 0;
+                const isVencida = estado === 'vencida';
+                const isPagada  = estado === 'pagada';
+
+                return `
+                <div class="bg-white rounded-2xl shadow-xl p-6 border-2 ${isVencida ? 'border-red-300 bg-red-50' : 'border-gray-200'} hover:shadow-2xl transition-shadow">
                     <div class="flex justify-between items-start">
                         <div class="flex-1">
-                            <div class="flex items-center gap-3 mb-2">
-                                <h3 class="text-2xl font-black text-gray-900 uppercase tracking-wide">
-                                    ${deuda.clienteNombre}
-                                </h3>
-                                <span class="px-3 py-1 rounded-full text-xs font-black uppercase bg-amber-100 text-amber-800">
-                                    Pendiente
-                                </span>
+                            <div class="flex items-center gap-3 mb-2 flex-wrap">
+                                <h3 class="text-2xl font-black text-gray-900 uppercase tracking-wide">${nombre}</h3>
+                                ${chipEstadoDeuda(estado, deuda._venceProximamente)}
                             </div>
-                            <p class="text-sm text-gray-600 font-bold mb-3">Cédula: ${deuda.clienteCedula}</p>
-
-                                                  <p class="text-base text-gray-500 font-semibold mb-3">
-                                            <i data-lucide="calendar" class="w-4 h-4 inline-block mr-1"></i>
-                                            Fecha: ${deuda.FechaCreacion ? formatearFechaLargaUTC(deuda.FechaCreacion) : 'Sin fecha'}
-                                        </p>
-
-                            <div class="bg-gray-50 rounded-xl p-4 mb-4 border-2 border-gray-200">
+                            <p class="text-sm text-gray-600 font-bold mb-1">Cedula: ${cedula}</p>
+                            <p class="text-base text-gray-500 font-semibold mb-3">
+                                <i data-lucide="calendar" class="w-4 h-4 inline-block mr-1"></i>
+                                Fecha: ${deuda.FechaCreacion || deuda.fechaCreacion ? formatearFechaLargaUTC(deuda.FechaCreacion || deuda.fechaCreacion) : 'Sin fecha'}
+                            </p>
+                            ${infoVencimientoDeuda(deuda)}
+                            <div class="bg-gray-50 rounded-xl p-4 mb-4 border-2 border-gray-200 mt-3">
                                 <p class="text-sm text-gray-600 font-bold uppercase mb-1">Concepto</p>
-                                <p class="text-base text-gray-900 font-black">${deuda.Concepto}</p>
+                                <p class="text-base text-gray-900 font-black">${concepto}</p>
                             </div>
-
-                            <div class="grid grid-cols-3 gap-4 mb-4">
+                            <div class="grid grid-cols-3 gap-4 mb-3">
                                 <div>
                                     <p class="text-xs text-gray-600 font-bold uppercase mb-1">Total</p>
-                                    <p class="text-lg font-black text-gray-900">$${deuda.MontoTotal.toFixed(2)}</p>
+                                    <p class="text-lg font-black text-gray-900">$${total.toFixed(2)}</p>
                                 </div>
                                 <div>
                                     <p class="text-xs text-gray-600 font-bold uppercase mb-1">Pagado</p>
-                                    <p class="text-lg font-black text-emerald-600">$${deuda.MontoPagado.toFixed(2)}</p>
+                                    <p class="text-lg font-black text-emerald-600">$${pagado.toFixed(2)}</p>
                                 </div>
                                 <div>
                                     <p class="text-xs text-gray-600 font-bold uppercase mb-1">Saldo</p>
-                                    <p class="text-2xl font-black text-red-600">$${deuda.Saldo.toFixed(2)}</p>
+                                    <p class="text-2xl font-black ${isVencida ? 'text-red-700' : 'text-red-600'}">$${saldo.toFixed(2)}</p>
                                 </div>
                             </div>
+                            <!-- Barra de progreso -->
+                            <div class="w-full bg-gray-200 rounded-full h-2 mb-1">
+                                <div class="h-2 rounded-full ${pct >= 100 ? 'bg-emerald-500' : 'bg-red-500'}" style="width:${pct.toFixed(1)}%"></div>
+                            </div>
+                            <p class="text-xs text-gray-400 font-semibold">${pct.toFixed(0)}% pagado</p>
                         </div>
-
+                        ${!isPagada ? `
                         <div class="ml-6 flex flex-col gap-2">
-                            <button onclick="abrirModalAbonar('${deuda.Id}')"
+                            <button onclick="abrirModalAbonar('${id}')"
                                     class="px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900 text-white font-black rounded-xl transition-all shadow-lg uppercase tracking-wide transform hover:scale-105">
                                 <i data-lucide="dollar-sign" class="w-5 h-5 inline-block mr-2"></i>
                                 Abonar
                             </button>
-                            <button onclick="pagarCompleto('${deuda.Id}')"
+                            <button onclick="pagarCompleto('${id}')"
                                     class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-black rounded-xl transition-all shadow-lg uppercase tracking-wide transform hover:scale-105">
                                 <i data-lucide="check-circle" class="w-5 h-5 inline-block mr-2"></i>
                                 Pagar Todo
                             </button>
-                        </div>
+                            <a href="/Caja/Historial?deudaId=${id}"
+                               class="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white font-black rounded-xl transition-all shadow-lg uppercase tracking-wide transform hover:scale-105 text-center">
+                                <i data-lucide="clock" class="w-5 h-5 inline-block mr-2"></i>
+                                Historial
+                            </a>
+                        </div>` : `
+                        <div class="ml-6">
+                            <a href="/Caja/Historial?deudaId=${id}"
+                               class="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-800 text-white font-black rounded-xl transition-all shadow-lg uppercase tracking-wide block text-center">
+                                <i data-lucide="clock" class="w-5 h-5 inline-block mr-2"></i>
+                                Ver historial
+                            </a>
+                        </div>`}
                     </div>
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
 
             lucide.createIcons();
         }
 
-        function filtrarDeudas() {
-            const query = document.getElementById('buscar-deuda').value.toLowerCase();
-            const filtradas = deudasData.filter(d =>
-                d.clienteNombre.toLowerCase().includes(query) ||
-                d.clienteCedula.includes(query) ||
-                d.Concepto.toLowerCase().includes(query)
-            );
-            renderDeudas(filtradas);
-        }
-
         function abrirModalAbonar(deudaId) {
-            const deuda = deudasData.find(d => d.Id === deudaId);
+            const deuda = deudasData.find(d => (d.Id || d.id) === deudaId);
             if (!deuda) return;
 
             deudaSeleccionada = deuda;
-            document.getElementById('modal-cliente-nombre').textContent = deuda.clienteNombre;
-            document.getElementById('modal-concepto').textContent = deuda.Concepto;
-            document.getElementById('modal-saldo').textContent = `$${deuda.Saldo.toFixed(2)}`;
-            document.getElementById('input-monto-abono').value = deuda.Saldo.toFixed(2);
+            const nombre  = deuda.clienteNombre || deuda.cliente?.nombre || '—';
+            const concepto = deuda.Concepto || deuda.concepto || '—';
+            const saldo   = deuda.Saldo || deuda.saldo || 0;
+
+            document.getElementById('modal-cliente-nombre').textContent = nombre;
+            document.getElementById('modal-concepto').textContent = concepto;
+            document.getElementById('modal-saldo').textContent = `$${saldo.toFixed(2)}`;
+            document.getElementById('input-monto-abono').value = saldo.toFixed(2);
             document.getElementById('modalAbonarDeuda').classList.remove('hidden');
             lucide.createIcons();
         }
@@ -1502,31 +1693,20 @@
         async function confirmarAbono() {
             const monto = parseFloat(document.getElementById('input-monto-abono').value);
             const metodo = document.getElementById('input-metodo-abono').value;
+            const saldoActual = deudaSeleccionada.Saldo || deudaSeleccionada.saldo || 0;
+            const deudaId = deudaSeleccionada.Id || deudaSeleccionada.id;
+            const concepto = deudaSeleccionada.Concepto || deudaSeleccionada.concepto || '';
 
-            if (isNaN(monto) || monto <= 0) {
-                alert('❌ Monto inválido');
-                return;
-            }
-
-            if (monto > deudaSeleccionada.Saldo) {
-                alert('❌ El monto no puede ser mayor al saldo pendiente');
-                return;
-            }
+            if (isNaN(monto) || monto <= 0) { alert('❌ Monto invalido'); return; }
+            if (monto > saldoActual) { alert('❌ El monto no puede ser mayor al saldo pendiente'); return; }
 
             try {
                 const response = await fetch(`${API_URL}/Deudas/abonar`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        deudaId: deudaSeleccionada.Id,
-                        monto: monto,
-                        metodoPago: metodo,
-                        notas: `Abono a deuda - ${deudaSeleccionada.Concepto}`
-                    })
+                    body: JSON.stringify({ deudaId, monto, metodoPago: metodo, notas: `Abono a deuda - ${concepto}` })
                 });
-
                 const result = await response.json();
-
                 if (result.success) {
                     alert(`✅ ${result.message}`);
                     cerrarModalAbonar();
@@ -1542,25 +1722,18 @@
         }
 
         async function pagarCompleto(deudaId) {
-            const deuda = deudasData.find(d => d.Id === deudaId);
+            const deuda = deudasData.find(d => (d.Id || d.id) === deudaId);
             if (!deuda) return;
-
-            if (!confirm(`¿Pagar completamente $${deuda.Saldo.toFixed(2)}?`)) return;
+            const saldo = deuda.Saldo || deuda.saldo || 0;
+            if (!confirm(`¿Pagar completamente $${saldo.toFixed(2)}?`)) return;
 
             try {
                 const response = await fetch(`${API_URL}/Deudas/abonar`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        deudaId: deuda.Id,
-                        monto: deuda.Saldo,
-                        metodoPago: 'efectivo',
-                        notas: 'Pago completo de deuda'
-                    })
+                    body: JSON.stringify({ deudaId: deuda.Id || deuda.id, monto: saldo, metodoPago: 'efectivo', notas: 'Pago completo de deuda' })
                 });
-
                 const result = await response.json();
-
                 if (result.success) {
                     alert('✅ Deuda pagada completamente');
                     cargarDeudas();
