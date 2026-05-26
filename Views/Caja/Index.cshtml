@@ -6,7 +6,6 @@
 
 <div class="space-y-6">
     <!-- ALERTA DE DÍAS PENDIENTES -->
-
     <!-- RESUMEN GENERAL DE CAJA -->
     <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
         <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl shadow-xl p-6 border-l-4 border-emerald-600 transform hover:scale-105 transition-all">
@@ -234,35 +233,36 @@
 
     <!-- TAB: DEUDAS CLIENTES -->
     <div id="content-deudas" class="tab-content hidden">
-        <!-- Banner vencidas -->
-        <div id="banner-vencidas-caja" class="hidden mb-4 flex items-center gap-3 px-5 py-4 bg-red-50 border-2 border-red-200 rounded-2xl text-red-800 font-bold">
-            <i data-lucide="alert-triangle" class="w-5 h-5 flex-shrink-0 text-red-600"></i>
-            <span id="banner-vencidas-texto"></span>
-        </div>
-        <!-- Tarjetas resumen rapido deudas -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+        <!-- Tarjetas resumen -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div onclick="filtroEstadoDeuda('')" class="bg-white rounded-2xl shadow-xl p-4 border-2 border-gray-200 cursor-pointer hover:shadow-2xl transition-all border-l-4 border-l-slate-500">
-                <p class="text-xs text-gray-500 font-black uppercase mb-1">Total activo</p>
+                <p class="text-xs text-gray-500 font-black uppercase mb-1">Total por cobrar</p>
                 <p class="text-2xl font-black text-slate-700" id="rv-deuda-total">—</p>
                 <p class="text-xs text-gray-400 font-semibold" id="rs-deuda-total">0 deudas</p>
             </div>
-            <div onclick="filtroEstadoDeuda('vencida')" class="bg-white rounded-2xl shadow-xl p-4 border-2 border-gray-200 cursor-pointer hover:shadow-2xl transition-all border-l-4 border-l-red-500">
-                <p class="text-xs text-gray-500 font-black uppercase mb-1">Vencidas</p>
-                <p class="text-2xl font-black text-red-600" id="rv-deuda-vencida">—</p>
-                <p class="text-xs text-gray-400 font-semibold" id="rs-deuda-vencida">0 deudas</p>
-            </div>
             <div onclick="filtroEstadoDeuda('pendiente')" class="bg-white rounded-2xl shadow-xl p-4 border-2 border-gray-200 cursor-pointer hover:shadow-2xl transition-all border-l-4 border-l-amber-500">
-                <p class="text-xs text-gray-500 font-black uppercase mb-1">Pendientes</p>
+                <p class="text-xs text-gray-500 font-black uppercase mb-1">Deudas pendientes</p>
                 <p class="text-2xl font-black text-amber-600" id="rv-deuda-pendiente">—</p>
                 <p class="text-xs text-gray-400 font-semibold" id="rs-deuda-pendiente">0 deudas</p>
             </div>
-            <div onclick="filtroEstadoDeuda('pronto')" class="bg-white rounded-2xl shadow-xl p-4 border-2 border-gray-200 cursor-pointer hover:shadow-2xl transition-all border-l-4 border-l-blue-500">
-                <p class="text-xs text-gray-500 font-black uppercase mb-1">Vence en 7d</p>
-                <p class="text-2xl font-black text-blue-600" id="rv-deuda-pronto">—</p>
-                <p class="text-xs text-gray-400 font-semibold" id="rs-deuda-pronto">0 deudas</p>
-            </div>
+            <!-- Botón que lleva a la vista de deudas pagadas -->
+            <a href="/Caja/DeudasPagadas"
+               class="bg-gradient-to-br from-green-50 to-emerald-100 rounded-2xl shadow-xl p-4 border-2 border-emerald-200 hover:shadow-2xl transition-all border-l-4 border-l-emerald-600 flex flex-col justify-between group cursor-pointer no-underline">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-emerald-700 font-black uppercase mb-1">Deudas Pagadas</p>
+                        <p class="text-sm text-emerald-600 font-semibold">Ver historial completo</p>
+                    </div>
+                    <div class="w-10 h-10 bg-emerald-200 rounded-full flex items-center justify-center group-hover:bg-emerald-300 transition-all">
+                        <i data-lucide="check-circle" class="w-5 h-5 text-emerald-700"></i>
+                    </div>
+                </div>
+                <p class="text-xs text-emerald-600 font-bold mt-2 flex items-center gap-1">
+                    <i data-lucide="arrow-right" class="w-3 h-3"></i> Ir a deudas pagadas
+                </p>
+            </a>
         </div>
-        <!-- Busqueda + filtros -->
+        <!-- Búsqueda + filtros -->
         <div class="bg-white rounded-2xl shadow-xl p-4 border-2 border-gray-200 mb-4 flex flex-wrap items-center gap-3">
             <div class="flex-1 min-w-[200px] relative">
                 <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
@@ -272,13 +272,8 @@
             </div>
             <div class="flex gap-1 bg-gray-100 rounded-xl p-1">
                 <button onclick="filtroEstadoDeuda('')" id="ft-d-todos" class="ftd-btn px-4 py-2 rounded-lg text-sm font-black uppercase tracking-wide bg-white shadow text-red-600">Todos</button>
-                <button onclick="filtroEstadoDeuda('vencida')" id="ft-d-vencida" class="ftd-btn px-4 py-2 rounded-lg text-sm font-black uppercase tracking-wide text-gray-500 hover:bg-gray-50">Vencidas</button>
                 <button onclick="filtroEstadoDeuda('pendiente')" id="ft-d-pendiente" class="ftd-btn px-4 py-2 rounded-lg text-sm font-black uppercase tracking-wide text-gray-500 hover:bg-gray-50">Pendientes</button>
             </div>
-            <button onclick="sincronizarVencidas()"
-                    class="px-4 py-2 border-2 border-gray-300 rounded-xl text-sm font-black uppercase text-gray-600 hover:bg-gray-50 transition-all flex items-center gap-2">
-                <i data-lucide="refresh-cw" class="w-4 h-4"></i> Sincronizar
-            </button>
         </div>
         <div id="lista-deudas" class="space-y-4">
             <div class="text-center py-12 text-gray-500 font-bold">Cargando deudas...</div>
@@ -1416,33 +1411,20 @@
         let _busquedaDeuda = '';
         let _debounceDeuda = null;
 
-        // FIX CRITICO: calcular estado real en cliente (no confiar solo en BD)
+        // Estado real: las deudas NO se vencen. Solo: pendiente, pagada, cancelada.
         function calcularEstadoRealDeuda(d) {
             if (d.Estado === 'pagada' || d.Estado === 'cancelada') return d.Estado;
-            if (d.FechaVencimiento) {
-                const hoy = new Date(); hoy.setHours(0,0,0,0);
-                const vence = parsearFechaLocal(d.FechaVencimiento);
-                if (vence && vence < hoy && (d.Saldo || 0) > 0) return 'vencida';
-                const diasRestantes = Math.round((vence - hoy) / 86400000);
-                if (diasRestantes >= 0 && diasRestantes <= 7 && (d.Saldo || 0) > 0) d._venceProximamente = true;
-            }
             return d.Estado || 'pendiente';
         }
 
         async function sincronizarVencidas() {
-            try {
-                const r = await fetch(`${API_URL}/Deudas/sincronizar-vencidas`, { method: 'POST' });
-                const d = await r.json();
-                if (d.success) {
-                    alert(`✅ ${d.actualizadas} deudas actualizadas a vencidas`);
-                    cargarDeudas();
-                }
-            } catch(e) { console.error('Error sincronizando:', e); }
+            // Función conservada por compatibilidad, ya no aplica.
+            console.info('Las deudas no se vencen; sincronización no necesaria.');
         }
 
         async function cargarDeudas() {
             try {
-                // Cargar TODAS (activas + vencidas) para el resumen correcto
+                // Solo deudas pendientes en la vista de caja
                 const response = await fetch(`${API_URL}/Deudas?incluirPagadas=false&porPagina=500`);
                 const data = await response.json();
 
@@ -1467,49 +1449,26 @@
         }
 
         function actualizarResumenDeudas() {
-            const activas = deudasData.filter(d => d._estadoReal !== 'pagada' && d._estadoReal !== 'cancelada');
-            const vencidas = deudasData.filter(d => d._estadoReal === 'vencida');
             const pendientes = deudasData.filter(d => d._estadoReal === 'pendiente');
-            const pronto = deudasData.filter(d => d._venceProximamente && d._estadoReal !== 'vencida');
-
-            const totalSaldo = activas.reduce((s, d) => s + (d.Saldo || 0), 0);
-            const saldoVencidas = vencidas.reduce((s, d) => s + (d.Saldo || 0), 0);
-            const saldoPendientes = pendientes.reduce((s, d) => s + (d.Saldo || 0), 0);
+            const totalSaldo = pendientes.reduce((s, d) => s + (d.Saldo || 0), 0);
 
             const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-            set('rv-deuda-total', `$${totalSaldo.toFixed(2)}`);
-            set('rs-deuda-total', `${activas.length} deudas`);
-            set('rv-deuda-vencida', `$${saldoVencidas.toFixed(2)}`);
-            set('rs-deuda-vencida', `${vencidas.length} ${vencidas.length === 1 ? 'deuda' : 'deudas'}`);
-            set('rv-deuda-pendiente', `$${saldoPendientes.toFixed(2)}`);
+            set('rv-deuda-total',     `$${totalSaldo.toFixed(2)}`);
+            set('rs-deuda-total',     `${pendientes.length} deudas`);
+            set('rv-deuda-pendiente', `$${totalSaldo.toFixed(2)}`);
             set('rs-deuda-pendiente', `${pendientes.length} ${pendientes.length === 1 ? 'deuda' : 'deudas'}`);
-            set('rv-deuda-pronto', `${pronto.length}`);
-            set('rs-deuda-pronto', `${pronto.length} ${pronto.length === 1 ? 'deuda' : 'deudas'}`);
 
-            // Banner vencidas
-            const banner = document.getElementById('banner-vencidas-caja');
-            const bannerTxt = document.getElementById('banner-vencidas-texto');
-            if (banner && vencidas.length > 0) {
-                banner.classList.remove('hidden');
-                bannerTxt.textContent =
-                    `${vencidas.length} ${vencidas.length === 1 ? 'deuda vencida' : 'deudas vencidas'} — Saldo total: $${saldoVencidas.toFixed(2)}. Haz clic en "Vencidas" para filtrar.`;
-            } else if (banner) {
-                banner.classList.add('hidden');
-            }
-
-            // Actualizar también el card global de deudas pendientes en el header
             const dpEl = document.getElementById('deudas-pendientes');
             if (dpEl) dpEl.textContent = `$${totalSaldo.toFixed(2)}`;
         }
 
         function filtroEstadoDeuda(estado) {
             _filtroEstadoDeuda = estado;
-            // Actualizar tabs activos
             document.querySelectorAll('.ftd-btn').forEach(b => {
                 b.classList.remove('bg-white', 'shadow', 'text-red-600');
                 b.classList.add('text-gray-500');
             });
-            const mapTab = { '': 'ft-d-todos', 'vencida': 'ft-d-vencida', 'pendiente': 'ft-d-pendiente' };
+            const mapTab = { '': 'ft-d-todos', 'pendiente': 'ft-d-pendiente' };
             if (mapTab[estado]) {
                 const el = document.getElementById(mapTab[estado]);
                 if (el) {
@@ -1532,25 +1491,16 @@
             renderDeudas(deudasData);
         }
 
-        function chipEstadoDeuda(estado, venceProximamente) {
-            if (estado === 'vencida')   return '<span class="px-3 py-1 rounded-full text-xs font-black uppercase bg-red-100 text-red-800">Vencida</span>';
-            if (estado === 'pagada')    return '<span class="px-3 py-1 rounded-full text-xs font-black uppercase bg-green-100 text-green-800">Pagada</span>';
+        function chipEstadoDeuda(estado) {
+            if (estado === 'pagada')    return '<span class="px-3 py-1 rounded-full text-xs font-black uppercase bg-green-100 text-green-800">✓ Pagada</span>';
             if (estado === 'cancelada') return '<span class="px-3 py-1 rounded-full text-xs font-black uppercase bg-gray-100 text-gray-600">Cancelada</span>';
-            if (venceProximamente)      return '<span class="px-3 py-1 rounded-full text-xs font-black uppercase bg-blue-100 text-blue-800">Vence pronto</span>';
             return '<span class="px-3 py-1 rounded-full text-xs font-black uppercase bg-amber-100 text-amber-800">Pendiente</span>';
         }
 
         function infoVencimientoDeuda(d) {
             if (!d.FechaVencimiento) return '';
-            const hoy = new Date(); hoy.setHours(0,0,0,0);
-            const vence = parsearFechaLocal(d.FechaVencimiento);
-            if (!vence) return '';
-            const dias = Math.round((vence - hoy) / 86400000);
             const fechaStr = formatearFechaUTC(d.FechaVencimiento);
-            if (dias < 0)  return `<p class="text-xs text-red-600 font-bold mt-1"><i data-lucide="alert-circle" class="w-3 h-3 inline-block mr-1"></i>Vencida hace ${Math.abs(dias)} día(s) — ${fechaStr}</p>`;
-            if (dias === 0) return `<p class="text-xs text-red-600 font-bold mt-1"><i data-lucide="alert-circle" class="w-3 h-3 inline-block mr-1"></i>Vence HOY</p>`;
-            if (dias <= 7)  return `<p class="text-xs text-blue-600 font-bold mt-1"><i data-lucide="clock" class="w-3 h-3 inline-block mr-1"></i>Vence en ${dias} día(s) — ${fechaStr}</p>`;
-            return `<p class="text-xs text-gray-400 font-semibold mt-1">Vence: ${fechaStr}</p>`;
+            return `<p class="text-xs text-gray-400 font-semibold mt-1"><i data-lucide="calendar" class="w-3 h-3 inline-block mr-1"></i>Fecha límite: ${fechaStr}</p>`;
         }
 
         function renderDeudas(deudas) {
@@ -1558,13 +1508,11 @@
 
             // Aplicar filtro de estado
             let filtradas = deudas;
-            if (_filtroEstadoDeuda === 'pronto') {
-                filtradas = deudas.filter(d => d._venceProximamente && d._estadoReal !== 'vencida' && d._estadoReal !== 'pagada');
-            } else if (_filtroEstadoDeuda) {
+            if (_filtroEstadoDeuda) {
                 filtradas = deudas.filter(d => d._estadoReal === _filtroEstadoDeuda);
             }
 
-            // Aplicar busqueda
+            // Aplicar búsqueda
             if (_busquedaDeuda.trim()) {
                 const q = _busquedaDeuda.toLowerCase();
                 filtradas = filtradas.filter(d =>
@@ -1585,82 +1533,99 @@
                 return;
             }
 
-            container.innerHTML = filtradas.map(deuda => {
-                const nombre  = deuda.clienteNombre || deuda.cliente?.nombre || '—';
-                const cedula  = deuda.clienteCedula || deuda.cliente?.cedula || '—';
-                const concepto = deuda.Concepto || deuda.concepto || '—';
-                const total   = deuda.MontoTotal   || deuda.montoTotal   || 0;
-                const pagado  = deuda.MontoPagado  || deuda.montoPagado  || 0;
-                const saldo   = deuda.Saldo        || deuda.saldo        || 0;
-                const id      = deuda.Id           || deuda.id;
-                const estado  = deuda._estadoReal;
-                const pct     = total > 0 ? Math.min(100, (pagado / total) * 100) : 0;
-                const isVencida = estado === 'vencida';
-                const isPagada  = estado === 'pagada';
+            // ── Agrupar por cliente ──────────────────────────────────────
+            const grupos = new Map();
+            filtradas.forEach(d => {
+                const cid    = d.cliente?.Id || d.cliente?.id || d.ClienteId || d.clienteId || 'sin-cliente';
+                const nombre = d.clienteNombre || d.cliente?.nombre || '—';
+                const cedula = d.clienteCedula || d.cliente?.cedula || '—';
+                if (!grupos.has(cid)) grupos.set(cid, { cid, nombre, cedula, deudas: [] });
+                grupos.get(cid).deudas.push(d);
+            });
+
+            container.innerHTML = [...grupos.values()].map(({ cid, nombre, cedula, deudas: deudasCliente }) => {
+
+                // Totales del cliente
+                const totalSaldo  = deudasCliente.reduce((s, d) => s + (d.Saldo || d.saldo || 0), 0);
+                const totalDeuda  = deudasCliente.reduce((s, d) => s + (d.MontoTotal || d.montoTotal || 0), 0);
+                const iniciales   = nombre.split(' ').filter(Boolean).map(n => n[0]).join('').substring(0,2).toUpperCase() || '?';
+
+                // Filas de deudas internas
+                const filasDeudas = deudasCliente.map(deuda => {
+                    const concepto  = deuda.Concepto    || deuda.concepto    || '—';
+                    const total     = deuda.MontoTotal   || deuda.montoTotal  || 0;
+                    const pagado    = deuda.MontoPagado  || deuda.montoPagado || 0;
+                    const saldo     = deuda.Saldo        || deuda.saldo       || 0;
+                    const id        = deuda.Id           || deuda.id;
+                    const estado    = deuda._estadoReal;
+                    const pct       = total > 0 ? Math.min(100, (pagado / total) * 100) : 0;
+                    const fechaStr  = deuda.FechaCreacion || deuda.fechaCreacion
+                        ? formatearFechaUTC(deuda.FechaCreacion || deuda.fechaCreacion)
+                        : '—';
+
+                    return `
+                    <div class="border border-gray-100 rounded-xl p-4 bg-gray-50 hover:bg-white transition-colors">
+                        <div class="flex items-start justify-between gap-3 flex-wrap">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    <span class="text-sm font-black text-gray-900">${concepto}</span>
+                                    ${chipEstadoDeuda(estado)}
+                                </div>
+                                <div class="flex items-center gap-4 text-xs text-gray-500 font-semibold mb-2">
+                                    <span><i data-lucide="calendar" class="w-3 h-3 inline-block mr-1"></i>${fechaStr}</span>
+                                </div>
+                                <div class="flex items-center gap-4 flex-wrap">
+                                    <span class="text-xs text-gray-500 font-semibold">Total: <span class="text-gray-900 font-black">$${total.toFixed(2)}</span></span>
+                                    <span class="text-xs text-gray-500 font-semibold">Pagado: <span class="text-emerald-600 font-black">$${pagado.toFixed(2)}</span></span>
+                                    <span class="text-xs text-gray-500 font-semibold">Saldo: <span class="text-red-600 font-black text-sm">$${saldo.toFixed(2)}</span></span>
+                                </div>
+                                <!-- Barra de progreso -->
+                                <div class="w-full bg-gray-200 rounded-full h-1.5 mt-2">
+                                    <div class="h-1.5 rounded-full ${pct >= 100 ? 'bg-emerald-500' : 'bg-red-400'}" style="width:${pct.toFixed(1)}%"></div>
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-1.5 flex-shrink-0">
+                                <button onclick="abrirModalAbonar('${id}')"
+                                        class="px-4 py-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white text-xs font-black rounded-lg transition-all shadow uppercase">
+                                    <i data-lucide="dollar-sign" class="w-3.5 h-3.5 inline-block mr-1"></i>Abonar
+                                </button>
+                                <button onclick="pagarCompleto('${id}')"
+                                        class="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-xs font-black rounded-lg transition-all shadow uppercase">
+                                    <i data-lucide="check-circle" class="w-3.5 h-3.5 inline-block mr-1"></i>Pagar Todo
+                                </button>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
 
                 return `
-                <div class="bg-white rounded-2xl shadow-xl p-6 border-2 ${isVencida ? 'border-red-300 bg-red-50' : 'border-gray-200'} hover:shadow-2xl transition-shadow">
-                    <div class="flex justify-between items-start">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-3 mb-2 flex-wrap">
-                                <h3 class="text-2xl font-black text-gray-900 uppercase tracking-wide">${nombre}</h3>
-                                ${chipEstadoDeuda(estado, deuda._venceProximamente)}
+                <div class="bg-white rounded-2xl shadow-xl border-2 border-gray-200 hover:shadow-2xl transition-shadow overflow-hidden">
+                    <!-- Cabecera del cliente -->
+                    <div class="p-5 border-b border-gray-100 flex items-center justify-between gap-4 flex-wrap">
+                        <div class="flex items-center gap-3">
+                            <div class="w-11 h-11 rounded-full bg-indigo-100 text-indigo-700 font-black text-sm flex items-center justify-center flex-shrink-0">
+                                ${iniciales}
                             </div>
-                            <p class="text-sm text-gray-600 font-bold mb-1">Cedula: ${cedula}</p>
-                            <p class="text-base text-gray-500 font-semibold mb-3">
-                                <i data-lucide="calendar" class="w-4 h-4 inline-block mr-1"></i>
-                                Fecha: ${deuda.FechaCreacion || deuda.fechaCreacion ? formatearFechaLargaUTC(deuda.FechaCreacion || deuda.fechaCreacion) : 'Sin fecha'}
-                            </p>
-                            ${infoVencimientoDeuda(deuda)}
-                            <div class="bg-gray-50 rounded-xl p-4 mb-4 border-2 border-gray-200 mt-3">
-                                <p class="text-sm text-gray-600 font-bold uppercase mb-1">Concepto</p>
-                                <p class="text-base text-gray-900 font-black">${concepto}</p>
+                            <div>
+                                <h3 class="text-lg font-black text-gray-900 uppercase tracking-wide leading-tight">${nombre}</h3>
+                                <p class="text-xs text-gray-500 font-semibold">Cédula: ${cedula}</p>
                             </div>
-                            <div class="grid grid-cols-3 gap-4 mb-3">
-                                <div>
-                                    <p class="text-xs text-gray-600 font-bold uppercase mb-1">Total</p>
-                                    <p class="text-lg font-black text-gray-900">$${total.toFixed(2)}</p>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-gray-600 font-bold uppercase mb-1">Pagado</p>
-                                    <p class="text-lg font-black text-emerald-600">$${pagado.toFixed(2)}</p>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-gray-600 font-bold uppercase mb-1">Saldo</p>
-                                    <p class="text-2xl font-black ${isVencida ? 'text-red-700' : 'text-red-600'}">$${saldo.toFixed(2)}</p>
-                                </div>
-                            </div>
-                            <!-- Barra de progreso -->
-                            <div class="w-full bg-gray-200 rounded-full h-2 mb-1">
-                                <div class="h-2 rounded-full ${pct >= 100 ? 'bg-emerald-500' : 'bg-red-500'}" style="width:${pct.toFixed(1)}%"></div>
-                            </div>
-                            <p class="text-xs text-gray-400 font-semibold">${pct.toFixed(0)}% pagado</p>
                         </div>
-                        ${!isPagada ? `
-                        <div class="ml-6 flex flex-col gap-2">
-                            <button onclick="abrirModalAbonar('${id}')"
-                                    class="px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900 text-white font-black rounded-xl transition-all shadow-lg uppercase tracking-wide transform hover:scale-105">
-                                <i data-lucide="dollar-sign" class="w-5 h-5 inline-block mr-2"></i>
-                                Abonar
-                            </button>
-                            <button onclick="pagarCompleto('${id}')"
-                                    class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-black rounded-xl transition-all shadow-lg uppercase tracking-wide transform hover:scale-105">
-                                <i data-lucide="check-circle" class="w-5 h-5 inline-block mr-2"></i>
-                                Pagar Todo
-                            </button>
-                            <a href="/Caja/Historial?deudaId=${id}"
-                               class="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white font-black rounded-xl transition-all shadow-lg uppercase tracking-wide transform hover:scale-105 text-center">
-                                <i data-lucide="clock" class="w-5 h-5 inline-block mr-2"></i>
-                                Historial
+                        <div class="flex items-center gap-4 flex-wrap">
+                            <div class="text-right">
+                                <p class="text-xs text-gray-500 font-bold uppercase">Saldo total</p>
+                                <p class="text-xl font-black text-red-600">$${totalSaldo.toFixed(2)}</p>
+                                <p class="text-xs text-gray-400 font-semibold">${deudasCliente.length} deuda${deudasCliente.length !== 1 ? 's' : ''} pendiente${deudasCliente.length !== 1 ? 's' : ''}</p>
+                            </div>
+                            <a href="/Caja/Historial?clienteId=${cid}"
+                               class="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white text-xs font-black rounded-xl transition-all shadow uppercase flex items-center gap-1.5">
+                                <i data-lucide="history" class="w-3.5 h-3.5"></i>Historial
                             </a>
-                        </div>` : `
-                        <div class="ml-6">
-                            <a href="/Caja/Historial?deudaId=${id}"
-                               class="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-800 text-white font-black rounded-xl transition-all shadow-lg uppercase tracking-wide block text-center">
-                                <i data-lucide="clock" class="w-5 h-5 inline-block mr-2"></i>
-                                Ver historial
-                            </a>
-                        </div>`}
+                        </div>
+                    </div>
+                    <!-- Deudas del cliente -->
+                    <div class="p-4 space-y-3">
+                        ${filasDeudas}
                     </div>
                 </div>`;
             }).join('');
@@ -1691,33 +1656,36 @@
         }
 
         async function confirmarAbono() {
-            const monto = parseFloat(document.getElementById('input-monto-abono').value);
-            const metodo = document.getElementById('input-metodo-abono').value;
+            const monto    = parseFloat(document.getElementById('input-monto-abono').value);
+            const metodo   = document.getElementById('input-metodo-abono').value;
             const saldoActual = deudaSeleccionada.Saldo || deudaSeleccionada.saldo || 0;
-            const deudaId = deudaSeleccionada.Id || deudaSeleccionada.id;
+            const deudaId  = deudaSeleccionada.Id || deudaSeleccionada.id;
             const concepto = deudaSeleccionada.Concepto || deudaSeleccionada.concepto || '';
 
-            if (isNaN(monto) || monto <= 0) { alert('❌ Monto invalido'); return; }
-            if (monto > saldoActual) { alert('❌ El monto no puede ser mayor al saldo pendiente'); return; }
+            if (isNaN(monto) || monto <= 0) { alert('❌ Monto inválido'); return; }
+            if (monto > saldoActual)         { alert('❌ El monto no puede ser mayor al saldo pendiente'); return; }
+
+            const btn = document.querySelector('#modalAbonarDeuda button[onclick="confirmarAbono()"]');
+            if (btn) { btn.disabled = true; btn.textContent = 'Registrando…'; }
 
             try {
-                const response = await fetch(`${API_URL}/Deudas/abonar`, {
+                const r = await fetch(`${API_URL}/Deudas/abonar`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ deudaId, monto, metodoPago: metodo, notas: `Abono a deuda - ${concepto}` })
                 });
-                const result = await response.json();
+                const result = await r.json();
                 if (result.success) {
-                    alert(`✅ ${result.message}`);
                     cerrarModalAbonar();
-                    cargarDeudas();
+                    await cargarDeudas();
                     cargarResumen();
                 } else {
-                    alert(`❌ Error: ${result.message}`);
+                    alert(`❌ ${result.message}`);
                 }
-            } catch (error) {
-                console.error('Error:', error);
+            } catch (e) {
                 alert('❌ Error al registrar abono');
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = 'Confirmar'; }
             }
         }
 

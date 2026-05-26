@@ -1,0 +1,534 @@
+@{
+    ViewData["Title"] = "Deudas Pagadas";
+    Layout = "_AdminLayout";
+}
+
+@section Styles {
+    <style>
+        :root {
+            --radius: 10px;
+            --font-num: 'JetBrains Mono', 'Fira Mono', monospace;
+        }
+
+        .page-wrap {
+            padding: 1.5rem 2rem 3rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            display: flex; align-items: center; gap: 0.5rem;
+            font-size: 0.8rem; color: #9ca3af; margin-bottom: 1.5rem;
+        }
+        .breadcrumb a { color: #6366f1; text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+
+        /* Resumen */
+        .resumen-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        .resumen-card {
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.07);
+            border-radius: 14px;
+            padding: 1.1rem 1.25rem;
+        }
+        .resumen-label {
+            font-size: 0.7rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.07em;
+            color: #9ca3af; margin: 0 0 0.3rem;
+        }
+        .resumen-valor {
+            font-size: 1.4rem; font-weight: 700;
+            font-family: var(--font-num); color: #111; margin: 0;
+        }
+        .resumen-valor.verde { color: #15803d; }
+
+        /* Barra búsqueda */
+        .search-bar {
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 14px;
+            padding: 1rem 1.25rem;
+            display: flex; gap: 0.75rem; align-items: center;
+            margin-bottom: 1.25rem; flex-wrap: wrap;
+        }
+        .search-input-wrap { flex: 1; min-width: 200px; position: relative; }
+        .search-input-wrap i { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #9ca3af; }
+        .search-input {
+            width: 100%; padding: 0.6rem 0.85rem 0.6rem 2.2rem;
+            border: 1px solid #e5e7eb; border-radius: 8px;
+            font-size: 0.875rem; box-sizing: border-box;
+        }
+        .search-input:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+
+        /* Tarjeta de deuda pagada */
+        .deuda-card {
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.07);
+            border-radius: 14px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            transition: box-shadow 0.15s;
+        }
+        .deuda-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+
+        .deuda-header {
+            padding: 1.1rem 1.4rem;
+            display: flex; align-items: center;
+            justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+            cursor: pointer; user-select: none;
+            border-bottom: 1px solid transparent;
+        }
+        .deuda-card.open .deuda-header { border-bottom-color: #f3f4f6; }
+        .deuda-header:hover { background: #fafafa; }
+
+        .deuda-cliente-row { display: flex; align-items: center; gap: 0.6rem; }
+        .deuda-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: #d1fae5; color: #065f46;
+            font-size: 0.8rem; font-weight: 700;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .deuda-cliente-nombre { font-size: 0.95rem; font-weight: 700; color: #111; }
+        .deuda-cliente-cedula { font-size: 0.72rem; color: #9ca3af; }
+        .deuda-concepto {
+            font-size: 0.75rem; color: #6b7280; margin-top: 0.15rem;
+            display: flex; align-items: center; gap: 0.3rem;
+        }
+
+        .chip-pagada {
+            display: inline-flex; align-items: center; gap: 0.3rem;
+            padding: 0.25rem 0.7rem; border-radius: 99px;
+            font-size: 0.7rem; font-weight: 600;
+            background: #d1fae5; color: #065f46;
+        }
+        .chip-pagada::before {
+            content: ''; width: 5px; height: 5px;
+            border-radius: 50%; background: currentColor;
+        }
+
+        .deuda-montos {
+            display: flex; gap: 1.25rem; flex-wrap: wrap; align-items: center;
+        }
+        .monto-item { text-align: right; }
+        .monto-label { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; color: #9ca3af; }
+        .monto-valor { font-family: var(--font-num); font-size: 0.95rem; font-weight: 700; color: #111; }
+        .monto-valor.verde { color: #15803d; }
+
+        .deuda-fecha { font-size: 0.72rem; color: #9ca3af; margin-top: 0.2rem; }
+
+        .collapse-icon {
+            width: 18px; height: 18px; flex-shrink: 0;
+            color: #9ca3af; transition: transform 0.2s;
+        }
+        .deuda-card.open .collapse-icon { transform: rotate(180deg); }
+
+        /* Cuerpo colapsable */
+        .deuda-body { display: none; padding: 1.1rem 1.4rem; }
+        .deuda-card.open .deuda-body { display: block; }
+
+        /* Botón historial cliente */
+        .btn-hist-cliente {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            padding: 0.5rem 1rem;
+            background: #111; color: #fff;
+            border: none; border-radius: 8px;
+            font-size: 0.78rem; font-weight: 600;
+            cursor: pointer; text-decoration: none;
+            margin-bottom: 1rem;
+            transition: background 0.15s;
+        }
+        .btn-hist-cliente:hover { background: #374151; }
+
+        /* Timeline */
+        .section-label {
+            font-size: 0.7rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.07em;
+            color: #9ca3af; margin: 0 0 0.75rem;
+        }
+        .timeline { position: relative; padding-left: 1.5rem; }
+        .timeline::before {
+            content: ''; position: absolute; left: 6px; top: 0; bottom: 0;
+            width: 1px; background: #e5e7eb;
+        }
+        .tl-item {
+            position: relative; margin-bottom: 0.65rem;
+            background: #f9fafb;
+            border: 1px solid rgba(0,0,0,0.05);
+            border-radius: 8px; padding: 0.8rem 1rem;
+        }
+        .tl-dot {
+            position: absolute; left: -1.5rem; top: 0.95rem;
+            width: 10px; height: 10px;
+            background: #6366f1; border: 2px solid #fff;
+            border-radius: 50%; box-shadow: 0 0 0 1px #e5e7eb;
+            transform: translateX(-6px);
+        }
+        .tl-item:last-child .tl-dot { background: #16a34a; }
+        .tl-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
+        .tl-monto { font-family: var(--font-num); font-size: 0.95rem; font-weight: 700; color: #16a34a; }
+        .tl-fecha { font-size: 0.7rem; color: #9ca3af; }
+        .tl-meta { font-size: 0.7rem; color: #6b7280; margin-top: 0.2rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .tl-badge {
+            display: inline-flex; align-items: center; gap: 0.25rem;
+            padding: 0.12rem 0.45rem; background: #eff6ff; color: #1d4ed8;
+            border-radius: 99px; font-size: 0.65rem; font-weight: 600;
+        }
+        .tl-saldo {
+            display: inline-flex; align-items: center; gap: 0.25rem;
+            padding: 0.12rem 0.45rem; background: #f3f4f6; color: #6b7280;
+            border-radius: 6px; font-size: 0.65rem; font-family: var(--font-num);
+        }
+        .no-abonos {
+            text-align: center; padding: 1.5rem;
+            border: 1px dashed #e5e7eb; border-radius: 8px;
+            color: #9ca3af; font-size: 0.82rem;
+        }
+
+        /* Paginación */
+        .paginacion {
+            display: flex; justify-content: center; gap: 0.5rem;
+            margin-top: 1.5rem; flex-wrap: wrap;
+        }
+        .pag-btn {
+            padding: 0.45rem 0.9rem;
+            border: 1px solid #e5e7eb; border-radius: 8px;
+            font-size: 0.8rem; font-weight: 600; cursor: pointer;
+            background: transparent; color: #374151; transition: all 0.15s;
+        }
+        .pag-btn:hover { background: #f3f4f6; }
+        .pag-btn.active { background: #111; color: #fff; border-color: transparent; }
+        .pag-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* Loading / vacío */
+        .loading-state { text-align: center; padding: 4rem 2rem; color: #9ca3af; }
+        .sk-loader {
+            display: inline-block; width: 22px; height: 22px;
+            border: 2px solid #e5e7eb; border-top-color: #6366f1;
+            border-radius: 50%; animation: spin 0.7s linear infinite;
+        }
+        .empty-state {
+            text-align: center; padding: 3rem 2rem;
+            background: #fff; border: 1px dashed #e5e7eb;
+            border-radius: 14px; color: #9ca3af;
+        }
+        @@keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Toast */
+        #toast-dp {
+            position: fixed; top: 1.5rem; right: 1.5rem;
+            background: #111; color: #fff;
+            padding: 0.85rem 1.25rem; border-radius: 10px;
+            font-size: 0.875rem; z-index: 9999;
+            opacity: 0; transform: translateY(-10px) scale(0.97);
+            transition: all 0.25s; pointer-events: none;
+        }
+        #toast-dp.show { opacity: 1; transform: translateY(0) scale(1); }
+        #toast-dp.error { background: #b91c1c; }
+    </style>
+}
+
+<div class="space-y-6">
+    <div class="page-wrap">
+
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+            <a href="/Caja"><i class="bi bi-cash-stack me-1"></i>Caja</a>
+            <i class="bi bi-chevron-right" style="font-size:0.7rem"></i>
+            <span>Deudas Pagadas</span>
+        </nav>
+
+        <!-- Título + botón volver -->
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem">
+            <div>
+                <h1 style="font-size:1.4rem;font-weight:800;color:#111;margin:0">Deudas Pagadas</h1>
+                <p style="font-size:0.82rem;color:#9ca3af;margin:0.2rem 0 0">Historial completo de todas las deudas saldadas por los clientes</p>
+            </div>
+            <a href="/Caja" class="btn-hist-cliente" style="background:#6b7280">
+                <i class="bi bi-arrow-left"></i> Volver a Caja
+            </a>
+        </div>
+
+        <!-- Resumen -->
+        <div class="resumen-row" id="resumen-row">
+            <div class="resumen-card">
+                <p class="resumen-label">Total deudas pagadas</p>
+                <p class="resumen-valor verde" id="rs-total">—</p>
+            </div>
+            <div class="resumen-card">
+                <p class="resumen-label">Monto total recuperado</p>
+                <p class="resumen-valor verde" id="rs-monto">—</p>
+            </div>
+        </div>
+
+        <!-- Búsqueda -->
+        <div class="search-bar">
+            <div class="search-input-wrap">
+                <i class="bi bi-search" style="font-size:0.85rem"></i>
+                <input type="text" id="buscar-pagadas" class="search-input"
+                       placeholder="Buscar por nombre, cédula o concepto…"
+                       oninput="debounceBusqueda(this.value)" />
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading-state" class="loading-state">
+            <div class="sk-loader"></div>
+            <p style="margin-top:0.75rem">Cargando deudas pagadas…</p>
+        </div>
+
+        <!-- Lista -->
+        <div id="lista-pagadas" style="display:none"></div>
+
+        <!-- Paginación -->
+        <div class="paginacion" id="paginacion" style="display:none"></div>
+
+    </div>
+</div>
+
+<div id="toast-dp"></div>
+
+@section Scripts {
+    <script>
+        /* ═══════════════════════════════════════════
+           ESTADO
+        ═══════════════════════════════════════════ */
+        let paginaActual = 1;
+        const POR_PAGINA = 20;
+        let busquedaActual = '';
+        let debounceTimer  = null;
+        let totalGlobal    = 0;
+
+        /* ═══════════════════════════════════════════
+           INIT
+        ═══════════════════════════════════════════ */
+        document.addEventListener('DOMContentLoaded', () => cargar());
+
+        /* ═══════════════════════════════════════════
+           CARGA
+        ═══════════════════════════════════════════ */
+        async function cargar(pagina = 1) {
+            paginaActual = pagina;
+            document.getElementById('loading-state').style.display = 'block';
+            document.getElementById('lista-pagadas').style.display  = 'none';
+            document.getElementById('paginacion').style.display     = 'none';
+
+            try {
+                let url = `/api/HistorialDeuda/pagadas?pagina=${pagina}&porPagina=${POR_PAGINA}`;
+                if (busquedaActual.trim()) url += `&busqueda=${encodeURIComponent(busquedaActual)}`;
+
+                const r = await fetch(url);
+                const d = await r.json();
+                if (!d.success) throw new Error(d.message);
+
+                totalGlobal = d.total ?? 0;
+
+                // Resumen (solo en primera carga sin búsqueda para no distorsionar)
+                if (pagina === 1) {
+                    document.getElementById('rs-total').textContent  = `${d.total} deudas`;
+                    document.getElementById('rs-monto').textContent  = fmt(d.totalMonto ?? 0);
+                }
+
+                renderLista(d.items || []);
+                renderPaginacion(d.totalPaginas ?? 1, pagina);
+
+            } catch(e) {
+                document.getElementById('loading-state').innerHTML = `
+                    <div style="color:#ef4444">
+                        <i class="bi bi-exclamation-circle" style="font-size:1.5rem"></i>
+                        <p style="margin-top:0.5rem">${esc(e.message)}</p>
+                        <button onclick="cargar()" style="margin-top:1rem;padding:.4rem .9rem;border:1px solid #e5e7eb;border-radius:6px;cursor:pointer">Reintentar</button>
+                    </div>`;
+            }
+        }
+
+        /* ═══════════════════════════════════════════
+           RENDER LISTA
+        ═══════════════════════════════════════════ */
+        function renderLista(items) {
+            document.getElementById('loading-state').style.display = 'none';
+            const lista = document.getElementById('lista-pagadas');
+            lista.style.display = 'block';
+
+            if (!items.length) {
+                lista.innerHTML = `<div class="empty-state">
+                    <i class="bi bi-inbox" style="font-size:2rem"></i>
+                    <p style="margin-top:0.75rem">No hay deudas pagadas${busquedaActual ? ' con ese criterio' : ''}</p>
+                </div>`;
+                return;
+            }
+
+            lista.innerHTML = items.map(d => {
+                const nombre   = d.cliente?.nombre ?? d.cliente?.Nombre ?? '—';
+                const cedula   = d.cliente?.cedula ?? d.cliente?.Cedula ?? '—';
+                const clienteId = d.cliente?.Id ?? d.cliente?.id;
+                const iniciales = nombre.split(' ').filter(Boolean).map(n => n[0]).join('').substring(0,2).toUpperCase() || '?';
+                const concepto  = d.concepto ?? d.Concepto ?? '—';
+                const total     = d.montoTotal ?? d.MontoTotal ?? 0;
+                const pagado    = d.montoPagado ?? d.MontoPagado ?? 0;
+                const fechaCreacion = d.fechaCreacion ?? d.FechaCreacion;
+                const abonos    = d.abonos ?? [];
+                const id        = d.id ?? d.Id;
+
+                return `
+                <div class="deuda-card" id="dpcard-${id}">
+                    <div class="deuda-header" onclick="toggle('${id}')">
+                        <div style="flex:1;min-width:0">
+                            <div class="deuda-cliente-row">
+                                <div class="deuda-avatar">${esc(iniciales)}</div>
+                                <div>
+                                    <div class="deuda-cliente-nombre">${esc(nombre)}</div>
+                                    <div class="deuda-cliente-cedula">Cédula: ${esc(cedula)}</div>
+                                </div>
+                            </div>
+                            <div class="deuda-concepto" style="margin-top:0.4rem;margin-left:0.1rem">
+                                <i class="bi bi-tag" style="font-size:0.7rem"></i>
+                                ${esc(concepto)}
+                            </div>
+                            <div class="deuda-fecha" style="margin-left:0.1rem">
+                                <i class="bi bi-calendar3" style="font-size:0.65rem"></i>
+                                Creada: ${fmtFecha(fechaCreacion)}
+                            </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:1rem;flex-shrink:0">
+                            <span class="chip-pagada">Pagada</span>
+                            <div class="deuda-montos">
+                                <div class="monto-item">
+                                    <div class="monto-label">Total</div>
+                                    <div class="monto-valor">${fmt(total)}</div>
+                                </div>
+                                <div class="monto-item">
+                                    <div class="monto-label">Recuperado</div>
+                                    <div class="monto-valor verde">${fmt(pagado)}</div>
+                                </div>
+                            </div>
+                            <svg class="collapse-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="deuda-body">
+                        ${clienteId ? `
+                        <a href="/Caja/Historial?clienteId=${clienteId}" class="btn-hist-cliente">
+                            <i class="bi bi-person-lines-fill"></i> Ver historial completo del cliente
+                        </a>` : ''}
+
+                        <p class="section-label">
+                            Abonos realizados
+                            ${abonos.length ? `<span style="margin-left:0.4rem;background:#e0e7ff;color:#4f46e5;padding:.1rem .45rem;border-radius:99px;font-size:.65rem">${abonos.length}</span>` : ''}
+                        </p>
+                        ${renderTimeline(abonos)}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderTimeline(abonos) {
+            if (!abonos.length) {
+                return `<div class="no-abonos"><i class="bi bi-inbox"></i> Sin abonos registrados</div>`;
+            }
+            return `<div class="timeline">
+                ${[...abonos].reverse().map(a => `
+                <div class="tl-item">
+                    <div class="tl-dot"></div>
+                    <div class="tl-row">
+                        <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap">
+                            <span class="tl-monto">+${fmt(a.monto ?? a.Monto ?? 0)}</span>
+                            <span class="tl-badge">
+                                <i class="bi bi-${iconoMetodo(a.metodoPago ?? a.MetodoPago)}"></i>
+                                ${esc(a.metodoPago ?? a.MetodoPago ?? 'efectivo')}
+                            </span>
+                        </div>
+                        <span class="tl-fecha">${fmtFechaHora(a.fecha ?? a.Fecha)}</span>
+                    </div>
+                    <div class="tl-meta">
+                        ${(a.descripcion ?? a.Descripcion) ? `<span>${esc(a.descripcion ?? a.Descripcion)}</span>` : ''}
+                        <span class="tl-saldo">Saldo → ${fmt(a.saldoTrasAbono ?? a.SaldoTrasAbono ?? 0)}</span>
+                    </div>
+                </div>`).join('')}
+            </div>`;
+        }
+
+        /* ═══════════════════════════════════════════
+           PAGINACIÓN
+        ═══════════════════════════════════════════ */
+        function renderPaginacion(totalPags, actual) {
+            const cont = document.getElementById('paginacion');
+            if (totalPags <= 1) { cont.style.display = 'none'; return; }
+            cont.style.display = 'flex';
+
+            let html = `<button class="pag-btn" onclick="cargar(${actual - 1})" ${actual === 1 ? 'disabled' : ''}>‹ Anterior</button>`;
+            for (let i = 1; i <= totalPags; i++) {
+                if (totalPags > 7 && Math.abs(i - actual) > 2 && i !== 1 && i !== totalPags) {
+                    if (i === actual - 3 || i === actual + 3) html += `<span style="align-self:center;color:#9ca3af">…</span>`;
+                    continue;
+                }
+                html += `<button class="pag-btn ${i === actual ? 'active' : ''}" onclick="cargar(${i})">${i}</button>`;
+            }
+            html += `<button class="pag-btn" onclick="cargar(${actual + 1})" ${actual === totalPags ? 'disabled' : ''}>Siguiente ›</button>`;
+            cont.innerHTML = html;
+        }
+
+        /* ═══════════════════════════════════════════
+           COLLAPSE
+        ═══════════════════════════════════════════ */
+        function toggle(id) {
+            document.getElementById(`dpcard-${id}`)?.classList.toggle('open');
+        }
+
+        /* ═══════════════════════════════════════════
+           BÚSQUEDA CON DEBOUNCE
+        ═══════════════════════════════════════════ */
+        function debounceBusqueda(val) {
+            busquedaActual = val;
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => cargar(1), 350);
+        }
+
+        /* ═══════════════════════════════════════════
+           UTILIDADES
+        ═══════════════════════════════════════════ */
+        function fmt(n) {
+            return new Intl.NumberFormat('es-CO', {
+                style: 'currency', currency: 'COP', minimumFractionDigits: 0
+            }).format(n || 0);
+        }
+        function fmtFecha(iso) {
+            if (!iso) return '—';
+            const p = iso.split('T')[0].split('-');
+            return `${p[2]}/${p[1]}/${p[0]}`;
+        }
+        function fmtFechaHora(iso) {
+            if (!iso) return '—';
+            try {
+                const [f, t] = iso.split('T');
+                const [y, m, d] = f.split('-');
+                const [hh, mm] = (t || '00:00').split(':');
+                return `${d}/${m}/${y} ${hh}:${mm}`;
+            } catch { return iso; }
+        }
+        function esc(s) {
+            const div = document.createElement('div');
+            div.textContent = s || '';
+            return div.innerHTML;
+        }
+        function iconoMetodo(m) {
+            const map = { efectivo: 'cash', tarjeta: 'credit-card', transferencia: 'bank' };
+            return map[m] || 'cash';
+        }
+
+        let toastT = null;
+        function toast(msg, tipo = '') {
+            const t = document.getElementById('toast-dp');
+            t.textContent = msg; t.className = `show ${tipo}`;
+            clearTimeout(toastT);
+            toastT = setTimeout(() => t.classList.remove('show'), 3500);
+        }
+    </script>
+}

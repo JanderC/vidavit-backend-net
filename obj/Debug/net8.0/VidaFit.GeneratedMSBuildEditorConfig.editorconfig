@@ -32,6 +32,14 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2FqYUZ1ZXJ0ZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/usuario/source/repos/vidafit-prueba/VidaFit/Views/Caja/DeudasPagadas.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2FqYVxEZXVkYXNQYWdhZGFzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/usuario/source/repos/vidafit-prueba/VidaFit/Views/Caja/Historial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2FqYVxIaXN0b3JpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/usuario/source/repos/vidafit-prueba/VidaFit/Views/Caja/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2FqYVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -58,10 +66,6 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/usuario/source/repos/vidafit-prueba/VidaFit/Views/Clientes/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2xpZW50ZXNcSW5kZXguY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/usuario/source/repos/vidafit-prueba/VidaFit/Views/Deuda/Historial.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGV1ZGFcSGlzdG9yaWFsLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/usuario/source/repos/vidafit-prueba/VidaFit/Views/Home/Index.cshtml]

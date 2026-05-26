@@ -8,6 +8,7 @@
 
 	<ItemGroup>
 		<Folder Include="Database\" />
+		<Folder Include="Views\Deuda\" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -403,40 +403,40 @@
         }
 
         function calcularFechaVencimiento(fechaInicioStr, plan) {
-            // 🔧 CORRECCIÓN: Parsear como fecha local sin conversión UTC
             const [year, month, day] = fechaInicioStr.split('-').map(Number);
-            const fechaInicio = new Date(year, month - 1, day); // Mes es 0-indexed en JS
+            const fechaInicio = new Date(year, month - 1, day);
 
             let fechaVenc;
             let duracionTexto;
+            const tipo = (plan.tipoCalculoVencimiento || 'dias').toLowerCase();
+            const cant = plan.cantidadUnidades || 1;
 
-            // Calcular según el tipo de plan
-            switch (plan.tipoCalculoVencimiento?.toLowerCase() || 'dias') {
-                case 'meses':
-                    // Sumar meses calendario (30 Ene → 28/29 Feb)
-                    fechaVenc = new Date(fechaInicio);
-                    fechaVenc.setMonth(fechaVenc.getMonth() + (plan.cantidadUnidades || 1));
-                    duracionTexto = `${plan.cantidadUnidades || 1} ${(plan.cantidadUnidades || 1) === 1 ? 'mes' : 'meses'}`;
+            switch (tipo) {
+                case 'meses': {
+                    // Replicar AddMonths de C#: mismo día del mes destino,
+                    // si no existe (ej: 31 feb) usa el último día de ese mes.
+                    let nuevoMes = month - 1 + cant;         // 0-indexed
+                    let nuevoAnio = year + Math.floor(nuevoMes / 12);
+                    nuevoMes = nuevoMes % 12;
+                    const ultimoDia = new Date(nuevoAnio, nuevoMes + 1, 0).getDate();
+                    fechaVenc = new Date(nuevoAnio, nuevoMes, Math.min(day, ultimoDia));
+                    duracionTexto = `${cant} ${cant === 1 ? 'mes' : 'meses'}`;
                     break;
-
+                }
                 case 'semanas':
-                    // Sumar semanas
                     fechaVenc = new Date(fechaInicio);
-                    fechaVenc.setDate(fechaVenc.getDate() + ((plan.cantidadUnidades || 1) * 7));
-                    duracionTexto = `${plan.cantidadUnidades || 1} ${(plan.cantidadUnidades || 1) === 1 ? 'semana' : 'semanas'}`;
+                    fechaVenc.setDate(fechaVenc.getDate() + cant * 7);
+                    duracionTexto = `${cant} ${cant === 1 ? 'semana' : 'semanas'}`;
                     break;
 
                 case 'anios':
-                    // Sumar años
                     fechaVenc = new Date(fechaInicio);
-                    fechaVenc.setFullYear(fechaVenc.getFullYear() + (plan.cantidadUnidades || 1));
-                    duracionTexto = `${plan.cantidadUnidades || 1} ${(plan.cantidadUnidades || 1) === 1 ? 'año' : 'años'}`;
+                    fechaVenc.setFullYear(fechaVenc.getFullYear() + cant);
+                    duracionTexto = `${cant} ${cant === 1 ? 'año' : 'años'}`;
                     break;
 
                 case 'dias':
                 default:
-                    // Sumar días corridos (incluye el día de inicio)
-                    // Si son 30 días: día 1 (inicio) + 29 días más = 30 días total
                     fechaVenc = new Date(fechaInicio);
                     fechaVenc.setDate(fechaVenc.getDate() + (plan.duracionDias - 1));
                     duracionTexto = `${plan.duracionDias} días`;
@@ -444,19 +444,14 @@
             }
 
             // Formatear fecha para el input (YYYY-MM-DD)
-            const year2 = fechaVenc.getFullYear();
-            const month2 = String(fechaVenc.getMonth() + 1).padStart(2, '0');
-            const day2 = String(fechaVenc.getDate()).padStart(2, '0');
-            const fechaVencStr = `${year2}-${month2}-${day2}`;
+            const y2 = fechaVenc.getFullYear();
+            const m2 = String(fechaVenc.getMonth() + 1).padStart(2, '0');
+            const d2 = String(fechaVenc.getDate()).padStart(2, '0');
 
-            // Actualizar UI
-            document.getElementById('fechaVencimiento').value = fechaVencStr;
+            document.getElementById('fechaVencimiento').value = `${y2}-${m2}-${d2}`;
             document.getElementById('totalDias').textContent = duracionTexto;
             document.getElementById('fechaVencTexto').textContent = fechaVenc.toLocaleDateString('es-ES', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
             });
             document.getElementById('duracionInfo').classList.remove('hidden');
         }

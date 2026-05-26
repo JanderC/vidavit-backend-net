@@ -1,0 +1,4 @@
+C:\d\HistorialDeudas\appsettings.Development.json
+C:\d\HistorialDeudas\appsettings.json
+C:\d\HistorialDeudas\VidaFit.pdb
+C:\d\HistorialDeudas\VidaFit.exe

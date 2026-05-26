@@ -13,6 +13,10 @@
       "PackagePath": "staticwebassets\\favicon.ico"
     },
     {
+      "Id": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\images\\IMG_2929.JPG",
+      "PackagePath": "staticwebassets\\images\\IMG_2929.JPG"
+    },
+    {
       "Id": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\images\\tauro-gym-logo.png",
       "PackagePath": "staticwebassets\\images\\tauro-gym-logo.png"
     },

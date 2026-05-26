@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "XkVZ8I04nDIfs6kr2xM/18irer3WXO0Qr0GGtexXA5A=",
+  "Hash": "88oiU3/2UsljatZfj3LMTb0Q40tgPlFwUWkMP6gRTOY=",
   "Source": "VidaFit",
   "BasePath": "_content/VidaFit",
   "Mode": "Default",
@@ -99,6 +99,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\favicon.ico"
+    },
+    {
+      "Identity": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\images\\IMG_2929.JPG",
+      "SourceId": "VidaFit",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\",
+      "BasePath": "_content/VidaFit",
+      "RelativePath": "images/IMG_2929#[.{fingerprint}]?.JPG",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "25n7x9x44g",
+      "Integrity": "GvpeXj0CAX3PSWNQBVppDGEn+0fjZ5RHzOUUb05M9dg=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\IMG_2929.JPG"
     },
     {
       "Identity": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\images\\tauro-gym-logo.png",
@@ -1502,6 +1523,88 @@
         {
           "Name": "integrity",
           "Value": "sha256-Jtxf9L+5ITKRc1gIRl4VbUpGkRNfOBXjYTdhJD4facM="
+        }
+      ]
+    },
+    {
+      "Route": "images/IMG_2929.25n7x9x44g.JPG",
+      "AssetFile": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\images\\IMG_2929.JPG",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "697960"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"GvpeXj0CAX3PSWNQBVppDGEn+0fjZ5RHzOUUb05M9dg=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 20 May 2026 16:05:46 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "25n7x9x44g"
+        },
+        {
+          "Name": "label",
+          "Value": "images/IMG_2929.JPG"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-GvpeXj0CAX3PSWNQBVppDGEn+0fjZ5RHzOUUb05M9dg="
+        }
+      ]
+    },
+    {
+      "Route": "images/IMG_2929.JPG",
+      "AssetFile": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\images\\IMG_2929.JPG",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "697960"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"GvpeXj0CAX3PSWNQBVppDGEn+0fjZ5RHzOUUb05M9dg=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 20 May 2026 16:05:46 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-GvpeXj0CAX3PSWNQBVppDGEn+0fjZ5RHzOUUb05M9dg="
         }
       ]
     },

@@ -8,6 +8,7 @@ namespace VidaFit.Controllers.API
     /// <summary>
     /// API: Gestión completa de deudas de clientes.
     /// Rutas base: /api/Deudas
+    /// NOTA: Las deudas NO se vencen. Solo existen los estados: pendiente, pagada, cancelada.
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
@@ -40,29 +41,9 @@ namespace VidaFit.Controllers.API
         }
 
         // ─────────────────────────────────────────────
-        // HELPER: Normalizar estado teniendo en cuenta vencimiento real
-        // ✅ FIX CRÍTICO: El estado se calcula dinámicamente en cada lectura,
-        //    no se confía solo en el valor guardado en BD.
-        // ─────────────────────────────────────────────
-        private static string CalcularEstadoReal(DeudaCliente deuda)
-        {
-            if (deuda.Estado == "pagada" || deuda.Estado == "cancelada")
-                return deuda.Estado;
-
-            // Si tiene fecha de vencimiento y ya pasó → vencida (independiente del estado en BD)
-            if (deuda.FechaVencimiento.HasValue &&
-                deuda.FechaVencimiento.Value.Date < DateTime.Now.Date &&
-                deuda.Saldo > 0)
-            {
-                return "vencida";
-            }
-
-            return deuda.Estado; // "pendiente" o el que esté guardado
-        }
-
-        // ─────────────────────────────────────────────
         // GET /api/Deudas
-        // Lista todas las deudas con filtros opcionales
+        // Lista todas las deudas con filtros opcionales.
+        // Estados posibles: pendiente, pagada, cancelada.
         // ─────────────────────────────────────────────
         [HttpGet]
         public async Task<IActionResult> GetDeudas(
@@ -96,15 +77,11 @@ namespace VidaFit.Controllers.API
                     .OrderByDescending(d => d.FechaCreacion)
                     .ToListAsync();
 
-                // ✅ FIX: Recalcular estado real en cada deuda antes de devolver
-                //    Esto garantiza que las vencidas SIEMPRE aparezcan como vencidas,
-                //    aunque en BD diga "pendiente".
                 var resultado = deudas.Select(d => new
                 {
                     d.Id,
-                    // Estado calculado dinámicamente (no solo el de BD)
-                    Estado = CalcularEstadoReal(d),
-                    EstadoBD = d.Estado, // para debug si necesario
+                    // Estado directo desde BD. Ya no existe el estado "vencida".
+                    Estado = d.Estado,
                     d.Concepto,
                     d.MontoTotal,
                     d.MontoPagado,
@@ -116,9 +93,6 @@ namespace VidaFit.Controllers.API
                     diasParaVencer = d.FechaVencimiento.HasValue
                         ? (int)(d.FechaVencimiento.Value.Date - DateTime.Now.Date).TotalDays
                         : (int?)null,
-                    estaVencida = d.FechaVencimiento.HasValue &&
-                                  d.FechaVencimiento.Value.Date < DateTime.Now.Date &&
-                                  d.Saldo > 0,
                     venceProximamente = d.FechaVencimiento.HasValue &&
                                         d.FechaVencimiento.Value.Date >= DateTime.Now.Date &&
                                         (d.FechaVencimiento.Value.Date - DateTime.Now.Date).TotalDays <= 7 &&
@@ -131,17 +105,15 @@ namespace VidaFit.Controllers.API
                     }
                 }).ToList();
 
-                // Aplicar filtro de estado DESPUÉS del cálculo real
-                if (!string.IsNullOrWhiteSpace(estado))
+                // Aplicar filtro de estado después de proyectar
+                if (!string.IsNullOrWhiteSpace(estado) && estado != "vencida")
                     resultado = resultado.Where(d => d.Estado == estado).ToList();
 
-                // Totales para el dashboard de caja
+                // Resumen para el dashboard
                 var totalDeudas = resultado.Count;
                 var totalPendiente = resultado.Where(d => d.Estado == "pendiente").Sum(d => d.Saldo);
-                var totalVencido = resultado.Where(d => d.Estado == "vencida").Sum(d => d.Saldo);
-                var countVencidas = resultado.Count(d => d.Estado == "vencida");
                 var countPendientes = resultado.Count(d => d.Estado == "pendiente");
-                var countVenceProximamente = resultado.Count(d => d.venceProximamente);
+                var countVenceProxim = resultado.Count(d => d.venceProximamente);
 
                 // Paginación
                 var total = resultado.Count;
@@ -162,10 +134,12 @@ namespace VidaFit.Controllers.API
                     {
                         totalDeudas,
                         totalPendiente,
-                        totalVencido,
-                        countVencidas,
+                        // Se mantienen estas claves por compatibilidad con el frontend,
+                        // pero ya no existen deudas "vencidas".
+                        totalVencido = 0m,
+                        countVencidas = 0,
                         countPendientes,
-                        countVenceProximamente
+                        countVenceProximamente = countVenceProxim
                     }
                 });
             }
@@ -199,11 +173,11 @@ namespace VidaFit.Controllers.API
                 {
                     Id = Guid.NewGuid(),
                     ClienteId = request.ClienteId,
-                    Concepto = request.Concepto?.Trim() ?? "Deuda sin concepto",
+                    Concepto = request.Concepto ?? "Deuda sin concepto",
                     MontoTotal = request.Monto,
                     MontoPagado = 0,
                     Saldo = request.Monto,
-                    Estado = "pendiente",
+                    Estado = "pendiente",   // Siempre inicia en pendiente
                     FechaCreacion = DateTime.Now,
                     FechaVencimiento = request.FechaVencimiento
                 };
@@ -211,14 +185,13 @@ namespace VidaFit.Controllers.API
                 _context.DeudasClientes.Add(deuda);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("💳 Nueva deuda creada: ${Monto} — Cliente {ClienteId} — Concepto: {Concepto}",
-                    request.Monto, request.ClienteId, deuda.Concepto);
+                _logger.LogInformation("📝 Nueva deuda creada: {DeudaId} — Cliente {ClienteId} — ${Monto}",
+                    deuda.Id, request.ClienteId, request.Monto);
 
                 return Ok(new
                 {
                     success = true,
-                    message = $"Deuda de ${request.Monto:N2} registrada correctamente para {cliente.Nombre} {cliente.Apellido}",
-                    deudaId = deuda.Id,
+                    message = $"Deuda de ${request.Monto:N2} registrada para {cliente.Nombre} {cliente.Apellido}",
                     deuda = new
                     {
                         deuda.Id,
@@ -325,13 +298,7 @@ namespace VidaFit.Controllers.API
                     deuda.Estado = "pagada";
                     _logger.LogInformation("✅ Deuda {DeudaId} marcada como PAGADA", deuda.Id);
                 }
-                else
-                {
-                    // ✅ FIX: Actualizar estado en BD también si está vencida
-                    var estadoReal = CalcularEstadoReal(deuda);
-                    if (deuda.Estado != estadoReal)
-                        deuda.Estado = estadoReal;
-                }
+                // No hay más lógica de "vencida" — el estado permanece "pendiente"
 
                 await _context.SaveChangesAsync();
 
@@ -358,46 +325,6 @@ namespace VidaFit.Controllers.API
                     error = ex.Message,
                     inner = ex.InnerException?.Message
                 });
-            }
-        }
-
-        // ─────────────────────────────────────────────
-        // GET /api/Deudas/sincronizar-vencidas
-        // Tarea de mantenimiento: actualiza en BD las deudas que ya vencieron
-        // Se puede llamar desde un job o manualmente
-        // ─────────────────────────────────────────────
-        [HttpPost("sincronizar-vencidas")]
-        public async Task<IActionResult> SincronizarVencidas()
-        {
-            try
-            {
-                var hoy = DateTime.Now.Date;
-
-                var deudasAVencer = await _context.DeudasClientes
-                    .Where(d => d.Estado == "pendiente" &&
-                                d.FechaVencimiento.HasValue &&
-                                d.FechaVencimiento.Value.Date < hoy &&
-                                d.Saldo > 0)
-                    .ToListAsync();
-
-                foreach (var d in deudasAVencer)
-                    d.Estado = "vencida";
-
-                await _context.SaveChangesAsync();
-
-                _logger.LogInformation("🔄 Sincronización: {Count} deudas marcadas como vencidas", deudasAVencer.Count);
-
-                return Ok(new
-                {
-                    success = true,
-                    actualizadas = deudasAVencer.Count,
-                    message = $"{deudasAVencer.Count} deudas marcadas como vencidas"
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al sincronizar deudas vencidas");
-                return StatusCode(500, new { success = false, message = "Error al sincronizar", error = ex.Message });
             }
         }
 

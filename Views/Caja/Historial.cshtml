@@ -1,0 +1,1198 @@
+@{
+    ViewData["Title"] = "Historial de deudas del cliente";
+    Layout = "_AdminLayout";
+}
+
+@section Styles {
+    <style>
+        :root {
+            --h-radius: 10px;
+            --h-pendiente: #b45309;
+            --h-pendiente-bg: #fffbeb;
+            --h-pagada: #15803d;
+            --h-pagada-bg: #f0fdf4;
+            --h-cancelada: #6b7280;
+            --h-cancelada-bg: #f3f4f6;
+            --font-num: 'JetBrains Mono', 'Fira Mono', monospace;
+        }
+
+        .hist-page {
+            padding: 1.5rem 2rem 3rem;
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        /* ── Breadcrumb ─────────────────────────────────────────────── */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: #9ca3af;
+            margin-bottom: 1.5rem;
+        }
+
+            .breadcrumb a {
+                color: #6366f1;
+                text-decoration: none;
+            }
+
+                .breadcrumb a:hover {
+                    text-decoration: underline;
+                }
+
+        /* ── Header cliente ─────────────────────────────────────────── */
+        .cliente-header {
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 14px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .cliente-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .cliente-avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #e0e7ff;
+            color: #4f46e5;
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .cliente-nombre {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #111;
+        }
+
+        .cliente-cedula {
+            font-size: 0.8rem;
+            color: #9ca3af;
+            margin-top: 0.15rem;
+        }
+
+        /* ── Métricas resumen cliente ───────────────────────────────── */
+        .resumen-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 0.75rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid #f3f4f6;
+            margin-top: 1.25rem;
+        }
+
+        .resumen-metrica {
+            text-align: center;
+        }
+
+        .resumen-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: #9ca3af;
+            margin: 0;
+        }
+
+        .resumen-valor {
+            font-size: 1.2rem;
+            font-weight: 700;
+            font-family: var(--font-num);
+            color: #111;
+            margin: 0.2rem 0 0;
+        }
+
+            .resumen-valor.pendiente {
+                color: var(--h-pendiente);
+            }
+
+            .resumen-valor.pagada {
+                color: var(--h-pagada);
+            }
+
+        /* ── Chip estado ────────────────────────────────────────────── */
+        .estado-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 99px;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+
+            .estado-chip::before {
+                content: '';
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: currentColor;
+                display: inline-block;
+            }
+
+            .estado-chip.pendiente {
+                background: var(--h-pendiente-bg);
+                color: var(--h-pendiente);
+            }
+
+            .estado-chip.pagada {
+                background: var(--h-pagada-bg);
+                color: var(--h-pagada);
+            }
+
+            .estado-chip.cancelada {
+                background: var(--h-cancelada-bg);
+                color: var(--h-cancelada);
+            }
+
+        /* ── Tabs de deudas ─────────────────────────────────────────── */
+        .deudas-tabs {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 2px solid #f3f4f6;
+            margin-bottom: 1.25rem;
+        }
+
+        .tab-deuda-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: none;
+            background: transparent;
+            color: #9ca3af;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.15s;
+        }
+
+            .tab-deuda-btn:hover {
+                color: #374151;
+            }
+
+            .tab-deuda-btn.active {
+                color: #6366f1;
+                border-bottom-color: #6366f1;
+            }
+
+        /* ── Tarjeta de deuda ───────────────────────────────────────── */
+        .deuda-card {
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 14px;
+            margin-bottom: 1.25rem;
+            overflow: hidden;
+            transition: box-shadow 0.15s;
+        }
+
+            .deuda-card:hover {
+                box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            }
+
+        .deuda-card-header {
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #f3f4f6;
+            cursor: pointer;
+            user-select: none;
+        }
+
+            .deuda-card-header:hover {
+                background: #fafafa;
+            }
+
+        .deuda-concepto {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #111;
+            margin-bottom: 0.3rem;
+        }
+
+        .deuda-fecha {
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+
+        .deuda-montos {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .deuda-monto-item {
+            text-align: right;
+        }
+
+        .deuda-monto-label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #9ca3af;
+        }
+
+        .deuda-monto-valor {
+            font-family: var(--font-num);
+            font-size: 1rem;
+            font-weight: 700;
+            color: #111;
+        }
+
+            .deuda-monto-valor.saldo-pendiente {
+                color: #b45309;
+            }
+
+            .deuda-monto-valor.saldo-pagado {
+                color: #15803d;
+            }
+
+        /* Barra de progreso en tarjeta */
+        .deuda-progress {
+            margin: 0.75rem 0 0;
+        }
+
+        .deuda-progress-bg {
+            background: #f3f4f6;
+            border-radius: 99px;
+            height: 5px;
+            overflow: hidden;
+        }
+
+        .deuda-progress-fill {
+            height: 100%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            transition: width 0.5s ease;
+        }
+
+            .deuda-progress-fill.completo {
+                background: linear-gradient(90deg, #16a34a, #22c55e);
+            }
+
+        .deuda-progress-pct {
+            font-size: 0.68rem;
+            color: #9ca3af;
+            margin-top: 0.3rem;
+            text-align: right;
+        }
+
+        /* Collapse arrow */
+        .collapse-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            color: #9ca3af;
+            transition: transform 0.2s;
+        }
+
+        .deuda-card.open .collapse-icon {
+            transform: rotate(180deg);
+        }
+
+        /* ── Cuerpo colapsable ──────────────────────────────────────── */
+        .deuda-card-body {
+            display: none;
+            padding: 1.25rem 1.5rem;
+        }
+
+        .deuda-card.open .deuda-card-body {
+            display: block;
+        }
+
+        /* Acciones de la tarjeta */
+        .deuda-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .btn-accion {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.5rem 0.9rem;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: transparent;
+            color: #374151;
+            transition: all 0.15s;
+        }
+
+            .btn-accion:hover {
+                background: #f3f4f6;
+            }
+
+            .btn-accion.primary {
+                background: #111;
+                color: #fff;
+                border-color: transparent;
+            }
+
+                .btn-accion.primary:hover {
+                    background: #374151;
+                }
+
+        /* ── Timeline de abonos ─────────────────────────────────────── */
+        .section-label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: #9ca3af;
+            margin: 0 0 0.75rem;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+            .timeline::before {
+                content: '';
+                position: absolute;
+                left: 6px;
+                top: 0;
+                bottom: 0;
+                width: 1px;
+                background: #e5e7eb;
+            }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 0.75rem;
+            background: #fafafa;
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 8px;
+            padding: 0.85rem 1.1rem;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -1.5rem;
+            top: 1rem;
+            width: 11px;
+            height: 11px;
+            background: #6366f1;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 0 1px #e5e7eb;
+            transform: translateX(-6px);
+        }
+
+        .timeline-item:last-child .timeline-dot {
+            background: #16a34a;
+        }
+
+        .tl-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tl-monto {
+            font-family: var(--font-num);
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: #16a34a;
+        }
+
+        .tl-fecha {
+            font-size: 0.72rem;
+            color: #9ca3af;
+        }
+
+        .tl-meta {
+            font-size: 0.72rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+
+        .tl-badge-metodo {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.15rem 0.5rem;
+            background: #eff6ff;
+            color: #1d4ed8;
+            border-radius: 99px;
+            font-size: 0.68rem;
+            font-weight: 600;
+        }
+
+        .tl-saldo-tras {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.15rem 0.5rem;
+            background: #f3f4f6;
+            border-radius: 6px;
+            font-size: 0.68rem;
+            color: #6b7280;
+            font-family: var(--font-num);
+        }
+
+        .no-abonos {
+            text-align: center;
+            padding: 2rem;
+            background: #fff;
+            border: 1px dashed #e5e7eb;
+            border-radius: 8px;
+            color: #9ca3af;
+            font-size: 0.85rem;
+        }
+
+        /* ── Modal abono ────────────────────────────────────────────── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.35);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(2px);
+        }
+
+            .modal-overlay.open {
+                display: flex;
+            }
+
+        .modal-box {
+            background: #fff;
+            border-radius: 16px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 440px;
+            margin: 1rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: modalIn 0.2s cubic-bezier(.4,0,.2,1);
+        }
+
+        @@keyframes modalIn {
+            from {
+                transform: scale(0.95) translateY(8px);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 0 0 1.25rem;
+            color: #111;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.35rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.6rem 0.85rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            box-sizing: border-box;
+            transition: border-color 0.15s;
+        }
+
+            .form-input:focus {
+                outline: none;
+                border-color: #6366f1;
+                box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+            }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+            justify-content: flex-end;
+        }
+
+        .btn-cancelar {
+            padding: 0.6rem 1.1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: transparent;
+            cursor: pointer;
+            font-size: 0.875rem;
+            color: #374151;
+        }
+
+        .btn-confirmar {
+            padding: 0.6rem 1.3rem;
+            border: none;
+            border-radius: 8px;
+            background: #111;
+            color: #fff;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+            .btn-confirmar:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
+
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        /* ── Toast ──────────────────────────────────────────────────── */
+        #toast-hist {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: #111;
+            color: #fff;
+            padding: 0.85rem 1.25rem;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            z-index: 9999;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            transform: translateY(-10px) scale(0.97);
+            opacity: 0;
+            transition: all 0.25s cubic-bezier(.4,0,.2,1);
+            pointer-events: none;
+        }
+
+            #toast-hist.show {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+
+            #toast-hist.success {
+                background: #15803d;
+            }
+
+            #toast-hist.error {
+                background: #b91c1c;
+            }
+
+            #toast-hist.warning {
+                background: #b45309;
+            }
+
+        /* ── Loading ─────────────────────────────────────────────────── */
+        .loading-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #9ca3af;
+        }
+
+        .sk-loader {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 2px solid #e5e7eb;
+            border-top-color: #6366f1;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @@keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ── Sin deudas ─────────────────────────────────────────────── */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: #fff;
+            border: 1px dashed #e5e7eb;
+            border-radius: 14px;
+            color: #9ca3af;
+        }
+    </style>
+}
+
+<div class="space-y-6">
+    <div class="hist-page">
+
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+            <a href="/Caja"><i class="bi bi-cash-stack me-1"></i>Caja</a>
+            <i class="bi bi-chevron-right" style="font-size:0.7rem"></i>
+            <span id="bc-cliente">Historial del cliente</span>
+        </nav>
+
+        <!-- Loading -->
+        <div id="loading-state" class="loading-state">
+            <div class="sk-loader"></div>
+            <p style="margin-top:1rem">Cargando historial…</p>
+        </div>
+
+        <!-- Contenido (oculto hasta carga) -->
+        <div id="hist-contenido" style="display:none">
+
+            <!-- Header del cliente -->
+            <div class="cliente-header">
+                <div class="cliente-row">
+                    <div class="cliente-avatar" id="h-avatar">—</div>
+                    <div>
+                        <div class="cliente-nombre" id="h-nombre">—</div>
+                        <div class="cliente-cedula" id="h-cedula">—</div>
+                    </div>
+                </div>
+                <button class="btn-accion" onclick="window.location.href='/Caja'">
+                    <i class="bi bi-arrow-left"></i> Volver a Caja
+                </button>
+            </div>
+
+            <!-- Resumen financiero -->
+            <div class="resumen-grid" id="resumen-grid">
+                <div class="resumen-metrica">
+                    <p class="resumen-label">Total deudas</p>
+                    <p class="resumen-valor" id="rs-total-deudas">—</p>
+                </div>
+                <div class="resumen-metrica">
+                    <p class="resumen-label">Deudas activas</p>
+                    <p class="resumen-valor pendiente" id="rs-activas">—</p>
+                </div>
+                <div class="resumen-metrica">
+                    <p class="resumen-label">Deudas pagadas</p>
+                    <p class="resumen-valor pagada" id="rs-pagadas">—</p>
+                </div>
+                <div class="resumen-metrica">
+                    <p class="resumen-label">Saldo pendiente</p>
+                    <p class="resumen-valor pendiente" id="rs-saldo">—</p>
+                </div>
+                <div class="resumen-metrica">
+                    <p class="resumen-label">Total histórico</p>
+                    <p class="resumen-valor" id="rs-historico">—</p>
+                </div>
+                <div class="resumen-metrica">
+                    <p class="resumen-label">Total pagado</p>
+                    <p class="resumen-valor pagada" id="rs-total-pagado">—</p>
+                </div>
+            </div>
+
+            <!-- Tabs filtro -->
+            <div class="deudas-tabs" style="margin-top:1.5rem">
+                <button class="tab-deuda-btn active" onclick="filtrarDeudas('todas')" id="tab-todas">Todas</button>
+                <button class="tab-deuda-btn" onclick="filtrarDeudas('pendiente')" id="tab-pendiente">Pendientes</button>
+                <button class="tab-deuda-btn" onclick="filtrarDeudas('pagada')" id="tab-pagada">Pagadas</button>
+                <button class="tab-deuda-btn" onclick="filtrarDeudas('cancelada')" id="tab-cancelada">Canceladas</button>
+            </div>
+
+            <!-- Lista de deudas -->
+            <div id="lista-deudas"></div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div id="toast-hist"></div>
+
+<!-- Modal abono -->
+<div class="modal-overlay" id="modal-abono">
+    <div class="modal-box">
+        <p class="modal-title"><i class="bi bi-cash-coin me-2"></i>Registrar abono</p>
+        <p style="font-size:0.8rem;color:#6b7280;margin:-0.5rem 0 1rem" id="modal-deuda-info">—</p>
+
+        <div class="form-group">
+            <label class="form-label">Monto *</label>
+            <input type="number" id="ab-monto" class="form-input" placeholder="0.00" min="0.01" step="0.01" />
+            <div style="margin-top:0.4rem;display:flex;gap:0.3rem;flex-wrap:wrap">
+                <button class="btn-pago" onclick="pRapido(25)" style="padding:.25rem .65rem;border:1px solid #e5e7eb;border-radius:6px;font-size:.72rem;cursor:pointer;background:transparent">25%</button>
+                <button class="btn-pago" onclick="pRapido(50)" style="padding:.25rem .65rem;border:1px solid #e5e7eb;border-radius:6px;font-size:.72rem;cursor:pointer;background:transparent">50%</button>
+                <button class="btn-pago" onclick="pRapido(75)" style="padding:.25rem .65rem;border:1px solid #e5e7eb;border-radius:6px;font-size:.72rem;cursor:pointer;background:transparent">75%</button>
+                <button class="btn-pago" onclick="pRapido(100)" style="padding:.25rem .65rem;border:1px solid #e5e7eb;border-radius:6px;font-size:.72rem;cursor:pointer;background:transparent">Saldo total</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Método de pago</label>
+            <select id="ab-metodo" class="form-input">
+                <option value="efectivo">Efectivo</option>
+                <option value="tarjeta">Tarjeta</option>
+                <option value="transferencia">Transferencia</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Notas <span style="color:#9ca3af">(opcional)</span></label>
+            <input type="text" id="ab-notas" class="form-input" placeholder="Observación del abono…" />
+        </div>
+        <div class="modal-actions">
+            <button class="btn-cancelar" onclick="cerrarModalAbono()">Cancelar</button>
+            <button class="btn-confirmar" id="btn-confirmar-abono" onclick="confirmarAbono()">
+                <i class="bi bi-check-lg"></i> Confirmar abono
+            </button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        /* ═══════════════════════════════════════════════════════════
+           ESTADO GLOBAL
+        ═══════════════════════════════════════════════════════════ */
+        let clienteData = null;         // Toda la respuesta del API
+        let deudaAbonar = null;         // Deuda seleccionada para abonar
+        let filtroActual = 'todas';
+
+        // Soporta: ?clienteId=xxx  O  ?deudaId=xxx (para compatibilidad con el Index existente)
+        const params    = new URLSearchParams(window.location.search);
+        const clienteId = params.get('clienteId');
+        const deudaId   = params.get('deudaId');   // si llega con deudaId, buscamos primero el clienteId
+
+        /* ═══════════════════════════════════════════════════════════
+           INICIALIZACIÓN
+        ═══════════════════════════════════════════════════════════ */
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (clienteId) {
+                await cargarHistorialCliente(clienteId);
+            } else if (deudaId) {
+                // Compatibilidad: si vienen con deudaId, primero obtenemos el clienteId
+                await resolverClienteDesdeDeuda(deudaId);
+            } else {
+                mostrarError('ID de cliente no especificado');
+            }
+        });
+
+        async function resolverClienteDesdeDeuda(dId) {
+            try {
+                const r = await fetch(`/api/HistorialDeuda/${dId}`);
+                const d = await r.json();
+                if (!d.success) throw new Error(d.message);
+                const cid = d.deuda?.cliente?.id ?? d.deuda?.Cliente?.id ?? d.deuda?.Cliente?.Id;
+                if (!cid) throw new Error('No se pudo determinar el cliente de la deuda');
+                await cargarHistorialCliente(cid, dId);
+            } catch(e) {
+                mostrarError(e.message);
+            }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           CARGA DE DATOS
+        ═══════════════════════════════════════════════════════════ */
+        async function cargarHistorialCliente(cid, deudaDestacadaId = null) {
+            try {
+                const r = await fetch(`/api/HistorialDeuda/cliente/${cid}`);
+                const d = await r.json();
+                if (!d.success) throw new Error(d.message);
+
+                // Normalizar deudas
+                d.deudas = (d.deudas || []).map(normalizarDeuda);
+                clienteData = d;
+
+                renderizarCliente(d, deudaDestacadaId);
+
+            } catch(e) {
+                mostrarError(e.message || 'Error al cargar historial del cliente');
+            }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           RENDERIZADO
+        ═══════════════════════════════════════════════════════════ */
+        function renderizarCliente(d, deudaDestacadaId) {
+            const cliente = d.cliente;
+            const resumen = d.resumen;
+
+            // Breadcrumb
+            document.getElementById('bc-cliente').textContent = cliente.nombre || 'Cliente';
+
+            // Avatar e info
+            const iniciales = (cliente.nombre || '').split(' ')
+                .filter(Boolean).map(n => n[0]).join('').substring(0,2).toUpperCase() || '?';
+            document.getElementById('h-avatar').textContent = iniciales;
+            document.getElementById('h-nombre').textContent = cliente.nombre;
+            document.getElementById('h-cedula').textContent = `Cédula: ${cliente.cedula}`;
+
+            // Resumen financiero
+            const set = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
+            set('rs-total-deudas', resumen.totalDeudas ?? 0);
+            set('rs-activas',      resumen.deudas_activas ?? 0);
+            set('rs-pagadas',      resumen.deudas_pagadas ?? 0);
+            set('rs-saldo',        fmt(resumen.saldoPendiente ?? 0));
+            set('rs-historico',    fmt(resumen.totalHistorico ?? 0));
+            set('rs-total-pagado', fmt(resumen.totalPagado ?? 0));
+
+            // Mostrar contenido
+            document.getElementById('loading-state').style.display = 'none';
+            document.getElementById('hist-contenido').style.display = 'block';
+
+            // Activar el tab correcto visualmente y renderizar
+            document.querySelectorAll('.tab-deuda-btn').forEach(b => b.classList.remove('active'));
+            const mapa = { todas: 'tab-todas', pendiente: 'tab-pendiente', pagada: 'tab-pagada', cancelada: 'tab-cancelada' };
+            const tabEl = document.getElementById(mapa[filtroActual] || 'tab-todas');
+            if (tabEl) tabEl.classList.add('active');
+
+            renderizarDeudas(deudaDestacadaId);
+        }
+
+        function renderizarDeudas(deudaDestacadaId = null) {
+            const container = document.getElementById('lista-deudas');
+            let deudas = clienteData.deudas || [];
+
+            // Aplicar filtro de tab
+            if (filtroActual !== 'todas') {
+                deudas = deudas.filter(d => d.estado === filtroActual);
+            }
+
+            if (deudas.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="bi bi-inbox" style="font-size:2rem"></i>
+                        <p style="margin-top:0.75rem">
+                            ${filtroActual === 'todas'
+                                ? 'Este cliente no tiene deudas registradas'
+                                : `No hay deudas con estado "${filtroActual}"`}
+                        </p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = deudas.map(deuda => {
+                const pct     = deuda.montoTotal > 0 ? Math.min(100, (deuda.montoPagado / deuda.montoTotal) * 100) : 0;
+                const isPagada = deuda.estado === 'pagada';
+                const estaAbierta = deuda.id === deudaDestacadaId;
+
+                return `
+                <div class="deuda-card ${estaAbierta ? 'open' : ''}" id="card-${deuda.id}">
+                    <!-- Encabezado colapsable -->
+                    <div class="deuda-card-header" onclick="toggleDeuda('${deuda.id}')">
+                        <div style="flex:1;min-width:0">
+                            <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;margin-bottom:0.3rem">
+                                <span class="deuda-concepto">${esc(deuda.concepto)}</span>
+                                <span class="estado-chip ${deuda.estado}">${capitalizar(deuda.estado)}</span>
+                            </div>
+                            <div class="deuda-fecha">
+                                <i class="bi bi-calendar3" style="font-size:0.7rem"></i>
+                                Creada: ${fmtFecha(deuda.fechaCreacion)}
+                                ${deuda.fechaVencimiento
+                                    ? ` &nbsp;·&nbsp; Vence: ${fmtFecha(deuda.fechaVencimiento)}`
+                                    : ''}
+                            </div>
+                            <div class="deuda-progress">
+                                <div class="deuda-progress-bg">
+                                    <div class="deuda-progress-fill ${pct >= 100 ? 'completo' : ''}"
+                                         style="width:${pct.toFixed(1)}%"></div>
+                                </div>
+                                <div class="deuda-progress-pct">${pct.toFixed(0)}% pagado</div>
+                            </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:1rem;flex-shrink:0">
+                            <div class="deuda-montos">
+                                <div class="deuda-monto-item">
+                                    <div class="deuda-monto-label">Total</div>
+                                    <div class="deuda-monto-valor">${fmt(deuda.montoTotal)}</div>
+                                </div>
+                                <div class="deuda-monto-item">
+                                    <div class="deuda-monto-label">Pagado</div>
+                                    <div class="deuda-monto-valor saldo-pagado">${fmt(deuda.montoPagado)}</div>
+                                </div>
+                                <div class="deuda-monto-item">
+                                    <div class="deuda-monto-label">Saldo</div>
+                                    <div class="deuda-monto-valor ${isPagada ? 'saldo-pagado' : 'saldo-pendiente'}">
+                                        ${fmt(deuda.saldo)}
+                                    </div>
+                                </div>
+                            </div>
+                            <svg class="collapse-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Cuerpo colapsable -->
+                    <div class="deuda-card-body">
+                        ${!isPagada && deuda.estado !== 'cancelada' ? `
+                        <div class="deuda-actions">
+                            <button class="btn-accion primary" onclick="abrirModalAbono('${deuda.id}')">
+                                <i class="bi bi-cash-coin"></i> Registrar abono
+                            </button>
+                        </div>` : ''}
+
+                        <p class="section-label">
+                            Historial de abonos
+                            ${deuda.totalAbonos > 0 ? `<span style="margin-left:0.5rem;background:#e0e7ff;color:#4f46e5;padding:.1rem .5rem;border-radius:99px;font-size:.65rem">${deuda.totalAbonos}</span>` : ''}
+                        </p>
+                        ${renderizarTimeline(deuda.abonos)}
+                    </div>
+                </div>`;
+            }).join('');
+
+            // Scroll automático a la tarjeta destacada (la que se acaba de abonar)
+            if (deudaDestacadaId) {
+                requestAnimationFrame(() => {
+                    const card = document.getElementById(`card-${deudaDestacadaId}`);
+                    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                });
+            }
+        }
+
+        function renderizarTimeline(abonos) {
+            if (!abonos || !abonos.length) {
+                return `<div class="no-abonos">
+                    <i class="bi bi-inbox" style="font-size:1.5rem"></i>
+                    <p style="margin-top:0.5rem">Sin abonos registrados</p>
+                </div>`;
+            }
+            const orden = [...abonos].reverse();
+            return `<div class="timeline">
+                ${orden.map(a => `
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="tl-header">
+                        <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap">
+                            <span class="tl-monto">+${fmt(a.monto)}</span>
+                            <span class="tl-badge-metodo">
+                                <i class="bi bi-${iconoMetodo(a.metodoPago)}"></i>
+                                ${esc(a.metodoPago)}
+                            </span>
+                        </div>
+                        <span class="tl-fecha">${fmtFechaHora(a.fecha)}</span>
+                    </div>
+                    <div class="tl-meta">
+                        ${a.descripcion ? `<span>${esc(a.descripcion)}</span> &nbsp; ` : ''}
+                        <span class="tl-saldo-tras">Saldo → ${fmt(a.saldoTrasAbono)}</span>
+                    </div>
+                </div>`).join('')}
+            </div>`;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           COLLAPSE
+        ═══════════════════════════════════════════════════════════ */
+        function toggleDeuda(deudaId) {
+            const card = document.getElementById(`card-${deudaId}`);
+            if (card) card.classList.toggle('open');
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           FILTROS DE TAB
+        ═══════════════════════════════════════════════════════════ */
+        function filtrarDeudas(filtro) {
+            filtroActual = filtro;
+            document.querySelectorAll('.tab-deuda-btn').forEach(b => b.classList.remove('active'));
+            const mapa = { todas: 'tab-todas', pendiente: 'tab-pendiente', pagada: 'tab-pagada', cancelada: 'tab-cancelada' };
+            const tabId = mapa[filtro];
+            if (tabId) {
+                const el = document.getElementById(tabId);
+                if (el) el.classList.add('active');
+            }
+            renderizarDeudas();
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           MODAL ABONO
+        ═══════════════════════════════════════════════════════════ */
+        function abrirModalAbono(dId) {
+            deudaAbonar = (clienteData.deudas || []).find(d => d.id === dId);
+            if (!deudaAbonar) return;
+            document.getElementById('modal-deuda-info').textContent =
+                `${deudaAbonar.concepto} — Saldo: ${fmt(deudaAbonar.saldo)}`;
+            document.getElementById('ab-monto').value = '';
+            document.getElementById('ab-notas').value = '';
+            document.getElementById('modal-abono').classList.add('open');
+            document.getElementById('ab-monto').focus();
+        }
+
+        function cerrarModalAbono() {
+            document.getElementById('modal-abono').classList.remove('open');
+            deudaAbonar = null;
+        }
+
+        function pRapido(pct) {
+            if (!deudaAbonar) return;
+            document.getElementById('ab-monto').value =
+                (deudaAbonar.saldo * pct / 100).toFixed(2);
+        }
+
+        async function confirmarAbono() {
+            const monto  = parseFloat(document.getElementById('ab-monto').value);
+            const metodo = document.getElementById('ab-metodo').value;
+            const notas  = document.getElementById('ab-notas').value.trim();
+
+            if (!monto || monto <= 0)
+                return toast('El monto debe ser mayor a 0', 'warning');
+            if (deudaAbonar && monto > deudaAbonar.saldo)
+                return toast(`El monto supera el saldo (${fmt(deudaAbonar.saldo)})`, 'warning');
+
+            const btn = document.getElementById('btn-confirmar-abono');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Registrando…';
+
+            // Guardar el id de la deuda antes de cerrar el modal
+            const deudaIdAbonar = deudaAbonar.id;
+
+            try {
+                const r = await fetch('/api/HistorialDeuda/abonar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        deudaId:    deudaIdAbonar,
+                        monto,
+                        metodoPago: metodo,
+                        notas:      notas || null
+                    })
+                });
+                const d = await r.json();
+                if (!d.success) throw new Error(d.message);
+
+                const quedoPagada = d.estadoDeuda === 'pagada';
+
+                // Cerrar modal antes de recargar
+                cerrarModalAbono();
+                toast(d.message, 'success');
+
+                // Si quedó pagada: cambiar al tab "pagada" para verla ahí
+                if (quedoPagada) filtroActual = 'pagada';
+
+                // Recargar historial y reabrir la tarjeta de esa deuda
+                const cid = clienteData?.cliente?.id ?? clienteData?.cliente?.Id;
+                if (cid) await cargarHistorialCliente(cid, deudaIdAbonar);
+
+            } catch(e) {
+                toast(e.message || 'Error al registrar abono', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-check-lg"></i> Confirmar abono';
+            }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           NORMALIZACIÓN PascalCase → camelCase
+        ═══════════════════════════════════════════════════════════ */
+        function normalizarDeuda(d) {
+            if (!d) return d;
+            const abonos = (d.abonos ?? d.Abonos ?? []).map(a => ({
+                id:            a.id            ?? a.Id,
+                monto:         a.monto         ?? a.Monto         ?? 0,
+                metodoPago:    a.metodoPago    ?? a.MetodoPago    ?? 'efectivo',
+                descripcion:   a.descripcion   ?? a.Descripcion   ?? '',
+                fecha:         a.fecha         ?? a.Fecha,
+                saldoTrasAbono:a.saldoTrasAbono ?? a.SaldoTrasAbono ?? 0
+            }));
+            return {
+                id:               d.id               ?? d.Id,
+                estado:           (d.estado           ?? d.Estado           ?? 'pendiente').toLowerCase(),
+                concepto:         d.concepto          ?? d.Concepto          ?? 'Sin concepto',
+                montoTotal:       d.montoTotal        ?? d.MontoTotal        ?? 0,
+                montoPagado:      d.montoPagado       ?? d.MontoPagado       ?? 0,
+                saldo:            d.saldo             ?? d.Saldo             ?? 0,
+                fechaCreacion:    d.fechaCreacion     ?? d.FechaCreacion,
+                fechaVencimiento: d.fechaVencimiento  ?? d.FechaVencimiento  ?? null,
+                totalAbonos:      d.totalAbonos       ?? d.TotalAbonos       ?? abonos.length,
+                totalPagadoDeuda: d.totalPagadoDeuda  ?? 0,
+                abonos
+            };
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           UTILIDADES
+        ═══════════════════════════════════════════════════════════ */
+        function fmt(n) {
+            return new Intl.NumberFormat('es-CO', {
+                style: 'currency', currency: 'COP', minimumFractionDigits: 0
+            }).format(n || 0);
+        }
+        function fmtFecha(iso) {
+            if (!iso) return '—';
+            const partes = iso.split('T')[0].split('-');
+            return `${partes[2]}/${partes[1]}/${partes[0]}`;
+        }
+        function fmtFechaHora(iso) {
+            if (!iso) return '—';
+            try {
+                const [fecha, hora] = iso.split('T');
+                const [y, m, d] = fecha.split('-');
+                const [hh, mm] = (hora || '00:00').split(':');
+                return `${d}/${m}/${y} ${hh}:${mm}`;
+            } catch { return iso; }
+        }
+        function esc(s) {
+            const div = document.createElement('div');
+            div.textContent = s || '';
+            return div.innerHTML;
+        }
+        function iconoMetodo(m) {
+            const map = { efectivo: 'cash', tarjeta: 'credit-card', transferencia: 'bank' };
+            return map[m] || 'cash';
+        }
+        function capitalizar(s) {
+            return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+        }
+        function mostrarError(msg) {
+            document.getElementById('loading-state').innerHTML = `
+                <div style="color:#ef4444">
+                    <i class="bi bi-exclamation-circle" style="font-size:2rem"></i>
+                    <p style="margin-top:0.75rem">${esc(msg || 'Error al cargar historial')}</p>
+                    <button onclick="window.history.back()"
+                            style="margin-top:1rem;padding:.5rem 1rem;border:1px solid #e5e7eb;border-radius:6px;cursor:pointer">
+                        Volver
+                    </button>
+                </div>`;
+        }
+
+        let toastTimer = null;
+        function toast(msg, tipo = 'success') {
+            const t = document.getElementById('toast-hist');
+            t.textContent = msg;
+            t.className = `show ${tipo}`;
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+        }
+
+        // Cerrar modal con Escape o click fuera
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarModalAbono(); });
+        document.getElementById('modal-abono').addEventListener('click', function(e) {
+            if (e.target === this) cerrarModalAbono();
+        });
+    </script>
+}

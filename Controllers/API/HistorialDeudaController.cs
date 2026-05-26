@@ -6,8 +6,16 @@ using VidaFitBackend.Models;
 namespace VidaFit.Controllers.API
 {
     /// <summary>
-    /// API: Historial completo de una deuda — abonos, cambio de estado, pago desde esta vista.
-    /// Rutas base: /api/HistorialDeuda
+    /// API: Historial de deudas de un cliente — todas sus deudas (activas y pagadas)
+    /// y el detalle de abonos de cada una.
+    ///
+    /// Rutas:
+    ///   GET  /api/HistorialDeuda/{deudaId}              → detalle de UNA deuda + sus abonos
+    ///   GET  /api/HistorialDeuda/cliente/{clienteId}    → TODAS las deudas del cliente
+    ///   POST /api/HistorialDeuda/abonar                 → registrar abono desde la vista de historial
+    ///   PATCH /api/HistorialDeuda/{deudaId}/estado      → cambiar estado manualmente
+    ///
+    /// NOTA: El estado "vencida" fue eliminado. Solo existen: pendiente, pagada, cancelada.
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
@@ -40,28 +48,8 @@ namespace VidaFit.Controllers.API
         }
 
         // ─────────────────────────────────────────────
-        // HELPER: Calcular estado real (no confiar solo en BD)
-        // ✅ FIX CRÍTICO: Una deuda "pendiente" que ya pasó su fecha
-        //    se devuelve como "vencida" sin importar lo que diga la BD.
-        // ─────────────────────────────────────────────
-        private static string CalcularEstadoReal(DeudaCliente deuda)
-        {
-            if (deuda.Estado == "pagada" || deuda.Estado == "cancelada")
-                return deuda.Estado;
-
-            if (deuda.FechaVencimiento.HasValue &&
-                deuda.FechaVencimiento.Value.Date < DateTime.Now.Date &&
-                deuda.Saldo > 0)
-            {
-                return "vencida";
-            }
-
-            return deuda.Estado;
-        }
-
-        // ─────────────────────────────────────────────
         // GET /api/HistorialDeuda/{deudaId}
-        // Devuelve la deuda completa + todos sus abonos ordenados cronológicamente
+        // Devuelve una deuda completa + todos sus abonos en orden cronológico
         // ─────────────────────────────────────────────
         [HttpGet("{deudaId}")]
         public async Task<IActionResult> GetHistorial(Guid deudaId)
@@ -74,15 +62,6 @@ namespace VidaFit.Controllers.API
 
                 if (deuda == null)
                     return NotFound(new { success = false, message = "Deuda no encontrada" });
-
-                // ✅ FIX: Si en BD dice "pendiente" pero ya venció, actualizar automáticamente
-                var estadoReal = CalcularEstadoReal(deuda);
-                if (deuda.Estado != estadoReal)
-                {
-                    deuda.Estado = estadoReal;
-                    await _context.SaveChangesAsync();
-                    _logger.LogInformation("🔄 Deuda {DeudaId} actualizada automáticamente a estado: {Estado}", deudaId, estadoReal);
-                }
 
                 var abonos = await _context.AbonosDeuda
                     .Where(a => a.DeudaId == deudaId)
@@ -113,8 +92,6 @@ namespace VidaFit.Controllers.API
                     };
                 }).ToList();
 
-                // ✅ FIX: Usar estado real calculado (no el que tenía en BD antes)
-                var estaVencida = estadoReal == "vencida";
                 var diasParaVencer = deuda.FechaVencimiento.HasValue
                     ? (int)(deuda.FechaVencimiento.Value.Date - DateTime.Now.Date).TotalDays
                     : (int?)null;
@@ -125,8 +102,7 @@ namespace VidaFit.Controllers.API
                     deuda = new
                     {
                         deuda.Id,
-                        Estado = estadoReal,                     // ← siempre el real
-                        EstadoBD = deuda.Estado,                 // ← el de BD (referencia)
+                        Estado = deuda.Estado,
                         deuda.Concepto,
                         deuda.MontoTotal,
                         deuda.MontoPagado,
@@ -135,7 +111,6 @@ namespace VidaFit.Controllers.API
                         fechaVencimiento = deuda.FechaVencimiento.HasValue
                             ? deuda.FechaVencimiento.Value.ToString("yyyy-MM-ddTHH:mm:ss")
                             : (string?)null,
-                        estaVencida,
                         diasParaVencer,
                         cliente = new
                         {
@@ -153,6 +128,217 @@ namespace VidaFit.Controllers.API
             {
                 _logger.LogError(ex, "Error al obtener historial de deuda {DeudaId}", deudaId);
                 return StatusCode(500, new { success = false, message = "Error al obtener historial", error = ex.Message });
+            }
+        }
+
+        // ─────────────────────────────────────────────
+        // GET /api/HistorialDeuda/pagadas
+        // Devuelve todas las deudas pagadas de todos los clientes,
+        // con búsqueda por nombre/cédula/concepto y paginación.
+        // ─────────────────────────────────────────────
+        [HttpGet("pagadas")]
+        public async Task<IActionResult> GetDeudasPagadas(
+            [FromQuery] string? busqueda = null,
+            [FromQuery] int pagina = 1,
+            [FromQuery] int porPagina = 50)
+        {
+            try
+            {
+                var query = _context.DeudasClientes
+                    .Include(d => d.Cliente)
+                    .Where(d => d.Estado == "pagada")
+                    .AsQueryable();
+
+                if (!string.IsNullOrWhiteSpace(busqueda))
+                {
+                    var b = busqueda.ToLower();
+                    query = query.Where(d =>
+                        d.Cliente.Nombre.ToLower().Contains(b) ||
+                        d.Cliente.Apellido.ToLower().Contains(b) ||
+                        d.Cliente.Cedula.ToLower().Contains(b) ||
+                        d.Concepto.ToLower().Contains(b));
+                }
+
+                var total = await query.CountAsync();
+                var deudas = await query
+                    .OrderByDescending(d => d.FechaCreacion)
+                    .Skip((pagina - 1) * porPagina)
+                    .Take(porPagina)
+                    .ToListAsync();
+
+                // Traer abonos de estas deudas
+                var deudaIds = deudas.Select(d => d.Id).ToList();
+                var todosAbonos = await _context.AbonosDeuda
+                    .Where(a => deudaIds.Contains(a.DeudaId))
+                    .OrderBy(a => a.FechaAbono)
+                    .ToListAsync();
+                var abonosPorDeuda = todosAbonos
+                    .GroupBy(a => a.DeudaId)
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+                var items = deudas.Select(d =>
+                {
+                    var abonos = abonosPorDeuda.TryGetValue(d.Id, out var lista) ? lista : new();
+                    decimal saldoAcum = d.MontoTotal;
+                    var abonosConSaldo = abonos.Select(a =>
+                    {
+                        saldoAcum -= a.Monto;
+                        return new
+                        {
+                            a.Id,
+                            a.Monto,
+                            a.MetodoPago,
+                            descripcion = a.Notas,
+                            fecha = a.FechaAbono.ToString("yyyy-MM-ddTHH:mm:ss"),
+                            saldoTrasAbono = saldoAcum < 0 ? 0 : saldoAcum
+                        };
+                    }).ToList();
+
+                    return new
+                    {
+                        d.Id,
+                        d.Estado,
+                        d.Concepto,
+                        d.MontoTotal,
+                        d.MontoPagado,
+                        d.Saldo,
+                        fechaCreacion = d.FechaCreacion.ToString("yyyy-MM-ddTHH:mm:ss"),
+                        fechaVencimiento = d.FechaVencimiento.HasValue
+                            ? d.FechaVencimiento.Value.ToString("yyyy-MM-ddTHH:mm:ss")
+                            : (string?)null,
+                        cliente = new
+                        {
+                            d.Cliente.Id,
+                            nombre = $"{d.Cliente.Nombre} {d.Cliente.Apellido}".Trim(),
+                            cedula = d.Cliente.Cedula
+                        },
+                        abonos = abonosConSaldo,
+                        totalAbonos = abonos.Count,
+                        totalPagadoDeuda = abonos.Sum(a => a.Monto)
+                    };
+                }).ToList();
+
+                return Ok(new
+                {
+                    success = true,
+                    items,
+                    total,
+                    pagina,
+                    porPagina,
+                    totalPaginas = (int)Math.Ceiling((double)total / porPagina),
+                    totalMonto = items.Sum(d => d.MontoTotal)
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener deudas pagadas");
+                return StatusCode(500, new { success = false, message = "Error al obtener deudas pagadas", error = ex.Message });
+            }
+        }
+
+        // ─────────────────────────────────────────────
+        // GET /api/HistorialDeuda/cliente/{clienteId}
+        // Devuelve TODAS las deudas del cliente (pendientes + pagadas + canceladas)
+        // junto con sus abonos y un resumen financiero global.
+        // ─────────────────────────────────────────────
+        [HttpGet("cliente/{clienteId}")]
+        public async Task<IActionResult> GetHistorialCliente(Guid clienteId)
+        {
+            try
+            {
+                var cliente = await _context.Clientes.FindAsync(clienteId);
+                if (cliente == null)
+                    return NotFound(new { success = false, message = "Cliente no encontrado" });
+
+                // Traer todas las deudas del cliente, más recientes primero
+                var deudas = await _context.DeudasClientes
+                    .Where(d => d.ClienteId == clienteId)
+                    .OrderByDescending(d => d.FechaCreacion)
+                    .ToListAsync();
+
+                // Para cada deuda, traer sus abonos
+                var deudaIds = deudas.Select(d => d.Id).ToList();
+
+                var todosAbonos = await _context.AbonosDeuda
+                    .Where(a => deudaIds.Contains(a.DeudaId))
+                    .OrderBy(a => a.FechaAbono)
+                    .ToListAsync();
+
+                var abonosPorDeuda = todosAbonos
+                    .GroupBy(a => a.DeudaId)
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+                var deudaItems = deudas.Select(d =>
+                {
+                    var abonos = abonosPorDeuda.TryGetValue(d.Id, out var lista) ? lista : new();
+
+                    // Saldo progresivo para cada abono
+                    decimal saldoAcum = d.MontoTotal;
+                    var abonosConSaldo = abonos.Select(a =>
+                    {
+                        saldoAcum -= a.Monto;
+                        return new
+                        {
+                            a.Id,
+                            a.Monto,
+                            a.MetodoPago,
+                            descripcion = a.Notas,
+                            fecha = a.FechaAbono.ToString("yyyy-MM-ddTHH:mm:ss"),
+                            saldoTrasAbono = saldoAcum < 0 ? 0 : saldoAcum
+                        };
+                    }).ToList();
+
+                    return new
+                    {
+                        d.Id,
+                        d.Estado,
+                        d.Concepto,
+                        d.MontoTotal,
+                        d.MontoPagado,
+                        d.Saldo,
+                        fechaCreacion = d.FechaCreacion.ToString("yyyy-MM-ddTHH:mm:ss"),
+                        fechaVencimiento = d.FechaVencimiento.HasValue
+                            ? d.FechaVencimiento.Value.ToString("yyyy-MM-ddTHH:mm:ss")
+                            : (string?)null,
+                        abonos = abonosConSaldo,
+                        totalAbonos = abonos.Count,
+                        totalPagadoDeuda = abonos.Sum(a => a.Monto)
+                    };
+                }).ToList();
+
+                // Resumen financiero del cliente
+                var totalDeudas = deudas.Count;
+                var deudas_pagadas = deudas.Count(d => d.Estado == "pagada");
+                var deudas_activas = deudas.Count(d => d.Estado == "pendiente");
+                var saldoPendiente = deudas.Where(d => d.Estado == "pendiente").Sum(d => d.Saldo);
+                var totalHistorico = deudas.Sum(d => d.MontoTotal);
+                var totalPagado = deudas.Sum(d => d.MontoPagado);
+
+                return Ok(new
+                {
+                    success = true,
+                    cliente = new
+                    {
+                        cliente.Id,
+                        nombre = $"{cliente.Nombre} {cliente.Apellido}".Trim(),
+                        cedula = cliente.Cedula
+                    },
+                    resumen = new
+                    {
+                        totalDeudas,
+                        deudas_pagadas,
+                        deudas_activas,
+                        saldoPendiente,
+                        totalHistorico,
+                        totalPagado
+                    },
+                    deudas = deudaItems
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener historial del cliente {ClienteId}", clienteId);
+                return StatusCode(500, new { success = false, message = "Error al obtener historial del cliente", error = ex.Message });
             }
         }
 
@@ -234,12 +420,7 @@ namespace VidaFit.Controllers.API
                     deuda.Estado = "pagada";
                     _logger.LogInformation("✅ Deuda {DeudaId} marcada como PAGADA desde historial", deuda.Id);
                 }
-                else
-                {
-                    // ✅ FIX: Recalcular estado real después del abono
-                    var estadoReal = CalcularEstadoReal(deuda);
-                    deuda.Estado = estadoReal;
-                }
+                // Estado permanece "pendiente" si aún hay saldo — sin lógica de "vencida"
 
                 await _context.SaveChangesAsync();
 
@@ -271,14 +452,16 @@ namespace VidaFit.Controllers.API
 
         // ─────────────────────────────────────────────
         // PATCH /api/HistorialDeuda/{deudaId}/estado
-        // Cambia el estado de la deuda manualmente
+        // Cambia el estado de la deuda manualmente.
+        // Estados válidos: pendiente, pagada, cancelada (ya no existe "vencida").
         // ─────────────────────────────────────────────
         [HttpPatch("{deudaId}/estado")]
         public async Task<IActionResult> CambiarEstado(Guid deudaId, [FromBody] CambiarEstadoRequest request)
         {
             try
             {
-                var estadosValidos = new[] { "pendiente", "vencida", "pagada", "cancelada" };
+                // "vencida" eliminado de los estados válidos
+                var estadosValidos = new[] { "pendiente", "pagada", "cancelada" };
 
                 if (string.IsNullOrWhiteSpace(request.NuevoEstado) || !estadosValidos.Contains(request.NuevoEstado))
                     return BadRequest(new
