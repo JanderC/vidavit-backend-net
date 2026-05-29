@@ -1,8 +1,945 @@
 ﻿@{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Caja Fuerte";
-    ViewData["Subtitle"] = "Gestión de fondos del negocio - TAURO GYM";
+    ViewData["Subtitle"] = "Gestión de fondos del negocio - POWER FITNESS";
 }
+
+@* =====================================================
+   TAURO GYM — ESTILOS CAJA FUERTE
+   Paleta: Amber / Emerald / Blue / Red sobre fondo oscuro
+   Sin dependencias de internet — CSS puro
+   ===================================================== *@
+<style>
+    /* ─── Variables de marca ─── */
+    :root {
+        --cf-dark: #060B18;
+        --cf-dark-card: #0D1526;
+        --cf-dark-card2: #111827;
+        --cf-border: #1E2D4A;
+        --cf-border-b: rgba(59,130,246,.18);
+        --cf-text: #E2E8F0;
+        --cf-text-muted: #64748B;
+        --cf-text-soft: #94A3B8;
+        /* Colores funcionales */
+        --cf-amber: #F59E0B;
+        --cf-amber-light: #FCD34D;
+        --cf-amber-dark: #92400E;
+        --cf-emerald: #10B981;
+        --cf-emerald-d: #065F46;
+        --cf-blue: #3B82F6;
+        --cf-blue-bright: #60A5FA;
+        --cf-blue-deep: #1E3A8A;
+        --cf-red: #EF4444;
+        --cf-red-light: #F87171;
+        --cf-orange: #F97316;
+        --cf-purple: #7C3AED;
+        --cf-teal: #0D9488;
+    }
+
+    /* ─── Contenedor raíz ─── */
+    #modal-auth,
+    #contenido-principal {
+        font-family: inherit;
+    }
+
+        /* ══════════════════════════════════════════
+           MODAL DE AUTENTICACIÓN
+        ══════════════════════════════════════════ */
+        #modal-auth > div {
+            background: var(--cf-dark-card) !important;
+            border-color: var(--cf-amber) !important;
+            box-shadow: 0 0 0 1px var(--cf-border), 0 24px 60px rgba(0,0,0,.6);
+        }
+
+        #modal-auth h2 {
+            color: var(--cf-text) !important;
+        }
+
+        #modal-auth p {
+            color: var(--cf-text-muted) !important;
+        }
+
+        #modal-auth .w-16 {
+            background: rgba(245,158,11,.12) !important;
+        }
+
+        #modal-auth #auth-password {
+            background: var(--cf-dark-card2) !important;
+            border-color: var(--cf-border) !important;
+            color: var(--cf-text) !important;
+        }
+
+            #modal-auth #auth-password:focus {
+                border-color: var(--cf-amber) !important;
+                box-shadow: 0 0 0 3px rgba(245,158,11,.18) !important;
+                outline: none;
+            }
+
+        #modal-auth button[onclick="verificarAuth()"] {
+            background: var(--cf-amber) !important;
+            color: #000 !important;
+            border: none;
+            font-weight: 900;
+            transition: background .2s, transform .15s;
+        }
+
+            #modal-auth button[onclick="verificarAuth()"]:hover {
+                background: var(--cf-amber-light) !important;
+                transform: translateY(-1px);
+            }
+
+        /* ══════════════════════════════════════════
+           HEADER PRINCIPAL
+        ══════════════════════════════════════════ */
+        #contenido-principal h2.text-2xl {
+            color: var(--cf-text) !important;
+        }
+
+        #contenido-principal p.text-sm.text-gray-500 {
+            color: var(--cf-text-muted) !important;
+        }
+
+    #ultima-actualizacion {
+        color: var(--cf-amber) !important;
+    }
+
+    /* Botones de acción del header */
+    button[onclick="abrirModalIngreso()"] {
+        background: var(--cf-emerald) !important;
+        border: none;
+        color: #fff !important;
+        transition: background .2s, transform .15s, box-shadow .2s;
+    }
+
+        button[onclick="abrirModalIngreso()"]:hover {
+            background: #059669 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(16,185,129,.3);
+        }
+
+    button[onclick="abrirModalEgreso()"] {
+        background: var(--cf-red) !important;
+        border: none;
+        color: #fff !important;
+        transition: background .2s, transform .15s, box-shadow .2s;
+    }
+
+        button[onclick="abrirModalEgreso()"]:hover {
+            background: #DC2626 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(239,68,68,.3);
+        }
+
+    button[onclick="abrirModalTransferencia()"] {
+        background: var(--cf-blue) !important;
+        border: none;
+        color: #fff !important;
+        transition: background .2s, transform .15s, box-shadow .2s;
+    }
+
+        button[onclick="abrirModalTransferencia()"]:hover {
+            background: #2563EB !important;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(59,130,246,.3);
+        }
+
+    button[onclick="abrirPanelAuditoria()"] {
+        background: var(--cf-orange) !important;
+        border: none;
+        color: #fff !important;
+        transition: background .2s, transform .15s;
+    }
+
+        button[onclick="abrirPanelAuditoria()"]:hover {
+            background: #EA580C !important;
+            transform: translateY(-1px);
+        }
+
+    button[onclick="abrirModalPassword()"] {
+        background: #374151 !important;
+        border: none;
+        color: var(--cf-text-soft) !important;
+        transition: background .2s, transform .15s;
+    }
+
+        button[onclick="abrirModalPassword()"]:hover {
+            background: #4B5563 !important;
+            transform: translateY(-1px);
+        }
+
+    /* ══════════════════════════════════════════
+           TARJETAS KPI — BALANCES PRINCIPALES
+        ══════════════════════════════════════════ */
+    /* Efectivo — verde */
+    .bg-gradient-to-br.from-emerald-600.to-emerald-800 {
+        background: linear-gradient(145deg, #064E3B, #065F46) !important;
+        border: 1px solid rgba(16,185,129,.25) !important;
+        box-shadow: 0 4px 24px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.04);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .bg-gradient-to-br.from-emerald-600.to-emerald-800::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--cf-emerald), #34D399);
+            border-radius: 1rem 1rem 0 0;
+        }
+
+        .bg-gradient-to-br.from-emerald-600.to-emerald-800 .bg-emerald-500\/50 {
+            background: rgba(16,185,129,.15) !important;
+        }
+    /* Transferencias — azul */
+    .bg-gradient-to-br.from-blue-600.to-blue-800 {
+        background: linear-gradient(145deg, #1E3A8A, #1D4ED8) !important;
+        border: 1px solid rgba(59,130,246,.25) !important;
+        box-shadow: 0 4px 24px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.04);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .bg-gradient-to-br.from-blue-600.to-blue-800::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--cf-blue), var(--cf-blue-bright));
+            border-radius: 1rem 1rem 0 0;
+        }
+
+        .bg-gradient-to-br.from-blue-600.to-blue-800 .bg-blue-500\/50 {
+            background: rgba(59,130,246,.15) !important;
+        }
+    /* Balance total — amber */
+    .bg-gradient-to-br.from-amber-500.to-amber-700 {
+        background: linear-gradient(145deg, #78350F, #92400E) !important;
+        border: 1px solid rgba(245,158,11,.3) !important;
+        box-shadow: 0 4px 24px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.04);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .bg-gradient-to-br.from-amber-500.to-amber-700::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--cf-amber), var(--cf-amber-light));
+            border-radius: 1rem 1rem 0 0;
+        }
+
+        .bg-gradient-to-br.from-amber-500.to-amber-700 .bg-amber-400\/50 {
+            background: rgba(245,158,11,.15) !important;
+        }
+
+    /* ══════════════════════════════════════════
+           CONTENEDOR DE TABS
+        ══════════════════════════════════════════ */
+    .bg-white.rounded-2xl.shadow-xl.border-2.border-gray-200 {
+        background: var(--cf-dark-card) !important;
+        border-color: var(--cf-border) !important;
+        box-shadow: 0 4px 24px rgba(0,0,0,.35) !important;
+    }
+
+    .flex.border-b-2.border-gray-200 {
+        border-color: var(--cf-border) !important;
+        background: var(--cf-dark-card2);
+    }
+
+    /* Tab activo */
+    .tab-cf-btn {
+        color: var(--cf-text-muted) !important;
+        border-color: transparent !important;
+        background: transparent !important;
+        transition: color .2s, border-color .2s, background .2s;
+    }
+
+        .tab-cf-btn.border-amber-600,
+        #tab-movimientos.border-amber-600 {
+            border-color: var(--cf-amber) !important;
+            background: rgba(245,158,11,.08) !important;
+            color: var(--cf-amber) !important;
+        }
+
+        .tab-cf-btn:hover {
+            background: rgba(255,255,255,.04) !important;
+            color: var(--cf-text-soft) !important;
+        }
+
+    /* ══════════════════════════════════════════
+           SECCIÓN FILTROS
+        ══════════════════════════════════════════ */
+    .bg-gray-50.rounded-xl.p-4.mb-6 {
+        background: var(--cf-dark-card2) !important;
+        border-color: var(--cf-border) !important;
+    }
+
+        .bg-gray-50.rounded-xl.p-4.mb-6 label,
+        .tab-cf-content label {
+            color: var(--cf-text-muted) !important;
+        }
+    /* Botones de vista rápida */
+    .vista-btn {
+        background: var(--cf-dark-card2) !important;
+        border-color: var(--cf-border) !important;
+        color: var(--cf-text-soft) !important;
+        transition: border-color .2s, background .2s, color .2s;
+    }
+
+        .vista-btn:hover,
+        .vista-btn.border-amber-600 {
+            border-color: var(--cf-amber) !important;
+            background: rgba(245,158,11,.08) !important;
+            color: var(--cf-amber) !important;
+        }
+    /* Inputs y selects dentro del panel */
+    #contenido-principal input[type="date"],
+    #contenido-principal select,
+    #contenido-principal input[type="number"]:not(.text-xl),
+    #contenido-principal input[type="text"] {
+        background: var(--cf-dark-card2) !important;
+        border-color: var(--cf-border) !important;
+        color: var(--cf-text) !important;
+    }
+
+        #contenido-principal input[type="date"]:focus,
+        #contenido-principal select:focus {
+            border-color: var(--cf-amber) !important;
+            box-shadow: 0 0 0 3px rgba(245,158,11,.15) !important;
+            outline: none;
+        }
+    /* Botón Buscar */
+    button[onclick="buscarConRango()"] {
+        background: var(--cf-amber) !important;
+        color: #000 !important;
+        border: none;
+        font-weight: 700;
+    }
+
+        button[onclick="buscarConRango()"]:hover {
+            background: var(--cf-amber-light) !important;
+        }
+
+    button[onclick="limpiarFiltros()"] {
+        background: #374151 !important;
+        color: var(--cf-text-soft) !important;
+        border: none;
+    }
+
+        button[onclick="limpiarFiltros()"]:hover {
+            background: #4B5563 !important;
+        }
+
+    /* ══════════════════════════════════════════
+           RESUMEN DEL PERÍODO
+        ══════════════════════════════════════════ */
+    #resumen-periodo .bg-emerald-50 {
+        background: rgba(16,185,129,.07) !important;
+        border-color: rgba(16,185,129,.2) !important;
+    }
+
+    #resumen-periodo .text-emerald-700 {
+        color: var(--cf-emerald) !important;
+    }
+
+    #resumen-periodo .bg-blue-50 {
+        background: rgba(59,130,246,.07) !important;
+        border-color: rgba(59,130,246,.2) !important;
+    }
+
+    #resumen-periodo .text-blue-700 {
+        color: var(--cf-blue-bright) !important;
+    }
+
+    #resumen-periodo .bg-red-50 {
+        background: rgba(239,68,68,.07) !important;
+        border-color: rgba(239,68,68,.2) !important;
+    }
+
+    #resumen-periodo .text-red-700 {
+        color: var(--cf-red-light) !important;
+    }
+
+    #resumen-periodo .bg-amber-50 {
+        background: rgba(245,158,11,.07) !important;
+        border-color: rgba(245,158,11,.2) !important;
+    }
+
+    #resumen-periodo .text-amber-700 {
+        color: var(--cf-amber) !important;
+    }
+
+    /* ══════════════════════════════════════════
+           ENCABEZADO DE PERÍODO (h3)
+        ══════════════════════════════════════════ */
+    #contenido-principal h3.text-base {
+        color: var(--cf-text) !important;
+    }
+
+    #label-periodo {
+        color: var(--cf-amber) !important;
+    }
+
+    #cantidad-movimientos-label {
+        background: var(--cf-dark-card2) !important;
+        color: var(--cf-text-soft) !important;
+        border: 1px solid var(--cf-border);
+    }
+
+    /* ══════════════════════════════════════════
+           LISTA DE MOVIMIENTOS (renderizada por JS)
+           Estos son los grupos de días generados dinámicamente
+        ══════════════════════════════════════════ */
+    #lista-movimientos-cf .text-gray-400 {
+        color: var(--cf-text-muted) !important;
+    }
+
+    /* Grupo día */
+    #lista-movimientos-cf .bg-white,
+    #lista-consolidados .bg-white {
+        background: var(--cf-dark-card) !important;
+        border-color: var(--cf-border) !important;
+    }
+    /* Filas de movimientos en la tabla */
+    #lista-movimientos-cf .text-gray-800,
+    #lista-consolidados .text-gray-800 {
+        color: var(--cf-text) !important;
+    }
+
+    #lista-movimientos-cf .text-gray-600,
+    #lista-consolidados .text-gray-600 {
+        color: var(--cf-text-muted) !important;
+    }
+
+    #lista-movimientos-cf .text-gray-500,
+    #lista-consolidados .text-gray-500 {
+        color: var(--cf-text-muted) !important;
+    }
+
+    #lista-movimientos-cf .border-gray-100,
+    #lista-consolidados .border-gray-100 {
+        border-color: var(--cf-border) !important;
+    }
+
+    #lista-movimientos-cf .bg-gray-50,
+    #lista-consolidados .bg-gray-50 {
+        background: var(--cf-dark-card2) !important;
+    }
+
+    #lista-movimientos-cf .hover\:bg-gray-50:hover,
+    #lista-consolidados .hover\:bg-gray-50:hover {
+        background: rgba(255,255,255,.03) !important;
+    }
+
+    /* ══════════════════════════════════════════
+           TAB CONSOLIDADOS
+        ══════════════════════════════════════════ */
+    #content-consolidados h3 {
+        color: var(--cf-text) !important;
+    }
+
+    #content-consolidados p {
+        color: var(--cf-text-muted) !important;
+    }
+
+    button[onclick="abrirModalPreview()"] {
+        background: var(--cf-teal) !important;
+        border: none;
+        color: #fff !important;
+        transition: background .2s, transform .15s;
+    }
+
+        button[onclick="abrirModalPreview()"]:hover {
+            background: #0F766E !important;
+            transform: translateY(-1px);
+        }
+
+    button[onclick="abrirModalConsolidar()"] {
+        background: var(--cf-purple) !important;
+        border: none;
+        color: #fff !important;
+        transition: background .2s, transform .15s;
+    }
+
+        button[onclick="abrirModalConsolidar()"]:hover {
+            background: #6D28D9 !important;
+            transform: translateY(-1px);
+        }
+
+    /* ══════════════════════════════════════════
+           MODALES — BASE OSCURA
+        ══════════════════════════════════════════ */
+    /* Todos los paneles internos de modales */
+    #modal-ingreso > div,
+    #modal-egreso > div,
+    #modal-transferencia > div,
+    #modal-password > div,
+    #modal-consolidar > div,
+    #modal-preview > div,
+    #modal-eliminar > div,
+    #modal-detalle-dia > div {
+        background: var(--cf-dark-card) !important;
+        box-shadow: 0 24px 60px rgba(0,0,0,.6);
+    }
+    /* Títulos de modales */
+    #modal-ingreso h3,
+    #modal-egreso h3,
+    #modal-transferencia h3,
+    #modal-password h3,
+    #modal-consolidar h3,
+    #modal-preview h3,
+    #modal-eliminar h3,
+    #modal-detalle-dia h3 {
+        color: var(--cf-text) !important;
+    }
+    /* Labels dentro de modales */
+    #modal-ingreso label,
+    #modal-egreso label,
+    #modal-transferencia label,
+    #modal-password label,
+    #modal-consolidar label,
+    #modal-preview label,
+    #modal-eliminar label {
+        color: var(--cf-text-muted) !important;
+    }
+    /* Párrafos de apoyo en modales */
+    #modal-transferencia p,
+    #modal-consolidar p,
+    #modal-preview p {
+        color: var(--cf-text-muted) !important;
+    }
+    /* Inputs numéricos y de texto dentro de modales */
+    #modal-ingreso input, #modal-ingreso select, #modal-ingreso textarea,
+    #modal-egreso input, #modal-egreso select, #modal-egreso textarea,
+    #modal-transferencia input,
+    #modal-password input,
+    #modal-consolidar input, #modal-consolidar select,
+    #modal-preview input, #modal-preview select,
+    #modal-eliminar textarea {
+        background: var(--cf-dark-card2) !important;
+        border-color: var(--cf-border) !important;
+        color: var(--cf-text) !important;
+    }
+
+    /* Bordes de modales por función */
+    #modal-ingreso > div {
+        border-color: var(--cf-emerald) !important;
+    }
+
+    #modal-egreso > div {
+        border-color: var(--cf-red) !important;
+    }
+
+    #modal-transferencia > div {
+        border-color: var(--cf-blue) !important;
+    }
+
+    #modal-password > div {
+        border-color: #374151 !important;
+    }
+
+    #modal-consolidar > div {
+        border-color: var(--cf-purple) !important;
+    }
+
+    #modal-preview > div {
+        border-color: var(--cf-teal) !important;
+    }
+
+    #modal-eliminar > div {
+        border-color: var(--cf-red) !important;
+    }
+
+    #modal-detalle-dia > div {
+        border-color: var(--cf-amber) !important;
+    }
+
+    /* Focus en inputs de modales por color funcional */
+    #modal-ingreso input:focus, #modal-ingreso select:focus {
+        border-color: var(--cf-emerald) !important;
+        box-shadow: 0 0 0 3px rgba(16,185,129,.15) !important;
+        outline: none;
+    }
+
+    #modal-egreso input:focus, #modal-egreso select:focus {
+        border-color: var(--cf-red) !important;
+        box-shadow: 0 0 0 3px rgba(239,68,68,.15) !important;
+        outline: none;
+    }
+
+    #modal-transferencia input:focus {
+        border-color: var(--cf-blue) !important;
+        box-shadow: 0 0 0 3px rgba(59,130,246,.15) !important;
+        outline: none;
+    }
+
+    #modal-password input:focus {
+        border-color: #6B7280 !important;
+        box-shadow: 0 0 0 3px rgba(107,114,128,.15) !important;
+        outline: none;
+    }
+
+    #modal-consolidar input:focus, #modal-consolidar select:focus {
+        border-color: var(--cf-purple) !important;
+        box-shadow: 0 0 0 3px rgba(124,58,237,.15) !important;
+        outline: none;
+    }
+
+    #modal-preview input:focus, #modal-preview select:focus {
+        border-color: var(--cf-teal) !important;
+        box-shadow: 0 0 0 3px rgba(13,148,136,.15) !important;
+        outline: none;
+    }
+
+    /* Botones de método de pago en modales */
+    #ingreso-efectivo-btn {
+        background: rgba(16,185,129,.1) !important;
+        border-color: var(--cf-emerald) !important;
+        color: var(--cf-emerald) !important;
+    }
+
+    #egreso-efectivo-btn {
+        background: rgba(239,68,68,.1) !important;
+        border-color: var(--cf-red) !important;
+        color: var(--cf-red-light) !important;
+    }
+
+    #ingreso-transferencia-btn,
+    #egreso-transferencia-btn {
+        background: var(--cf-dark-card2) !important;
+        border-color: var(--cf-border) !important;
+        color: var(--cf-text-muted) !important;
+    }
+
+        #ingreso-transferencia-btn:hover,
+        #egreso-transferencia-btn:hover {
+            border-color: var(--cf-blue) !important;
+            background: rgba(59,130,246,.1) !important;
+            color: var(--cf-blue-bright) !important;
+        }
+
+    /* Botones de disponible en transferencia */
+    #modal-transferencia .bg-blue-50 {
+        background: rgba(59,130,246,.08) !important;
+        border-color: rgba(59,130,246,.2) !important;
+    }
+
+    #modal-transferencia .text-blue-700 {
+        color: var(--cf-blue-bright) !important;
+    }
+
+    #modal-transferencia .text-blue-800 {
+        color: #93C5FD !important;
+    }
+
+    /* Botones de acción de modales */
+    button[onclick="registrarIngreso()"] {
+        background: var(--cf-emerald) !important;
+        color: #fff !important;
+        border: none;
+    }
+
+        button[onclick="registrarIngreso()"]:hover {
+            background: #059669 !important;
+        }
+
+    button[onclick="registrarEgreso()"] {
+        background: var(--cf-red) !important;
+        color: #fff !important;
+        border: none;
+    }
+
+        button[onclick="registrarEgreso()"]:hover {
+            background: #DC2626 !important;
+        }
+
+    button[onclick="realizarTransferencia()"] {
+        background: var(--cf-blue) !important;
+        color: #fff !important;
+        border: none;
+    }
+
+        button[onclick="realizarTransferencia()"]:hover {
+            background: #2563EB !important;
+        }
+
+    button[onclick="cambiarPassword()"] {
+        background: #374151 !important;
+        color: var(--cf-text) !important;
+        border: none;
+    }
+
+        button[onclick="cambiarPassword()"]:hover {
+            background: #4B5563 !important;
+        }
+
+    button[onclick="consolidarMes()"] {
+        background: var(--cf-purple) !important;
+        color: #fff !important;
+        border: none;
+    }
+
+        button[onclick="consolidarMes()"]:hover {
+            background: #6D28D9 !important;
+        }
+
+    button[onclick="confirmarEliminacion()"] {
+        background: var(--cf-red) !important;
+        color: #fff !important;
+        border: none;
+    }
+
+        button[onclick="confirmarEliminacion()"]:hover {
+            background: #DC2626 !important;
+        }
+
+    /* Botones Cancelar en modales */
+    button[onclick="cerrarModal('modal-ingreso')"],
+    button[onclick="cerrarModal('modal-egreso')"],
+    button[onclick="cerrarModal('modal-transferencia')"],
+    button[onclick="cerrarModal('modal-password')"],
+    button[onclick="cerrarModal('modal-consolidar')"],
+    button[onclick="cerrarModal('modal-eliminar')"] {
+        background: transparent !important;
+        border-color: var(--cf-border) !important;
+        color: var(--cf-text-muted) !important;
+    }
+
+        button[onclick="cerrarModal('modal-ingreso')"]:hover,
+        button[onclick="cerrarModal('modal-egreso')"]:hover,
+        button[onclick="cerrarModal('modal-transferencia')"]:hover,
+        button[onclick="cerrarModal('modal-password')"]:hover,
+        button[onclick="cerrarModal('modal-consolidar')"]:hover,
+        button[onclick="cerrarModal('modal-eliminar')"]:hover {
+            background: rgba(255,255,255,.04) !important;
+            color: var(--cf-text-soft) !important;
+        }
+
+    /* ══════════════════════════════════════════
+           MODAL DETALLE DEL DÍA
+        ══════════════════════════════════════════ */
+    #modal-detalle-dia .bg-amber-50 {
+        background: rgba(245,158,11,.06) !important;
+        border-color: rgba(245,158,11,.15) !important;
+    }
+
+    #modal-detalle-dia .border-amber-100 {
+        border-color: var(--cf-border) !important;
+    }
+
+    #modal-detalle-dia .text-amber-600 {
+        color: var(--cf-amber) !important;
+    }
+
+    #modal-detalle-dia .hover\:bg-amber-100:hover {
+        background: rgba(245,158,11,.1) !important;
+    }
+
+    /* Resumen rápido en modal día */
+    #modal-dia-resumen .bg-emerald-50 {
+        background: rgba(16,185,129,.07) !important;
+        border-color: rgba(16,185,129,.2) !important;
+    }
+
+    #modal-dia-resumen .text-emerald-700 {
+        color: var(--cf-emerald) !important;
+    }
+
+    #modal-dia-resumen .bg-blue-50 {
+        background: rgba(59,130,246,.07) !important;
+        border-color: rgba(59,130,246,.2) !important;
+    }
+
+    #modal-dia-resumen .text-blue-700 {
+        color: var(--cf-blue-bright) !important;
+    }
+
+    #modal-dia-resumen .bg-red-50 {
+        background: rgba(239,68,68,.07) !important;
+        border-color: rgba(239,68,68,.2) !important;
+    }
+
+    #modal-dia-resumen .text-red-700 {
+        color: var(--cf-red-light) !important;
+    }
+
+    #modal-dia-resumen .bg-amber-50 {
+        background: rgba(245,158,11,.07) !important;
+        border-color: rgba(245,158,11,.2) !important;
+    }
+
+    #modal-dia-resumen .text-amber-700 {
+        color: var(--cf-amber) !important;
+    }
+
+    /* Footer del modal día */
+    #modal-detalle-dia .bg-gray-50 {
+        background: var(--cf-dark-card2) !important;
+        border-color: var(--cf-border) !important;
+    }
+
+    #modal-detalle-dia .text-gray-400 {
+        color: var(--cf-text-muted) !important;
+    }
+
+    /* ══════════════════════════════════════════
+           PANEL LATERAL AUDITORÍA
+        ══════════════════════════════════════════ */
+    #panel-auditoria > div:last-child {
+        background: var(--cf-dark-card) !important;
+        border-left: 1px solid var(--cf-border);
+    }
+
+    #panel-auditoria .bg-orange-50 {
+        background: rgba(249,115,22,.06) !important;
+        border-color: rgba(249,115,22,.2) !important;
+    }
+
+    #panel-auditoria h3 {
+        color: var(--cf-text) !important;
+    }
+
+    #panel-auditoria p {
+        color: var(--cf-text-muted) !important;
+    }
+
+    #panel-auditoria .text-orange-600 {
+        color: var(--cf-orange) !important;
+    }
+
+    #panel-auditoria .hover\:bg-orange-100:hover {
+        background: rgba(249,115,22,.1) !important;
+    }
+
+    #panel-auditoria .text-gray-600 {
+        color: var(--cf-text-muted) !important;
+    }
+
+    #auditoria-contenido .text-gray-400 {
+        color: var(--cf-text-muted) !important;
+    }
+    /* Spinner en auditoría */
+    .border-orange-400 {
+        border-color: var(--cf-orange) !important;
+    }
+
+    /* ══════════════════════════════════════════
+           MODAL ELIMINACIÓN
+        ══════════════════════════════════════════ */
+    #modal-eliminar .bg-red-100 {
+        background: rgba(239,68,68,.12) !important;
+    }
+
+    #modal-eliminar .text-red-600 {
+        color: var(--cf-red-light) !important;
+    }
+
+    #modal-eliminar .bg-red-50 {
+        background: rgba(239,68,68,.07) !important;
+        border-color: rgba(239,68,68,.2) !important;
+    }
+
+    #modal-eliminar .text-red-700 {
+        color: var(--cf-red-light) !important;
+    }
+
+    #modal-eliminar textarea:focus {
+        border-color: var(--cf-red) !important;
+        box-shadow: 0 0 0 3px rgba(239,68,68,.15) !important;
+        outline: none;
+    }
+
+    /* ══════════════════════════════════════════
+           TOAST NOTIFICATIONS
+        ══════════════════════════════════════════ */
+    #toast-cf-inner.bg-emerald-600 {
+        background: var(--cf-emerald) !important;
+    }
+
+    #toast-cf-inner.bg-red-600 {
+        background: var(--cf-red) !important;
+    }
+
+    /* ══════════════════════════════════════════
+           SPINNERS GENERALES
+        ══════════════════════════════════════════ */
+    .border-amber-500 {
+        border-color: var(--cf-amber) !important;
+    }
+
+    .border-teal-500 {
+        border-color: var(--cf-teal) !important;
+    }
+
+    .text-amber-600 {
+        color: var(--cf-amber) !important;
+    }
+
+    .text-amber-700 {
+        color: var(--cf-amber) !important;
+    }
+
+    .bg-amber-100 {
+        background: rgba(245,158,11,.12) !important;
+    }
+
+    /* ══════════════════════════════════════════
+           TEXTO GENERAL
+        ══════════════════════════════════════════ */
+    .text-gray-800 {
+        color: var(--cf-text) !important;
+    }
+
+    .text-gray-700 {
+        color: var(--cf-text-soft) !important;
+    }
+
+    .text-gray-600 {
+        color: var(--cf-text-muted) !important;
+    }
+
+    .text-gray-500 {
+        color: var(--cf-text-muted) !important;
+    }
+
+    .text-gray-400 {
+        color: #4B5563 !important;
+    }
+
+    .bg-gray-100 {
+        background: var(--cf-dark-card2) !important;
+    }
+
+    /* ══════════════════════════════════════════
+           SCROLLBAR
+        ══════════════════════════════════════════ */
+    #panel-auditoria ::-webkit-scrollbar,
+    #modal-dia-contenido ::-webkit-scrollbar,
+    #modal-preview ::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    #panel-auditoria ::-webkit-scrollbar-track,
+    #modal-dia-contenido ::-webkit-scrollbar-track,
+    #modal-preview ::-webkit-scrollbar-track {
+        background: var(--cf-dark-card2);
+    }
+
+    #panel-auditoria ::-webkit-scrollbar-thumb,
+    #modal-dia-contenido ::-webkit-scrollbar-thumb,
+    #modal-preview ::-webkit-scrollbar-thumb {
+        background: var(--cf-border);
+        border-radius: 999px;
+    }
+</style>
 
 <!-- MODAL AUTENTICACIÓN -->
 <div id="modal-auth" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">

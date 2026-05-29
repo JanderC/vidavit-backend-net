@@ -1,178 +1,250 @@
-﻿@{
+@{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Gestión de Caja";
-    ViewData["Subtitle"] = "Control financiero completo - TAURO GYM";
+    ViewData["Subtitle"] = "Control financiero completo - Power Fitness";
 }
 
-<div class="space-y-6">
-    <!-- ALERTA DE DÍAS PENDIENTES -->
-    <!-- RESUMEN GENERAL DE CAJA -->
-    <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
-        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl shadow-xl p-6 border-l-4 border-emerald-600 transform hover:scale-105 transition-all">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-emerald-700 font-black uppercase tracking-wide mb-1">Efectivo Hoy</p>
-                    <p class="text-3xl font-black text-emerald-600" id="efectivo-hoy">$0.00</p>
-                    <p class="text-xs text-emerald-600 font-semibold mt-1">Balance en efectivo</p>
-                </div>
-                <div class="w-12 h-12 bg-emerald-200 rounded-full flex items-center justify-center">
-                    <i data-lucide="wallet" class="w-6 h-6 text-emerald-600"></i>
-                </div>
-            </div>
-        </div>
+<style>
+    :root{--pf-blue:#3B82F6;--pf-blueB:#60A5FA;--pf-deep:#1E3A8A;--pf-purple:#7C3AED;--pf-card:#0D1526;--pf-border:#1E2D4A;--pf-text:#E2E8F0;--pf-soft:#94A3B8;--pf-muted:#64748B;--pf-green:#10B981;--pf-red:#EF4444;--pf-orange:#F59E0B;}
+    .pf-input{width:100%;padding:.75rem 1rem;border:2px solid var(--pf-border);border-radius:.75rem;background:rgba(255,255,255,.03);color:var(--pf-text);font-weight:600;font-family:inherit;font-size:.9rem;outline:none;box-sizing:border-box;transition:border-color .2s;}
+    .pf-input:focus{border-color:var(--pf-blue);}
+    .pf-input::placeholder{color:var(--pf-muted);font-weight:400;}
+    .pf-select{width:100%;padding:.75rem 1rem;border:2px solid var(--pf-border);border-radius:.75rem;background:var(--pf-card);color:var(--pf-text);font-weight:600;font-family:inherit;font-size:.9rem;outline:none;box-sizing:border-box;}
+    .pf-label{display:block;font-size:.7rem;font-weight:800;color:var(--pf-soft);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.1em;}
 
-        <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl shadow-xl p-6 border-l-4 border-purple-600 transform hover:scale-105 transition-all">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-purple-700 font-black uppercase tracking-wide mb-1">Transferencias Hoy</p>
-                    <p class="text-3xl font-black text-purple-600" id="transferencias-hoy">$0.00</p>
-                    <p class="text-xs text-purple-600 font-semibold mt-1" id="detalle-transferencias">Ingresos del día</p>
-                </div>
-                <div class="w-12 h-12 bg-purple-200 rounded-full flex items-center justify-center">
-                    <i data-lucide="credit-card" class="w-6 h-6 text-purple-600"></i>
-                </div>
-            </div>
-        </div>
+    /* ── KPI Cards ── */
+    .kpi-card{background:var(--pf-card);border:1px solid var(--pf-border);border-radius:1rem;padding:1.25rem;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;}
+    .kpi-card:hover{transform:translateY(-3px);box-shadow:0 12px 36px rgba(0,0,0,.4);}
+    .kpi-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:4px;border-radius:1rem 0 0 1rem;}
+    .kpi-green::before{background:var(--pf-green);}
+    .kpi-purple::before{background:var(--pf-purple);}
+    .kpi-blue::before{background:var(--pf-blue);}
+    .kpi-red::before{background:var(--pf-red);}
+    .kpi-orange::before{background:var(--pf-orange);}
+    .kpi-slate::before{background:#94A3B8;}
+    .kpi-icon{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .kpi-green  .kpi-icon{background:rgba(16,185,129,.12);}
+    .kpi-purple .kpi-icon{background:rgba(124,58,237,.12);}
+    .kpi-blue   .kpi-icon{background:rgba(59,130,246,.12);}
+    .kpi-red    .kpi-icon{background:rgba(239,68,68,.12);}
+    .kpi-orange .kpi-icon{background:rgba(245,158,11,.12);}
+    .kpi-slate  .kpi-icon{background:rgba(148,163,184,.12);}
+    .kpi-green  .kpi-icon i{color:var(--pf-green)!important;}
+    .kpi-purple .kpi-icon i{color:#A78BFA!important;}
+    .kpi-blue   .kpi-icon i{color:var(--pf-blueB)!important;}
+    .kpi-red    .kpi-icon i{color:var(--pf-red)!important;}
+    .kpi-orange .kpi-icon i{color:var(--pf-orange)!important;}
+    .kpi-slate  .kpi-icon i{color:var(--pf-soft)!important;}
+    .kpi-lbl{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.35rem;}
+    .kpi-green  .kpi-lbl{color:rgba(16,185,129,.7);}
+    .kpi-purple .kpi-lbl{color:rgba(167,139,250,.7);}
+    .kpi-blue   .kpi-lbl{color:rgba(96,165,250,.7);}
+    .kpi-red    .kpi-lbl{color:rgba(239,68,68,.7);}
+    .kpi-orange .kpi-lbl{color:rgba(245,158,11,.7);}
+    .kpi-slate  .kpi-lbl{color:rgba(148,163,184,.7);}
+    .kpi-val{font-size:1.75rem;font-weight:900;color:#fff;}
+    .kpi-sub{font-size:.72rem;font-weight:600;color:var(--pf-muted);margin-top:.2rem;}
 
-        <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl shadow-xl p-6 border-l-4 border-blue-600 transform hover:scale-105 transition-all">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-blue-700 font-black uppercase tracking-wide mb-1">Ingresos Hoy</p>
-                    <p class="text-3xl font-black text-blue-600" id="ingresos-hoy">$0.00</p>
-                    <p class="text-xs text-blue-600 font-semibold mt-1" id="detalle-ingresos">Efectivo + Transferencia</p>
-                </div>
-                <div class="w-12 h-12 bg-blue-200 rounded-full flex items-center justify-center">
-                    <i data-lucide="trending-up" class="w-6 h-6 text-blue-600"></i>
-                </div>
-            </div>
-        </div>
+    /* ── Desglose ── */
+    .desglose-card{background:var(--pf-card);border:1px solid var(--pf-border);border-radius:1rem;padding:1.5rem;margin-bottom:1.25rem;}
+    .desglose-item{border:1px solid var(--pf-border);border-radius:.75rem;padding:1rem;transition:border-color .2s;}
+    .desglose-item:hover{border-color:rgba(59,130,246,.3);}
 
-        <div class="bg-gradient-to-br from-red-50 to-red-100 rounded-2xl shadow-xl p-6 border-l-4 border-red-600 transform hover:scale-105 transition-all">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-red-700 font-black uppercase tracking-wide mb-1">Egresos Hoy</p>
-                    <p class="text-3xl font-black text-red-600" id="egresos-hoy">$0.00</p>
-                    <p class="text-xs text-red-600 font-semibold mt-1" id="detalle-egresos">Efectivo + Transferencia</p>
-                </div>
-                <div class="w-12 h-12 bg-red-200 rounded-full flex items-center justify-center">
-                    <i data-lucide="trending-down" class="w-6 h-6 text-red-600"></i>
-                </div>
-            </div>
-        </div>
+    /* ── Tabs ── */
+    .tab-wrap{background:var(--pf-card);border:1px solid var(--pf-border);border-radius:1rem;overflow:hidden;margin-bottom:1.25rem;}
+    .tab-bar{display:flex;border-bottom:1px solid var(--pf-border);}
+    .tab-btn{flex:1;padding:.875rem .75rem;font-weight:800;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;background:transparent;border:none;border-bottom:3px solid transparent;color:var(--pf-muted);cursor:pointer;font-family:inherit;transition:color .2s,border-color .2s,background .2s;display:flex;align-items:center;justify-content:center;gap:.35rem;}
+    .tab-btn:hover{background:rgba(59,130,246,.05);color:var(--pf-blueB);}
+    .tab-btn.active{color:var(--pf-blueB);border-bottom-color:var(--pf-blue);background:rgba(59,130,246,.06);}
+    .tab-btn i{width:16px!important;height:16px!important;}
 
-        <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl shadow-xl p-6 border-l-4 border-amber-600 transform hover:scale-105 transition-all">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-amber-700 font-black uppercase tracking-wide mb-1">Deudas Pendientes</p>
-                    <p class="text-3xl font-black text-amber-600" id="deudas-pendientes">$0.00</p>
-                    <p class="text-xs text-amber-600 font-semibold mt-1">Total por cobrar</p>
-                </div>
-                <div class="w-12 h-12 bg-amber-200 rounded-full flex items-center justify-center">
-                    <i data-lucide="alert-circle" class="w-6 h-6 text-amber-600"></i>
-                </div>
-            </div>
-        </div>
+    /* ── Tabla movimientos ── */
+    .pf-table{width:100%;border-collapse:collapse;}
+    .pf-table thead tr{background:linear-gradient(135deg,var(--pf-deep),#111827);border-bottom:2px solid var(--pf-blue);}
+    .pf-table th{padding:.875rem 1.25rem;font-size:.68rem;font-weight:800;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:.12em;text-align:left;}
+    .pf-table th:last-child{text-align:right;}
+    .pf-table tbody tr{border-bottom:1px solid var(--pf-border);transition:background .15s;}
+    .pf-table tbody tr:hover{background:rgba(59,130,246,.04);}
+    .pf-table td{padding:.875rem 1.25rem;font-size:.88rem;font-weight:600;color:var(--pf-text);}
+    .pf-table td:last-child{text-align:right;}
 
-        <div class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl shadow-xl p-6 border-l-4 border-slate-600 transform hover:scale-105 transition-all">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-slate-700 font-black uppercase tracking-wide mb-1">Balance Total</p>
-                    <p class="text-3xl font-black text-slate-600" id="balance-total">$0.00</p>
-                    <button onclick="abrirModalCerrarCaja()"
-                            class="mt-2 px-3 py-1 bg-slate-600 hover:bg-slate-700 text-white text-xs font-bold rounded-lg transition-all">
-                        <i data-lucide="lock" class="w-3 h-3 inline-block mr-1"></i>
-                        CERRAR CAJA
-                    </button>
-                </div>
-                <div class="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center">
-                    <i data-lucide="calculator" class="w-6 h-6 text-slate-600"></i>
-                </div>
+    /* ── Resumen semanal ── */
+    .semana-thead{background:linear-gradient(135deg,var(--pf-deep),var(--pf-blue));}
+    .semana-thead th{padding:.875rem 1.25rem;font-size:.72rem;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.08em;text-align:right;}
+    .semana-thead th:first-child{text-align:left;}
+    .semana-tfoot{background:rgba(6,11,24,.5);border-top:2px solid var(--pf-border);}
+    .semana-tfoot td{padding:.875rem 1.25rem;font-weight:900;text-align:right;}
+    .semana-tfoot td:first-child{text-align:left;color:var(--pf-text);}
+
+    /* ── Deudas cliente card ── */
+    .deuda-grupo{background:var(--pf-card);border:1px solid var(--pf-border);border-radius:1rem;overflow:hidden;transition:box-shadow .2s;margin-bottom:1rem;}
+    .deuda-grupo:hover{box-shadow:0 8px 28px rgba(0,0,0,.35);}
+    .deuda-grupo-head{padding:1.1rem 1.25rem;border-bottom:1px solid var(--pf-border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;}
+    .deuda-item{padding:.875rem 1.25rem;background:rgba(255,255,255,.02);border:1px solid var(--pf-border);border-radius:.75rem;transition:background .15s;}
+    .deuda-item:hover{background:rgba(59,130,246,.04);}
+    .pf-progress-bar{height:6px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;margin-top:.5rem;}
+    .pf-progress-fill{height:100%;border-radius:999px;}
+
+    /* ── Días pendientes ── */
+    .dia-pend{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.25);border-left:4px solid var(--pf-orange);border-radius:.875rem;padding:1.25rem;margin-bottom:.875rem;}
+
+    /* ── Cierre card ── */
+    .cierre-card{background:var(--pf-card);border:1px solid var(--pf-border);border-radius:1rem;padding:1.5rem;margin-bottom:.875rem;transition:box-shadow .2s;}
+    .cierre-card:hover{box-shadow:0 8px 28px rgba(0,0,0,.35);}
+
+    /* ── Formulario registrar ── */
+    .form-card{background:var(--pf-card);border-radius:1rem;padding:1.75rem;box-shadow:0 4px 20px rgba(0,0,0,.3);}
+    .form-card-green{border:1px solid rgba(16,185,129,.25);}
+    .form-card-red  {border:1px solid rgba(239,68,68,.25);}
+
+    /* ── Modal overlay ── */
+    .pf-modal{position:fixed;inset:0;background:rgba(6,11,24,.8);backdrop-filter:blur(6px);z-index:50;display:flex;align-items:center;justify-content:center;padding:1rem;}
+    .pf-modal.hidden{display:none;}
+    .pf-modal-card{background:var(--pf-card);border:1px solid var(--pf-border);border-radius:1.25rem;width:100%;max-width:720px;box-shadow:0 25px 60px rgba(0,0,0,.6);overflow:hidden;}
+    .pf-modal-header{padding:1.5rem 2rem;border-bottom:1px solid var(--pf-border);display:flex;align-items:center;gap:1rem;}
+    .pf-modal-body{padding:1.75rem 2rem;}
+    .pf-modal-footer{padding:1.25rem 2rem;border-top:1px solid var(--pf-border);display:flex;gap:.75rem;justify-content:flex-end;}
+
+    /* ── Chips ── */
+    .chip{display:inline-flex;align-items:center;padding:.22rem .75rem;border-radius:999px;font-size:.7rem;font-weight:800;text-transform:uppercase;}
+    .chip-green {background:rgba(16,185,129,.1);color:var(--pf-green);border:1px solid rgba(16,185,129,.25);}
+    .chip-amber {background:rgba(245,158,11,.1);color:var(--pf-orange);border:1px solid rgba(245,158,11,.25);}
+    .chip-blue  {background:rgba(59,130,246,.1);color:var(--pf-blueB);border:1px solid rgba(59,130,246,.25);}
+    .chip-red   {background:rgba(239,68,68,.1);color:var(--pf-red);border:1px solid rgba(239,68,68,.25);}
+    .chip-gray  {background:rgba(100,116,139,.1);color:var(--pf-soft);border:1px solid rgba(100,116,139,.2);}
+    .chip-purple{background:rgba(124,58,237,.1);color:#A78BFA;border:1px solid rgba(124,58,237,.25);}
+
+    /* ── Btn ── */
+    .pf-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.7rem 1.5rem;border:none;border-radius:.875rem;font-weight:800;font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;font-family:inherit;text-decoration:none;transition:transform .2s,box-shadow .2s;}
+    .pf-btn:hover{transform:scale(1.03);}
+    .pf-btn-blue  {background:linear-gradient(135deg,var(--pf-blue),var(--pf-purple));color:#fff;box-shadow:0 4px 16px rgba(59,130,246,.3);}
+    .pf-btn-green {background:linear-gradient(135deg,var(--pf-green),#065F46);color:#fff;box-shadow:0 4px 16px rgba(16,185,129,.3);}
+    .pf-btn-red   {background:linear-gradient(135deg,#DC2626,#991B1B);color:#fff;box-shadow:0 4px 14px rgba(220,38,38,.3);}
+    .pf-btn-gray  {background:rgba(255,255,255,.06);border:1px solid var(--pf-border);color:var(--pf-soft);}
+    .pf-btn-ghost {background:transparent;border:1px solid var(--pf-border);color:var(--pf-soft);}
+</style>
+
+<div style="display:flex;flex-direction:column;gap:1.25rem;">
+
+    <!-- KPI Cards -->
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:1rem;">
+        <div class="kpi-card kpi-green">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+                <p class="kpi-lbl">Efectivo Hoy</p>
+                <div class="kpi-icon"><i data-lucide="wallet" style="width:22px;height:22px;"></i></div>
             </div>
+            <p class="kpi-val" id="efectivo-hoy">$0.00</p>
+            <p class="kpi-sub">Balance en efectivo</p>
+        </div>
+        <div class="kpi-card kpi-purple">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+                <p class="kpi-lbl">Transferencias</p>
+                <div class="kpi-icon"><i data-lucide="credit-card" style="width:22px;height:22px;"></i></div>
+            </div>
+            <p class="kpi-val" id="transferencias-hoy">$0.00</p>
+            <p class="kpi-sub" id="detalle-transferencias">Ingresos del día</p>
+        </div>
+        <div class="kpi-card kpi-blue">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+                <p class="kpi-lbl">Ingresos Hoy</p>
+                <div class="kpi-icon"><i data-lucide="trending-up" style="width:22px;height:22px;"></i></div>
+            </div>
+            <p class="kpi-val" id="ingresos-hoy">$0.00</p>
+            <p class="kpi-sub" id="detalle-ingresos">Efectivo + Transferencia</p>
+        </div>
+        <div class="kpi-card kpi-red">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+                <p class="kpi-lbl">Egresos Hoy</p>
+                <div class="kpi-icon"><i data-lucide="trending-down" style="width:22px;height:22px;"></i></div>
+            </div>
+            <p class="kpi-val" id="egresos-hoy">$0.00</p>
+            <p class="kpi-sub" id="detalle-egresos">Efectivo + Transferencia</p>
+        </div>
+        <div class="kpi-card kpi-orange">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+                <p class="kpi-lbl">Deudas Pendientes</p>
+                <div class="kpi-icon"><i data-lucide="alert-circle" style="width:22px;height:22px;"></i></div>
+            </div>
+            <p class="kpi-val" id="deudas-pendientes">$0.00</p>
+            <p class="kpi-sub">Total por cobrar</p>
+        </div>
+        <div class="kpi-card kpi-slate">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+                <p class="kpi-lbl">Balance Total</p>
+                <div class="kpi-icon"><i data-lucide="calculator" style="width:22px;height:22px;"></i></div>
+            </div>
+            <p class="kpi-val" id="balance-total">$0.00</p>
+            <button onclick="abrirModalCerrarCaja()"
+                    style="margin-top:.5rem;padding:.35rem .875rem;background:linear-gradient(135deg,var(--pf-blue),var(--pf-purple));color:#fff;border:none;border-radius:.5rem;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:.3rem;">
+                <i data-lucide="lock" style="width:12px;height:12px;"></i> Cerrar Caja
+            </button>
         </div>
     </div>
 
-
-    <!-- DESGLOSE DE VENTAS DEL DÍA -->
-    <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200">
-        <h3 class="text-lg font-black text-gray-800 mb-4 uppercase tracking-wide flex items-center gap-2">
-            <i data-lucide="pie-chart" class="w-5 h-5 text-blue-600"></i>
-            Desglose de Ventas del Día
+    <!-- Desglose ventas -->
+    <div class="desglose-card">
+        <h3 style="font-size:.9rem;font-weight:900;color:var(--pf-text);text-transform:uppercase;letter-spacing:.08em;margin:0 0 1rem 0;display:flex;align-items:center;gap:.5rem;">
+            <i data-lucide="pie-chart" style="width:18px;height:18px;color:var(--pf-blueB);"></i> Desglose de Ventas del Día
         </h3>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-4 border border-red-200">
-                <p class="text-xs text-red-700 font-bold uppercase mb-1">Membresías</p>
-                <p class="text-2xl font-black text-red-600" id="venta-membresias">$0.00</p>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.875rem;">
+            <div class="desglose-item" style="border-left:3px solid var(--pf-red);">
+                <p style="font-size:.68rem;font-weight:800;color:rgba(239,68,68,.7);text-transform:uppercase;letter-spacing:.1em;margin:0 0 .3rem 0;">Membresías</p>
+                <p style="font-size:1.5rem;font-weight:900;color:var(--pf-red);margin:0;" id="venta-membresias">$0.00</p>
             </div>
-            <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-4 border border-amber-200">
-                <p class="text-xs text-amber-700 font-bold uppercase mb-1">Productos</p>
-                <p class="text-2xl font-black text-amber-600" id="venta-productos">$0.00</p>
+            <div class="desglose-item" style="border-left:3px solid var(--pf-orange);">
+                <p style="font-size:.68rem;font-weight:800;color:rgba(245,158,11,.7);text-transform:uppercase;letter-spacing:.1em;margin:0 0 .3rem 0;">Productos</p>
+                <p style="font-size:1.5rem;font-weight:900;color:var(--pf-orange);margin:0;" id="venta-productos">$0.00</p>
             </div>
-            <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-4 border border-emerald-200">
-                <p class="text-xs text-emerald-700 font-bold uppercase mb-1">Abonos a Deudas</p>
-                <p class="text-2xl font-black text-emerald-600" id="venta-abonos">$0.00</p>
+            <div class="desglose-item" style="border-left:3px solid var(--pf-green);">
+                <p style="font-size:.68rem;font-weight:800;color:rgba(16,185,129,.7);text-transform:uppercase;letter-spacing:.1em;margin:0 0 .3rem 0;">Abonos a Deudas</p>
+                <p style="font-size:1.5rem;font-weight:900;color:var(--pf-green);margin:0;" id="venta-abonos">$0.00</p>
             </div>
-            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
-                <p class="text-xs text-blue-700 font-bold uppercase mb-1">Otros</p>
-                <p class="text-2xl font-black text-blue-600" id="venta-otros">$0.00</p>
+            <div class="desglose-item" style="border-left:3px solid var(--pf-blue);">
+                <p style="font-size:.68rem;font-weight:800;color:rgba(96,165,250,.7);text-transform:uppercase;letter-spacing:.1em;margin:0 0 .3rem 0;">Otros</p>
+                <p style="font-size:1.5rem;font-weight:900;color:var(--pf-blueB);margin:0;" id="venta-otros">$0.00</p>
             </div>
         </div>
     </div>
 
-
-    <!-- TABS DE NAVEGACIÓN -->
-    <div class="bg-white rounded-2xl shadow-xl border-2 border-gray-200 overflow-hidden">
-        <div class="flex border-b-2 border-gray-200">
-            <button onclick="cambiarTab('movimientos')" id="tab-movimientos"
-                    class="tab-btn flex-1 px-6 py-4 font-black uppercase tracking-wide transition-all border-b-4 border-red-600 bg-red-50 text-red-600">
-                <i data-lucide="list" class="w-5 h-5 inline-block mr-2"></i>
-                Movimientos
+    <!-- Tabs -->
+    <div class="tab-wrap">
+        <div class="tab-bar">
+            <button onclick="cambiarTab('movimientos')" id="tab-movimientos" class="tab-btn active">
+                <i data-lucide="list"></i> Movimientos
             </button>
-            <button onclick="cambiarTab('pendientes')" id="tab-pendientes"
-                    class="tab-btn flex-1 px-6 py-4 font-black uppercase tracking-wide transition-all hover:bg-gray-50">
-                <i data-lucide="calendar-clock" class="w-5 h-5 inline-block mr-2"></i>
-                Días Pendientes
+            <button onclick="cambiarTab('pendientes')" id="tab-pendientes" class="tab-btn">
+                <i data-lucide="calendar-clock"></i> Días Pendientes
             </button>
-            <button onclick="cambiarTab('deudas')" id="tab-deudas"
-                    class="tab-btn flex-1 px-6 py-4 font-black uppercase tracking-wide transition-all hover:bg-gray-50">
-                <i data-lucide="file-text" class="w-5 h-5 inline-block mr-2"></i>
-                Deudas Clientes
+            <button onclick="cambiarTab('deudas')" id="tab-deudas" class="tab-btn">
+                <i data-lucide="file-text"></i> Deudas Clientes
             </button>
-            <button onclick="cambiarTab('semanal')" id="tab-semanal"
-                    class="tab-btn flex-1 px-6 py-4 font-black uppercase tracking-wide transition-all hover:bg-gray-50">
-                <i data-lucide="calendar" class="w-5 h-5 inline-block mr-2"></i>
-                Resumen Semanal
+            <button onclick="cambiarTab('semanal')" id="tab-semanal" class="tab-btn">
+                <i data-lucide="calendar"></i> Resumen Semanal
             </button>
-            <button onclick="cambiarTab('cierres')" id="tab-cierres"
-                    class="tab-btn flex-1 px-6 py-4 font-black uppercase tracking-wide transition-all hover:bg-gray-50">
-                <i data-lucide="archive" class="w-5 h-5 inline-block mr-2"></i>
-                Historial Cierres
+            <button onclick="cambiarTab('cierres')" id="tab-cierres" class="tab-btn">
+                <i data-lucide="archive"></i> Historial Cierres
             </button>
-            <button onclick="cambiarTab('registrar')" id="tab-registrar"
-                    class="tab-btn flex-1 px-6 py-4 font-black uppercase tracking-wide transition-all hover:bg-gray-50">
-                <i data-lucide="plus-circle" class="w-5 h-5 inline-block mr-2"></i>
-                Registrar
+            <button onclick="cambiarTab('registrar')" id="tab-registrar" class="tab-btn">
+                <i data-lucide="plus-circle"></i> Registrar
             </button>
         </div>
     </div>
 
-    <!-- TAB: MOVIMIENTOS -->
+    <!-- TAB: Movimientos -->
     <div id="content-movimientos" class="tab-content">
-        <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200 mb-4">
-            <div class="flex flex-wrap items-end gap-4">
-                <div class="flex-1 min-w-[200px]">
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Fecha Desde</label>
-                    <input type="date" id="fecha-desde"
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+        <div class="desglose-card" style="margin-bottom:1rem;">
+            <div style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:1rem;">
+                <div style="flex:1;min-width:180px;">
+                    <label class="pf-label">Fecha Desde</label>
+                    <input type="date" id="fecha-desde" class="pf-input">
                 </div>
-                <div class="flex-1 min-w-[200px]">
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Fecha Hasta</label>
-                    <input type="date" id="fecha-hasta"
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                <div style="flex:1;min-width:180px;">
+                    <label class="pf-label">Fecha Hasta</label>
+                    <input type="date" id="fecha-hasta" class="pf-input">
                 </div>
-                <div class="flex-1 min-w-[200px]">
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Categoría</label>
-                    <select id="filtro-categoria"
-                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                <div style="flex:1;min-width:180px;">
+                    <label class="pf-label">Categoría</label>
+                    <select id="filtro-categoria" class="pf-select">
                         <option value="">Todas</option>
                         <option value="membresia">Membresías</option>
                         <option value="renovacion">Renovaciones</option>
@@ -181,148 +253,120 @@
                         <option value="otro">Otros</option>
                     </select>
                 </div>
-                <button onclick="cargarMovimientos()"
-                        class="px-8 py-3 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
-                    <i data-lucide="filter" class="w-4 h-4 inline-block mr-2"></i>
-                    Filtrar
+                <button onclick="cargarMovimientos()" class="pf-btn pf-btn-blue">
+                    <i data-lucide="filter" style="width:16px;height:16px;"></i> Filtrar
                 </button>
             </div>
         </div>
-
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-gray-200">
-            <div class="p-4 border-b-2 border-gray-200 bg-gray-50">
-                <h3 class="text-xl font-black uppercase tracking-wide text-gray-900">Historial de Movimientos</h3>
+        <div style="background:var(--pf-card);border:1px solid var(--pf-border);border-radius:1rem;overflow:hidden;">
+            <div style="padding:.875rem 1.5rem;border-bottom:1px solid var(--pf-border);">
+                <h3 style="font-size:.95rem;font-weight:900;color:var(--pf-text);text-transform:uppercase;letter-spacing:.08em;margin:0;">Historial de Movimientos</h3>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-gray-100 border-b-2 border-gray-200">
-                        <tr>
-                            <th class="px-6 py-4 text-left text-xs font-black text-gray-700 uppercase tracking-wider">Fecha</th>
-                            <th class="px-6 py-4 text-left text-xs font-black text-gray-700 uppercase tracking-wider">Tipo</th>
-                            <th class="px-6 py-4 text-left text-xs font-black text-gray-700 uppercase tracking-wider">Categoría</th>
-                            <th class="px-6 py-4 text-left text-xs font-black text-gray-700 uppercase tracking-wider">Descripción</th>
-                            <th class="px-6 py-4 text-left text-xs font-black text-gray-700 uppercase tracking-wider">Método</th>
-                            <th class="px-6 py-4 text-right text-xs font-black text-gray-700 uppercase tracking-wider">Monto</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-movimientos" class="divide-y divide-gray-200">
-                        <tr>
-                            <td colspan="6" class="px-6 py-12 text-center text-gray-500 font-bold">
-                                Cargando movimientos...
-                            </td>
-                        </tr>
+            <div style="overflow-x:auto;">
+                <table class="pf-table">
+                    <thead><tr>
+                        <th>Fecha</th><th>Tipo</th><th>Categoría</th><th>Descripción</th><th>Método</th><th>Monto</th>
+                    </tr></thead>
+                    <tbody id="tabla-movimientos">
+                        <tr><td colspan="6" style="padding:3rem;text-align:center;color:var(--pf-muted);font-weight:700;">Cargando movimientos...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-
-    <!-- TAB: DÍAS PENDIENTES -->
+    <!-- TAB: Días Pendientes -->
     <div id="content-pendientes" class="tab-content hidden">
-        <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200">
-            <h3 class="text-xl font-black text-gray-900 uppercase tracking-wide mb-6">
-                <i data-lucide="calendar-clock" class="w-6 h-6 inline-block mr-2 text-yellow-600"></i>
-                Días con Movimientos Sin Cerrar
+        <div class="desglose-card">
+            <h3 style="font-size:.95rem;font-weight:900;color:var(--pf-text);text-transform:uppercase;letter-spacing:.08em;margin:0 0 1.25rem 0;display:flex;align-items:center;gap:.5rem;">
+                <i data-lucide="calendar-clock" style="width:18px;height:18px;color:var(--pf-orange);"></i> Días con Movimientos Sin Cerrar
             </h3>
-            <div id="lista-dias-pendientes" class="space-y-4">
-                <p class="text-center text-gray-500 font-semibold py-8">Cargando...</p>
+            <div id="lista-dias-pendientes">
+                <p style="text-align:center;padding:3rem;color:var(--pf-muted);font-weight:700;">Cargando...</p>
             </div>
         </div>
     </div>
 
-    <!-- TAB: DEUDAS CLIENTES -->
+    <!-- TAB: Deudas Clientes -->
     <div id="content-deudas" class="tab-content hidden">
-        <!-- Tarjetas resumen -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div onclick="filtroEstadoDeuda('')" class="bg-white rounded-2xl shadow-xl p-4 border-2 border-gray-200 cursor-pointer hover:shadow-2xl transition-all border-l-4 border-l-slate-500">
-                <p class="text-xs text-gray-500 font-black uppercase mb-1">Total por cobrar</p>
-                <p class="text-2xl font-black text-slate-700" id="rv-deuda-total">—</p>
-                <p class="text-xs text-gray-400 font-semibold" id="rs-deuda-total">0 deudas</p>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1rem;">
+            <div onclick="filtroEstadoDeuda('')" class="kpi-card kpi-slate" style="cursor:pointer;">
+                <p style="font-size:.68rem;font-weight:800;color:var(--pf-muted);text-transform:uppercase;letter-spacing:.1em;margin:0 0 .35rem 0;">Total por cobrar</p>
+                <p style="font-size:1.75rem;font-weight:900;color:var(--pf-text);margin:0 0 .2rem 0;" id="rv-deuda-total">—</p>
+                <p style="font-size:.72rem;color:var(--pf-muted);font-weight:600;margin:0;" id="rs-deuda-total">0 deudas</p>
             </div>
-            <div onclick="filtroEstadoDeuda('pendiente')" class="bg-white rounded-2xl shadow-xl p-4 border-2 border-gray-200 cursor-pointer hover:shadow-2xl transition-all border-l-4 border-l-amber-500">
-                <p class="text-xs text-gray-500 font-black uppercase mb-1">Deudas pendientes</p>
-                <p class="text-2xl font-black text-amber-600" id="rv-deuda-pendiente">—</p>
-                <p class="text-xs text-gray-400 font-semibold" id="rs-deuda-pendiente">0 deudas</p>
+            <div onclick="filtroEstadoDeuda('pendiente')" class="kpi-card kpi-orange" style="cursor:pointer;">
+                <p class="kpi-lbl">Deudas pendientes</p>
+                <p style="font-size:1.75rem;font-weight:900;color:var(--pf-orange);margin:0 0 .2rem 0;" id="rv-deuda-pendiente">—</p>
+                <p style="font-size:.72rem;color:var(--pf-muted);font-weight:600;margin:0;" id="rs-deuda-pendiente">0 deudas</p>
             </div>
-            <!-- Botón que lleva a la vista de deudas pagadas -->
             <a href="/Caja/DeudasPagadas"
-               class="bg-gradient-to-br from-green-50 to-emerald-100 rounded-2xl shadow-xl p-4 border-2 border-emerald-200 hover:shadow-2xl transition-all border-l-4 border-l-emerald-600 flex flex-col justify-between group cursor-pointer no-underline">
-                <div class="flex items-center justify-between">
+               style="background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.25);border-left:4px solid var(--pf-green);border-radius:1rem;padding:1.25rem;text-decoration:none;display:flex;flex-direction:column;justify-content:space-between;transition:box-shadow .2s;"
+               onmouseover="this.style.boxShadow='0 8px 28px rgba(16,185,129,.2)'" onmouseout="this.style.boxShadow='none'">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
                     <div>
-                        <p class="text-xs text-emerald-700 font-black uppercase mb-1">Deudas Pagadas</p>
-                        <p class="text-sm text-emerald-600 font-semibold">Ver historial completo</p>
+                        <p style="font-size:.68rem;font-weight:800;color:rgba(16,185,129,.7);text-transform:uppercase;letter-spacing:.1em;margin:0 0 .25rem 0;">Deudas Pagadas</p>
+                        <p style="font-size:.82rem;color:var(--pf-green);font-weight:700;margin:0;">Ver historial completo</p>
                     </div>
-                    <div class="w-10 h-10 bg-emerald-200 rounded-full flex items-center justify-center group-hover:bg-emerald-300 transition-all">
-                        <i data-lucide="check-circle" class="w-5 h-5 text-emerald-700"></i>
+                    <div style="width:40px;height:40px;background:rgba(16,185,129,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                        <i data-lucide="check-circle" style="width:20px;height:20px;color:var(--pf-green);"></i>
                     </div>
                 </div>
-                <p class="text-xs text-emerald-600 font-bold mt-2 flex items-center gap-1">
-                    <i data-lucide="arrow-right" class="w-3 h-3"></i> Ir a deudas pagadas
+                <p style="font-size:.72rem;color:var(--pf-green);font-weight:700;margin:.75rem 0 0;display:flex;align-items:center;gap:.3rem;">
+                    <i data-lucide="arrow-right" style="width:12px;height:12px;"></i> Ir a deudas pagadas
                 </p>
             </a>
         </div>
-        <!-- Búsqueda + filtros -->
-        <div class="bg-white rounded-2xl shadow-xl p-4 border-2 border-gray-200 mb-4 flex flex-wrap items-center gap-3">
-            <div class="flex-1 min-w-[200px] relative">
-                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                <input type="text" id="buscar-deuda" placeholder="Buscar por nombre, cedula o concepto..."
-                       class="w-full pl-9 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
-                       oninput="debounceBusquedaDeuda(this.value)">
+        <!-- Buscador -->
+        <div class="desglose-card" style="display:flex;flex-wrap:wrap;align-items:center;gap:.875rem;margin-bottom:1rem;">
+            <div style="flex:1;min-width:200px;position:relative;">
+                <i data-lucide="search" style="position:absolute;left:.875rem;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--pf-muted);"></i>
+                <input type="text" id="buscar-deuda" placeholder="Buscar por nombre, cédula o concepto..." class="pf-input" style="padding-left:2.5rem;" oninput="debounceBusquedaDeuda(this.value)">
             </div>
-            <div class="flex gap-1 bg-gray-100 rounded-xl p-1">
-                <button onclick="filtroEstadoDeuda('')" id="ft-d-todos" class="ftd-btn px-4 py-2 rounded-lg text-sm font-black uppercase tracking-wide bg-white shadow text-red-600">Todos</button>
-                <button onclick="filtroEstadoDeuda('pendiente')" id="ft-d-pendiente" class="ftd-btn px-4 py-2 rounded-lg text-sm font-black uppercase tracking-wide text-gray-500 hover:bg-gray-50">Pendientes</button>
+            <div style="display:flex;gap:.35rem;background:rgba(255,255,255,.04);border-radius:.75rem;padding:.35rem;">
+                <button onclick="filtroEstadoDeuda('')" id="ft-d-todos" class="ftd-btn" style="padding:.45rem 1rem;border-radius:.5rem;border:none;font-weight:800;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;font-family:inherit;background:var(--pf-blue);color:#fff;">Todos</button>
+                <button onclick="filtroEstadoDeuda('pendiente')" id="ft-d-pendiente" class="ftd-btn" style="padding:.45rem 1rem;border-radius:.5rem;border:none;font-weight:800;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;font-family:inherit;background:transparent;color:var(--pf-muted);">Pendientes</button>
             </div>
         </div>
-        <div id="lista-deudas" class="space-y-4">
-            <div class="text-center py-12 text-gray-500 font-bold">Cargando deudas...</div>
+        <div id="lista-deudas">
+            <div style="text-align:center;padding:3rem;color:var(--pf-muted);font-weight:700;">Cargando deudas...</div>
         </div>
     </div>
 
-    <!-- TAB: RESUMEN SEMANAL -->
-    <!-- TAB: RESUMEN SEMANAL -->
+    <!-- TAB: Resumen Semanal -->
     <div id="content-semanal" class="tab-content hidden">
-        <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-black text-gray-800 uppercase tracking-wide flex items-center gap-2">
-                    <i data-lucide="calendar-range" class="w-6 h-6 text-blue-600"></i>
-                    Resumen de los Últimos 7 Días
+        <div class="desglose-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem;">
+                <h3 style="font-size:.95rem;font-weight:900;color:var(--pf-text);text-transform:uppercase;letter-spacing:.08em;margin:0;display:flex;align-items:center;gap:.5rem;">
+                    <i data-lucide="calendar-range" style="width:18px;height:18px;color:var(--pf-blueB);"></i> Resumen de los Últimos 7 Días
                 </h3>
-                <p class="text-sm text-gray-600 font-bold" id="periodo-semanal">Cargando...</p>
+                <p style="font-size:.8rem;color:var(--pf-muted);font-weight:700;" id="periodo-semanal">Cargando...</p>
             </div>
-
-            <!-- TABLA -->
-            <div class="overflow-x-auto">
-                <table class="w-full border-collapse">
-                    <thead class="bg-gradient-to-r from-red-600 to-red-700 text-white">
+            <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:collapse;">
+                    <thead class="semana-thead">
                         <tr>
-                            <th class="px-6 py-4 text-left text-sm font-black uppercase">Día</th>
-                            <th class="px-6 py-4 text-right text-sm font-black uppercase">Ingresos</th>
-                            <th class="px-6 py-4 text-right text-sm font-black uppercase">Egresos</th>
-                            <th class="px-6 py-4 text-right text-sm font-black uppercase">Balance</th>
-                            <th class="px-6 py-4 text-right text-sm font-black uppercase">Efectivo</th>
-                            <th class="px-6 py-4 text-right text-sm font-black uppercase">Transferencia</th>
-                            <th class="px-6 py-4 text-right text-sm font-black uppercase bg-amber-600">
-                                <i data-lucide="shopping-bag" class="w-4 h-4 inline-block mr-1"></i>
-                                Productos Vendidos
-                            </th>
-                            <th class="px-6 py-4 text-center text-sm font-black uppercase">Movimientos</th>
+                            <th style="text-align:left;padding:.875rem 1.25rem;font-size:.7rem;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.08em;">Día</th>
+                            <th style="padding:.875rem 1.25rem;font-size:.7rem;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.08em;text-align:right;">Ingresos</th>
+                            <th style="padding:.875rem 1.25rem;font-size:.7rem;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.08em;text-align:right;">Egresos</th>
+                            <th style="padding:.875rem 1.25rem;font-size:.7rem;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.08em;text-align:right;">Balance</th>
+                            <th style="padding:.875rem 1.25rem;font-size:.7rem;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.08em;text-align:right;">Efectivo</th>
+                            <th style="padding:.875rem 1.25rem;font-size:.7rem;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.08em;text-align:right;">Transferencia</th>
+                            <th style="padding:.875rem 1.25rem;font-size:.7rem;font-weight:800;color:#FCD34D;text-transform:uppercase;letter-spacing:.08em;text-align:right;background:rgba(245,158,11,.2);">Productos</th>
+                            <th style="padding:.875rem 1.25rem;font-size:.7rem;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.08em;text-align:center;">Movimientos</th>
                         </tr>
                     </thead>
-                    <tbody id="tabla-resumen-semanal" class="divide-y divide-gray-200">
-                        <!-- Los datos se cargan dinámicamente con JavaScript -->
-                    </tbody>
-                    <tfoot class="bg-gray-50 border-t-2 border-gray-300">
+                    <tbody id="tabla-resumen-semanal" style="border-top:1px solid var(--pf-border);"></tbody>
+                    <tfoot class="semana-tfoot">
                         <tr>
-                            <td class="px-6 py-4 text-sm font-black uppercase text-gray-900">TOTAL</td>
-                            <td class="px-6 py-4 text-right text-xl font-black text-blue-600" id="total-ingresos-semana">$0.00</td>
-                            <td class="px-6 py-4 text-right text-xl font-black text-red-600" id="total-egresos-semana">$0.00</td>
-                            <td class="px-6 py-4 text-right text-xl font-black text-emerald-600" id="balance-semana">$0.00</td>
-                            <td class="px-6 py-4" colspan="2"></td>
-                            <td class="px-6 py-4 text-right text-xl font-black text-amber-600 bg-amber-50" id="total-productos-semana">$0.00</td>
-                            <td class="px-6 py-4 text-center">
-                                <span class="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-full" id="cantidad-movimientos-semana">0</span>
+                            <td style="padding:.875rem 1.25rem;font-weight:900;font-size:.85rem;color:var(--pf-text);text-transform:uppercase;letter-spacing:.08em;">TOTAL</td>
+                            <td style="text-align:right;font-size:1.1rem;font-weight:900;color:var(--pf-blueB);padding:.875rem 1.25rem;" id="total-ingresos-semana">$0.00</td>
+                            <td style="text-align:right;font-size:1.1rem;font-weight:900;color:var(--pf-red);padding:.875rem 1.25rem;" id="total-egresos-semana">$0.00</td>
+                            <td style="text-align:right;font-size:1.1rem;font-weight:900;color:var(--pf-green);padding:.875rem 1.25rem;" id="balance-semana">$0.00</td>
+                            <td colspan="2" style="padding:.875rem 1.25rem;"></td>
+                            <td style="text-align:right;font-size:1.1rem;font-weight:900;color:var(--pf-orange);padding:.875rem 1.25rem;background:rgba(245,158,11,.05);" id="total-productos-semana">$0.00</td>
+                            <td style="text-align:center;padding:.875rem 1.25rem;">
+                                <span style="padding:.25rem .75rem;background:rgba(124,58,237,.1);color:#A78BFA;border:1px solid rgba(124,58,237,.25);border-radius:999px;font-size:.72rem;font-weight:800;" id="cantidad-movimientos-semana">0</span>
                             </td>
                         </tr>
                     </tfoot>
@@ -330,117 +374,78 @@
             </div>
         </div>
     </div>
-    <!-- TAB: HISTORIAL CIERRES -->
+
+    <!-- TAB: Historial Cierres -->
     <div id="content-cierres" class="tab-content hidden">
-        <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200 mb-4">
-            <div class="flex items-center justify-between">
-                <h3 class="text-2xl font-black text-gray-900 uppercase tracking-wide">Historial de Cierres de Caja</h3>
-                <button onclick="cargarHistorialCierres()"
-                        class="px-6 py-2 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white font-black rounded-xl transition-all shadow-xl">
-                    <i data-lucide="refresh-cw" class="w-4 h-4 inline-block mr-2"></i>
-                    Actualizar
-                </button>
-            </div>
+        <div class="desglose-card" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+            <h3 style="font-size:.95rem;font-weight:900;color:var(--pf-text);text-transform:uppercase;letter-spacing:.08em;margin:0;">Historial de Cierres de Caja</h3>
+            <button onclick="cargarHistorialCierres()" class="pf-btn pf-btn-blue" style="padding:.6rem 1.25rem;">
+                <i data-lucide="refresh-cw" style="width:14px;height:14px;"></i> Actualizar
+            </button>
         </div>
-
-        <div id="lista-cierres" class="space-y-4">
-            <div class="bg-white rounded-2xl shadow-xl p-8 text-center border-2 border-gray-200">
-                <p class="text-gray-500 font-bold">Cargando historial...</p>
+        <div id="lista-cierres">
+            <div class="desglose-card" style="text-align:center;padding:3rem;">
+                <p style="color:var(--pf-muted);font-weight:700;">Cargando historial...</p>
             </div>
         </div>
     </div>
 
-    <!-- TAB: REGISTRAR -->
+    <!-- TAB: Registrar -->
     <div id="content-registrar" class="tab-content hidden">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Formulario de Ingreso -->
-            <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-green-200">
-                <h3 class="text-2xl font-black text-green-700 mb-6 uppercase tracking-wide flex items-center">
-                    <i data-lucide="plus-circle" class="w-6 h-6 mr-2"></i>
-                    Registrar Ingreso
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
+            <!-- Ingreso -->
+            <div class="form-card form-card-green">
+                <h3 style="font-size:1.1rem;font-weight:900;color:var(--pf-green);text-transform:uppercase;letter-spacing:.06em;margin:0 0 1.5rem;display:flex;align-items:center;gap:.5rem;">
+                    <i data-lucide="plus-circle" style="width:20px;height:20px;"></i> Registrar Ingreso
                 </h3>
-                <form onsubmit="registrarIngreso(event)" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Categoría</label>
-                        <select id="ingreso-categoria" required
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-600 focus:border-green-600 font-semibold">
-                            <option value="membresia">Membresía</option>
-                            <option value="renovacion">Renovación</option>
-                            <option value="producto">Producto</option>
-                            <option value="abono_deuda">Abono Deuda</option>
-                            <option value="otro">Otro</option>
+                <form onsubmit="registrarIngreso(event)" style="display:flex;flex-direction:column;gap:1rem;">
+                    <div><label class="pf-label">Categoría</label>
+                        <select id="ingreso-categoria" required class="pf-select">
+                            <option value="membresia">Membresía</option><option value="renovacion">Renovación</option>
+                            <option value="producto">Producto</option><option value="abono_deuda">Abono Deuda</option><option value="otro">Otro</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Monto</label>
-                        <input type="number" id="ingreso-monto" step="0.01" required
-                               class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-600 focus:border-green-600 font-semibold"
-                               placeholder="0.00">
+                    <div><label class="pf-label">Monto</label>
+                        <input type="number" id="ingreso-monto" step="0.01" required class="pf-input" placeholder="0.00">
                     </div>
-                    <div>
-                        <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Método de Pago</label>
-                        <select id="ingreso-metodo" required
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-600 focus:border-green-600 font-semibold">
-                            <option value="efectivo">Efectivo</option>
-                            <option value="transferencia">Transferencia</option>
+                    <div><label class="pf-label">Método de Pago</label>
+                        <select id="ingreso-metodo" required class="pf-select">
+                            <option value="efectivo">Efectivo</option><option value="transferencia">Transferencia</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Descripción</label>
-                        <textarea id="ingreso-descripcion" rows="3" required
-                                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-600 focus:border-green-600 font-semibold"
-                                  placeholder="Detalles del ingreso"></textarea>
+                    <div><label class="pf-label">Descripción</label>
+                        <textarea id="ingreso-descripcion" rows="3" required class="pf-input" style="resize:none;" placeholder="Detalles del ingreso"></textarea>
                     </div>
-                    <button type="submit"
-                            class="w-full py-4 bg-gradient-to-r from-green-600 to-green-800 hover:from-green-700 hover:to-green-900 text-white font-black rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
-                        <i data-lucide="check-circle" class="w-5 h-5 inline-block mr-2"></i>
-                        Registrar Ingreso
+                    <button type="submit" class="pf-btn pf-btn-green" style="width:100%;justify-content:center;padding:1rem;">
+                        <i data-lucide="check-circle" style="width:18px;height:18px;"></i> Registrar Ingreso
                     </button>
                 </form>
             </div>
-
-            <!-- Formulario de Egreso -->
-            <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-red-200">
-                <h3 class="text-2xl font-black text-red-700 mb-6 uppercase tracking-wide flex items-center">
-                    <i data-lucide="minus-circle" class="w-6 h-6 mr-2"></i>
-                    Registrar Egreso
+            <!-- Egreso -->
+            <div class="form-card form-card-red">
+                <h3 style="font-size:1.1rem;font-weight:900;color:var(--pf-red);text-transform:uppercase;letter-spacing:.06em;margin:0 0 1.5rem;display:flex;align-items:center;gap:.5rem;">
+                    <i data-lucide="minus-circle" style="width:20px;height:20px;"></i> Registrar Egreso
                 </h3>
-                <form onsubmit="registrarEgreso(event)" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Categoría</label>
-                        <select id="egreso-categoria" required
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
-                            <option value="salario">Salario</option>
-                            <option value="servicio">Servicio</option>
-                            <option value="compra">Compra</option>
-                            <option value="mantenimiento">Mantenimiento</option>
-                            <option value="otro">Otro</option>
+                <form onsubmit="registrarEgreso(event)" style="display:flex;flex-direction:column;gap:1rem;">
+                    <div><label class="pf-label">Categoría</label>
+                        <select id="egreso-categoria" required class="pf-select">
+                            <option value="salario">Salario</option><option value="servicio">Servicio</option>
+                            <option value="compra">Compra</option><option value="mantenimiento">Mantenimiento</option><option value="otro">Otro</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Monto</label>
-                        <input type="number" id="egreso-monto" step="0.01" required
-                               class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
-                               placeholder="0.00">
+                    <div><label class="pf-label">Monto</label>
+                        <input type="number" id="egreso-monto" step="0.01" required class="pf-input" placeholder="0.00">
                     </div>
-                    <div>
-                        <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Método de Pago</label>
-                        <select id="egreso-metodo" required
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
-                            <option value="efectivo">Efectivo</option>
-                            <option value="transferencia">Transferencia</option>
+                    <div><label class="pf-label">Método de Pago</label>
+                        <select id="egreso-metodo" required class="pf-select">
+                            <option value="efectivo">Efectivo</option><option value="transferencia">Transferencia</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Descripción</label>
-                        <textarea id="egreso-descripcion" rows="3" required
-                                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
-                                  placeholder="Detalles del egreso"></textarea>
+                    <div><label class="pf-label">Descripción</label>
+                        <textarea id="egreso-descripcion" rows="3" required class="pf-input" style="resize:none;" placeholder="Detalles del egreso"></textarea>
                     </div>
-                    <button type="submit"
-                            class="w-full py-4 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
-                        <i data-lucide="alert-circle" class="w-5 h-5 inline-block mr-2"></i>
-                        Registrar Egreso
+                    <button type="submit" class="pf-btn pf-btn-red" style="width:100%;justify-content:center;padding:1rem;">
+                        <i data-lucide="alert-circle" style="width:18px;height:18px;"></i> Registrar Egreso
                     </button>
                 </form>
             </div>
@@ -448,181 +453,121 @@
     </div>
 </div>
 
-<!-- MODAL DE CIERRE DE CAJA -->
-<div id="modal-cerrar-caja" class="fixed inset-0 bg-black bg-opacity-70 hidden flex items-center justify-center z-50">
-    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-3xl mx-4 transform transition-all">
-        <div class="bg-gradient-to-r from-red-600 to-red-800 text-white px-8 py-6 rounded-t-3xl">
-            <h3 class="text-3xl font-black uppercase tracking-wide flex items-center">
-                <i data-lucide="lock" class="w-8 h-8 mr-3"></i>
-                Cerrar Caja del Día
-            </h3>
+<!-- MODAL CERRAR CAJA -->
+<div id="modal-cerrar-caja" class="pf-modal hidden">
+    <div class="pf-modal-card" style="max-width:640px;">
+        <div class="pf-modal-header" style="background:linear-gradient(135deg,var(--pf-deep),var(--pf-purple));">
+            <i data-lucide="lock" style="width:28px;height:28px;color:#fff;flex-shrink:0;"></i>
+            <h3 style="font-size:1.1rem;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:.06em;margin:0;">Cerrar Caja del Día</h3>
         </div>
-
-        <div class="p-8">
-            <!-- RESUMEN DEL CIERRE -->
-            <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 mb-6 border-2 border-gray-200">
-                <h4 class="text-xl font-black text-gray-900 mb-6 uppercase flex items-center gap-2">
-                    <i data-lucide="bar-chart-3" class="w-6 h-6 text-blue-600"></i>
-                    Resumen del Cierre
-                </h4>
-
-                <div class="grid grid-cols-2 gap-6">
-                    <!-- Efectivo Final -->
-                    <div class="bg-white rounded-xl p-4 border-l-4 border-emerald-600">
-                        <p class="text-xs text-gray-600 font-bold mb-1 uppercase">💵 Efectivo Final</p>
-                        <p class="text-3xl font-black text-emerald-600" id="cierre-efectivo-final">$0.00</p>
-                    </div>
-
-                    <!-- Transferencias -->
-                    <div class="bg-white rounded-xl p-4 border-l-4 border-purple-600">
-                        <p class="text-xs text-gray-600 font-bold mb-1 uppercase">💳 Transferencias</p>
-                        <p class="text-3xl font-black text-purple-600" id="cierre-transferencias">$0.00</p>
-                    </div>
-
-                    <!-- Ingresos Hoy -->
-                    <div class="bg-white rounded-xl p-4 border-l-4 border-blue-600">
-                        <p class="text-xs text-gray-600 font-bold mb-1 uppercase">📈 Ingresos Hoy</p>
-                        <p class="text-2xl font-black text-blue-600" id="cierre-ingresos">$0.00</p>
-                    </div>
-
-                    <!-- Egresos Hoy -->
-                    <div class="bg-white rounded-xl p-4 border-l-4 border-red-600">
-                        <p class="text-xs text-gray-600 font-bold mb-1 uppercase">📉 Egresos Hoy</p>
-                        <p class="text-2xl font-black text-red-600" id="cierre-egresos">$0.00</p>
-                    </div>
-
-                    <!-- Balance General -->
-                    <div class="bg-white rounded-xl p-4 border-l-4 border-amber-600 col-span-2">
-                        <p class="text-sm text-gray-600 font-bold mb-1 uppercase">💰 Balance General</p>
-                        <p class="text-4xl font-black text-amber-600" id="cierre-balance">$0.00</p>
-                    </div>
+        <div class="pf-modal-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.875rem;margin-bottom:1.25rem;">
+                <div style="background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.25);border-radius:.875rem;padding:1rem;">
+                    <p style="font-size:.68rem;color:rgba(16,185,129,.7);font-weight:800;text-transform:uppercase;margin:0 0 .3rem 0;">💵 Efectivo Final</p>
+                    <p style="font-size:1.5rem;font-weight:900;color:var(--pf-green);margin:0;" id="cierre-efectivo-final">$0.00</p>
+                </div>
+                <div style="background:rgba(124,58,237,.07);border:1px solid rgba(124,58,237,.25);border-radius:.875rem;padding:1rem;">
+                    <p style="font-size:.68rem;color:rgba(167,139,250,.7);font-weight:800;text-transform:uppercase;margin:0 0 .3rem 0;">💳 Transferencias</p>
+                    <p style="font-size:1.5rem;font-weight:900;color:#A78BFA;margin:0;" id="cierre-transferencias">$0.00</p>
+                </div>
+                <div style="background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.25);border-radius:.875rem;padding:1rem;">
+                    <p style="font-size:.68rem;color:rgba(96,165,250,.7);font-weight:800;text-transform:uppercase;margin:0 0 .3rem 0;">📈 Ingresos Hoy</p>
+                    <p style="font-size:1.5rem;font-weight:900;color:var(--pf-blueB);margin:0;" id="cierre-ingresos">$0.00</p>
+                </div>
+                <div style="background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.25);border-radius:.875rem;padding:1rem;">
+                    <p style="font-size:.68rem;color:rgba(248,113,113,.7);font-weight:800;text-transform:uppercase;margin:0 0 .3rem 0;">📉 Egresos Hoy</p>
+                    <p style="font-size:1.5rem;font-weight:900;color:var(--pf-red);margin:0;" id="cierre-egresos">$0.00</p>
+                </div>
+                <div style="grid-column:span 2;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.25);border-radius:.875rem;padding:1rem;">
+                    <p style="font-size:.68rem;color:rgba(245,158,11,.7);font-weight:800;text-transform:uppercase;margin:0 0 .3rem 0;">💰 Balance General</p>
+                    <p style="font-size:2rem;font-weight:900;color:var(--pf-orange);margin:0;" id="cierre-balance">$0.00</p>
                 </div>
             </div>
-
-            <!-- DESGLOSE DE PRODUCTOS -->
-            <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl p-6 mb-6 border-2 border-amber-200">
-                <h4 class="text-lg font-black text-gray-900 mb-4 uppercase flex items-center gap-2">
-                    <i data-lucide="shopping-bag" class="w-5 h-5 text-amber-600"></i>
-                    Productos Vendidos
-                </h4>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <!-- Total Productos -->
-                    <div class="bg-amber-600 rounded-xl p-4 col-span-2">
-                        <p class="text-xs text-white font-bold mb-1 uppercase">Total Productos Efectivo y Transferencia</p>
-                        <p class="text-3xl font-black text-white" id="cierre-productos-total">$0.00</p>
-                    </div>
-                </div>
+            <div style="background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:.875rem;padding:1rem;margin-bottom:1.25rem;">
+                <p style="font-size:.78rem;font-weight:800;color:var(--pf-orange);text-transform:uppercase;letter-spacing:.06em;margin:0 0 .5rem 0;display:flex;align-items:center;gap:.4rem;">
+                    <i data-lucide="shopping-bag" style="width:14px;height:14px;"></i> Productos Vendidos
+                </p>
+                <p style="font-size:1.5rem;font-weight:900;color:var(--pf-orange);margin:0;" id="cierre-productos-total">$0.00</p>
             </div>
-
-            <!-- OBSERVACIONES -->
-            <div class="mb-6">
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase flex items-center gap-2">
-                    <i data-lucide="file-text" class="w-4 h-4"></i>
-                    Observaciones (Opcional)
-                </label>
-                <textarea id="cierre-observaciones" rows="3"
-                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
-                          placeholder="Notas adicionales sobre el cierre del día..."></textarea>
-            </div>
-
-            <!-- BOTONES -->
-            <div class="flex gap-4">
-                <button onclick="cerrarModalCerrarCaja()"
-                        class="flex-1 px-6 py-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-black rounded-xl transition-all uppercase tracking-wide flex items-center justify-center gap-2">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                    Cancelar
-                </button>
-                <button onclick="confirmarCierreCaja()"
-                        class="flex-1 px-6 py-4 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105 flex items-center justify-center gap-2">
-                    <i data-lucide="check-circle" class="w-5 h-5"></i>
-                    Confirmar Cierre
-                </button>
+            <div>
+                <label class="pf-label">Observaciones (Opcional)</label>
+                <textarea id="cierre-observaciones" rows="3" class="pf-input" style="resize:none;" placeholder="Notas adicionales sobre el cierre del día..."></textarea>
             </div>
         </div>
-    </div>
-</div>
-
-<!-- MODAL: CERRAR DÍA ESPECÍFICO -->
-<div id="modalCerrarDiaEspecifico" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4">
-        <h3 class="text-2xl font-black text-gray-900 mb-4 uppercase tracking-wide">
-            <i data-lucide="calendar-check" class="w-6 h-6 inline-block mr-2 text-blue-600"></i>
-            Cerrar Día Específico
-        </h3>
-        <p class="text-gray-600 mb-4 font-semibold">Fecha: <span id="modal-fecha-cerrar" class="text-blue-600 font-black"></span></p>
-        <p class="text-gray-600 mb-4 font-semibold">Movimientos: <span id="modal-cantidad-movimientos" class="text-gray-900 font-black"></span></p>
-        <p class="text-gray-600 mb-6 font-semibold">Balance: <span id="modal-balance-dia" class="text-emerald-600 font-black"></span></p>
-
-        <div class="mb-4">
-            <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Observaciones (opcional)</label>
-            <textarea id="input-observaciones-cierre-dia" rows="3" class="w-full px-4 py-3 rounded-xl border-2 border-gray-300 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Agregar notas sobre este cierre..."></textarea>
-        </div>
-
-        <div class="flex gap-3">
-            <button onclick="cerrarModalDiaEspecifico()" class="flex-1 px-6 py-3 bg-gray-300 hover:bg-gray-400 text-gray-800 font-black rounded-xl transition-all uppercase tracking-wide">
-                Cancelar
+        <div class="pf-modal-footer">
+            <button onclick="cerrarModalCerrarCaja()" class="pf-btn pf-btn-gray">
+                <i data-lucide="x" style="width:16px;height:16px;"></i> Cancelar
             </button>
-            <button onclick="confirmarCierreDiaEspecifico()" class="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-black rounded-xl transition-all shadow-lg uppercase tracking-wide">
-                Cerrar Día
+            <button onclick="confirmarCierreCaja()" class="pf-btn pf-btn-red">
+                <i data-lucide="check-circle" style="width:16px;height:16px;"></i> Confirmar Cierre
             </button>
         </div>
     </div>
 </div>
 
-<!-- MODAL PARA ABONAR DEUDA -->
-<div id="modalAbonarDeuda" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4">
-        <div class="bg-gradient-to-r from-emerald-600 to-emerald-800 text-white p-6 rounded-t-2xl">
-            <div class="flex items-center justify-between">
-                <h3 class="text-2xl font-black uppercase tracking-wide">Abonar a Deuda</h3>
-                <button onclick="cerrarModalAbonar()" class="text-white hover:text-gray-200">
-                    <i data-lucide="x" class="w-6 h-6"></i>
+<!-- MODAL CERRAR DÍA ESPECÍFICO -->
+<div id="modalCerrarDiaEspecifico" class="pf-modal hidden">
+    <div class="pf-modal-card" style="max-width:440px;">
+        <div class="pf-modal-header" style="background:linear-gradient(135deg,var(--pf-blue),var(--pf-purple));">
+            <i data-lucide="calendar-check" style="width:24px;height:24px;color:#fff;flex-shrink:0;"></i>
+            <h3 style="font-size:1rem;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:.06em;margin:0;">Cerrar Día Específico</h3>
+        </div>
+        <div class="pf-modal-body">
+            <p style="font-size:.85rem;color:var(--pf-soft);font-weight:700;margin-bottom:.35rem;">Fecha: <span id="modal-fecha-cerrar" style="color:var(--pf-blueB);font-weight:900;"></span></p>
+            <p style="font-size:.85rem;color:var(--pf-soft);font-weight:700;margin-bottom:.35rem;">Movimientos: <span id="modal-cantidad-movimientos" style="color:var(--pf-text);font-weight:900;"></span></p>
+            <p style="font-size:.85rem;color:var(--pf-soft);font-weight:700;margin-bottom:1.25rem;">Balance: <span id="modal-balance-dia" style="color:var(--pf-green);font-weight:900;"></span></p>
+            <div>
+                <label class="pf-label">Observaciones (opcional)</label>
+                <textarea id="input-observaciones-cierre-dia" rows="3" class="pf-input" style="resize:none;" placeholder="Agregar notas sobre este cierre..."></textarea>
+            </div>
+        </div>
+        <div class="pf-modal-footer">
+            <button onclick="cerrarModalDiaEspecifico()" class="pf-btn pf-btn-gray">Cancelar</button>
+            <button onclick="confirmarCierreDiaEspecifico()" class="pf-btn pf-btn-blue">Cerrar Día</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL ABONAR DEUDA -->
+<div id="modalAbonarDeuda" class="pf-modal hidden">
+    <div class="pf-modal-card" style="max-width:440px;">
+        <div class="pf-modal-header" style="background:linear-gradient(135deg,var(--pf-green),#065F46);">
+            <i data-lucide="dollar-sign" style="width:24px;height:24px;color:#fff;flex-shrink:0;"></i>
+            <div style="display:flex;align-items:center;justify-content:space-between;flex:1;">
+                <h3 style="font-size:1rem;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:.06em;margin:0;">Abonar a Deuda</h3>
+                <button onclick="cerrarModalAbonar()" style="background:rgba(255,255,255,.15);border:none;cursor:pointer;color:#fff;padding:.35rem;border-radius:.5rem;display:flex;">
+                    <i data-lucide="x" style="width:18px;height:18px;"></i>
                 </button>
             </div>
         </div>
-
-        <div class="p-6">
-            <div class="mb-4">
-                <p class="text-sm text-gray-600 font-bold uppercase mb-1">Cliente</p>
-                <p class="text-lg font-black text-gray-900" id="modal-cliente-nombre">-</p>
+        <div class="pf-modal-body" style="display:flex;flex-direction:column;gap:1rem;">
+            <div>
+                <p class="pf-label">Cliente</p>
+                <p style="font-weight:800;color:var(--pf-text);font-size:1rem;margin:0;" id="modal-cliente-nombre">-</p>
             </div>
-
-            <div class="mb-4">
-                <p class="text-sm text-gray-600 font-bold uppercase mb-1">Concepto</p>
-                <p class="text-lg font-black text-gray-900" id="modal-concepto">-</p>
+            <div>
+                <p class="pf-label">Concepto</p>
+                <p style="font-weight:700;color:var(--pf-soft);font-size:.9rem;margin:0;" id="modal-concepto">-</p>
             </div>
-
-            <div class="mb-4">
-                <p class="text-sm text-gray-600 font-bold uppercase mb-1">Saldo Pendiente</p>
-                <p class="text-2xl font-black text-red-600" id="modal-saldo">$0.00</p>
+            <div>
+                <p class="pf-label">Saldo Pendiente</p>
+                <p style="font-size:1.5rem;font-weight:900;color:var(--pf-red);margin:0;" id="modal-saldo">$0.00</p>
             </div>
-
-            <div class="mb-4">
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Monto a Abonar</label>
-                <input type="number" step="0.01" id="input-monto-abono"
-                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-emerald-600 focus:outline-none font-bold text-lg">
+            <div>
+                <label class="pf-label">Monto a Abonar</label>
+                <input type="number" step="0.01" id="input-monto-abono" class="pf-input" style="font-size:1.1rem;">
             </div>
-
-            <div class="mb-6">
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Método de Pago</label>
-                <select id="input-metodo-abono"
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-emerald-600 focus:outline-none font-bold">
+            <div>
+                <label class="pf-label">Método de Pago</label>
+                <select id="input-metodo-abono" class="pf-select">
                     <option value="efectivo">Efectivo</option>
                     <option value="transferencia">Transferencia</option>
                 </select>
             </div>
-
-            <div class="flex gap-3">
-                <button onclick="cerrarModalAbonar()"
-                        class="flex-1 px-6 py-3 bg-gray-200 text-gray-900 rounded-xl hover:bg-gray-300 font-black uppercase tracking-wide transition-all">
-                    Cancelar
-                </button>
-                <button onclick="confirmarAbono()"
-                        class="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-800 text-white rounded-xl hover:from-emerald-700 hover:to-emerald-900 font-black uppercase tracking-wide transition-all">
-                    Confirmar
-                </button>
-            </div>
+        </div>
+        <div class="pf-modal-footer">
+            <button onclick="cerrarModalAbonar()" class="pf-btn pf-btn-gray">Cancelar</button>
+            <button onclick="confirmarAbono()" class="pf-btn pf-btn-green">Confirmar</button>
         </div>
     </div>
 </div>
@@ -632,1239 +577,495 @@
         const API_URL = '/api';
         let fechaDiaCerrar = null;
 
-        // ========================================
-        // FUNCIÓN HELPER PARA FECHAS
-        // ========================================
-        /**
-         * Convierte una fecha UTC del servidor y la muestra como está (sin convertir a zona horaria local)
-         * Esto muestra la hora real que tiene la fecha en UTC
-         */
-        function parsearFechaUTC(fechaString) {
-            const fecha = new Date(fechaString);
-            return fecha;
-        }
-
-        /**
-         * Parsea un string de fecha del servidor como hora LOCAL.
-         * El backend guarda DateTime.Now (hora local) sin sufijo 'Z',
-         * por eso NO debemos dejar que el navegador lo trate como UTC.
-         * Soporta: "2026-03-24T12:39:08", "2026-03-24T12:39:08.123", "2026-03-24"
-         */
         function parsearFechaLocal(fechaString) {
             if (!fechaString) return null;
-            // Extraer partes del string directamente sin involucrar zona horaria
             const partes = fechaString.split('T');
             const fecha = partes[0].split('-');
-            const anio = parseInt(fecha[0], 10);
-            const mes = parseInt(fecha[1], 10) - 1;
-            const dia = parseInt(fecha[2], 10);
-            let horas = 0, minutos = 0, segundos = 0;
-            if (partes[1]) {
-                const tiempo = partes[1].split(':');
-                horas = parseInt(tiempo[0], 10) || 0;
-                minutos = parseInt(tiempo[1], 10) || 0;
-                segundos = parseInt(tiempo[2], 10) || 0;
-            }
+            const anio = parseInt(fecha[0], 10), mes = parseInt(fecha[1], 10) - 1, dia = parseInt(fecha[2], 10);
+            let horas=0, minutos=0, segundos=0;
+            if (partes[1]) { const t=partes[1].split(':'); horas=parseInt(t[0],10)||0; minutos=parseInt(t[1],10)||0; segundos=parseInt(t[2],10)||0; }
             return new Date(anio, mes, dia, horas, minutos, segundos);
         }
-
-        /**
-         * Formatea fecha+hora del servidor como hora local (sin desfase UTC).
-         * Ejemplo: "2026-03-24T12:39:08" → "24/3/2026 12:39"
-         */
-        function formatearFechaHoraUTC(fechaString) {
-            const fecha = parsearFechaLocal(fechaString);
-            if (!fecha || isNaN(fecha.getTime())) return '—';
-            const dia = fecha.getDate();
-            const mes = fecha.getMonth() + 1;
-            const anio = fecha.getFullYear();
-            const horas24 = fecha.getHours();
-            const minutos = String(fecha.getMinutes()).padStart(2, '0');
-            const ampm = horas24 >= 12 ? 'PM' : 'AM';
-            const horas12 = horas24 % 12 || 12;
-            return `${dia}/${mes}/${anio} ${horas12}:${minutos} ${ampm}`;
+        function parsearFechaUTC(s) { return new Date(s); }
+        function formatearFechaHoraUTC(s) {
+            const f=parsearFechaLocal(s); if(!f||isNaN(f)) return '—';
+            const dia=f.getDate(), mes=f.getMonth()+1, anio=f.getFullYear();
+            const h24=f.getHours(), mm=String(f.getMinutes()).padStart(2,'0');
+            const ampm=h24>=12?'PM':'AM', h12=h24%12||12;
+            return `${dia}/${mes}/${anio} ${h12}:${mm} ${ampm}`;
         }
-
-        /**
-         * Formatea solo la fecha (sin hora).
-         * Ejemplo: "2026-03-24T12:39:08" → "24/3/2026"
-         */
-        function formatearFechaUTC(fechaString) {
-            const fecha = parsearFechaLocal(fechaString);
-            if (!fecha || isNaN(fecha.getTime())) return '—';
-            return `${fecha.getDate()}/${fecha.getMonth() + 1}/${fecha.getFullYear()}`;
+        function formatearFechaUTC(s) {
+            const f=parsearFechaLocal(s); if(!f||isNaN(f)) return '—';
+            return `${f.getDate()}/${f.getMonth()+1}/${f.getFullYear()}`;
         }
-
-        /**
-         * Formatea fecha con formato largo.
-         * Ejemplo: "2026-03-24" → "martes, 24 de marzo de 2026"
-         */
-        function formatearFechaLargaUTC(fechaString) {
-            const fecha = parsearFechaLocal(fechaString);
-            if (!fecha || isNaN(fecha.getTime())) return '—';
-            return fecha.toLocaleDateString('es-ES', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
+        function formatearFechaLargaUTC(s) {
+            const f=parsearFechaLocal(s); if(!f||isNaN(f)) return '—';
+            return f.toLocaleDateString('es-ES',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
         }
         function obtenerFechaLocalISO() {
-            const hoy = new Date();
-            const year = hoy.getFullYear();
-            const month = String(hoy.getMonth() + 1).padStart(2, '0');
-            const day = String(hoy.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
+            const h=new Date();
+            return `${h.getFullYear()}-${String(h.getMonth()+1).padStart(2,'0')}-${String(h.getDate()).padStart(2,'0')}`;
         }
 
         function cambiarTab(tab) {
-            // Ocultar todos los contenidos
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.add('hidden');
-            });
-
-            // Quitar estilos activos de todos los tabs
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('border-b-4', 'border-red-600', 'bg-red-50', 'text-red-600');
-            });
-
-            // Mostrar contenido seleccionado
+            document.querySelectorAll('.tab-content').forEach(c=>c.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
             document.getElementById(`content-${tab}`).classList.remove('hidden');
-
-            // Activar tab seleccionado
-            const activeTab = document.getElementById(`tab-${tab}`);
-            activeTab.classList.add('border-b-4', 'border-red-600', 'bg-red-50', 'text-red-600');
-
-            // Cargar datos específicos del tab
-            if (tab === 'semanal') {
-                cargarResumenSemanal();
-            } else if (tab === 'cierres') {
-                cargarHistorialCierres();
-            } else if (tab === 'deudas') {
-                cargarDeudas();
-            } else if (tab === 'pendientes') {
-                cargarDiasPendientes();
-            }
-
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            if (tab==='semanal') cargarResumenSemanal();
+            else if (tab==='cierres') cargarHistorialCierres();
+            else if (tab==='deudas') cargarDeudas();
+            else if (tab==='pendientes') cargarDiasPendientes();
             lucide.createIcons();
         }
 
-        // ========================================
-        // CARGAR RESUMEN PRINCIPAL
-        // ========================================
-                async function cargarResumen() {
+        async function cargarResumen() {
             try {
-                const response = await fetch(`${API_URL}/Caja/dashboard`);
-                const data = await response.json();
-
+                const r=await fetch(`${API_URL}/Caja/dashboard`), data=await r.json();
                 if (data.success) {
-                    // ========================================
-                    // FUNCIÓN AUXILIAR PARA ACTUALIZAR ELEMENTOS DE FORMA SEGURA
-                    // ========================================
-                    const actualizarElemento = (id, valor) => {
-                        const elemento = document.getElementById(id);
-                        if (elemento) {
-                            elemento.textContent = `$${(valor || 0).toFixed(2)}`;
-                        } else {
-                            console.warn(`⚠️ Elemento no encontrado en el DOM: ${id}`);
-                        }
-                    };
-
-                    // ========================================
-                    // ACTUALIZAR TARJETAS PRINCIPALES
-                    // ========================================
-                    actualizarElemento('efectivo-hoy', data.cajaHoy.efectivo.balance);
-                    actualizarElemento('transferencias-hoy', data.cajaHoy.transferencia.balance);
-                    actualizarElemento('ingresos-hoy', data.cajaHoy.totalIngresos);
-                    actualizarElemento('egresos-hoy', data.cajaHoy.totalEgresos);
-                    actualizarElemento('balance-total', data.cajaHoy.balance);
-
-                    // ========================================
-                    // ACTUALIZAR DESGLOSE DE VENTAS (SI EXISTEN LOS ELEMENTOS)
-                    // ========================================
-                    actualizarElemento('venta-membresias', data.cajaHoy.categorias.membresias);
-                    actualizarElemento('venta-productos', data.cajaHoy.categorias.productos);
-                    actualizarElemento('venta-abonos', data.cajaHoy.categorias.abonos);
-                    actualizarElemento('venta-otros', data.cajaHoy.categorias.otros);
-
-                    // Tarjeta "Productos Vendidos" (usa el mismo valor que venta-productos)
-                    actualizarElemento('productos-vendidos', data.cajaHoy.categorias.productos);
-
-                    // ========================================
-                    // ACTUALIZAR DETALLES (CON VALIDACIÓN)
-                    // ========================================
-                    const detalleIngresos = document.getElementById('detalle-ingresos');
-                    if (detalleIngresos) {
-                        const efectivoIng = data.cajaHoy.efectivo.ingresos || 0;
-                        const transfIng = data.cajaHoy.transferencia.ingresos || 0;
-                        detalleIngresos.textContent =
-                            `Efectivo: $${efectivoIng.toFixed(2)} | Transf: $${transfIng.toFixed(2)}`;
-                    }
-
-                    const detalleEgresos = document.getElementById('detalle-egresos');
-                    if (detalleEgresos) {
-                        const efectivoEgr = data.cajaHoy.efectivo.egresos || 0;
-                        const transfEgr = data.cajaHoy.transferencia.egresos || 0;
-                        detalleEgresos.textContent =
-                            `Efectivo: $${efectivoEgr.toFixed(2)} | Transf: $${transfEgr.toFixed(2)}`;
-                    }
-
-                    const detalleTransf = document.getElementById('detalle-transferencias');
-                    if (detalleTransf) {
-                        detalleTransf.textContent = 'Balance en transf.';
-                    }
-                } else {
-                    console.error('Error en la respuesta del API:', data.message);
+                    const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=`$${(v||0).toFixed(2)}`;};
+                    set('efectivo-hoy',data.cajaHoy.efectivo.balance);
+                    set('transferencias-hoy',data.cajaHoy.transferencia.balance);
+                    set('ingresos-hoy',data.cajaHoy.totalIngresos);
+                    set('egresos-hoy',data.cajaHoy.totalEgresos);
+                    set('balance-total',data.cajaHoy.balance);
+                    set('venta-membresias',data.cajaHoy.categorias.membresias);
+                    set('venta-productos',data.cajaHoy.categorias.productos);
+                    set('venta-abonos',data.cajaHoy.categorias.abonos);
+                    set('venta-otros',data.cajaHoy.categorias.otros);
+                    const di=document.getElementById('detalle-ingresos');
+                    if(di) di.textContent=`Efectivo: $${(data.cajaHoy.efectivo.ingresos||0).toFixed(2)} | Transf: $${(data.cajaHoy.transferencia.ingresos||0).toFixed(2)}`;
+                    const de=document.getElementById('detalle-egresos');
+                    if(de) de.textContent=`Efectivo: $${(data.cajaHoy.efectivo.egresos||0).toFixed(2)} | Transf: $${(data.cajaHoy.transferencia.egresos||0).toFixed(2)}`;
+                    const alerta=document.getElementById('alerta-dias-pendientes');
+                    if(data.alertas?.tieneMovimientosPendientesAnteriores){
+                        const cant=document.getElementById('cantidad-dias-pendientes');
+                        if(alerta&&cant){cant.textContent=data.alertas.movimientosPendientesAnteriores;alerta.classList.remove('hidden');}
+                    } else if(alerta) alerta.classList.add('hidden');
                 }
-
-                // ========================================
-                // CARGAR DEUDAS PENDIENTES (OPCIONAL - NO CRÍTICO)
-                // ========================================
                 try {
-                    const responseDeudas = await fetch(`${API_URL}/Deudas?estado=pendiente`);
-                    const deudasData = await responseDeudas.json();
-
-                    if (deudasData.success) {
-                        const deudasElement = document.getElementById('deudas-pendientes');
-                        if (deudasElement) {
-                            const saldoPendiente = deudasData.totalSaldoPendiente || 0;
-                            deudasElement.textContent = `$${saldoPendiente.toFixed(2)}`;
-                        }
-                    }
-                } catch (errorDeudas) {
-                    console.warn('⚠️ Error al cargar deudas (no crítico):', errorDeudas);
-                    // No detener la ejecución si falla la carga de deudas
-                }
-
-                // MOSTRAR ALERTA SI HAY DÍAS PENDIENTES
-                if (data.alertas && data.alertas.tieneMovimientosPendientesAnteriores) {
-                    const alerta = document.getElementById('alerta-dias-pendientes');
-                    const cantidad = document.getElementById('cantidad-dias-pendientes');
-                    if (alerta && cantidad) {
-                        cantidad.textContent = data.alertas.movimientosPendientesAnteriores;
-                        alerta.classList.remove('hidden');
-                    }
-                } else {
-                    const alerta = document.getElementById('alerta-dias-pendientes');
-                    if (alerta) {
-                        alerta.classList.add('hidden');
-                    }
-                }
-
-            } catch (error) {
-                console.error('❌ Error al cargar resumen de caja:', error);
-
-                // Mostrar error en consola pero no romper la aplicación
-                console.error('Detalles del error:', {
-                    mensaje: error.message,
-                    stack: error.stack
-                });
-            }
+                    const rd=await fetch(`${API_URL}/Deudas?estado=pendiente`), dd=await rd.json();
+                    if(dd.success){const el=document.getElementById('deudas-pendientes');if(el)el.textContent=`$${(dd.totalSaldoPendiente||0).toFixed(2)}`;}
+                } catch(e){}
+            } catch(e) { console.error('Error resumen:',e); }
         }
-        // ========================================
-        // CARGAR MOVIMIENTOS
-        // ========================================
+
         async function cargarMovimientos() {
+            const desde=document.getElementById('fecha-desde').value;
+            const hasta=document.getElementById('fecha-hasta').value;
+            const cat=document.getElementById('filtro-categoria').value;
+            let url=`${API_URL}/Caja/movimientos?`;
+            if(desde) url+=`desde=${desde}&`;
+            if(hasta) url+=`hasta=${hasta}&`;
+            if(cat)   url+=`categoria=${cat}&`;
+            const tbody=document.getElementById('tabla-movimientos');
             try {
-                const desde = document.getElementById('fecha-desde').value;
-                const hasta = document.getElementById('fecha-hasta').value;
-                const categoria = document.getElementById('filtro-categoria').value;
-
-                let url = `${API_URL}/Caja/movimientos?`;
-                if (desde) url += `desde=${desde}&`;
-                if (hasta) url += `hasta=${hasta}&`;
-                if (categoria) url += `categoria=${categoria}&`;
-
-                const response = await fetch(url);
-                const data = await response.json();
-
-                const tbody = document.getElementById('tabla-movimientos');
-
-                if (data.success && data.data && data.data.length > 0) {
-                    tbody.innerHTML = data.data.map(m => {
-                        const tipoColor = m.Tipo === 'ingreso' ? 'text-green-600' : 'text-red-600';
-                        const metodoBadge = m.MetodoPago === 'efectivo'
-                            ? '<span class="px-2 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded">Efectivo</span>'
-                            : '<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded">Transferencia</span>';
-
-                        return `
-                            <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="px-6 py-4 text-sm font-semibold text-gray-900">
-                                    ${formatearFechaHoraUTC(m.fecha || m.Fecha)}
-                                </td>
-                                <td class="px-6 py-4">
-                                    <span class="px-3 py-1 ${tipoColor} bg-opacity-10 rounded-full text-xs font-black uppercase">${m.Tipo}</span>
-                                </td>
-                                <td class="px-6 py-4 text-sm font-semibold text-gray-700">${m.Categoria}</td>
-                                <td class="px-6 py-4 text-sm font-semibold text-gray-600">${m.Descripcion}</td>
-                                <td class="px-6 py-4">${metodoBadge}</td>
-                                <td class="px-6 py-4 text-right text-lg font-black ${tipoColor}">$${m.Monto.toFixed(2)}</td>
-                            </tr>
-                        `;
+                const r=await fetch(url), data=await r.json();
+                if(data.success&&data.data&&data.data.length>0) {
+                    tbody.innerHTML=data.data.map(m=>{
+                        const ic=m.Tipo==='ingreso'?'var(--pf-green)':'var(--pf-red)';
+                        const chip=m.Tipo==='ingreso'
+                            ?`<span class="chip chip-green">${m.Tipo}</span>`
+                            :`<span class="chip chip-red">${m.Tipo}</span>`;
+                        const met=m.MetodoPago==='efectivo'
+                            ?`<span class="chip chip-green">Efectivo</span>`
+                            :`<span class="chip chip-blue">Transferencia</span>`;
+                        return `<tr>
+                            <td>${formatearFechaHoraUTC(m.fecha||m.Fecha)}</td>
+                            <td>${chip}</td>
+                            <td style="color:var(--pf-soft);">${m.Categoria}</td>
+                            <td style="color:var(--pf-soft);">${m.Descripcion}</td>
+                            <td>${met}</td>
+                            <td style="font-weight:900;color:${ic};">$${m.Monto.toFixed(2)}</td>
+                        </tr>`;
                     }).join('');
                 } else {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="6" class="px-6 py-12 text-center text-gray-500 font-bold">
-                                No hay movimientos para mostrar
-                            </td>
-                        </tr>
-                    `;
+                    tbody.innerHTML=`<tr><td colspan="6" style="padding:3rem;text-align:center;color:var(--pf-muted);font-weight:700;">No hay movimientos para mostrar</td></tr>`;
                 }
-            } catch (error) {
-                console.error('Error al cargar movimientos:', error);
-                const tbody = document.getElementById('tabla-movimientos');
-                if (tbody) {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="6" class="px-6 py-12 text-center text-red-500 font-bold">
-                                Error al cargar movimientos
-                            </td>
-                        </tr>
-                    `;
-                }
-            }
+            } catch(e) { tbody.innerHTML=`<tr><td colspan="6" style="padding:3rem;text-align:center;color:var(--pf-red);font-weight:700;">Error al cargar movimientos</td></tr>`; }
         }
 
-        // ========================================
-        // RESUMEN SEMANAL
-        // ========================================
-                async function cargarResumenSemanal() {
+        async function cargarResumenSemanal() {
             try {
-                const response = await fetch(`${API_URL}/Caja/semanal`);
-
-                // Verificar si la respuesta es válida
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const text = await response.text();
-                if (!text) {
-                    throw new Error('Respuesta vacía del servidor');
-                }
-
-                const data = JSON.parse(text);
-
-                if (data.success && data.periodo && data.totales) {
-                    // ========================================
-                    // ACTUALIZAR PERÍODO
-                    // ========================================
-                    const periodoElement = document.getElementById('periodo-semanal');
-                    if (periodoElement) {
-                        periodoElement.textContent =
-                            `Semana del ${formatearFechaUTC(data.periodo.desde)} al ${formatearFechaUTC(data.periodo.hasta)}`;
-                    }
-
-                    // ========================================
-                    // ACTUALIZAR TOTALES CON VALIDACIÓN
-                    // ========================================
-                    const totalesElementos = {
-                        'total-ingresos-semana': data.totales.ingresos,
-                        'total-egresos-semana': data.totales.egresos,
-                        'balance-semana': data.totales.balance,
-                        'total-productos-semana': data.totales.productosVendidos, // ✅ NUEVO
-                        'cantidad-movimientos-semana': data.totales.cantidadMovimientos
+                const r=await fetch(`${API_URL}/Caja/semanal`);
+                if(!r.ok) throw new Error(`HTTP ${r.status}`);
+                const data=JSON.parse(await r.text());
+                if(data.success&&data.periodo&&data.totales) {
+                    const pe=document.getElementById('periodo-semanal');
+                    if(pe) pe.textContent=`Semana del ${formatearFechaUTC(data.periodo.desde)} al ${formatearFechaUTC(data.periodo.hasta)}`;
+                    const sets={
+                        'total-ingresos-semana':data.totales.ingresos,
+                        'total-egresos-semana':data.totales.egresos,
+                        'balance-semana':data.totales.balance,
+                        'total-productos-semana':data.totales.productosVendidos,
                     };
-
-                    for (const [id, valor] of Object.entries(totalesElementos)) {
-                        const elemento = document.getElementById(id);
-                        if (elemento) {
-                            if (id === 'cantidad-movimientos-semana') {
-                                elemento.textContent = valor || 0;
-                            } else {
-                                elemento.textContent = `$${(valor || 0).toFixed(2)}`;
-                            }
-                        }
-                    }
-
-                    // ========================================
-                    // ACTUALIZAR TABLA POR DÍA (CON PRODUCTOS)
-                    // ========================================
-                    const tbody = document.getElementById('tabla-resumen-semanal');
-                    if (tbody && data.resumenPorDia && data.resumenPorDia.length > 0) {
-                        tbody.innerHTML = data.resumenPorDia.map(dia => {
-                            const balanceColor = (dia.balance || 0) >= 0 ? 'text-emerald-600' : 'text-red-600';
-                            return `
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-6 py-4 text-sm font-black text-gray-900 uppercase">${dia.diaNombre || ''}</td>
-                                    <td class="px-6 py-4 text-right text-lg font-black text-blue-600">$${(dia.ingresos || 0).toFixed(2)}</td>
-                                    <td class="px-6 py-4 text-right text-lg font-black text-red-600">$${(dia.egresos || 0).toFixed(2)}</td>
-                                    <td class="px-6 py-4 text-right text-lg font-black ${balanceColor}">$${(dia.balance || 0).toFixed(2)}</td>
-                                    <td class="px-6 py-4 text-right text-sm font-semibold text-gray-700">$${(dia.ingresosEfectivo || 0).toFixed(2)}</td>
-                                    <td class="px-6 py-4 text-right text-sm font-semibold text-gray-700">$${(dia.ingresosTransferencia || 0).toFixed(2)}</td>
-                                    <td class="px-6 py-4 text-right text-lg font-black text-amber-600 bg-amber-50">$${(dia.productosVendidos || 0).toFixed(2)}</td>
-                                    <td class="px-6 py-4 text-center">
-                                        <span class="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-full">${dia.cantidadMovimientos || 0}</span>
-                                    </td>
-                                </tr>
-                            `;
+                    for(const [id,v] of Object.entries(sets)){const el=document.getElementById(id);if(el)el.textContent=`$${(v||0).toFixed(2)}`;}
+                    const cm=document.getElementById('cantidad-movimientos-semana');
+                    if(cm) cm.textContent=data.totales.cantidadMovimientos||0;
+                    const tbody=document.getElementById('tabla-resumen-semanal');
+                    if(tbody&&data.resumenPorDia?.length>0) {
+                        tbody.innerHTML=data.resumenPorDia.map(dia=>{
+                            const bc=(dia.balance||0)>=0?'var(--pf-green)':'var(--pf-red)';
+                            return `<tr style="border-bottom:1px solid var(--pf-border);transition:background .15s;" onmouseover="this.style.background='rgba(59,130,246,.04)'" onmouseout="this.style.background='transparent'">
+                                <td style="padding:.875rem 1.25rem;font-weight:800;color:var(--pf-text);text-transform:uppercase;">${dia.diaNombre||''}</td>
+                                <td style="padding:.875rem 1.25rem;text-align:right;font-weight:900;color:var(--pf-blueB);">$${(dia.ingresos||0).toFixed(2)}</td>
+                                <td style="padding:.875rem 1.25rem;text-align:right;font-weight:900;color:var(--pf-red);">$${(dia.egresos||0).toFixed(2)}</td>
+                                <td style="padding:.875rem 1.25rem;text-align:right;font-weight:900;color:${bc};">$${(dia.balance||0).toFixed(2)}</td>
+                                <td style="padding:.875rem 1.25rem;text-align:right;font-weight:700;color:var(--pf-soft);">$${(dia.ingresosEfectivo||0).toFixed(2)}</td>
+                                <td style="padding:.875rem 1.25rem;text-align:right;font-weight:700;color:var(--pf-soft);">$${(dia.ingresosTransferencia||0).toFixed(2)}</td>
+                                <td style="padding:.875rem 1.25rem;text-align:right;font-weight:900;color:var(--pf-orange);background:rgba(245,158,11,.03);">$${(dia.productosVendidos||0).toFixed(2)}</td>
+                                <td style="padding:.875rem 1.25rem;text-align:center;"><span style="padding:.2rem .65rem;background:rgba(124,58,237,.1);color:#A78BFA;border:1px solid rgba(124,58,237,.2);border-radius:999px;font-size:.7rem;font-weight:800;">${dia.cantidadMovimientos||0}</span></td>
+                            </tr>`;
                         }).join('');
-                    } else {
-                        // Mensaje si no hay datos
-                        if (tbody) {
-                            tbody.innerHTML = `
-                                <tr>
-                                    <td colspan="8" class="px-6 py-12 text-center text-gray-500 font-bold">
-                                        No hay datos disponibles para esta semana
-                                    </td>
-                                </tr>
-                            `;
-                        }
-                    }
+                    } else if(tbody) tbody.innerHTML=`<tr><td colspan="8" style="padding:3rem;text-align:center;color:var(--pf-muted);font-weight:700;">No hay datos disponibles</td></tr>`;
                 }
-            } catch (error) {
-                console.error('Error al cargar resumen semanal:', error);
-
-                // Mostrar error en la tabla
-                const tbody = document.getElementById('tabla-resumen-semanal');
-                if (tbody) {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="8" class="px-6 py-12 text-center text-red-500 font-bold">
-                                Error al cargar los datos
-                            </td>
-                        </tr>
-                    `;
-                }
-            }
+            } catch(e) { console.error('Error semanal:',e); }
         }
-        // ========================================
-        // HISTORIAL DE CIERRES
-        // ========================================
-                async function cargarHistorialCierres() {
+
+        async function cargarHistorialCierres() {
+            const cont=document.getElementById('lista-cierres');
             try {
-                const response = await fetch(`${API_URL}/Caja/cierres?limite=20`);
-
-                // Verificar si la respuesta es válida
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const text = await response.text();
-                if (!text) {
-                    throw new Error('Respuesta vacía del servidor');
-                }
-
-                const data = JSON.parse(text);
-
-                const container = document.getElementById('lista-cierres');
-
-                if (!container) {
-                    console.error('Container lista-cierres no encontrado');
-                    return;
-                }
-
-                if (data.success && data.data && Array.isArray(data.data) && data.data.length > 0) {
-                    container.innerHTML = data.data.map(cierre => {
-                        const tipoBadge = cierre.TipoCierre === 'automatico'
-                            ? '<span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full">AUTOMÁTICO</span>'
-                            : '<span class="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-full">MANUAL</span>';
-
-                        return `
-                            <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200 hover:shadow-2xl transition-all">
-                                <div class="flex items-center justify-between mb-4">
-                                    <div>
-                                        <h4 class="text-lg font-black text-gray-900">${formatearFechaLargaUTC(cierre.FechaCierre)}</h4>
-                                        <p class="text-sm text-gray-600 font-semibold">${formatearFechaHoraUTC(cierre.FechaCierre)}</p>
-                                    </div>
-                                    ${tipoBadge}
+                const r=await fetch(`${API_URL}/Caja/cierres?limite=20`);
+                if(!r.ok) throw new Error(`HTTP ${r.status}`);
+                const data=JSON.parse(await r.text());
+                if(data.success&&data.data?.length>0) {
+                    cont.innerHTML=data.data.map(c=>{
+                        const badge=c.TipoCierre==='automatico'
+                            ?`<span class="chip chip-blue">Automático</span>`
+                            :`<span class="chip chip-purple">Manual</span>`;
+                        return `<div class="cierre-card">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.75rem;">
+                                <div>
+                                    <h4 style="font-weight:900;color:var(--pf-text);font-size:1rem;margin:0 0 .2rem 0;">${formatearFechaLargaUTC(c.FechaCierre)}</h4>
+                                    <p style="font-size:.78rem;color:var(--pf-muted);font-weight:600;margin:0;">${formatearFechaHoraUTC(c.FechaCierre)}</p>
                                 </div>
-                                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-                                    <div class="bg-emerald-50 rounded-xl p-3">
-                                        <p class="text-xs text-emerald-700 font-bold mb-1">Efectivo Final</p>
-                                        <p class="text-lg font-black text-emerald-600">$${(cierre.EfectivoFinal || 0).toFixed(2)}</p>
-                                    </div>
-                                    <div class="bg-blue-50 rounded-xl p-3">
-                                        <p class="text-xs text-blue-700 font-bold mb-1">Ingresos</p>
-                                        <p class="text-lg font-black text-blue-600">$${(cierre.TotalIngresos || 0).toFixed(2)}</p>
-                                    </div>
-                                    <div class="bg-amber-50 rounded-xl p-3">
-                                        <p class="text-xs text-amber-700 font-bold mb-1">Balance</p>
-                                        <p class="text-lg font-black text-amber-600">$${(cierre.BalanceGeneral || 0).toFixed(2)}</p>
-                                    </div>
-                                </div>
-                                ${cierre.Observaciones ? `
-                                    <div class="bg-gray-50 rounded-xl p-3 mt-3">
-                                        <p class="text-xs text-gray-600 font-bold mb-1">Observaciones</p>
-                                        <p class="text-sm text-gray-800">${cierre.Observaciones}</p>
-                                    </div>
-                                ` : ''}
+                                ${badge}
                             </div>
-                        `;
+                            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;">
+                                <div style="background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);border-radius:.75rem;padding:.875rem;">
+                                    <p style="font-size:.68rem;color:rgba(16,185,129,.7);font-weight:800;text-transform:uppercase;margin:0 0 .25rem 0;">Efectivo Final</p>
+                                    <p style="font-weight:900;color:var(--pf-green);font-size:1rem;margin:0;">$${(c.EfectivoFinal||0).toFixed(2)}</p>
+                                </div>
+                                <div style="background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.2);border-radius:.75rem;padding:.875rem;">
+                                    <p style="font-size:.68rem;color:rgba(96,165,250,.7);font-weight:800;text-transform:uppercase;margin:0 0 .25rem 0;">Ingresos</p>
+                                    <p style="font-weight:900;color:var(--pf-blueB);font-size:1rem;margin:0;">$${(c.TotalIngresos||0).toFixed(2)}</p>
+                                </div>
+                                <div style="background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:.75rem;padding:.875rem;">
+                                    <p style="font-size:.68rem;color:rgba(245,158,11,.7);font-weight:800;text-transform:uppercase;margin:0 0 .25rem 0;">Balance</p>
+                                    <p style="font-weight:900;color:var(--pf-orange);font-size:1rem;margin:0;">$${(c.BalanceGeneral||0).toFixed(2)}</p>
+                                </div>
+                            </div>
+                            ${c.Observaciones?`<div style="background:rgba(255,255,255,.03);border:1px solid var(--pf-border);border-radius:.75rem;padding:.875rem;margin-top:.875rem;"><p style="font-size:.7rem;color:var(--pf-muted);font-weight:800;text-transform:uppercase;margin:0 0 .35rem 0;">Observaciones</p><p style="font-size:.85rem;color:var(--pf-soft);font-weight:600;margin:0;">${c.Observaciones}</p></div>`:''}
+                        </div>`;
                     }).join('');
                 } else {
-                    container.innerHTML = `
-                        <div class="bg-gray-50 rounded-2xl p-12 text-center border-2 border-dashed border-gray-300">
-                            <i data-lucide="inbox" class="w-16 h-16 text-gray-400 mx-auto mb-4"></i>
-                            <p class="text-xl font-black text-gray-600 mb-2">No hay cierres registrados</p>
-                            <p class="text-sm text-gray-500">Los cierres de caja aparecerán aquí</p>
-                        </div>
-                    `;
-                    lucide.createIcons();
+                    cont.innerHTML=`<div style="text-align:center;padding:3rem;background:rgba(255,255,255,.02);border:1px dashed var(--pf-border);border-radius:1rem;color:var(--pf-muted);">
+                        <i data-lucide="inbox" style="width:48px;height:48px;display:block;margin:0 auto 1rem;"></i>
+                        <p style="font-weight:700;margin:0;">No hay cierres registrados</p>
+                    </div>`;
                 }
-            } catch (error) {
-                console.error('Error al cargar historial de cierres:', error);
-                const container = document.getElementById('lista-cierres');
-                if (container) {
-                    container.innerHTML = `
-                        <div class="bg-red-50 rounded-2xl p-8 text-center border-2 border-red-200">
-                            <i data-lucide="alert-circle" class="w-12 h-12 text-red-500 mx-auto mb-3"></i>
-                            <p class="text-lg font-bold text-red-600">Error al cargar los cierres</p>
-                        </div>
-                    `;
-                    lucide.createIcons();
-                }
-            }
-        }
-
-        // ========================================
-        // MODAL CERRAR CAJA
-        // ========================================
-                                async function abrirModalCerrarCaja() {
-            try {
-                // Cargar datos actuales de la caja
-                const response = await fetch(`${API_URL}/Caja/dashboard`);
-                const data = await response.json();
-
-                if (data.success && data.cajaHoy) {
-                    // ACTUALIZAR VALORES DEL MODAL DE CIERRE
-
-                    // Efectivo Final
-                    const efectivoFinal = document.getElementById('cierre-efectivo-final');
-                    if (efectivoFinal) {
-                        efectivoFinal.textContent = `$${(data.cajaHoy.efectivo.balance || 0).toFixed(2)}`;
-                    }
-
-                    // Transferencias
-                    const transferencias = document.getElementById('cierre-transferencias');
-                    if (transferencias) {
-                        transferencias.textContent = `$${(data.cajaHoy.transferencia.balance || 0).toFixed(2)}`;
-                    }
-
-                    // Ingresos Hoy
-                    const ingresos = document.getElementById('cierre-ingresos');
-                    if (ingresos) {
-                        ingresos.textContent = `$${(data.cajaHoy.totalIngresos || 0).toFixed(2)}`;
-                    }
-
-                    // Egresos Hoy
-                    const egresos = document.getElementById('cierre-egresos');
-                    if (egresos) {
-                        egresos.textContent = `$${(data.cajaHoy.totalEgresos || 0).toFixed(2)}`;
-                    }
-
-                    // Balance General
-                    const balance = document.getElementById('cierre-balance');
-                    if (balance) {
-                        balance.textContent = `$${(data.cajaHoy.balance || 0).toFixed(2)}`;
-                    }
-
-                    // PRODUCTOS - Usar datos reales del backend
-                    const productosEfectivo = data.cajaHoy.categorias.productosEfectivo || 0;
-                    const productosTransferencia = data.cajaHoy.categorias.productosTransferencia || 0;
-                    const productosTotal = data.cajaHoy.categorias.productos || 0;
-
-                    // Productos Efectivo
-                    const productosEfectivoEl = document.getElementById('cierre-productos-efectivo');
-                    if (productosEfectivoEl) {
-                        productosEfectivoEl.textContent = `$${productosEfectivo.toFixed(2)}`;
-                    }
-
-                    // Productos Transferencia
-                    const productosTransferenciaEl = document.getElementById('cierre-productos-transferencia');
-                    if (productosTransferenciaEl) {
-                        productosTransferenciaEl.textContent = `$${productosTransferencia.toFixed(2)}`;
-                    }
-
-                    // Total Productos
-                    const productosTotalEl = document.getElementById('cierre-productos-total');
-                    if (productosTotalEl) {
-                        productosTotalEl.textContent = `$${productosTotal.toFixed(2)}`;
-                    }
-
-                    // MOSTRAR EL MODAL
-                    const modal = document.getElementById('modal-cerrar-caja');
-                    if (modal) {
-                        modal.style.display = "flex";
-                        modal.classList.remove('hidden');
-                        lucide.createIcons(); // Actualizar iconos
-                    } else {
-                        console.error('Modal no encontrado en el DOM');
-                    }
-
-                } else {
-                    console.error('Error en la respuesta del API:', data.message || 'Respuesta inválida');
-                    alert('Error al cargar los datos de la caja');
-                }
-
-            } catch (error) {
-                console.error('Error al abrir modal de cierre:', error);
-                alert('Error al cargar los datos. Por favor intenta nuevamente.');
-            }
-        }
-                function cerrarModalCerrarCaja() {
-            const modal = document.getElementById('modal-cerrar-caja');
-            if (modal) {
-                modal.style.display = "none"; modal.classList.add('hidden');
-
-                // Limpiar el campo de observaciones
-                const observaciones = document.getElementById('observaciones-cierre');
-                if (observaciones) {
-                    observaciones.value = '';
-                }
-            }
-        }
-
-
-        // Función para resetear todos los valores a $0.00
-        function resetearValoresCaja() {
-            console.log('🔄 Reseteando valores de la caja a $0.00...');
-
-            const elementosResetear = [
-                'efectivo-hoy', 'transferencias-hoy', 'ingresos-hoy', 'egresos-hoy',
-                'balance-total', 'deudas-pendientes',
-                'venta-membresias', 'venta-productos', 'venta-abonos', 'venta-otros',
-                'detalle-ingresos', 'detalle-egresos', 'detalle-transferencias'
-            ];
-
-            elementosResetear.forEach(id => {
-                const elemento = document.getElementById(id);
-                if (elemento) elemento.textContent = '$0.00';
-            });
-
-            const tablaMovimientos = document.getElementById('tabla-movimientos');
-            if (tablaMovimientos) {
-                tablaMovimientos.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="px-6 py-12 text-center text-gray-500 font-bold">
-                            <i data-lucide="inbox" class="w-12 h-12 text-gray-400 mx-auto mb-3"></i>
-                            <p class="text-lg">No hay movimientos registrados hoy</p>
-                            <p class="text-sm text-gray-400 mt-2">Los movimientos del nuevo día aparecerán aquí</p>
-                        </td>
-                    </tr>
-                `;
+                lucide.createIcons();
+            } catch(e) {
+                cont.innerHTML=`<div style="text-align:center;padding:2rem;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:1rem;color:var(--pf-red);">
+                    <p style="font-weight:700;margin:0;">Error al cargar los cierres</p>
+                </div>`;
                 lucide.createIcons();
             }
         }
 
-                async function confirmarCierreCaja() {
+        async function abrirModalCerrarCaja() {
             try {
-                const observaciones = document.getElementById('observaciones-cierre')?.value || '';
-
-                // Confirmar antes de cerrar
-                if (!confirm('¿Estás seguro de cerrar la caja? Esta acción registrará el cierre del día.')) {
-                    return;
-                }
-
-                // Mostrar loading
-                const btnConfirmar = document.getElementById('btn-confirmar-cierre');
-                if (btnConfirmar) {
-                    btnConfirmar.disabled = true;
-                    btnConfirmar.innerHTML = '<i data-lucide="loader" class="w-5 h-5 animate-spin"></i> Cerrando...';
-                    lucide.createIcons();
-                }
-
-                // Realizar el cierre
-                const response = await fetch(`${API_URL}/Caja/cerrar`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        Fecha: obtenerFechaLocalISO(),
-                        observaciones: observaciones,
-                        tipoCierre: 'manual'
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    // Cerrar modal
-                    cerrarModalCerrarCaja();
-
-                    // Mostrar mensaje de éxito
-                    alert('✅ Caja cerrada exitosamente');
-
-                    // Resetear valores
-                    resetearValoresCaja();
-
-                    // Recargar datos
-                    await cargarResumen();
-                    await cargarMovimientos();
-                    await cargarResumenSemanal();
-                    await cargarHistorialCierres();
-
-                } else {
-                    alert('❌ Error al cerrar caja: ' + (data.message || 'Error desconocido'));
-                }
-
-            } catch (error) {
-                console.error('Error al confirmar cierre:', error);
-                alert('❌ Error al cerrar la caja. Por favor intenta nuevamente.');
-            } finally {
-                // Restaurar botón
-                const btnConfirmar = document.getElementById('btn-confirmar-cierre');
-                if (btnConfirmar) {
-                    btnConfirmar.disabled = false;
-                    btnConfirmar.innerHTML = '<i data-lucide="check" class="w-5 h-5"></i> Confirmar Cierre';
-                    lucide.createIcons();
-                }
-            }
+                const r=await fetch(`${API_URL}/Caja/dashboard`), data=await r.json();
+                if(data.success&&data.cajaHoy) {
+                    const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=`$${(v||0).toFixed(2)}`;};
+                    set('cierre-efectivo-final',data.cajaHoy.efectivo.balance);
+                    set('cierre-transferencias',data.cajaHoy.transferencia.balance);
+                    set('cierre-ingresos',data.cajaHoy.totalIngresos);
+                    set('cierre-egresos',data.cajaHoy.totalEgresos);
+                    set('cierre-balance',data.cajaHoy.balance);
+                    set('cierre-productos-total',data.cajaHoy.categorias.productos||0);
+                    const m=document.getElementById('modal-cerrar-caja');
+                    if(m){m.classList.remove('hidden');lucide.createIcons();}
+                } else { alert('Error al cargar los datos de la caja'); }
+            } catch(e) { alert('Error al cargar los datos. Intenta nuevamente.'); }
+        }
+        function cerrarModalCerrarCaja() {
+            const m=document.getElementById('modal-cerrar-caja');
+            if(m){m.classList.add('hidden'); const o=document.getElementById('cierre-observaciones');if(o)o.value='';}
+        }
+        function resetearValoresCaja() {
+            ['efectivo-hoy','transferencias-hoy','ingresos-hoy','egresos-hoy','balance-total','deudas-pendientes','venta-membresias','venta-productos','venta-abonos','venta-otros'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='$0.00';});
+        }
+        async function confirmarCierreCaja() {
+            const obs=document.getElementById('cierre-observaciones')?.value||'';
+            if(!confirm('¿Estás seguro de cerrar la caja? Esta acción registrará el cierre del día.')) return;
+            try {
+                const r=await fetch(`${API_URL}/Caja/cerrar`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({Fecha:obtenerFechaLocalISO(),observaciones:obs,tipoCierre:'manual'})});
+                const data=await r.json();
+                if(data.success){cerrarModalCerrarCaja();alert('✅ Caja cerrada exitosamente');resetearValoresCaja();await cargarResumen();await cargarMovimientos();}
+                else alert('❌ Error al cerrar caja: '+(data.message||'Error desconocido'));
+            } catch(e){alert('❌ Error al cerrar la caja. Intenta nuevamente.');}
         }
 
-                document.addEventListener('keydown', function(e) {
-                    if (e.key === 'Escape') {
-                        cerrarModalCerrarCaja();
-                    }
-                });
-
-                document.addEventListener('click', function(e) {
-            const modal = document.getElementById('modal-cerrar-caja');
-            if (e.target === modal) {
-                cerrarModalCerrarCaja();
-            }
-        });
-
-
-        // ========================================
-        // REGISTRAR MOVIMIENTOS
-        // ========================================
         async function registrarIngreso(event) {
             event.preventDefault();
-
-            const monto = parseFloat(document.getElementById('ingreso-monto').value);
-            const categoria = document.getElementById('ingreso-categoria').value;
-            const metodo = document.getElementById('ingreso-metodo').value;
-            const descripcion = document.getElementById('ingreso-descripcion').value;
-
+            const monto=parseFloat(document.getElementById('ingreso-monto').value);
+            const cat=document.getElementById('ingreso-categoria').value;
+            const metodo=document.getElementById('ingreso-metodo').value;
+            const desc=document.getElementById('ingreso-descripcion').value;
             try {
-                const response = await fetch(`${API_URL}/Caja/ingreso`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        categoria: categoria,
-                        monto: monto,
-                        descripcion: descripcion,
-                        metodoPago: metodo
-                    })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    alert('✅ Ingreso registrado exitosamente');
-                    event.target.reset();
-                    cargarResumen();
-                    cambiarTab('movimientos');
-                } else {
-                    alert(`❌ Error: ${result.message}`);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al registrar ingreso');
-            }
+                const r=await fetch(`${API_URL}/Caja/ingreso`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({categoria:cat,monto,descripcion:desc,metodoPago:metodo})});
+                const res=await r.json();
+                if(res.success){alert('✅ Ingreso registrado exitosamente');event.target.reset();cargarResumen();cambiarTab('movimientos');}
+                else alert(`❌ Error: ${res.message}`);
+            } catch(e){alert('❌ Error al registrar ingreso');}
         }
-
         async function registrarEgreso(event) {
             event.preventDefault();
-
-            const monto = parseFloat(document.getElementById('egreso-monto').value);
-            const categoria = document.getElementById('egreso-categoria').value;
-            const metodo = document.getElementById('egreso-metodo').value;
-            const descripcion = document.getElementById('egreso-descripcion').value;
-
+            const monto=parseFloat(document.getElementById('egreso-monto').value);
+            const cat=document.getElementById('egreso-categoria').value;
+            const metodo=document.getElementById('egreso-metodo').value;
+            const desc=document.getElementById('egreso-descripcion').value;
             try {
-                const response = await fetch(`${API_URL}/Caja/egreso`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        categoria: categoria,
-                        monto: monto,
-                        descripcion: descripcion,
-                        metodoPago: metodo
-                    })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    alert('✅ Egreso registrado exitosamente');
-                    event.target.reset();
-                    cargarResumen();
-                    cambiarTab('movimientos');
-                } else {
-                    alert(`❌ Error: ${result.message}`);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al registrar egreso');
-            }
+                const r=await fetch(`${API_URL}/Caja/egreso`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({categoria:cat,monto,descripcion:desc,metodoPago:metodo})});
+                const res=await r.json();
+                if(res.success){alert('✅ Egreso registrado exitosamente');event.target.reset();cargarResumen();cambiarTab('movimientos');}
+                else alert(`❌ Error: ${res.message}`);
+            } catch(e){alert('❌ Error al registrar egreso');}
         }
 
-        // ========================================
-        // DEUDAS — CON FIX DE VENCIDAS Y RESUMEN
-        // ========================================
-        let deudasData = [];
-        let deudaSeleccionada = null;
-        let _filtroEstadoDeuda = '';
-        let _busquedaDeuda = '';
-        let _debounceDeuda = null;
-
-        // Estado real: las deudas NO se vencen. Solo: pendiente, pagada, cancelada.
-        function calcularEstadoRealDeuda(d) {
-            if (d.Estado === 'pagada' || d.Estado === 'cancelada') return d.Estado;
-            return d.Estado || 'pendiente';
-        }
-
-        async function sincronizarVencidas() {
-            // Función conservada por compatibilidad, ya no aplica.
-            console.info('Las deudas no se vencen; sincronización no necesaria.');
-        }
-
+        // ── DEUDAS ─────────────────────────────────────────
+        let deudasData=[],deudaSeleccionada=null,_filtroEstadoDeuda='',_busquedaDeuda='',_debounceDeuda=null;
+        function calcularEstadoRealDeuda(d){if(d.Estado==='pagada'||d.Estado==='cancelada')return d.Estado;return d.Estado||'pendiente';}
         async function cargarDeudas() {
             try {
-                // Solo deudas pendientes en la vista de caja
-                const response = await fetch(`${API_URL}/Deudas?incluirPagadas=false&porPagina=500`);
-                const data = await response.json();
-
-                if (!data.success) {
-                    document.getElementById('lista-deudas').innerHTML =
-                        '<div class="text-center py-12 text-red-500 font-bold">Error al cargar deudas</div>';
-                    return;
-                }
-
-                // Compatible con ambas formas de respuesta (items o data)
-                deudasData = (data.items || data.data || []).map(d => {
-                    d._estadoReal = calcularEstadoRealDeuda(d);
-                    return d;
-                });
-
-                actualizarResumenDeudas();
-                renderDeudas(deudasData);
-                lucide.createIcons();
-            } catch (error) {
-                console.error('Error cargando deudas:', error);
-            }
+                const r=await fetch(`${API_URL}/Deudas?incluirPagadas=false&porPagina=500`),data=await r.json();
+                if(!data.success){document.getElementById('lista-deudas').innerHTML='<div style="text-align:center;padding:3rem;color:var(--pf-red);font-weight:700;">Error al cargar deudas</div>';return;}
+                deudasData=(data.items||data.data||[]).map(d=>{d._estadoReal=calcularEstadoRealDeuda(d);return d;});
+                actualizarResumenDeudas();renderDeudas(deudasData);lucide.createIcons();
+            } catch(e){console.error('Error:',e);}
         }
-
-        function actualizarResumenDeudas() {
-            const pendientes = deudasData.filter(d => d._estadoReal === 'pendiente');
-            const totalSaldo = pendientes.reduce((s, d) => s + (d.Saldo || 0), 0);
-
-            const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-            set('rv-deuda-total',     `$${totalSaldo.toFixed(2)}`);
-            set('rs-deuda-total',     `${pendientes.length} deudas`);
-            set('rv-deuda-pendiente', `$${totalSaldo.toFixed(2)}`);
-            set('rs-deuda-pendiente', `${pendientes.length} ${pendientes.length === 1 ? 'deuda' : 'deudas'}`);
-
-            const dpEl = document.getElementById('deudas-pendientes');
-            if (dpEl) dpEl.textContent = `$${totalSaldo.toFixed(2)}`;
+        function actualizarResumenDeudas(){
+            const pend=deudasData.filter(d=>d._estadoReal==='pendiente');
+            const saldo=pend.reduce((s,d)=>s+(d.Saldo||0),0);
+            const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+            set('rv-deuda-total',`$${saldo.toFixed(2)}`);set('rs-deuda-total',`${pend.length} deudas`);
+            set('rv-deuda-pendiente',`$${saldo.toFixed(2)}`);set('rs-deuda-pendiente',`${pend.length} ${pend.length===1?'deuda':'deudas'}`);
+            const dpEl=document.getElementById('deudas-pendientes');if(dpEl)dpEl.textContent=`$${saldo.toFixed(2)}`;
         }
-
-        function filtroEstadoDeuda(estado) {
-            _filtroEstadoDeuda = estado;
-            document.querySelectorAll('.ftd-btn').forEach(b => {
-                b.classList.remove('bg-white', 'shadow', 'text-red-600');
-                b.classList.add('text-gray-500');
-            });
-            const mapTab = { '': 'ft-d-todos', 'pendiente': 'ft-d-pendiente' };
-            if (mapTab[estado]) {
-                const el = document.getElementById(mapTab[estado]);
-                if (el) {
-                    el.classList.add('bg-white', 'shadow', 'text-red-600');
-                    el.classList.remove('text-gray-500');
-                }
-            }
+        function filtroEstadoDeuda(estado){
+            _filtroEstadoDeuda=estado;
+            document.querySelectorAll('.ftd-btn').forEach(b=>{b.style.background='transparent';b.style.color='var(--pf-muted)';});
+            const mapTab={'':'ft-d-todos','pendiente':'ft-d-pendiente'};
+            if(mapTab[estado]){const el=document.getElementById(mapTab[estado]);if(el){el.style.background='var(--pf-blue)';el.style.color='#fff';}}
             renderDeudas(deudasData);
         }
-
-        function debounceBusquedaDeuda(val) {
-            _busquedaDeuda = val;
-            clearTimeout(_debounceDeuda);
-            _debounceDeuda = setTimeout(() => renderDeudas(deudasData), 300);
+        function debounceBusquedaDeuda(val){_busquedaDeuda=val;clearTimeout(_debounceDeuda);_debounceDeuda=setTimeout(()=>renderDeudas(deudasData),300);}
+        function filtrarDeudas(){_busquedaDeuda=(document.getElementById('buscar-deuda')||{}).value||'';renderDeudas(deudasData);}
+        function chipEstadoDeuda(estado){
+            if(estado==='pagada') return '<span class="chip chip-green">✓ Pagada</span>';
+            if(estado==='cancelada') return '<span class="chip chip-gray">Cancelada</span>';
+            return '<span class="chip chip-amber">Pendiente</span>';
         }
-
-        // Mantener compatibilidad con onkeyup="filtrarDeudas()"
-        function filtrarDeudas() {
-            _busquedaDeuda = (document.getElementById('buscar-deuda') || {}).value || '';
-            renderDeudas(deudasData);
-        }
-
-        function chipEstadoDeuda(estado) {
-            if (estado === 'pagada')    return '<span class="px-3 py-1 rounded-full text-xs font-black uppercase bg-green-100 text-green-800">✓ Pagada</span>';
-            if (estado === 'cancelada') return '<span class="px-3 py-1 rounded-full text-xs font-black uppercase bg-gray-100 text-gray-600">Cancelada</span>';
-            return '<span class="px-3 py-1 rounded-full text-xs font-black uppercase bg-amber-100 text-amber-800">Pendiente</span>';
-        }
-
-        function infoVencimientoDeuda(d) {
-            if (!d.FechaVencimiento) return '';
-            const fechaStr = formatearFechaUTC(d.FechaVencimiento);
-            return `<p class="text-xs text-gray-400 font-semibold mt-1"><i data-lucide="calendar" class="w-3 h-3 inline-block mr-1"></i>Fecha límite: ${fechaStr}</p>`;
-        }
-
         function renderDeudas(deudas) {
-            const container = document.getElementById('lista-deudas');
-
-            // Aplicar filtro de estado
-            let filtradas = deudas;
-            if (_filtroEstadoDeuda) {
-                filtradas = deudas.filter(d => d._estadoReal === _filtroEstadoDeuda);
-            }
-
-            // Aplicar búsqueda
-            if (_busquedaDeuda.trim()) {
-                const q = _busquedaDeuda.toLowerCase();
-                filtradas = filtradas.filter(d =>
-                    (d.clienteNombre || d.cliente?.nombre || '').toLowerCase().includes(q) ||
-                    (d.clienteCedula || d.cliente?.cedula || '').toLowerCase().includes(q) ||
-                    (d.Concepto || d.concepto || '').toLowerCase().includes(q)
-                );
-            }
-
-            if (filtradas.length === 0) {
-                container.innerHTML = `
-                    <div class="bg-white rounded-2xl shadow-xl p-12 text-center border-2 border-gray-200">
-                        <i data-lucide="inbox" class="w-16 h-16 mx-auto text-gray-400 mb-4"></i>
-                        <p class="text-xl font-black text-gray-900 uppercase">Sin resultados</p>
-                        <p class="text-gray-600 mt-2 font-semibold">Prueba ajustando los filtros</p>
-                    </div>`;
-                lucide.createIcons();
-                return;
-            }
-
-            // ── Agrupar por cliente ──────────────────────────────────────
-            const grupos = new Map();
-            filtradas.forEach(d => {
-                const cid    = d.cliente?.Id || d.cliente?.id || d.ClienteId || d.clienteId || 'sin-cliente';
-                const nombre = d.clienteNombre || d.cliente?.nombre || '—';
-                const cedula = d.clienteCedula || d.cliente?.cedula || '—';
-                if (!grupos.has(cid)) grupos.set(cid, { cid, nombre, cedula, deudas: [] });
-                grupos.get(cid).deudas.push(d);
-            });
-
-            container.innerHTML = [...grupos.values()].map(({ cid, nombre, cedula, deudas: deudasCliente }) => {
-
-                // Totales del cliente
-                const totalSaldo  = deudasCliente.reduce((s, d) => s + (d.Saldo || d.saldo || 0), 0);
-                const totalDeuda  = deudasCliente.reduce((s, d) => s + (d.MontoTotal || d.montoTotal || 0), 0);
-                const iniciales   = nombre.split(' ').filter(Boolean).map(n => n[0]).join('').substring(0,2).toUpperCase() || '?';
-
-                // Filas de deudas internas
-                const filasDeudas = deudasCliente.map(deuda => {
-                    const concepto  = deuda.Concepto    || deuda.concepto    || '—';
-                    const total     = deuda.MontoTotal   || deuda.montoTotal  || 0;
-                    const pagado    = deuda.MontoPagado  || deuda.montoPagado || 0;
-                    const saldo     = deuda.Saldo        || deuda.saldo       || 0;
-                    const id        = deuda.Id           || deuda.id;
-                    const estado    = deuda._estadoReal;
-                    const pct       = total > 0 ? Math.min(100, (pagado / total) * 100) : 0;
-                    const fechaStr  = deuda.FechaCreacion || deuda.fechaCreacion
-                        ? formatearFechaUTC(deuda.FechaCreacion || deuda.fechaCreacion)
-                        : '—';
-
-                    return `
-                    <div class="border border-gray-100 rounded-xl p-4 bg-gray-50 hover:bg-white transition-colors">
-                        <div class="flex items-start justify-between gap-3 flex-wrap">
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center gap-2 mb-1 flex-wrap">
-                                    <span class="text-sm font-black text-gray-900">${concepto}</span>
+            const cont=document.getElementById('lista-deudas');
+            let filtradas=deudas;
+            if(_filtroEstadoDeuda) filtradas=deudas.filter(d=>d._estadoReal===_filtroEstadoDeuda);
+            if(_busquedaDeuda.trim()){const q=_busquedaDeuda.toLowerCase();filtradas=filtradas.filter(d=>(d.clienteNombre||d.cliente?.nombre||'').toLowerCase().includes(q)||(d.clienteCedula||d.cliente?.cedula||'').toLowerCase().includes(q)||(d.Concepto||d.concepto||'').toLowerCase().includes(q));}
+            if(filtradas.length===0){cont.innerHTML=`<div style="text-align:center;padding:3rem;background:var(--pf-card);border:1px solid var(--pf-border);border-radius:1rem;color:var(--pf-muted);">
+                <i data-lucide="inbox" style="width:48px;height:48px;display:block;margin:0 auto 1rem;"></i><p style="font-weight:700;margin:0;">Sin resultados</p></div>`;lucide.createIcons();return;}
+            const grupos=new Map();
+            filtradas.forEach(d=>{const cid=d.cliente?.Id||d.cliente?.id||d.ClienteId||d.clienteId||'sin-cliente',nombre=d.clienteNombre||d.cliente?.nombre||'—',cedula=d.clienteCedula||d.cliente?.cedula||'—';if(!grupos.has(cid))grupos.set(cid,{cid,nombre,cedula,deudas:[]});grupos.get(cid).deudas.push(d);});
+            cont.innerHTML=[...grupos.values()].map(({cid,nombre,cedula,deudas:dc})=>{
+                const saldo=dc.reduce((s,d)=>s+(d.Saldo||d.saldo||0),0);
+                const iniciales=nombre.split(' ').filter(Boolean).map(n=>n[0]).join('').substring(0,2).toUpperCase()||'?';
+                const filas=dc.map(deuda=>{
+                    const concepto=deuda.Concepto||deuda.concepto||'—',total=deuda.MontoTotal||deuda.montoTotal||0,pagado=deuda.MontoPagado||deuda.montoPagado||0,s=deuda.Saldo||deuda.saldo||0,id=deuda.Id||deuda.id,estado=deuda._estadoReal;
+                    const pct=total>0?Math.min(100,(pagado/total)*100):0;
+                    const fechaStr=(deuda.FechaCreacion||deuda.fechaCreacion)?formatearFechaUTC(deuda.FechaCreacion||deuda.fechaCreacion):'—';
+                    return `<div class="deuda-item">
+                        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.875rem;flex-wrap:wrap;">
+                            <div style="flex:1;min-width:0;">
+                                <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem;flex-wrap:wrap;">
+                                    <span style="font-weight:800;color:var(--pf-text);font-size:.9rem;">${concepto}</span>
                                     ${chipEstadoDeuda(estado)}
                                 </div>
-                                <div class="flex items-center gap-4 text-xs text-gray-500 font-semibold mb-2">
-                                    <span><i data-lucide="calendar" class="w-3 h-3 inline-block mr-1"></i>${fechaStr}</span>
+                                <p style="font-size:.72rem;color:var(--pf-muted);font-weight:600;margin:0 0 .5rem 0;display:flex;align-items:center;gap:.3rem;">
+                                    <i data-lucide="calendar" style="width:11px;height:11px;"></i>${fechaStr}
+                                </p>
+                                <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;font-size:.78rem;color:var(--pf-soft);font-weight:600;">
+                                    <span>Total: <strong style="color:var(--pf-text);">$${total.toFixed(2)}</strong></span>
+                                    <span>Pagado: <strong style="color:var(--pf-green);">$${pagado.toFixed(2)}</strong></span>
+                                    <span>Saldo: <strong style="color:var(--pf-red);font-size:.9rem;">$${s.toFixed(2)}</strong></span>
                                 </div>
-                                <div class="flex items-center gap-4 flex-wrap">
-                                    <span class="text-xs text-gray-500 font-semibold">Total: <span class="text-gray-900 font-black">$${total.toFixed(2)}</span></span>
-                                    <span class="text-xs text-gray-500 font-semibold">Pagado: <span class="text-emerald-600 font-black">$${pagado.toFixed(2)}</span></span>
-                                    <span class="text-xs text-gray-500 font-semibold">Saldo: <span class="text-red-600 font-black text-sm">$${saldo.toFixed(2)}</span></span>
-                                </div>
-                                <!-- Barra de progreso -->
-                                <div class="w-full bg-gray-200 rounded-full h-1.5 mt-2">
-                                    <div class="h-1.5 rounded-full ${pct >= 100 ? 'bg-emerald-500' : 'bg-red-400'}" style="width:${pct.toFixed(1)}%"></div>
-                                </div>
+                                <div class="pf-progress-bar"><div class="pf-progress-fill" style="width:${pct.toFixed(1)}%;background:${pct>=100?'var(--pf-green)':'var(--pf-red)'};"></div></div>
                             </div>
-                            <div class="flex flex-col gap-1.5 flex-shrink-0">
-                                <button onclick="abrirModalAbonar('${id}')"
-                                        class="px-4 py-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white text-xs font-black rounded-lg transition-all shadow uppercase">
-                                    <i data-lucide="dollar-sign" class="w-3.5 h-3.5 inline-block mr-1"></i>Abonar
+                            <div style="display:flex;flex-direction:column;gap:.35rem;flex-shrink:0;">
+                                <button onclick="abrirModalAbonar('${id}')" style="padding:.45rem .875rem;background:linear-gradient(135deg,var(--pf-green),#065F46);color:#fff;border:none;border-radius:.625rem;font-weight:800;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:.3rem;">
+                                    <i data-lucide="dollar-sign" style="width:13px;height:13px;"></i>Abonar
                                 </button>
-                                <button onclick="pagarCompleto('${id}')"
-                                        class="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-xs font-black rounded-lg transition-all shadow uppercase">
-                                    <i data-lucide="check-circle" class="w-3.5 h-3.5 inline-block mr-1"></i>Pagar Todo
+                                <button onclick="pagarCompleto('${id}')" style="padding:.45rem .875rem;background:linear-gradient(135deg,var(--pf-blue),var(--pf-purple));color:#fff;border:none;border-radius:.625rem;font-weight:800;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:.3rem;">
+                                    <i data-lucide="check-circle" style="width:13px;height:13px;"></i>Pagar Todo
                                 </button>
                             </div>
                         </div>
                     </div>`;
                 }).join('');
-
-                return `
-                <div class="bg-white rounded-2xl shadow-xl border-2 border-gray-200 hover:shadow-2xl transition-shadow overflow-hidden">
-                    <!-- Cabecera del cliente -->
-                    <div class="p-5 border-b border-gray-100 flex items-center justify-between gap-4 flex-wrap">
-                        <div class="flex items-center gap-3">
-                            <div class="w-11 h-11 rounded-full bg-indigo-100 text-indigo-700 font-black text-sm flex items-center justify-center flex-shrink-0">
-                                ${iniciales}
-                            </div>
+                return `<div class="deuda-grupo">
+                    <div class="deuda-grupo-head">
+                        <div style="display:flex;align-items:center;gap:.75rem;">
+                            <div style="width:44px;height:44px;border-radius:50%;background:rgba(59,130,246,.1);color:var(--pf-blueB);font-weight:900;font-size:.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${iniciales}</div>
                             <div>
-                                <h3 class="text-lg font-black text-gray-900 uppercase tracking-wide leading-tight">${nombre}</h3>
-                                <p class="text-xs text-gray-500 font-semibold">Cédula: ${cedula}</p>
+                                <h3 style="font-size:1rem;font-weight:900;color:var(--pf-text);text-transform:uppercase;margin:0 0 .1rem 0;">${nombre}</h3>
+                                <p style="font-size:.72rem;color:var(--pf-muted);font-weight:600;font-family:monospace;margin:0;">Cédula: ${cedula}</p>
                             </div>
                         </div>
-                        <div class="flex items-center gap-4 flex-wrap">
-                            <div class="text-right">
-                                <p class="text-xs text-gray-500 font-bold uppercase">Saldo total</p>
-                                <p class="text-xl font-black text-red-600">$${totalSaldo.toFixed(2)}</p>
-                                <p class="text-xs text-gray-400 font-semibold">${deudasCliente.length} deuda${deudasCliente.length !== 1 ? 's' : ''} pendiente${deudasCliente.length !== 1 ? 's' : ''}</p>
+                        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+                            <div style="text-align:right;">
+                                <p style="font-size:.68rem;color:var(--pf-muted);font-weight:800;text-transform:uppercase;margin:0 0 .2rem 0;">Saldo total</p>
+                                <p style="font-size:1.35rem;font-weight:900;color:var(--pf-red);margin:0;">$${saldo.toFixed(2)}</p>
+                                <p style="font-size:.68rem;color:var(--pf-muted);font-weight:600;margin:0;">${dc.length} deuda${dc.length!==1?'s':''} pendiente${dc.length!==1?'s':''}</p>
                             </div>
-                            <a href="/Caja/Historial?clienteId=${cid}"
-                               class="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white text-xs font-black rounded-xl transition-all shadow uppercase flex items-center gap-1.5">
-                                <i data-lucide="history" class="w-3.5 h-3.5"></i>Historial
+                            <a href="/Caja/Historial?clienteId=${cid}" style="padding:.55rem 1.1rem;background:linear-gradient(135deg,var(--pf-purple),#4C1D95);color:#fff;border-radius:.75rem;text-decoration:none;font-weight:800;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;display:inline-flex;align-items:center;gap:.4rem;">
+                                <i data-lucide="history" style="width:14px;height:14px;"></i>Historial
                             </a>
                         </div>
                     </div>
-                    <!-- Deudas del cliente -->
-                    <div class="p-4 space-y-3">
-                        ${filasDeudas}
-                    </div>
+                    <div style="padding:1rem;display:flex;flex-direction:column;gap:.625rem;">${filas}</div>
                 </div>`;
             }).join('');
-
             lucide.createIcons();
         }
 
-        function abrirModalAbonar(deudaId) {
-            const deuda = deudasData.find(d => (d.Id || d.id) === deudaId);
-            if (!deuda) return;
-
-            deudaSeleccionada = deuda;
-            const nombre  = deuda.clienteNombre || deuda.cliente?.nombre || '—';
-            const concepto = deuda.Concepto || deuda.concepto || '—';
-            const saldo   = deuda.Saldo || deuda.saldo || 0;
-
-            document.getElementById('modal-cliente-nombre').textContent = nombre;
-            document.getElementById('modal-concepto').textContent = concepto;
-            document.getElementById('modal-saldo').textContent = `$${saldo.toFixed(2)}`;
-            document.getElementById('input-monto-abono').value = saldo.toFixed(2);
+        function abrirModalAbonar(deudaId){
+            const deuda=deudasData.find(d=>(d.Id||d.id)===deudaId);if(!deuda)return;
+            deudaSeleccionada=deuda;
+            const nombre=deuda.clienteNombre||deuda.cliente?.nombre||'—',concepto=deuda.Concepto||deuda.concepto||'—',saldo=deuda.Saldo||deuda.saldo||0;
+            document.getElementById('modal-cliente-nombre').textContent=nombre;
+            document.getElementById('modal-concepto').textContent=concepto;
+            document.getElementById('modal-saldo').textContent=`$${saldo.toFixed(2)}`;
+            document.getElementById('input-monto-abono').value=saldo.toFixed(2);
             document.getElementById('modalAbonarDeuda').classList.remove('hidden');
             lucide.createIcons();
         }
-
-        function cerrarModalAbonar() {
-            document.getElementById('modalAbonarDeuda').classList.add('hidden');
-            deudaSeleccionada = null;
+        function cerrarModalAbonar(){document.getElementById('modalAbonarDeuda').classList.add('hidden');deudaSeleccionada=null;}
+        async function confirmarAbono(){
+            const monto=parseFloat(document.getElementById('input-monto-abono').value);
+            const metodo=document.getElementById('input-metodo-abono').value;
+            const saldoActual=deudaSeleccionada.Saldo||deudaSeleccionada.saldo||0;
+            const deudaId=deudaSeleccionada.Id||deudaSeleccionada.id;
+            const concepto=deudaSeleccionada.Concepto||deudaSeleccionada.concepto||'';
+            if(isNaN(monto)||monto<=0){alert('❌ Monto inválido');return;}
+            if(monto>saldoActual){alert('❌ El monto no puede ser mayor al saldo pendiente');return;}
+            try {
+                const r=await fetch(`${API_URL}/Deudas/abonar`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({deudaId,monto,metodoPago:metodo,notas:`Abono a deuda - ${concepto}`})});
+                const res=await r.json();
+                if(res.success){cerrarModalAbonar();await cargarDeudas();cargarResumen();}
+                else alert(`❌ ${res.message}`);
+            } catch(e){alert('❌ Error al registrar abono');}
+        }
+        async function pagarCompleto(deudaId){
+            const deuda=deudasData.find(d=>(d.Id||d.id)===deudaId);if(!deuda)return;
+            const saldo=deuda.Saldo||deuda.saldo||0;
+            if(!confirm(`¿Pagar completamente $${saldo.toFixed(2)}?`))return;
+            try {
+                const r=await fetch(`${API_URL}/Deudas/abonar`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({deudaId:deuda.Id||deuda.id,monto:saldo,metodoPago:'efectivo',notas:'Pago completo de deuda'})});
+                const res=await r.json();
+                if(res.success){alert('✅ Deuda pagada completamente');cargarDeudas();cargarResumen();}
+                else alert(`❌ Error: ${res.message}`);
+            } catch(e){alert('❌ Error al pagar deuda');}
         }
 
-        async function confirmarAbono() {
-            const monto    = parseFloat(document.getElementById('input-monto-abono').value);
-            const metodo   = document.getElementById('input-metodo-abono').value;
-            const saldoActual = deudaSeleccionada.Saldo || deudaSeleccionada.saldo || 0;
-            const deudaId  = deudaSeleccionada.Id || deudaSeleccionada.id;
-            const concepto = deudaSeleccionada.Concepto || deudaSeleccionada.concepto || '';
-
-            if (isNaN(monto) || monto <= 0) { alert('❌ Monto inválido'); return; }
-            if (monto > saldoActual)         { alert('❌ El monto no puede ser mayor al saldo pendiente'); return; }
-
-            const btn = document.querySelector('#modalAbonarDeuda button[onclick="confirmarAbono()"]');
-            if (btn) { btn.disabled = true; btn.textContent = 'Registrando…'; }
-
+        async function cargarDiasPendientes(){
+            const cont=document.getElementById('lista-dias-pendientes');
             try {
-                const r = await fetch(`${API_URL}/Deudas/abonar`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ deudaId, monto, metodoPago: metodo, notas: `Abono a deuda - ${concepto}` })
-                });
-                const result = await r.json();
-                if (result.success) {
-                    cerrarModalAbonar();
-                    await cargarDeudas();
-                    cargarResumen();
-                } else {
-                    alert(`❌ ${result.message}`);
-                }
-            } catch (e) {
-                alert('❌ Error al registrar abono');
-            } finally {
-                if (btn) { btn.disabled = false; btn.textContent = 'Confirmar'; }
-            }
-        }
-
-        async function pagarCompleto(deudaId) {
-            const deuda = deudasData.find(d => (d.Id || d.id) === deudaId);
-            if (!deuda) return;
-            const saldo = deuda.Saldo || deuda.saldo || 0;
-            if (!confirm(`¿Pagar completamente $${saldo.toFixed(2)}?`)) return;
-
-            try {
-                const response = await fetch(`${API_URL}/Deudas/abonar`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ deudaId: deuda.Id || deuda.id, monto: saldo, metodoPago: 'efectivo', notas: 'Pago completo de deuda' })
-                });
-                const result = await response.json();
-                if (result.success) {
-                    alert('✅ Deuda pagada completamente');
-                    cargarDeudas();
-                    cargarResumen();
-                } else {
-                    alert(`❌ Error: ${result.message}`);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al pagar deuda');
-            }
-        }
-
-
-        // ========================================
-        // DÍAS PENDIENTES
-        // ========================================
-        async function cargarDiasPendientes() {
-            try {
-                const response = await fetch(`${API_URL}/Caja/pendientes`);
-                const data = await response.json();
-
-                const container = document.getElementById('lista-dias-pendientes');
-
-                if (data.success && data.diasPendientes && data.diasPendientes.length > 0) {
-                    container.innerHTML = data.diasPendientes.map(dia => {
-                        const balanceColor = dia.balance >= 0 ? 'text-emerald-600' : 'text-red-600';
-
-                        return `
-                            <div class="bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl p-6 border-l-4 border-yellow-500 shadow-lg">
-                                <div class="flex items-center justify-between mb-4">
-                                    <div>
-                                        <h4 class="text-lg font-black text-gray-900">
-                                            ${formatearFechaLargaUTC(dia.fecha)}
-                                        </h4>
-                                        <p class="text-sm text-gray-600 font-semibold">
-                                            ${dia.cantidadMovimientos} movimientos sin cerrar
-                                        </p>
-                                    </div>
-                                    <button onclick="abrirModalCerrarDia('${dia.fecha}', ${dia.cantidadMovimientos}, ${dia.balance})"
-                                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-all">
-                                        <i data-lucide="lock" class="w-4 h-4 inline-block mr-1"></i>
-                                        Cerrar Día
-                                    </button>
+                const r=await fetch(`${API_URL}/Caja/pendientes`),data=await r.json();
+                if(data.success&&data.diasPendientes?.length>0){
+                    cont.innerHTML=data.diasPendientes.map(dia=>{
+                        const bc=(dia.balance||0)>=0?'var(--pf-green)':'var(--pf-red)';
+                        return `<div class="dia-pend">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.75rem;">
+                                <div>
+                                    <h4 style="font-size:.95rem;font-weight:900;color:var(--pf-text);margin:0 0 .25rem 0;">${formatearFechaLargaUTC(dia.fecha)}</h4>
+                                    <p style="font-size:.78rem;color:var(--pf-muted);font-weight:600;margin:0;">${dia.cantidadMovimientos} movimientos sin cerrar</p>
                                 </div>
-                                <div class="grid grid-cols-3 gap-4">
-                                    <div class="bg-blue-50 rounded-lg p-3">
-                                        <p class="text-xs text-blue-700 font-bold mb-1">Ingresos</p>
-                                        <p class="text-lg font-black text-blue-600">$${dia.totalIngresos.toFixed(2)}</p>
-                                    </div>
-                                    <div class="bg-red-50 rounded-lg p-3">
-                                        <p class="text-xs text-red-700 font-bold mb-1">Egresos</p>
-                                        <p class="text-lg font-black text-red-600">$${dia.totalEgresos.toFixed(2)}</p>
-                                    </div>
-                                    <div class="bg-emerald-50 rounded-lg p-3">
-                                        <p class="text-xs text-emerald-700 font-bold mb-1">Balance</p>
-                                        <p class="text-lg font-black ${balanceColor}">$${dia.balance.toFixed(2)}</p>
-                                    </div>
+                                <button onclick="abrirModalCerrarDia('${dia.fecha}',${dia.cantidadMovimientos},${dia.balance})"
+                                        style="padding:.6rem 1.25rem;background:linear-gradient(135deg,var(--pf-blue),var(--pf-purple));color:#fff;border:none;border-radius:.75rem;font-weight:800;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:.4rem;">
+                                    <i data-lucide="lock" style="width:14px;height:14px;"></i> Cerrar Día
+                                </button>
+                            </div>
+                            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;">
+                                <div style="background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.2);border-radius:.75rem;padding:.875rem;">
+                                    <p style="font-size:.68rem;color:rgba(96,165,250,.7);font-weight:800;text-transform:uppercase;margin:0 0 .25rem 0;">Ingresos</p>
+                                    <p style="font-weight:900;color:var(--pf-blueB);font-size:1rem;margin:0;">$${dia.totalIngresos.toFixed(2)}</p>
+                                </div>
+                                <div style="background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:.75rem;padding:.875rem;">
+                                    <p style="font-size:.68rem;color:rgba(248,113,113,.7);font-weight:800;text-transform:uppercase;margin:0 0 .25rem 0;">Egresos</p>
+                                    <p style="font-weight:900;color:var(--pf-red);font-size:1rem;margin:0;">$${dia.totalEgresos.toFixed(2)}</p>
+                                </div>
+                                <div style="background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);border-radius:.75rem;padding:.875rem;">
+                                    <p style="font-size:.68rem;color:rgba(16,185,129,.7);font-weight:800;text-transform:uppercase;margin:0 0 .25rem 0;">Balance</p>
+                                    <p style="font-weight:900;font-size:1rem;color:${bc};margin:0;">$${dia.balance.toFixed(2)}</p>
                                 </div>
                             </div>
-                        `;
+                        </div>`;
                     }).join('');
-                    lucide.createIcons();
                 } else {
-                    container.innerHTML = `
-                        <div class="bg-emerald-50 rounded-2xl p-12 text-center border-2 border-emerald-200">
-                            <i data-lucide="check-circle" class="w-16 h-16 text-emerald-500 mx-auto mb-4"></i>
-                            <h3 class="text-xl font-black text-emerald-800 mb-2">¡Todo al día!</h3>
-                            <p class="text-emerald-700 font-semibold">No hay días pendientes por cerrar</p>
-                        </div>
-                    `;
-                    lucide.createIcons();
+                    cont.innerHTML=`<div style="text-align:center;padding:3rem;background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);border-radius:1rem;">
+                        <i data-lucide="check-circle" style="width:52px;height:52px;color:var(--pf-green);display:block;margin:0 auto 1rem;"></i>
+                        <h3 style="font-size:1rem;font-weight:900;color:var(--pf-green);margin:0 0 .35rem 0;">¡Todo al día!</h3>
+                        <p style="color:rgba(16,185,129,.7);font-weight:700;margin:0;">No hay días pendientes por cerrar</p>
+                    </div>`;
                 }
-            } catch (error) {
-                console.error('Error al cargar días pendientes:', error);
-            }
+                lucide.createIcons();
+            } catch(e){console.error('Error:',e);}
         }
 
-        function abrirModalCerrarDia(fecha, cantidadMovimientos, balance) {
-            fechaDiaCerrar = fecha;
-            const fechaObj = new Date(fecha);
-            document.getElementById('modal-fecha-cerrar').textContent =
-                fechaObj.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            document.getElementById('modal-cantidad-movimientos').textContent = cantidadMovimientos;
-            document.getElementById('modal-balance-dia').textContent = `$${balance.toFixed(2)}`;
+        function abrirModalCerrarDia(fecha,cant,balance){
+            fechaDiaCerrar=fecha;
+            const fo=new Date(fecha);
+            document.getElementById('modal-fecha-cerrar').textContent=fo.toLocaleDateString('es-ES',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+            document.getElementById('modal-cantidad-movimientos').textContent=cant;
+            document.getElementById('modal-balance-dia').textContent=`$${balance.toFixed(2)}`;
             document.getElementById('modalCerrarDiaEspecifico').classList.remove('hidden');
             lucide.createIcons();
         }
-
-        function cerrarModalDiaEspecifico() {
-            document.getElementById('modalCerrarDiaEspecifico').classList.add('hidden');
-            fechaDiaCerrar = null;
-        }
-
-        async function confirmarCierreDiaEspecifico() {
+        function cerrarModalDiaEspecifico(){document.getElementById('modalCerrarDiaEspecifico').classList.add('hidden');fechaDiaCerrar=null;}
+        async function confirmarCierreDiaEspecifico(){
             try {
-                const observaciones = document.getElementById('input-observaciones-cierre-dia').value;
-
-                // Extraer solo la fecha (YYYY-MM-DD) sin la hora
-                const soloFecha = fechaDiaCerrar.split('T')[0];
-
-                const response = await fetch(`${API_URL}/Caja/cerrar`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        fecha: soloFecha,
-                        observaciones
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    alert(`✅ ${data.message}`);
-                    cerrarModalDiaEspecifico();
-                    cargarResumen();
-                    cargarDiasPendientes();
-                } else {
-                    alert(`❌ ${data.message}`);
-                }
-            } catch (error) {
-                console.error('Error al cerrar día:', error);
-                alert('❌ Error al cerrar el día');
-            }
+                const obs=document.getElementById('input-observaciones-cierre-dia').value;
+                const soloFecha=fechaDiaCerrar.split('T')[0];
+                const r=await fetch(`${API_URL}/Caja/cerrar`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fecha:soloFecha,observaciones:obs})});
+                const data=await r.json();
+                if(data.success){alert(`✅ ${data.message}`);cerrarModalDiaEspecifico();cargarResumen();cargarDiasPendientes();}
+                else alert(`❌ ${data.message}`);
+            } catch(e){alert('❌ Error al cerrar el día');}
         }
 
-         document.querySelectorAll('input[type="number"]').forEach(function(input) {
-            input.addEventListener('wheel', function(e) {
-                e.preventDefault();
-            }, { passive: false });
+        document.querySelectorAll('input[type="number"]').forEach(i=>i.addEventListener('wheel',e=>e.preventDefault(),{passive:false}));
+        document.addEventListener('keydown',e=>{if(e.key==='Escape'){cerrarModalCerrarCaja();cerrarModalDiaEspecifico();cerrarModalAbonar();}});
+        document.addEventListener('click',e=>{
+            const mc=document.getElementById('modal-cerrar-caja');if(e.target===mc)cerrarModalCerrarCaja();
+            const md=document.getElementById('modalCerrarDiaEspecifico');if(e.target===md)cerrarModalDiaEspecifico();
+            const ma=document.getElementById('modalAbonarDeuda');if(e.target===ma)cerrarModalAbonar();
         });
 
-
-        // ========================================
-        // INICIALIZACIÓN
-        // ========================================
-        window.addEventListener('load', function() {
-            // Establecer fecha de hoy en los filtros (usando hora local, NO UTC)
-            const fechaHoy = obtenerFechaLocalISO();
-
-            document.getElementById('fecha-desde').value = fechaHoy;
-            document.getElementById('fecha-hasta').value = fechaHoy;
-
-            cargarResumen();
-            cargarMovimientos();
-            lucide.createIcons();
+        window.addEventListener('load',function(){
+            const hoy=obtenerFechaLocalISO();
+            document.getElementById('fecha-desde').value=hoy;
+            document.getElementById('fecha-hasta').value=hoy;
+            cargarResumen(); cargarMovimientos(); lucide.createIcons();
         });
 
-        // Asignar funciones globales
-        window.cambiarTab = cambiarTab;
-        window.cargarMovimientos = cargarMovimientos;
-        window.cargarResumenSemanal = cargarResumenSemanal;
-        window.cargarHistorialCierres = cargarHistorialCierres;
-        window.abrirModalCerrarCaja = abrirModalCerrarCaja;
-        window.cerrarModalCerrarCaja = cerrarModalCerrarCaja;
-        window.confirmarCierreCaja = confirmarCierreCaja;
-        window.registrarIngreso = registrarIngreso;
-        window.registrarEgreso = registrarEgreso;
-        window.cargarDeudas = cargarDeudas;
-        window.filtrarDeudas = filtrarDeudas;
-        window.abrirModalAbonar = abrirModalAbonar;
-        window.cerrarModalAbonar = cerrarModalAbonar;
-        window.confirmarAbono = confirmarAbono;
-        window.pagarCompleto = pagarCompleto;
+        window.cambiarTab=cambiarTab;window.cargarMovimientos=cargarMovimientos;
+        window.cargarResumenSemanal=cargarResumenSemanal;window.cargarHistorialCierres=cargarHistorialCierres;
+        window.abrirModalCerrarCaja=abrirModalCerrarCaja;window.cerrarModalCerrarCaja=cerrarModalCerrarCaja;
+        window.confirmarCierreCaja=confirmarCierreCaja;window.registrarIngreso=registrarIngreso;
+        window.registrarEgreso=registrarEgreso;window.cargarDeudas=cargarDeudas;
+        window.filtrarDeudas=filtrarDeudas;window.debounceBusquedaDeuda=debounceBusquedaDeuda;
+        window.filtroEstadoDeuda=filtroEstadoDeuda;window.abrirModalAbonar=abrirModalAbonar;
+        window.cerrarModalAbonar=cerrarModalAbonar;window.confirmarAbono=confirmarAbono;
+        window.pagarCompleto=pagarCompleto;window.abrirModalCerrarDia=abrirModalCerrarDia;
+        window.cerrarModalDiaEspecifico=cerrarModalDiaEspecifico;window.confirmarCierreDiaEspecifico=confirmarCierreDiaEspecifico;
     </script>
 }

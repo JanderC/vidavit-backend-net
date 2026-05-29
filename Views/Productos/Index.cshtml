@@ -1,133 +1,132 @@
-﻿@model IEnumerable<VidaFitBackend.Models.Producto>
-
+@model IEnumerable<VidaFitBackend.Models.Producto>
 @{
     ViewData["Title"] = "Productos";
-    ViewData["Subtitle"] = "Gestión de productos - TAURO GYM";
+    ViewData["Subtitle"] = "Gestión de productos - Power Fitness";
     Layout = "_AdminLayout";
 }
 
-<div class="max-w-7xl mx-auto">
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-4xl font-black text-gray-900 uppercase tracking-wide">Gestión de Productos</h2>
-        <div class="flex gap-3">
+<style>
+    :root{--pf-blue:#3B82F6;--pf-blueB:#60A5FA;--pf-deep:#1E3A8A;--pf-purple:#7C3AED;--pf-card:#0D1526;--pf-border:#1E2D4A;--pf-text:#E2E8F0;--pf-soft:#94A3B8;--pf-muted:#64748B;--pf-green:#10B981;--pf-red:#EF4444;--pf-orange:#F59E0B;}
+    .pf-input{width:100%;padding:.7rem 1rem;border:2px solid var(--pf-border);border-radius:.75rem;background:rgba(255,255,255,.03);color:var(--pf-text);font-weight:600;font-family:inherit;font-size:.9rem;outline:none;box-sizing:border-box;transition:border-color .2s;}
+    .pf-input:focus{border-color:var(--pf-blue);}
+    .pf-select{width:100%;padding:.7rem 1rem;border:2px solid var(--pf-border);border-radius:.75rem;background:var(--pf-card);color:var(--pf-text);font-weight:600;font-family:inherit;outline:none;box-sizing:border-box;}
+    .pf-select:focus{border-color:var(--pf-blue);}
+    .pf-label{display:block;font-size:.7rem;font-weight:800;color:var(--pf-soft);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.1em;}
+</style>
+
+<div>
+    <!-- Acciones -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem;">
+        <h2 style="font-size:1.5rem;font-weight:900;color:var(--pf-text);text-transform:uppercase;letter-spacing:.08em;margin:0;">Gestión de Productos</h2>
+        <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
             <a href="/productos/crear"
-               class="bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black py-3 px-8 rounded-xl transition-all shadow-xl hover:shadow-2xl flex items-center gap-2 uppercase tracking-wide transform hover:scale-105">
-                <i data-lucide="plus-circle" class="w-5 h-5"></i>
-                Nuevo Producto
+               style="display:inline-flex;align-items:center;gap:.5rem;padding:.7rem 1.5rem;background:linear-gradient(135deg,var(--pf-blue),var(--pf-purple));color:#fff;font-weight:800;border-radius:.875rem;text-decoration:none;text-transform:uppercase;letter-spacing:.06em;font-size:.82rem;box-shadow:0 4px 16px rgba(59,130,246,.3);transition:transform .2s;"
+               onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+                <i data-lucide="plus-circle" style="width:16px;height:16px;"></i> Nuevo Producto
             </a>
             <a href="/productos/vender"
-               class="bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900 text-white font-black py-3 px-8 rounded-xl transition-all shadow-xl hover:shadow-2xl flex items-center gap-2 uppercase tracking-wide transform hover:scale-105">
-                <i data-lucide="shopping-cart" class="w-5 h-5"></i>
-                Vender Productos
+               style="display:inline-flex;align-items:center;gap:.5rem;padding:.7rem 1.5rem;background:linear-gradient(135deg,var(--pf-green),#065F46);color:#fff;font-weight:800;border-radius:.875rem;text-decoration:none;text-transform:uppercase;letter-spacing:.06em;font-size:.82rem;box-shadow:0 4px 16px rgba(16,185,129,.3);transition:transform .2s;"
+               onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+                <i data-lucide="shopping-cart" style="width:16px;height:16px;"></i> Vender
             </a>
             <a href="/caja"
-               class="bg-gradient-to-r from-orange-600 to-orange-800 hover:from-orange-700 hover:to-orange-900 text-white font-black py-3 px-8 rounded-xl transition-all shadow-xl hover:shadow-2xl flex items-center gap-2 uppercase tracking-wide transform hover:scale-105">
-                <i data-lucide="alert-circle" class="w-5 h-5"></i>
-                Ver deudas en caja
+               style="display:inline-flex;align-items:center;gap:.5rem;padding:.7rem 1.5rem;background:rgba(245,158,11,.12);color:var(--pf-orange);border:1px solid rgba(245,158,11,.3);font-weight:800;border-radius:.875rem;text-decoration:none;text-transform:uppercase;letter-spacing:.06em;font-size:.82rem;transition:background .2s;"
+               onmouseover="this.style.background='rgba(245,158,11,.2)'" onmouseout="this.style.background='rgba(245,158,11,.12)'">
+                <i data-lucide="alert-circle" style="width:16px;height:16px;"></i> Ver deudas
             </a>
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-xl p-6 mb-6 border-2 border-gray-200">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Buscar</label>
-                <input type="text" id="buscarProducto" placeholder="Nombre o categoría..."
-                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
-            </div>
-            <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Categoría</label>
-                <select id="filtroCategoria"
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold bg-white">
-                    <option value="">Todas</option>
-                    <option value="suplementos">Suplementos</option>
-                    <option value="bebidas">Bebidas</option>
-                    <option value="snacks">Snacks</option>
-                    <option value="accesorios">Accesorios</option>
-                    <option value="otros">Otros</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Estado</label>
-                <select id="filtroEstado"
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold bg-white">
-                    <option value="">Todos</option>
-                    <option value="activo">Activos</option>
-                    <option value="inactivo">Inactivos</option>
-                    <option value="sin-stock">Sin Stock</option>
-                </select>
-            </div>
+    <!-- Filtros -->
+    <div style="background:var(--pf-card);border:1px solid var(--pf-border);border-radius:1rem;padding:1.25rem;margin-bottom:1.25rem;display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+        <div>
+            <label class="pf-label">Buscar</label>
+            <input type="text" id="buscarProducto" placeholder="Nombre o categoría..." class="pf-input">
+        </div>
+        <div>
+            <label class="pf-label">Categoría</label>
+            <select id="filtroCategoria" class="pf-select">
+                <option value="">Todas</option>
+                <option value="suplementos">Suplementos</option>
+                <option value="bebidas">Bebidas</option>
+                <option value="snacks">Snacks</option>
+                <option value="accesorios">Accesorios</option>
+                <option value="otros">Otros</option>
+            </select>
+        </div>
+        <div>
+            <label class="pf-label">Estado</label>
+            <select id="filtroEstado" class="pf-select">
+                <option value="">Todos</option>
+                <option value="activo">Activos</option>
+                <option value="inactivo">Inactivos</option>
+                <option value="sin-stock">Sin Stock</option>
+            </select>
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-gray-200">
-        <table class="min-w-full divide-y-2 divide-gray-200">
-            <thead class="bg-gradient-to-r from-gray-900 to-black">
-                <tr>
-                    <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-wider">Imagen</th>
-                    <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-wider">Producto</th>
-                    <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-wider">Categoría</th>
-                    <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-wider">Precio</th>
-                    <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-wider">Stock</th>
-                    <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-wider">Estado</th>
-                    <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-wider">Acciones</th>
+    <!-- Tabla -->
+    <div style="background:var(--pf-card);border:1px solid var(--pf-border);border-radius:1rem;overflow:hidden;">
+        <table style="width:100%;border-collapse:collapse;">
+            <thead>
+                <tr style="background:linear-gradient(135deg,var(--pf-deep),#111827);border-bottom:2px solid var(--pf-blue);">
+                    <th style="padding:.875rem 1.25rem;text-align:left;font-size:.68rem;font-weight:800;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:.12em;">Imagen</th>
+                    <th style="padding:.875rem 1.25rem;text-align:left;font-size:.68rem;font-weight:800;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:.12em;">Producto</th>
+                    <th style="padding:.875rem 1.25rem;text-align:left;font-size:.68rem;font-weight:800;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:.12em;">Categoría</th>
+                    <th style="padding:.875rem 1.25rem;text-align:left;font-size:.68rem;font-weight:800;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:.12em;">Precio</th>
+                    <th style="padding:.875rem 1.25rem;text-align:left;font-size:.68rem;font-weight:800;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:.12em;">Stock</th>
+                    <th style="padding:.875rem 1.25rem;text-align:left;font-size:.68rem;font-weight:800;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:.12em;">Estado</th>
+                    <th style="padding:.875rem 1.25rem;text-align:left;font-size:.68rem;font-weight:800;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:.12em;">Acciones</th>
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y-2 divide-gray-200" id="productosTable">
-                @foreach (var producto in Model)
+            <tbody id="productosTable">
+                @foreach (var p in Model)
                 {
-                    <tr class="hover:bg-gray-50 transition-colors producto-row"
-                        data-nombre="@producto.Nombre.ToLower()"
-                        data-categoria="@producto.Categoria?.ToLower()"
-                        data-activo="@producto.Activo.ToString().ToLower()"
-                        data-stock="@producto.Stock">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="w-16 h-16 bg-gray-200 rounded-xl flex items-center justify-center overflow-hidden border-2 border-gray-300">
-                                @if (!string.IsNullOrEmpty(producto.ImagenBase64))
-                                {
-                                    <img src="@producto.ImagenBase64" class="w-full h-full object-cover" alt="@producto.Nombre">
-                                }
+                    <tr class="producto-row"
+                        data-nombre="@p.Nombre.ToLower()"
+                        data-categoria="@p.Categoria?.ToLower()"
+                        data-activo="@p.Activo.ToString().ToLower()"
+                        data-stock="@p.Stock"
+                        style="border-bottom:1px solid var(--pf-border);transition:background .15s;"
+                        onmouseover="this.style.background='rgba(59,130,246,.04)'" onmouseout="this.style.background='transparent'">
+                        <td style="padding:.875rem 1.25rem;">
+                            <div style="width:44px;height:44px;background:rgba(59,130,246,.08);border-radius:.625rem;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid var(--pf-border);">
+                                @if (!string.IsNullOrEmpty(p.ImagenBase64))
+                                { <img src="@p.ImagenBase64" style="width:100%;height:100%;object-fit:cover;" alt="@p.Nombre"> }
                                 else
-                                {
-                                    <i data-lucide="package" class="w-8 h-8 text-gray-400"></i>
-                                }
+                                { <i data-lucide="package" style="width:20px;height:20px;color:var(--pf-soft);"></i> }
                             </div>
                         </td>
-                        <td class="px-6 py-4">
-                            <div class="text-sm font-black text-gray-900">@producto.Nombre</div>
-                            <div class="text-sm text-gray-600 font-semibold">@producto.Descripcion</div>
+                        <td style="padding:.875rem 1.25rem;">
+                            <div style="font-weight:800;color:var(--pf-text);font-size:.9rem;">@p.Nombre</div>
+                            <div style="font-size:.75rem;color:var(--pf-muted);font-weight:600;">@p.Descripcion</div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-black rounded-full bg-blue-100 text-blue-800 uppercase tracking-wide">
-                                @producto.Categoria
+                        <td style="padding:.875rem 1.25rem;">
+                            <span style="padding:.22rem .7rem;background:rgba(59,130,246,.1);color:var(--pf-blueB);border:1px solid rgba(59,130,246,.25);border-radius:999px;font-size:.68rem;font-weight:800;text-transform:uppercase;">@p.Categoria</span>
+                        </td>
+                        <td style="padding:.875rem 1.25rem;">
+                            <span style="font-weight:900;color:var(--pf-green);font-size:1rem;">$@p.Precio.ToString("N2")</span>
+                        </td>
+                        <td style="padding:.875rem 1.25rem;">
+                            <span style="padding:.22rem .7rem;border-radius:999px;font-size:.68rem;font-weight:800;text-transform:uppercase;@(p.Stock > 10 ? "background:rgba(16,185,129,.1);color:#10B981;border:1px solid rgba(16,185,129,.25);" : p.Stock > 0 ? "background:rgba(245,158,11,.1);color:#F59E0B;border:1px solid rgba(245,158,11,.25);" : "background:rgba(239,68,68,.1);color:#EF4444;border:1px solid rgba(239,68,68,.25);")">
+                                @p.Stock unidades
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-black text-emerald-600 text-lg">$@producto.Precio.ToString("N2")</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-black rounded-full uppercase tracking-wide @(producto.Stock > 10 ? "bg-green-100 text-green-800" : producto.Stock > 0 ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800")">
-                                @producto.Stock unidades
+                        <td style="padding:.875rem 1.25rem;">
+                            <span style="padding:.22rem .7rem;border-radius:999px;font-size:.68rem;font-weight:800;text-transform:uppercase;@(p.Activo ? "background:rgba(16,185,129,.1);color:#10B981;border:1px solid rgba(16,185,129,.25);" : "background:rgba(100,116,139,.1);color:#94A3B8;border:1px solid rgba(100,116,139,.2);")">
+                                @(p.Activo ? "Activo" : "Inactivo")
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-black rounded-full uppercase tracking-wide @(producto.Activo ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800")">
-                                @(producto.Activo ? "Activo" : "Inactivo")
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div class="flex gap-2">
-                                <a href="/productos/detalle/@producto.Id"
-                                   class="text-blue-600 hover:text-blue-900 p-2 hover:bg-blue-50 rounded-lg transition-colors" title="Ver detalles">
-                                    <i data-lucide="eye" class="w-5 h-5"></i>
+                        <td style="padding:.875rem 1.25rem;">
+                            <div style="display:flex;gap:.35rem;">
+                                <a href="/productos/detalle/@p.Id" title="Ver" style="padding:.45rem;color:var(--pf-blueB);border-radius:.5rem;display:flex;transition:background .15s;" onmouseover="this.style.background='rgba(96,165,250,.12)'" onmouseout="this.style.background='transparent'">
+                                    <i data-lucide="eye" style="width:18px;height:18px;"></i>
                                 </a>
-                                <a href="/productos/editar/@producto.Id"
-                                   class="text-amber-600 hover:text-amber-900 p-2 hover:bg-amber-50 rounded-lg transition-colors" title="Editar">
-                                    <i data-lucide="edit" class="w-5 h-5"></i>
+                                <a href="/productos/editar/@p.Id" title="Editar" style="padding:.45rem;color:var(--pf-orange);border-radius:.5rem;display:flex;transition:background .15s;" onmouseover="this.style.background='rgba(245,158,11,.12)'" onmouseout="this.style.background='transparent'">
+                                    <i data-lucide="edit" style="width:18px;height:18px;"></i>
                                 </a>
-                                <button type="button" onclick="eliminarProducto('@producto.Id', '@producto.Nombre')"
-                                        class="text-red-600 hover:text-red-900 p-2 hover:bg-red-50 rounded-lg transition-colors cursor-pointer border-0 bg-transparent" title="Eliminar">
-                                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                                <button onclick="eliminarProducto('@p.Id','@p.Nombre')" title="Eliminar" style="padding:.45rem;color:var(--pf-red);border-radius:.5rem;background:transparent;border:none;cursor:pointer;display:flex;transition:background .15s;" onmouseover="this.style.background='rgba(239,68,68,.12)'" onmouseout="this.style.background='transparent'">
+                                    <i data-lucide="trash-2" style="width:18px;height:18px;"></i>
                                 </button>
                             </div>
                         </td>
@@ -145,61 +144,30 @@
         document.getElementById('filtroEstado').addEventListener('change', filtrarProductos);
 
         function filtrarProductos() {
-            const busqueda = document.getElementById('buscarProducto').value.toLowerCase();
-            const categoria = document.getElementById('filtroCategoria').value.toLowerCase();
-            const estado = document.getElementById('filtroEstado').value.toLowerCase();
-
-            const rows = document.querySelectorAll('.producto-row');
-
-            rows.forEach(row => {
-                const nombre = row.dataset.nombre;
-                const cat = row.dataset.categoria;
-                const activo = row.dataset.activo === 'true';
-                const stock = parseInt(row.dataset.stock);
-
-                let mostrar = true;
-
-                if (busqueda && !nombre.includes(busqueda) && !cat.includes(busqueda)) {
-                    mostrar = false;
-                }
-
-                if (categoria && cat !== categoria) {
-                    mostrar = false;
-                }
-
-                if (estado === 'activo' && !activo) mostrar = false;
-                if (estado === 'inactivo' && activo) mostrar = false;
-                if (estado === 'sin-stock' && stock > 0) mostrar = false;
-
-                row.style.display = mostrar ? '' : 'none';
+            const q = document.getElementById('buscarProducto').value.toLowerCase();
+            const cat = document.getElementById('filtroCategoria').value.toLowerCase();
+            const est = document.getElementById('filtroEstado').value.toLowerCase();
+            document.querySelectorAll('.producto-row').forEach(row => {
+                const nombre = row.dataset.nombre, c = row.dataset.categoria;
+                const activo = row.dataset.activo === 'true', stock = parseInt(row.dataset.stock);
+                let ok = true;
+                if (q && !nombre.includes(q) && !c.includes(q)) ok = false;
+                if (cat && c !== cat) ok = false;
+                if (est === 'activo' && !activo) ok = false;
+                if (est === 'inactivo' && activo) ok = false;
+                if (est === 'sin-stock' && stock > 0) ok = false;
+                row.style.display = ok ? '' : 'none';
             });
         }
 
-
         async function eliminarProducto(id, nombre) {
-            if (!confirm(`¿Estás seguro de que deseas eliminar el producto "${nombre}"?\n\nEsta acción no se puede deshacer.`)) {
-                return;
-            }
-
+            if (!confirm(`¿Estás seguro de eliminar "${nombre}"?\n\nEsta acción no se puede deshacer.`)) return;
             try {
-                const response = await fetch(`/api/Productos/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-
-                if (response.ok) {
-                    alert('✅ Producto eliminado exitosamente');
-                    location.reload();
-                } else {
-                    const error = await response.text();
-                    alert('❌ Error: ' + error);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al eliminar el producto');
-            }
+                const r = await fetch(`/api/Productos/${id}`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' } });
+                if (r.ok) { alert('✅ Producto eliminado exitosamente'); location.reload(); }
+                else { alert('❌ Error: ' + await r.text()); }
+            } catch (e) { alert('❌ Error al eliminar el producto'); }
         }
-
         window.eliminarProducto = eliminarProducto;
         lucide.createIcons();
     </script>

@@ -1,40 +1,46 @@
-﻿@{
+@{
     ViewData["Title"] = "Cuentas Pendientes";
-    ViewData["Subtitle"] = "Productos Fiados - TAURO GYM";
+    ViewData["Subtitle"] = "Productos Fiados - Power Fitness";
     Layout = "_AdminLayout";
 }
 
-<div class="max-w-7xl mx-auto">
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-4xl font-black text-gray-900 uppercase tracking-wide">Productos Fiados</h2>
+<style>
+    :root{--pf-blue:#3B82F6;--pf-blueB:#60A5FA;--pf-card:#0D1526;--pf-border:#1E2D4A;--pf-text:#E2E8F0;--pf-soft:#94A3B8;--pf-muted:#64748B;--pf-green:#10B981;--pf-red:#EF4444;--pf-orange:#F59E0B;}
+    .pf-input{width:100%;padding:.75rem 1.25rem;border:2px solid var(--pf-border);border-radius:.875rem;background:rgba(255,255,255,.03);color:var(--pf-text);font-weight:600;font-family:inherit;outline:none;box-sizing:border-box;transition:border-color .2s;}
+    .pf-input:focus{border-color:var(--pf-blue);}
+    .pf-input::placeholder{color:var(--pf-muted);font-weight:400;}
+</style>
+
+<div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+        <h2 style="font-size:1.5rem;font-weight:900;color:var(--pf-text);text-transform:uppercase;letter-spacing:.08em;margin:0;">Productos Fiados</h2>
         <a href="/productos"
-           class="bg-gray-300 hover:bg-gray-400 text-gray-900 font-black py-3 px-8 rounded-xl transition-all uppercase tracking-wide">
-            Volver
-        </a>
+           style="padding:.65rem 1.5rem;background:rgba(255,255,255,.05);border:1px solid var(--pf-border);color:var(--pf-soft);font-weight:800;border-radius:.875rem;text-decoration:none;font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;transition:background .2s;"
+           onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">Volver</a>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <div class="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-orange-600">
-            <p class="text-gray-600 text-sm font-black uppercase tracking-wide mb-2">Total Pendiente</p>
-            <p class="text-4xl font-black text-orange-600" id="totalPendiente">$0.00</p>
+    <!-- Stats -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;">
+        <div style="background:var(--pf-card);border:1px solid var(--pf-border);border-left:4px solid var(--pf-orange);border-radius:.875rem;padding:1.25rem;">
+            <p style="font-size:.68rem;color:var(--pf-muted);font-weight:800;text-transform:uppercase;letter-spacing:.1em;margin:0 0 .35rem 0;">Total Pendiente</p>
+            <p style="font-size:2rem;font-weight:900;color:var(--pf-orange);margin:0;" id="totalPendiente">$0.00</p>
         </div>
-        <div class="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-red-600">
-            <p class="text-gray-600 text-sm font-black uppercase tracking-wide mb-2">Clientes con Deuda</p>
-            <p class="text-4xl font-black text-gray-900" id="clientesConDeuda">0</p>
+        <div style="background:var(--pf-card);border:1px solid var(--pf-border);border-left:4px solid var(--pf-red);border-radius:.875rem;padding:1.25rem;">
+            <p style="font-size:.68rem;color:var(--pf-muted);font-weight:800;text-transform:uppercase;letter-spacing:.1em;margin:0 0 .35rem 0;">Clientes con Deuda</p>
+            <p style="font-size:2rem;font-weight:900;color:var(--pf-red);margin:0;" id="clientesConDeuda">0</p>
         </div>
-        <div class="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-blue-600">
-            <p class="text-gray-600 text-sm font-black uppercase tracking-wide mb-2">Productos Fiados</p>
-            <p class="text-4xl font-black text-gray-900" id="productosFiados">0</p>
+        <div style="background:var(--pf-card);border:1px solid var(--pf-border);border-left:4px solid var(--pf-blue);border-radius:.875rem;padding:1.25rem;">
+            <p style="font-size:.68rem;color:var(--pf-muted);font-weight:800;text-transform:uppercase;letter-spacing:.1em;margin:0 0 .35rem 0;">Productos Fiados</p>
+            <p style="font-size:2rem;font-weight:900;color:var(--pf-blueB);margin:0;" id="productosFiados">0</p>
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-gray-200">
-        <div class="p-6 border-b-2 border-gray-200">
-            <input type="text" id="buscarCliente" placeholder="Buscar cliente..."
-                   class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+    <!-- Lista -->
+    <div style="background:var(--pf-card);border:1px solid var(--pf-border);border-radius:1rem;overflow:hidden;">
+        <div style="padding:1.1rem 1.5rem;border-bottom:1px solid var(--pf-border);">
+            <input type="text" id="buscarCliente" placeholder="Buscar cliente..." class="pf-input">
         </div>
-        <div id="cuentasList" class="divide-y-2 divide-gray-200">
-        </div>
+        <div id="cuentasList"></div>
     </div>
 </div>
 
@@ -44,116 +50,76 @@
 
         async function cargarCuentas() {
             try {
-                const response = await fetch('/api/VentasProductos');
-                const ventas = await response.json();
-
-                console.log('Ventas cargadas:', ventas.length);
-                console.log('Primera venta:', ventas[0]);
-
+                const r = await fetch('/api/VentasProductos');
+                const ventas = await r.json();
                 const pendientes = ventas.filter(v => v.EstadoPago === 'pendiente');
-                console.log('Ventas pendientes:', pendientes.length);
-
                 const porCliente = {};
                 pendientes.forEach(v => {
-                    if (!porCliente[v.ClienteId]) {
-                        porCliente[v.ClienteId] = {
-                            cliente: v.Cliente,
-                            ventas: [],
-                            total: 0
-                        };
-                    }
+                    if (!porCliente[v.ClienteId]) porCliente[v.ClienteId] = { cliente:v.Cliente, ventas:[], total:0 };
                     porCliente[v.ClienteId].ventas.push(v);
                     porCliente[v.ClienteId].total += v.Total;
                 });
-
                 cuentasPendientes = Object.values(porCliente);
-
-                const totalPendiente = cuentasPendientes.reduce((sum, c) => sum + c.total, 0);
-                document.getElementById('totalPendiente').textContent = `$${totalPendiente.toFixed(2)}`;
+                const total = cuentasPendientes.reduce((s,c)=>s+c.total,0);
+                document.getElementById('totalPendiente').textContent = `$${total.toFixed(2)}`;
                 document.getElementById('clientesConDeuda').textContent = cuentasPendientes.length;
                 document.getElementById('productosFiados').textContent = pendientes.length;
-
                 renderCuentas(cuentasPendientes);
-            } catch (error) {
-                console.error('Error cargando cuentas:', error);
-            }
+            } catch(e) { console.error('Error cargando cuentas:', e); }
         }
 
         function renderCuentas(cuentas) {
-            const container = document.getElementById('cuentasList');
-
+            const c = document.getElementById('cuentasList');
             if (cuentas.length === 0) {
-                container.innerHTML = '<p class="text-center text-gray-500 py-12 font-bold text-lg">No hay cuentas pendientes</p>';
+                c.innerHTML = '<p style="text-align:center;padding:3rem;color:#64748B;font-weight:700;">No hay cuentas pendientes</p>';
                 return;
             }
-
-            container.innerHTML = cuentas.map(cuenta => `
-                <div class="p-8 hover:bg-gray-50 transition-colors">
-                    <div class="flex justify-between items-start mb-6">
+            c.innerHTML = cuentas.map(cuenta => `
+                <div style="padding:1.5rem;border-bottom:1px solid #1E2D4A;transition:background .15s;" onmouseover="this.style.background='rgba(59,130,246,.03)'" onmouseout="this.style.background='transparent'">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
                         <div>
-                            <h3 class="text-2xl font-black text-gray-900 uppercase tracking-wide">
-                                ${cuenta.cliente.Nombre} ${cuenta.cliente.Apellido}
-                            </h3>
-                            <p class="text-sm text-gray-600 font-bold mt-1">${cuenta.cliente.Cedula}</p>
+                            <h3 style="font-size:1.1rem;font-weight:900;color:#E2E8F0;text-transform:uppercase;margin:0 0 .2rem 0;">${cuenta.cliente.Nombre} ${cuenta.cliente.Apellido}</h3>
+                            <p style="font-size:.78rem;color:#64748B;font-weight:700;margin:0;font-family:monospace;">${cuenta.cliente.Cedula}</p>
                         </div>
-                        <div class="text-right">
-                            <p class="text-3xl font-black text-orange-600">$${cuenta.total.toFixed(2)}</p>
+                        <div style="text-align:right;">
+                            <p style="font-size:1.75rem;font-weight:900;color:#F59E0B;margin:0 0 .5rem 0;">$${cuenta.total.toFixed(2)}</p>
                             <button onclick="marcarComoPagado('${cuenta.cliente.Id}')"
-                                    class="mt-3 bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900 text-white px-6 py-3 rounded-xl font-black uppercase tracking-wide shadow-lg">
+                                    style="padding:.55rem 1.25rem;background:linear-gradient(135deg,#10B981,#065F46);color:#fff;border:none;border-radius:.75rem;font-weight:800;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;font-family:inherit;box-shadow:0 3px 12px rgba(16,185,129,.3);">
                                 Marcar Pagado
                             </button>
                         </div>
                     </div>
-                    <div class="space-y-3">
-                        ${cuenta.ventas.map(v => `
-                            <div class="flex justify-between items-center text-sm bg-gray-50 p-4 rounded-xl border-2 border-gray-200">
-                                <div class="flex items-center gap-3">
-                                    <i data-lucide="package" class="w-5 h-5 text-gray-400"></i>
-                                    <span class="font-black text-gray-900">${v.Producto.Nombre}</span>
-                                    <span class="text-gray-600 font-bold">x${v.Cantidad}</span>
+                    <div style="display:flex;flex-direction:column;gap:.5rem;">
+                        ${cuenta.ventas.map(v=>`
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;background:rgba(255,255,255,.02);border:1px solid #1E2D4A;border-radius:.625rem;">
+                                <div style="display:flex;align-items:center;gap:.75rem;">
+                                    <i data-lucide="package" style="width:16px;height:16px;color:#64748B;"></i>
+                                    <span style="font-weight:800;color:#E2E8F0;font-size:.88rem;">${v.Producto.Nombre}</span>
+                                    <span style="color:#64748B;font-weight:700;font-size:.82rem;">x${v.Cantidad}</span>
                                 </div>
-                                <div class="flex items-center gap-4">
-                                    <span class="font-black text-gray-900 text-lg">$${v.Total.toFixed(2)}</span>
-                                    <span class="text-xs text-gray-500 font-semibold">${new Date(v.FechaVenta).toLocaleDateString()}</span>
+                                <div style="display:flex;align-items:center;gap:1rem;">
+                                    <span style="font-weight:900;color:#10B981;font-size:.95rem;">$${v.Total.toFixed(2)}</span>
+                                    <span style="font-size:.72rem;color:#64748B;font-weight:600;">${new Date(v.FechaVenta).toLocaleDateString()}</span>
                                 </div>
-                            </div>
-                        `).join('')}
+                            </div>`).join('')}
                     </div>
-                </div>
-            `).join('');
-
+                </div>`).join('');
             lucide.createIcons();
         }
 
         async function marcarComoPagado(clienteId) {
             if (!confirm('¿Marcar todas las deudas de este cliente como pagadas?')) return;
-
             try {
-                const cuenta = cuentasPendientes.find(c => c.cliente.Id === clienteId);
-
-                for (const venta of cuenta.ventas) {
-                    await fetch(`/api/VentasProductos/${venta.Id}/marcar-pagado`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' }
-                    });
-                }
-
+                const cuenta = cuentasPendientes.find(c=>c.cliente.Id===clienteId);
+                for (const v of cuenta.ventas) await fetch(`/api/VentasProductos/${v.Id}/marcar-pagado`,{method:'POST',headers:{'Content-Type':'application/json'}});
                 alert('✓ Deuda marcada como pagada');
                 cargarCuentas();
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error al actualizar el pago');
-            }
+            } catch(e) { alert('Error al actualizar el pago'); }
         }
 
         document.getElementById('buscarCliente').addEventListener('input', function(e) {
-            const query = e.target.value.toLowerCase();
-            const filtradas = cuentasPendientes.filter(c =>
-                c.cliente.Nombre.toLowerCase().includes(query) ||
-                c.cliente.Apellido.toLowerCase().includes(query) ||
-                c.cliente.Cedula.includes(query)
-            );
-            renderCuentas(filtradas);
+            const q = e.target.value.toLowerCase();
+            renderCuentas(cuentasPendientes.filter(c=>c.cliente.Nombre.toLowerCase().includes(q)||c.cliente.Apellido.toLowerCase().includes(q)||c.cliente.Cedula.includes(q)));
         });
 
         window.marcarComoPagado = marcarComoPagado;

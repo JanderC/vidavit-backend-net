@@ -122,17 +122,7 @@ fingerprintService.Initialize();
 var zonaHoraria = TimeZoneInfo.Local;
 var horaActual = DateTime.Now;
 
-// Mostrar banner
-Console.WriteLine("═══════════════════════════════════════════════════════");
-Console.WriteLine("   ████████╗ █████╗ ██╗   ██╗██████╗  ██████╗          ");
-Console.WriteLine("   ╚══██╔══╝██╔══██╗██║   ██║██╔══██╗██╔═══██╗         ");
-Console.WriteLine("      ██║   ███████║██║   ██║██████╔╝██║   ██║         ");
-Console.WriteLine("      ██║   ██╔══██║██║   ██║██╔══██╗██║   ██║         ");
-Console.WriteLine("      ██║   ██║  ██║╚██████╔╝██║  ██║╚██████╔╝         ");
-Console.WriteLine("      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝ ╚═════╝          ");
-Console.WriteLine("                    GYM SYSTEM                          ");
-Console.WriteLine("═══════════════════════════════════════════════════════");
-Console.WriteLine("   Sistema de Gestión de Gimnasio TAURO GYM");
+Console.WriteLine("   Sistema de Gestión de Gimnasio Power Fitness");
 Console.WriteLine("   Versión 1.0 - Sistema Integrado");
 Console.WriteLine("═══════════════════════════════════════════════════════");
 Console.WriteLine($"   ✓ Servidor iniciado en: http://localhost:5000");
@@ -140,7 +130,6 @@ Console.WriteLine($"   ✓ Base de datos: PostgreSQL - {connectionString?.Split(
 Console.WriteLine($"   ✓ Zona horaria: {zonaHoraria.DisplayName}");
 Console.WriteLine($"   ✓ Hora actual: {horaActual:dd/MM/yyyy HH:mm:ss}");
 Console.WriteLine($"   ✓ Timestamp mode: Legacy (DateTime.Now compatible)");
-Console.WriteLine($"   {(fingerprintService.IsReaderConnected() ? "✓" : "✗")} Lector de huellas: {(fingerprintService.IsReaderConnected() ? "Conectado ✓" : "No detectado ✗")}");
 Console.WriteLine("═══════════════════════════════════════════════════════");
 Console.WriteLine("   📱 Kiosko de Check-in: http://localhost:5000/kiosko");
 Console.WriteLine("   🎛️  Panel Admin: http://localhost:5000/admin");

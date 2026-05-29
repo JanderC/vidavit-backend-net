@@ -4,11 +4,952 @@
     Layout = "_AdminLayout";
 }
 
+@* =====================================================
+   POWER FITNESS — ESTILOS DASHBOARD
+   Paleta del logo: Azul eléctrico + Azul marino + Púrpura
+   Sin dependencias de internet — CSS puro
+   ===================================================== *@
+<style>
+    /* ─── Variables de marca ─── */
+    :root {
+        --pf-blue: #3B82F6;
+        --pf-blue-bright: #60A5FA;
+        --pf-blue-deep: #1E3A8A;
+        --pf-blue-mid: #2563EB;
+        --pf-purple: #7C3AED;
+        --pf-purple-light: #A78BFA;
+        --pf-purple-dark: #4C1D95;
+        --pf-dark: #060B18;
+        --pf-dark-card: #0D1526;
+        --pf-dark-card2: #111827;
+        --pf-border: #1E2D4A;
+        --pf-border-bright: rgba(59,130,246,.25);
+        --pf-text: #E2E8F0;
+        --pf-text-muted: #64748B;
+        --pf-text-soft: #94A3B8;
+        /* Colores de estado */
+        --pf-green: #10B981;
+        --pf-green-dark: #065F46;
+        --pf-orange: #F59E0B;
+        --pf-red: #EF4444;
+        --pf-red-dark: #7F1D1D;
+        /* Golds para podio */
+        --pf-gold: #F59E0B;
+        --pf-silver: #94A3B8;
+        --pf-bronze: #D97706;
+    }
+
+    /* ─── Spinner de carga ─── */
+    #dashboard-app .pf-spinner {
+        width: 52px;
+        height: 52px;
+        border: 4px solid rgba(59,130,246,.15);
+        border-top-color: var(--pf-blue);
+        border-radius: 50%;
+        animation: pf-spin .8s linear infinite;
+        margin: 0 auto 1.25rem;
+    }
+    #dashboard-app .pf-loading-text {
+        color: var(--pf-text-soft);
+        font-size: .9rem;
+        font-weight: 600;
+        letter-spacing: .08em;
+    }
+
+    /* ─── Sección heading ─── */
+    #dashboard-app h3.pf-section-title {
+        font-size: 1rem !important;
+        font-weight: 800 !important;
+        color: var(--pf-text) !important;
+        text-transform: uppercase;
+        letter-spacing: .12em;
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        margin-bottom: 1.25rem !important;
+        padding-bottom: .75rem;
+        border-bottom: 1px solid var(--pf-border);
+    }
+
+        #dashboard-app h3.pf-section-title i {
+            color: var(--pf-blue-bright) !important;
+        }
+
+    /* ─── Tarjetas KPI (Caja Hoy) ─── */
+    #dashboard-app .pf-kpi-card {
+        background: linear-gradient(145deg, var(--pf-dark-card), rgba(6,11,24,.9));
+        border: 1px solid var(--pf-border);
+        border-radius: 1.125rem;
+        padding: 1.4rem;
+        position: relative;
+        overflow: hidden;
+        transition: transform .25s, box-shadow .25s;
+        cursor: default;
+    }
+
+        #dashboard-app .pf-kpi-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0,0,0,.4);
+        }
+        /* Línea superior de color */
+        #dashboard-app .pf-kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            border-radius: 1.125rem 1.125rem 0 0;
+        }
+        /* Brillo esquina */
+        #dashboard-app .pf-kpi-card::after {
+            content: '';
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            opacity: .08;
+        }
+
+    /* Variantes de color para KPI cards */
+    #dashboard-app .pf-kpi-green::before {
+        background: linear-gradient(90deg, var(--pf-green), #34D399);
+    }
+
+    #dashboard-app .pf-kpi-green::after {
+        background: var(--pf-green);
+    }
+
+    #dashboard-app .pf-kpi-blue::before {
+        background: linear-gradient(90deg, var(--pf-blue), var(--pf-blue-bright));
+    }
+
+    #dashboard-app .pf-kpi-blue::after {
+        background: var(--pf-blue);
+    }
+
+    #dashboard-app .pf-kpi-purple::before {
+        background: linear-gradient(90deg, var(--pf-purple), var(--pf-purple-light));
+    }
+
+    #dashboard-app .pf-kpi-purple::after {
+        background: var(--pf-purple);
+    }
+
+    #dashboard-app .pf-kpi-red::before {
+        background: linear-gradient(90deg, var(--pf-red), #F87171);
+    }
+
+    #dashboard-app .pf-kpi-red::after {
+        background: var(--pf-red);
+    }
+
+    /* Ícono dentro del KPI */
+    #dashboard-app .pf-kpi-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: .75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+
+    #dashboard-app .pf-kpi-green .pf-kpi-icon {
+        background: rgba(16,185,129,.15);
+    }
+
+    #dashboard-app .pf-kpi-blue .pf-kpi-icon {
+        background: rgba(59,130,246,.15);
+    }
+
+    #dashboard-app .pf-kpi-purple .pf-kpi-icon {
+        background: rgba(124,58,237,.15);
+    }
+
+    #dashboard-app .pf-kpi-red .pf-kpi-icon {
+        background: rgba(239,68,68,.15);
+    }
+
+    #dashboard-app .pf-kpi-icon i {
+        width: 24px !important;
+        height: 24px !important;
+    }
+
+    #dashboard-app .pf-kpi-green .pf-kpi-icon i {
+        color: var(--pf-green) !important;
+    }
+
+    #dashboard-app .pf-kpi-blue .pf-kpi-icon i {
+        color: var(--pf-blue-bright) !important;
+    }
+
+    #dashboard-app .pf-kpi-purple .pf-kpi-icon i {
+        color: var(--pf-purple-light) !important;
+    }
+
+    #dashboard-app .pf-kpi-red .pf-kpi-icon i {
+        color: #F87171 !important;
+    }
+
+    #dashboard-app .pf-kpi-badge {
+        font-size: .65rem;
+        font-weight: 800;
+        letter-spacing: .15em;
+        text-transform: uppercase;
+        padding: .25rem .7rem;
+        border-radius: 999px;
+        border: 1px solid;
+    }
+
+    #dashboard-app .pf-kpi-green .pf-kpi-badge {
+        color: var(--pf-green);
+        border-color: rgba(16,185,129,.3);
+        background: rgba(16,185,129,.1);
+    }
+
+    #dashboard-app .pf-kpi-blue .pf-kpi-badge {
+        color: var(--pf-blue-bright);
+        border-color: rgba(96,165,250,.3);
+        background: rgba(59,130,246,.1);
+    }
+
+    #dashboard-app .pf-kpi-purple .pf-kpi-badge {
+        color: var(--pf-purple-light);
+        border-color: rgba(167,139,250,.3);
+        background: rgba(124,58,237,.1);
+    }
+
+    #dashboard-app .pf-kpi-red .pf-kpi-badge {
+        color: #F87171;
+        border-color: rgba(239,68,68,.3);
+        background: rgba(239,68,68,.1);
+    }
+
+    #dashboard-app .pf-kpi-label {
+        font-size: .7rem;
+        font-weight: 700;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        margin-bottom: .35rem;
+    }
+
+    #dashboard-app .pf-kpi-green .pf-kpi-label {
+        color: rgba(16,185,129,.7);
+    }
+
+    #dashboard-app .pf-kpi-blue .pf-kpi-label {
+        color: rgba(96,165,250,.7);
+    }
+
+    #dashboard-app .pf-kpi-purple .pf-kpi-label {
+        color: rgba(167,139,250,.7);
+    }
+
+    #dashboard-app .pf-kpi-red .pf-kpi-label {
+        color: rgba(248,113,113,.7);
+    }
+
+    #dashboard-app .pf-kpi-value {
+        font-size: 1.7rem;
+        font-weight: 900;
+        color: #fff;
+        line-height: 1;
+        margin-bottom: .4rem;
+    }
+
+    #dashboard-app .pf-kpi-sub {
+        font-size: .7rem;
+        font-weight: 600;
+    }
+
+    #dashboard-app .pf-kpi-green .pf-kpi-sub {
+        color: rgba(16,185,129,.6);
+    }
+
+    #dashboard-app .pf-kpi-blue .pf-kpi-sub {
+        color: rgba(96,165,250,.6);
+    }
+
+    #dashboard-app .pf-kpi-purple .pf-kpi-sub {
+        color: rgba(167,139,250,.6);
+    }
+
+    #dashboard-app .pf-kpi-red .pf-kpi-sub {
+        color: rgba(248,113,113,.6);
+    }
+
+    /* ─── Tablas de ingresos/egresos ─── */
+    #dashboard-app .pf-table-card {
+        background: var(--pf-dark-card);
+        border: 1px solid var(--pf-border);
+        border-radius: 1.125rem;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,.3);
+    }
+
+    #dashboard-app .pf-table-head-blue {
+        background: linear-gradient(135deg, var(--pf-blue-deep), var(--pf-blue-mid));
+    }
+
+    #dashboard-app .pf-table-head-red {
+        background: linear-gradient(135deg, #7F1D1D, #991B1B);
+    }
+
+    #dashboard-app .pf-table-card table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    #dashboard-app .pf-table-card thead th {
+        padding: .875rem 1.25rem;
+        font-size: .7rem;
+        font-weight: 800;
+        letter-spacing: .15em;
+        text-transform: uppercase;
+        color: rgba(255,255,255,.9);
+    }
+
+        #dashboard-app .pf-table-card thead th:first-child {
+            text-align: left;
+        }
+
+        #dashboard-app .pf-table-card thead th:not(:first-child) {
+            text-align: right;
+        }
+
+    #dashboard-app .pf-table-card tbody tr {
+        border-bottom: 1px solid var(--pf-border);
+        transition: background .2s;
+    }
+
+        #dashboard-app .pf-table-card tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        #dashboard-app .pf-table-card tbody tr:hover {
+            background: rgba(59,130,246,.04);
+        }
+
+    #dashboard-app .pf-table-card tbody td {
+        padding: .875rem 1.25rem;
+    }
+
+        #dashboard-app .pf-table-card tbody td:not(:first-child) {
+            text-align: right;
+        }
+
+    #dashboard-app .pf-table-card tfoot tr {
+        border-top: 2px solid var(--pf-border);
+        background: rgba(59,130,246,.05);
+    }
+
+    #dashboard-app .pf-table-card tfoot td {
+        padding: .875rem 1.25rem;
+        font-size: .8rem;
+        font-weight: 900;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        color: var(--pf-text-soft);
+    }
+
+        #dashboard-app .pf-table-card tfoot td:not(:first-child) {
+            text-align: right;
+        }
+
+    #dashboard-app .pf-total-blue {
+        color: var(--pf-blue-bright) !important;
+        font-size: 1.05rem !important;
+    }
+
+    #dashboard-app .pf-total-red {
+        color: #F87171 !important;
+        font-size: 1.05rem !important;
+    }
+
+    /* Amount cell */
+    #dashboard-app .pf-cell-amount {
+        color: var(--pf-text);
+        font-size: 1rem;
+        font-weight: 800;
+    }
+
+    #dashboard-app .pf-cell-pct {
+        color: var(--pf-text-soft);
+        font-size: .8rem;
+        font-weight: 700;
+    }
+
+    /* Progress bar */
+    #dashboard-app .pf-progress-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: .6rem;
+    }
+
+    #dashboard-app .pf-progress-track {
+        width: 80px;
+        height: 6px;
+        background: rgba(255,255,255,.08);
+        border-radius: 999px;
+        overflow: hidden;
+    }
+
+    #dashboard-app .pf-progress-bar {
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--pf-blue), var(--pf-purple));
+        transition: width .6s ease;
+    }
+
+    /* Badges de categoría en tabla */
+    #dashboard-app .pf-badge {
+        display: inline-block;
+        padding: .25rem .75rem;
+        border-radius: 999px;
+        font-size: .7rem;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        border: 1px solid;
+    }
+    /* Colores de badge para ingresos */
+    #dashboard-app .pf-badge-red {
+        color: #F87171;
+        background: rgba(239,68,68,.1);
+        border-color: rgba(239,68,68,.25);
+    }
+
+    #dashboard-app .pf-badge-amber {
+        color: #FCD34D;
+        background: rgba(245,158,11,.1);
+        border-color: rgba(245,158,11,.25);
+    }
+
+    #dashboard-app .pf-badge-emerald {
+        color: #34D399;
+        background: rgba(16,185,129,.1);
+        border-color: rgba(16,185,129,.25);
+    }
+
+    #dashboard-app .pf-badge-blue {
+        color: var(--pf-blue-bright);
+        background: rgba(59,130,246,.1);
+        border-color: rgba(59,130,246,.25);
+    }
+
+    #dashboard-app .pf-badge-orange {
+        color: #FB923C;
+        background: rgba(249,115,22,.1);
+        border-color: rgba(249,115,22,.25);
+    }
+
+    #dashboard-app .pf-badge-yellow {
+        color: #FDE047;
+        background: rgba(234,179,8,.1);
+        border-color: rgba(234,179,8,.25);
+    }
+
+    #dashboard-app .pf-badge-pink {
+        color: #F9A8D4;
+        background: rgba(236,72,153,.1);
+        border-color: rgba(236,72,153,.25);
+    }
+
+    #dashboard-app .pf-badge-gray {
+        color: var(--pf-text-soft);
+        background: rgba(100,116,139,.1);
+        border-color: rgba(100,116,139,.25);
+    }
+
+    /* ─── Estadísticas Generales (mini-cards) ─── */
+    #dashboard-app .pf-stat-card {
+        background: var(--pf-dark-card);
+        border: 1px solid var(--pf-border);
+        border-radius: 1rem;
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: .5rem;
+        transition: transform .25s, box-shadow .25s;
+        position: relative;
+        overflow: hidden;
+    }
+
+        #dashboard-app .pf-stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,.35), 0 0 0 1px var(--pf-border-bright);
+        }
+
+        #dashboard-app .pf-stat-card::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+        }
+
+    #dashboard-app .pf-stat-blue::before {
+        background: linear-gradient(90deg, var(--pf-blue), var(--pf-purple));
+    }
+
+    #dashboard-app .pf-stat-green::before {
+        background: linear-gradient(90deg, var(--pf-green), #34D399);
+    }
+
+    #dashboard-app .pf-stat-orange::before {
+        background: linear-gradient(90deg, var(--pf-orange), #FCD34D);
+    }
+
+    #dashboard-app .pf-stat-red::before {
+        background: linear-gradient(90deg, var(--pf-red), #F87171);
+    }
+
+    #dashboard-app .pf-stat-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: .75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #dashboard-app .pf-stat-blue .pf-stat-icon {
+        background: rgba(59,130,246,.12);
+    }
+
+    #dashboard-app .pf-stat-green .pf-stat-icon {
+        background: rgba(16,185,129,.12);
+    }
+
+    #dashboard-app .pf-stat-orange .pf-stat-icon {
+        background: rgba(245,158,11,.12);
+    }
+
+    #dashboard-app .pf-stat-red .pf-stat-icon {
+        background: rgba(239,68,68,.12);
+    }
+
+    #dashboard-app .pf-stat-icon i {
+        width: 22px !important;
+        height: 22px !important;
+    }
+
+    #dashboard-app .pf-stat-blue .pf-stat-icon i {
+        color: var(--pf-blue-bright) !important;
+    }
+
+    #dashboard-app .pf-stat-green .pf-stat-icon i {
+        color: var(--pf-green) !important;
+    }
+
+    #dashboard-app .pf-stat-orange .pf-stat-icon i {
+        color: var(--pf-orange) !important;
+    }
+
+    #dashboard-app .pf-stat-red .pf-stat-icon i {
+        color: var(--pf-red) !important;
+    }
+
+    #dashboard-app .pf-stat-number {
+        font-size: 2rem;
+        font-weight: 900;
+        line-height: 1;
+    }
+
+    #dashboard-app .pf-stat-blue .pf-stat-number {
+        color: var(--pf-blue-bright);
+    }
+
+    #dashboard-app .pf-stat-green .pf-stat-number {
+        color: var(--pf-green);
+    }
+
+    #dashboard-app .pf-stat-orange .pf-stat-number {
+        color: var(--pf-orange);
+    }
+
+    #dashboard-app .pf-stat-red .pf-stat-number {
+        color: var(--pf-red);
+    }
+
+    #dashboard-app .pf-stat-label {
+        font-size: .7rem;
+        font-weight: 700;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        color: var(--pf-text-muted);
+    }
+
+    /* ─── Panel de alertas ─── */
+    #dashboard-app .pf-panel {
+        background: var(--pf-dark-card);
+        border: 1px solid var(--pf-border);
+        border-radius: 1.125rem;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,.25);
+    }
+
+    #dashboard-app .pf-panel-header {
+        padding: 1.1rem 1.4rem;
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+    }
+
+    #dashboard-app .pf-panel-header-orange {
+        background: linear-gradient(135deg, #92400E, #B45309);
+    }
+
+    #dashboard-app .pf-panel-header-dark {
+        background: linear-gradient(135deg, #0D1526, #1E2D4A);
+        border-bottom: 1px solid var(--pf-border);
+    }
+
+    #dashboard-app .pf-panel-header i {
+        width: 22px !important;
+        height: 22px !important;
+    }
+
+    #dashboard-app .pf-panel-header-orange i {
+        color: #FCD34D !important;
+    }
+
+    #dashboard-app .pf-panel-header-dark i {
+        color: var(--pf-blue-bright) !important;
+    }
+
+    #dashboard-app .pf-panel-header h3 {
+        color: #fff;
+        font-size: .9rem;
+        font-weight: 800;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+    }
+
+    #dashboard-app .pf-panel-body {
+        padding: 1.25rem;
+    }
+
+    /* Alertas — subheadings */
+    #dashboard-app .pf-alert-sub {
+        font-size: .7rem;
+        font-weight: 800;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        color: var(--pf-text-soft);
+        margin-bottom: .6rem;
+    }
+
+    #dashboard-app .pf-alert-link {
+        font-size: .7rem;
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--pf-orange);
+        text-decoration: none;
+        transition: color .2s;
+    }
+
+        #dashboard-app .pf-alert-link:hover {
+            color: #FCD34D;
+        }
+
+    #dashboard-app .pf-alert-link-red {
+        color: #F87171 !important;
+    }
+
+        #dashboard-app .pf-alert-link-red:hover {
+            color: #FCA5A5 !important;
+        }
+
+    #dashboard-app .pf-alert-divider {
+        border: none;
+        border-top: 1px solid var(--pf-border);
+        margin: 1rem 0;
+    }
+
+    /* Fila alerta membresía */
+    #dashboard-app .pf-alert-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: .7rem .875rem;
+        border-radius: .75rem;
+        border: 1px solid;
+        margin-bottom: .4rem;
+        transition: box-shadow .2s;
+    }
+
+        #dashboard-app .pf-alert-row:last-child {
+            margin-bottom: 0;
+        }
+
+        #dashboard-app .pf-alert-row:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,.3);
+        }
+
+    #dashboard-app .pf-alert-row-orange {
+        background: rgba(245,158,11,.06);
+        border-color: rgba(245,158,11,.2);
+    }
+
+    #dashboard-app .pf-alert-row-red {
+        background: rgba(239,68,68,.06);
+        border-color: rgba(239,68,68,.2);
+    }
+
+    #dashboard-app .pf-alert-name {
+        font-size: .85rem;
+        font-weight: 700;
+        color: var(--pf-text);
+        margin-bottom: .1rem;
+    }
+
+    #dashboard-app .pf-alert-plan {
+        font-size: .72rem;
+        color: var(--pf-text-muted);
+    }
+
+    #dashboard-app .pf-days-chip {
+        padding: .2rem .65rem;
+        border-radius: 999px;
+        font-size: .7rem;
+        font-weight: 900;
+        letter-spacing: .05em;
+    }
+
+    #dashboard-app .pf-days-urgent {
+        background: var(--pf-red);
+        color: #fff;
+    }
+
+    #dashboard-app .pf-days-warn {
+        background: var(--pf-orange);
+        color: #000;
+    }
+
+    #dashboard-app .pf-days-expired {
+        background: rgba(239,68,68,.2);
+        color: #F87171;
+        border: 1px solid rgba(239,68,68,.35);
+    }
+
+    /* Estado OK — sin alertas */
+    #dashboard-app .pf-no-alerts {
+        text-align: center;
+        padding: 2.5rem 1rem;
+    }
+
+        #dashboard-app .pf-no-alerts i {
+            width: 52px !important;
+            height: 52px !important;
+            color: var(--pf-green) !important;
+            display: block;
+            margin: 0 auto 1rem;
+        }
+
+    #dashboard-app .pf-no-alerts-title {
+        font-size: .9rem;
+        font-weight: 800;
+        color: var(--pf-text);
+        margin-bottom: .35rem;
+    }
+
+    #dashboard-app .pf-no-alerts-sub {
+        font-size: .78rem;
+        color: var(--pf-text-muted);
+    }
+
+    /* ─── Top Clientes / Podio ─── */
+    #dashboard-app .pf-client-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: .65rem .875rem;
+        border-radius: .75rem;
+        border: 1px solid;
+        margin-bottom: .35rem;
+        transition: box-shadow .2s;
+    }
+
+        #dashboard-app .pf-client-row:last-child {
+            margin-bottom: 0;
+        }
+
+        #dashboard-app .pf-client-row:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,.3);
+        }
+
+    /* Podio */
+    #dashboard-app .pf-client-gold {
+        background: rgba(245,158,11,.06);
+        border-color: rgba(245,158,11,.25);
+    }
+
+    #dashboard-app .pf-client-silver {
+        background: rgba(148,163,184,.05);
+        border-color: rgba(148,163,184,.2);
+    }
+
+    #dashboard-app .pf-client-bronze {
+        background: rgba(217,119,6,.06);
+        border-color: rgba(217,119,6,.2);
+    }
+
+    #dashboard-app .pf-client-other {
+        background: rgba(255,255,255,.02);
+        border-color: var(--pf-border);
+    }
+
+    #dashboard-app .pf-client-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: .625rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: .85rem;
+        font-weight: 900;
+        color: #fff;
+        flex-shrink: 0;
+    }
+
+    #dashboard-app .pf-avatar-gold {
+        background: linear-gradient(135deg, var(--pf-gold), #FDE68A);
+        color: #000;
+    }
+
+    #dashboard-app .pf-avatar-silver {
+        background: linear-gradient(135deg, var(--pf-silver), #CBD5E1);
+        color: #000;
+    }
+
+    #dashboard-app .pf-avatar-bronze {
+        background: linear-gradient(135deg, var(--pf-bronze), #FCD34D);
+        color: #000;
+    }
+
+    #dashboard-app .pf-avatar-other {
+        background: linear-gradient(135deg, var(--pf-blue-deep), var(--pf-purple-dark));
+    }
+
+    #dashboard-app .pf-client-name {
+        font-size: .85rem;
+        font-weight: 700;
+        color: var(--pf-text);
+    }
+
+    #dashboard-app .pf-client-visits {
+        font-size: .72rem;
+        font-weight: 600;
+        color: var(--pf-text-muted);
+    }
+
+    #dashboard-app .pf-trophy-icon i {
+        width: 20px !important;
+        height: 20px !important;
+    }
+
+    #dashboard-app .pf-trophy-gold i {
+        color: var(--pf-gold) !important;
+    }
+
+    #dashboard-app .pf-trophy-silver i {
+        color: var(--pf-silver) !important;
+    }
+
+    #dashboard-app .pf-trophy-bronze i {
+        color: var(--pf-bronze) !important;
+    }
+
+    /* Sin datos */
+    #dashboard-app .pf-empty {
+        text-align: center;
+        padding: 2.5rem 1rem;
+    }
+
+        #dashboard-app .pf-empty i {
+            width: 48px !important;
+            height: 48px !important;
+            color: var(--pf-text-muted) !important;
+            display: block;
+            margin: 0 auto .875rem;
+        }
+
+    #dashboard-app .pf-empty-text {
+        font-size: .875rem;
+        font-weight: 700;
+        color: var(--pf-text-soft);
+    }
+
+    /* Scroll personalizado en paneles */
+    #dashboard-app .pf-scroll {
+        overflow-y: auto;
+        max-height: 14rem;
+    }
+
+        #dashboard-app .pf-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        #dashboard-app .pf-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #dashboard-app .pf-scroll::-webkit-scrollbar-thumb {
+            background: var(--pf-border);
+            border-radius: 999px;
+        }
+
+    #dashboard-app .pf-scroll-lg {
+        overflow-y: auto;
+        max-height: 22rem;
+    }
+
+        #dashboard-app .pf-scroll-lg::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        #dashboard-app .pf-scroll-lg::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #dashboard-app .pf-scroll-lg::-webkit-scrollbar-thumb {
+            background: var(--pf-border);
+            border-radius: 999px;
+        }
+
+    /* ─── Grids ─── */
+    #dashboard-app .pf-grid-4 {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.1rem;
+    }
+
+    #dashboard-app .pf-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+    }
+    /* ─── Espaciado secciones ─── */
+    #dashboard-app .pf-section {
+        margin-bottom: 2rem;
+    }
+</style>
+
 <div id="dashboard-app">
-    <div class="flex items-center justify-center h-64">
-        <div class="text-center">
-            <div class="animate-spin w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p class="text-gray-600">Cargando estadísticas...</p>
+    <div style="display:flex;align-items:center;justify-content:center;height:16rem;">
+        <div style="text-align:center;">
+            <div class="pf-spinner"></div>
+            <p class="pf-loading-text">Cargando estadísticas...</p>
         </div>
     </div>
 </div>
@@ -87,203 +1028,167 @@
                         ingresosTransferencia, egresosTransferencia, cantidadMovimientos } = this.cajaHoyData;
 
                 document.getElementById('dashboard-app').innerHTML = `
-                    <!-- Resumen de Caja Hoy -->
-                    <div class="mb-8">
-                        <h3 class="text-xl font-bold text-gray-800 mb-5 uppercase tracking-wide flex items-center gap-2">
-                            <i data-lucide="wallet" class="w-6 h-6 text-emerald-600"></i>
-                            Estado de Caja - Hoy
+
+                    <!-- ══ Caja Hoy ══ -->
+                    <div class="pf-section">
+                        <h3 class="pf-section-title">
+                            <i data-lucide="wallet"></i>
+                            Estado de Caja — Hoy
                         </h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                            <div class="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white rounded-2xl shadow-xl p-6 relative overflow-hidden transform hover:scale-105 transition-all">
-                                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-10 rounded-full"></div>
-                                <div class="relative z-10">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3">
-                                            <i data-lucide="trending-up" class="w-7 h-7"></i>
-                                        </div>
-                                        <span class="text-xs font-bold bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">HOY</span>
+                        <div class="pf-grid-4">
+
+                            <!-- Ingresos -->
+                            <div class="pf-kpi-card pf-kpi-green">
+                                <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.75rem;">
+                                    <div class="pf-kpi-icon">
+                                        <i data-lucide="trending-up"></i>
                                     </div>
-                                    <p class="text-sm uppercase tracking-wider mb-1 text-emerald-100">Ingresos de Hoy</p>
-                                    <p class="text-3xl font-black">${this.formatCurrency(ingresos)}</p>
-                                    <p class="text-xs mt-2 text-emerald-100">
-                                        ${cantidadMovimientos} movimientos hoy
-                                    </p>
+                                    <span class="pf-kpi-badge">HOY</span>
                                 </div>
+                                <div class="pf-kpi-label">Ingresos de Hoy</div>
+                                <div class="pf-kpi-value">${this.formatCurrency(ingresos)}</div>
+                                <div class="pf-kpi-sub">${cantidadMovimientos} movimientos</div>
                             </div>
 
-                            <div class="bg-gradient-to-br from-blue-500 to-blue-700 text-white rounded-2xl shadow-xl p-6 relative overflow-hidden transform hover:scale-105 transition-all">
-                                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-10 rounded-full"></div>
-                                <div class="relative z-10">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3">
-                                            <i data-lucide="wallet" class="w-7 h-7"></i>
-                                        </div>
-                                        <span class="text-xs font-bold bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">EFECTIVO</span>
+                            <!-- Efectivo -->
+                            <div class="pf-kpi-card pf-kpi-blue">
+                                <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.75rem;">
+                                    <div class="pf-kpi-icon">
+                                        <i data-lucide="wallet"></i>
                                     </div>
-                                    <p class="text-sm uppercase tracking-wider mb-1 text-blue-100">Efectivo Hoy</p>
-                                    <p class="text-3xl font-black">${this.formatCurrency(ingresosEfectivo - egresosEfectivo)}</p>
-                                    <p class="text-xs mt-2 text-blue-100">
-                                        Ingresos: ${this.formatCurrency(ingresosEfectivo)}
-                                    </p>
+                                    <span class="pf-kpi-badge">EFECTIVO</span>
                                 </div>
+                                <div class="pf-kpi-label">Efectivo Hoy</div>
+                                <div class="pf-kpi-value">${this.formatCurrency(ingresosEfectivo - egresosEfectivo)}</div>
+                                <div class="pf-kpi-sub">Ingresos: ${this.formatCurrency(ingresosEfectivo)}</div>
                             </div>
 
-                            <div class="bg-gradient-to-br from-purple-500 to-purple-700 text-white rounded-2xl shadow-xl p-6 relative overflow-hidden transform hover:scale-105 transition-all">
-                                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-10 rounded-full"></div>
-                                <div class="relative z-10">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3">
-                                            <i data-lucide="credit-card" class="w-7 h-7"></i>
-                                        </div>
-                                        <span class="text-xs font-bold bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">TRANSF</span>
+                            <!-- Transferencias -->
+                            <div class="pf-kpi-card pf-kpi-purple">
+                                <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.75rem;">
+                                    <div class="pf-kpi-icon">
+                                        <i data-lucide="credit-card"></i>
                                     </div>
-                                    <p class="text-sm uppercase tracking-wider mb-1 text-purple-100">Transferencias Hoy</p>
-                                    <p class="text-3xl font-black">${this.formatCurrency(ingresosTransferencia - egresosTransferencia)}</p>
-                                    <p class="text-xs mt-2 text-purple-100">
-                                        Ingresos: ${this.formatCurrency(ingresosTransferencia)}
-                                    </p>
+                                    <span class="pf-kpi-badge">TRANSF</span>
                                 </div>
+                                <div class="pf-kpi-label">Transferencias Hoy</div>
+                                <div class="pf-kpi-value">${this.formatCurrency(ingresosTransferencia - egresosTransferencia)}</div>
+                                <div class="pf-kpi-sub">Ingresos: ${this.formatCurrency(ingresosTransferencia)}</div>
                             </div>
 
-                            <div class="bg-gradient-to-br from-red-500 to-red-700 text-white rounded-2xl shadow-xl p-6 relative overflow-hidden transform hover:scale-105 transition-all">
-                                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-10 rounded-full"></div>
-                                <div class="relative z-10">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3">
-                                            <i data-lucide="trending-down" class="w-7 h-7"></i>
-                                        </div>
-                                        <span class="text-xs font-bold bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">HOY</span>
+                            <!-- Egresos -->
+                            <div class="pf-kpi-card pf-kpi-red">
+                                <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.75rem;">
+                                    <div class="pf-kpi-icon">
+                                        <i data-lucide="trending-down"></i>
                                     </div>
-                                    <p class="text-sm uppercase tracking-wider mb-1 text-red-100">Egresos de Hoy</p>
-                                    <p class="text-3xl font-black">${this.formatCurrency(egresos)}</p>
-                                    <p class="text-xs mt-2 text-red-100">
-                                        Balance: ${this.formatCurrency(balance)}
-                                    </p>
+                                    <span class="pf-kpi-badge">HOY</span>
                                 </div>
+                                <div class="pf-kpi-label">Egresos de Hoy</div>
+                                <div class="pf-kpi-value">${this.formatCurrency(egresos)}</div>
+                                <div class="pf-kpi-sub">Balance: ${this.formatCurrency(balance)}</div>
                             </div>
+
                         </div>
                     </div>
 
-                    <!-- NUEVO: Ingresos del Mes Desglosados -->
-                    <div class="mb-8">
-                        <h3 class="text-xl font-bold text-gray-800 mb-5 uppercase tracking-wide flex items-center gap-2">
-                            <i data-lucide="bar-chart-3" class="w-6 h-6 text-blue-600"></i>
+                    <!-- ══ Ingresos del Mes ══ -->
+                    <div class="pf-section">
+                        <h3 class="pf-section-title">
+                            <i data-lucide="bar-chart-3"></i>
                             Ingresos del Mes Desglosados
                         </h3>
-                        <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-gray-100">
-                            <div class="overflow-x-auto">
-                                <table class="w-full">
-                                    <thead class="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-                                        <tr>
-                                            <th class="px-6 py-4 text-left text-sm font-black uppercase tracking-wider">Categoría</th>
-                                            <th class="px-6 py-4 text-right text-sm font-black uppercase tracking-wider">Monto</th>
-                                            <th class="px-6 py-4 text-right text-sm font-black uppercase tracking-wider">% del Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-gray-200">
-                                        ${this.renderFilaIngreso('Membresías', resumen.ingresosMes.membresias, resumen.ingresosMes.total, 'red')}
-                                        ${this.renderFilaIngreso('Productos', resumen.ingresosMes.productos, resumen.ingresosMes.total, 'amber')}
-                                        ${this.renderFilaIngreso('Abonos a Deudas', resumen.ingresosMes.abonos, resumen.ingresosMes.total, 'emerald')}
-                                        ${this.renderFilaIngreso('Otros', resumen.ingresosMes.otros, resumen.ingresosMes.total, 'blue')}
-                                    </tbody>
-                                    <tfoot class="bg-gray-50">
-                                        <tr class="border-t-2 border-gray-300">
-                                            <td class="px-6 py-4 text-left text-sm font-black uppercase text-gray-900">TOTAL</td>
-                                            <td class="px-6 py-4 text-right text-xl font-black text-blue-600">${this.formatCurrency(resumen.ingresosMes.total)}</td>
-                                            <td class="px-6 py-4 text-right text-sm font-bold text-gray-600">100%</td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
+                        <div class="pf-table-card">
+                            <table>
+                                <thead class="pf-table-head-blue">
+                                    <tr>
+                                        <th>Categoría</th>
+                                        <th>Monto</th>
+                                        <th>% del Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${this.renderFilaIngreso('Membresías', resumen.ingresosMes.membresias, resumen.ingresosMes.total, 'red')}
+                                    ${this.renderFilaIngreso('Productos', resumen.ingresosMes.productos, resumen.ingresosMes.total, 'amber')}
+                                    ${this.renderFilaIngreso('Abonos a Deudas', resumen.ingresosMes.abonos, resumen.ingresosMes.total, 'emerald')}
+                                    ${this.renderFilaIngreso('Otros', resumen.ingresosMes.otros, resumen.ingresosMes.total, 'blue')}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td>Total</td>
+                                        <td class="pf-total-blue">${this.formatCurrency(resumen.ingresosMes.total)}</td>
+                                        <td class="pf-cell-pct">100%</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
                         </div>
                     </div>
 
-                    <!-- NUEVO: Egresos del Mes Desglosados -->
-                    <div class="mb-8">
-                        <h3 class="text-xl font-bold text-gray-800 mb-5 uppercase tracking-wide flex items-center gap-2">
-                            <i data-lucide="trending-down" class="w-6 h-6 text-red-600"></i>
+                    <!-- ══ Egresos del Mes ══ -->
+                    <div class="pf-section">
+                        <h3 class="pf-section-title">
+                            <i data-lucide="trending-down"></i>
                             Egresos del Mes Desglosados
                         </h3>
-                        <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-gray-100">
-                            <div class="overflow-x-auto">
-                                <table class="w-full">
-                                    <thead class="bg-gradient-to-r from-red-600 to-red-700 text-white">
-                                        <tr>
-                                            <th class="px-6 py-4 text-left text-sm font-black uppercase tracking-wider">Categoría</th>
-                                            <th class="px-6 py-4 text-right text-sm font-black uppercase tracking-wider">Monto</th>
-                                            <th class="px-6 py-4 text-right text-sm font-black uppercase tracking-wider">% del Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-gray-200">
-                                        ${this.renderFilaEgreso('Sueldos', resumen.egresosMes.sueldos, resumen.egresosMes.total, 'red')}
-                                        ${this.renderFilaEgreso('Servicios', resumen.egresosMes.servicios, resumen.egresosMes.total, 'orange')}
-                                        ${this.renderFilaEgreso('Mantenimiento', resumen.egresosMes.mantenimiento, resumen.egresosMes.total, 'yellow')}
-                                        ${this.renderFilaEgreso('Compras', resumen.egresosMes.compras, resumen.egresosMes.total, 'pink')}
-                                        ${this.renderFilaEgreso('Otros', resumen.egresosMes.otros, resumen.egresosMes.total, 'gray')}
-                                    </tbody>
-                                    <tfoot class="bg-gray-50">
-                                        <tr class="border-t-2 border-gray-300">
-                                            <td class="px-6 py-4 text-left text-sm font-black uppercase text-gray-900">TOTAL</td>
-                                            <td class="px-6 py-4 text-right text-xl font-black text-red-600">${this.formatCurrency(resumen.egresosMes.total)}</td>
-                                            <td class="px-6 py-4 text-right text-sm font-bold text-gray-600">100%</td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
+                        <div class="pf-table-card">
+                            <table>
+                                <thead class="pf-table-head-red">
+                                    <tr>
+                                        <th>Categoría</th>
+                                        <th>Monto</th>
+                                        <th>% del Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${this.renderFilaEgreso('Sueldos', resumen.egresosMes.sueldos, resumen.egresosMes.total, 'red')}
+                                    ${this.renderFilaEgreso('Servicios', resumen.egresosMes.servicios, resumen.egresosMes.total, 'orange')}
+                                    ${this.renderFilaEgreso('Mantenimiento', resumen.egresosMes.mantenimiento, resumen.egresosMes.total, 'yellow')}
+                                    ${this.renderFilaEgreso('Compras', resumen.egresosMes.compras, resumen.egresosMes.total, 'pink')}
+                                    ${this.renderFilaEgreso('Otros', resumen.egresosMes.otros, resumen.egresosMes.total, 'gray')}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td>Total</td>
+                                        <td class="pf-total-red">${this.formatCurrency(resumen.egresosMes.total)}</td>
+                                        <td class="pf-cell-pct">100%</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
                         </div>
                     </div>
 
-                    <!-- Estadísticas Generales -->
-                    <div class="mb-8">
-                        <h3 class="text-xl font-bold text-gray-800 mb-5 uppercase tracking-wide flex items-center gap-2">
-                            <i data-lucide="activity" class="w-6 h-6 text-blue-600"></i>
+                    <!-- ══ Estadísticas Generales ══ -->
+                    <div class="pf-section">
+                        <h3 class="pf-section-title">
+                            <i data-lucide="activity"></i>
                             Estadísticas Generales
                         </h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                            <div class="bg-white rounded-2xl shadow-lg p-6 border-2 border-gray-100 transform hover:scale-105 transition-all">
-                                <div class="flex items-center justify-between mb-3">
-                                    <div class="w-14 h-14 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center">
-                                        <i data-lucide="users" class="w-8 h-8 text-blue-600"></i>
-                                    </div>
-                                    <span class="text-3xl font-black text-blue-600">${resumen.totalClientes}</span>
-                                </div>
-                                <p class="text-sm font-bold text-gray-700 uppercase tracking-wide">Clientes Activos</p>
+                        <div class="pf-grid-4">
+                            <div class="pf-stat-card pf-stat-blue">
+                                <div class="pf-stat-icon"><i data-lucide="users"></i></div>
+                                <div class="pf-stat-number">${resumen.totalClientes}</div>
+                                <div class="pf-stat-label">Clientes Activos</div>
                             </div>
-
-                            <div class="bg-white rounded-2xl shadow-lg p-6 border-2 border-gray-100 transform hover:scale-105 transition-all">
-                                <div class="flex items-center justify-between mb-3">
-                                    <div class="w-14 h-14 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-xl flex items-center justify-center">
-                                        <i data-lucide="check-circle" class="w-8 h-8 text-emerald-600"></i>
-                                    </div>
-                                    <span class="text-3xl font-black text-emerald-600">${resumen.checkInsHoy}</span>
-                                </div>
-                                <p class="text-sm font-bold text-gray-700 uppercase tracking-wide">Check-ins Hoy</p>
+                            <div class="pf-stat-card pf-stat-green">
+                                <div class="pf-stat-icon"><i data-lucide="check-circle"></i></div>
+                                <div class="pf-stat-number">${resumen.checkInsHoy}</div>
+                                <div class="pf-stat-label">Check-ins Hoy</div>
                             </div>
-
-                            <div class="bg-white rounded-2xl shadow-lg p-6 border-2 border-gray-100 transform hover:scale-105 transition-all">
-                                <div class="flex items-center justify-between mb-3">
-                                    <div class="w-14 h-14 bg-gradient-to-br from-orange-100 to-orange-200 rounded-xl flex items-center justify-center">
-                                        <i data-lucide="alert-triangle" class="w-8 h-8 text-orange-600"></i>
-                                    </div>
-                                    <span class="text-3xl font-black text-orange-600">${resumen.membresiasPorVencer}</span>
-                                </div>
-                                <p class="text-sm font-bold text-gray-700 uppercase tracking-wide">Por Vencer (7 días)</p>
+                            <div class="pf-stat-card pf-stat-orange">
+                                <div class="pf-stat-icon"><i data-lucide="alert-triangle"></i></div>
+                                <div class="pf-stat-number">${resumen.membresiasPorVencer}</div>
+                                <div class="pf-stat-label">Por Vencer (7 días)</div>
                             </div>
-
-                            <div class="bg-white rounded-2xl shadow-lg p-6 border-2 border-gray-100 transform hover:scale-105 transition-all">
-                                <div class="flex items-center justify-between mb-3">
-                                    <div class="w-14 h-14 bg-gradient-to-br from-red-100 to-red-200 rounded-xl flex items-center justify-center">
-                                        <i data-lucide="x-circle" class="w-8 h-8 text-red-600"></i>
-                                    </div>
-                                    <span class="text-3xl font-black text-red-600">${resumen.membresiasVencidas}</span>
-                                </div>
-                                <p class="text-sm font-bold text-gray-700 uppercase tracking-wide">Membresías Vencidas</p>
+                            <div class="pf-stat-card pf-stat-red">
+                                <div class="pf-stat-icon"><i data-lucide="x-circle"></i></div>
+                                <div class="pf-stat-number">${resumen.membresiasVencidas}</div>
+                                <div class="pf-stat-label">Membresías Vencidas</div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Alertas y Top Clientes -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <!-- ══ Alertas + Top Clientes ══ -->
+                    <div class="pf-grid-2 pf-section">
                         ${this.renderAlertas(alertas)}
                         ${this.renderTopClientes(topClientes)}
                     </div>
@@ -294,27 +1199,16 @@
 
             renderFilaIngreso(nombre, monto, total, color) {
                 const porcentaje = total > 0 ? ((monto / total) * 100).toFixed(1) : 0;
-                const colorClasses = {
-                    'red': 'bg-red-50 text-red-700',
-                    'amber': 'bg-amber-50 text-amber-700',
-                    'emerald': 'bg-emerald-50 text-emerald-700',
-                    'blue': 'bg-blue-50 text-blue-700'
-                };
-
                 return `
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-2">
-                                <span class="px-3 py-1 ${colorClasses[color]} rounded-full text-xs font-bold uppercase">${nombre}</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-right text-lg font-black text-gray-900">${this.formatCurrency(monto)}</td>
-                        <td class="px-6 py-4 text-right">
-                            <div class="flex items-center justify-end gap-2">
-                                <div class="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
-                                    <div class="h-full bg-${color}-500" style="width: ${porcentaje}%"></div>
+                    <tr>
+                        <td><span class="pf-badge pf-badge-${color}">${nombre}</span></td>
+                        <td class="pf-cell-amount" style="text-align:right;">${this.formatCurrency(monto)}</td>
+                        <td>
+                            <div class="pf-progress-wrap">
+                                <div class="pf-progress-track">
+                                    <div class="pf-progress-bar" style="width:${porcentaje}%"></div>
                                 </div>
-                                <span class="text-sm font-bold text-gray-700">${porcentaje}%</span>
+                                <span class="pf-cell-pct">${porcentaje}%</span>
                             </div>
                         </td>
                     </tr>
@@ -323,28 +1217,16 @@
 
             renderFilaEgreso(nombre, monto, total, color) {
                 const porcentaje = total > 0 ? ((monto / total) * 100).toFixed(1) : 0;
-                const colorClasses = {
-                    'red': 'bg-red-50 text-red-700',
-                    'orange': 'bg-orange-50 text-orange-700',
-                    'yellow': 'bg-yellow-50 text-yellow-700',
-                    'pink': 'bg-pink-50 text-pink-700',
-                    'gray': 'bg-gray-50 text-gray-700'
-                };
-
                 return `
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-2">
-                                <span class="px-3 py-1 ${colorClasses[color]} rounded-full text-xs font-bold uppercase">${nombre}</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-right text-lg font-black text-gray-900">${this.formatCurrency(monto)}</td>
-                        <td class="px-6 py-4 text-right">
-                            <div class="flex items-center justify-end gap-2">
-                                <div class="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
-                                    <div class="h-full bg-${color}-500" style="width: ${porcentaje}%"></div>
+                    <tr>
+                        <td><span class="pf-badge pf-badge-${color}">${nombre}</span></td>
+                        <td class="pf-cell-amount" style="text-align:right;">${this.formatCurrency(monto)}</td>
+                        <td>
+                            <div class="pf-progress-wrap">
+                                <div class="pf-progress-track">
+                                    <div class="pf-progress-bar" style="width:${porcentaje}%;background:linear-gradient(90deg,#EF4444,#F87171)"></div>
                                 </div>
-                                <span class="text-sm font-bold text-gray-700">${porcentaje}%</span>
+                                <span class="pf-cell-pct">${porcentaje}%</span>
                             </div>
                         </td>
                     </tr>
@@ -353,67 +1235,57 @@
 
             renderAlertas(alertas) {
                 return `
-                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-gray-100">
-                        <div class="bg-gradient-to-r from-orange-600 to-red-600 px-6 py-5">
-                            <h3 class="text-white font-black flex items-center gap-3 text-lg uppercase tracking-wide">
-                                <i data-lucide="alert-triangle" class="w-6 h-6"></i>
-                                Alertas de Membresías
-                            </h3>
+                    <div class="pf-panel">
+                        <div class="pf-panel-header pf-panel-header-orange">
+                            <i data-lucide="alert-triangle"></i>
+                            <h3>Alertas de Membresías</h3>
                         </div>
-                        <div class="p-6">
+                        <div class="pf-panel-body">
                             ${alertas.membresiasPorVencer > 0 || alertas.membresiasVencidas > 0 ? `
-                                <div class="space-y-5">
-                                    ${alertas.membresiasPorVencer > 0 ? `
-                                        <div>
-                                            <div class="flex items-center justify-between mb-3">
-                                                <h4 class="font-bold text-gray-800 uppercase text-sm tracking-wide">Por Vencer (${alertas.membresiasPorVencer})</h4>
-                                                <a href="/membresias" class="text-xs text-orange-600 hover:text-orange-800 font-bold uppercase">Ver todas →</a>
-                                            </div>
-                                            <div class="space-y-2 max-h-48 overflow-y-auto">
-                                                ${alertas.detalleProximasVencer.slice(0, 3).map(m => `
-                                                    <div class="flex items-center justify-between p-3 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border border-orange-200 text-sm hover:shadow-md transition-shadow">
-                                                        <div>
-                                                            <p class="font-bold text-gray-800">${m.clienteNombre}</p>
-                                                            <p class="text-xs text-gray-600">${m.planNombre}</p>
-                                                        </div>
-                                                        <span class="px-3 py-1 rounded-full text-xs font-black ${
-                                                            m.diasRestantes <= 3 ? 'bg-red-600 text-white' : 'bg-orange-500 text-white'
-                                                        }">
-                                                            ${m.diasRestantes}d
-                                                        </span>
-                                                    </div>
-                                                `).join('')}
-                                            </div>
+                                ${alertas.membresiasPorVencer > 0 ? `
+                                    <div style="margin-bottom:1rem;">
+                                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;">
+                                            <span class="pf-alert-sub">Por Vencer (${alertas.membresiasPorVencer})</span>
+                                            <a href="/membresias" class="pf-alert-link">Ver todas →</a>
                                         </div>
-                                    ` : ''}
-
-                                    ${alertas.membresiasVencidas > 0 ? `
-                                        <div class="${alertas.membresiasPorVencer > 0 ? 'pt-5 border-t-2 border-gray-200' : ''}">
-                                            <div class="flex items-center justify-between mb-3">
-                                                <h4 class="font-bold text-gray-800 uppercase text-sm tracking-wide">Vencidas (${alertas.membresiasVencidas})</h4>
-                                                <a href="/membresias" class="text-xs text-red-600 hover:text-red-800 font-bold uppercase">Ver todas →</a>
-                                            </div>
-                                            <div class="space-y-2 max-h-32 overflow-y-auto">
-                                                ${alertas.detalleVencidas.slice(0, 3).map(m => `
-                                                    <div class="flex items-center justify-between p-3 bg-gradient-to-r from-red-50 to-pink-50 rounded-xl border border-red-200 text-sm hover:shadow-md transition-shadow">
-                                                        <div>
-                                                            <p class="font-bold text-gray-800">${m.clienteNombre}</p>
-                                                            <p class="text-xs text-gray-600">${m.planNombre}</p>
-                                                        </div>
-                                                        <span class="px-3 py-1 bg-red-600 text-white rounded-full text-xs font-black">
-                                                            ${m.diasVencido > 0 ? '-' + m.diasVencido : 'HOY'}d
-                                                        </span>
+                                        <div class="pf-scroll">
+                                            ${alertas.detalleProximasVencer.slice(0, 3).map(m => `
+                                                <div class="pf-alert-row pf-alert-row-orange">
+                                                    <div>
+                                                        <div class="pf-alert-name">${m.clienteNombre}</div>
+                                                        <div class="pf-alert-plan">${m.planNombre}</div>
                                                     </div>
-                                                `).join('')}
-                                            </div>
+                                                    <span class="pf-days-chip ${m.diasRestantes <= 3 ? 'pf-days-urgent' : 'pf-days-warn'}">${m.diasRestantes}d</span>
+                                                </div>
+                                            `).join('')}
                                         </div>
-                                    ` : ''}
-                                </div>
+                                    </div>
+                                ` : ''}
+                                ${alertas.membresiasVencidas > 0 ? `
+                                    ${alertas.membresiasPorVencer > 0 ? '<hr class="pf-alert-divider">' : ''}
+                                    <div>
+                                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;">
+                                            <span class="pf-alert-sub">Vencidas (${alertas.membresiasVencidas})</span>
+                                            <a href="/membresias" class="pf-alert-link pf-alert-link-red">Ver todas →</a>
+                                        </div>
+                                        <div class="pf-scroll">
+                                            ${alertas.detalleVencidas.slice(0, 3).map(m => `
+                                                <div class="pf-alert-row pf-alert-row-red">
+                                                    <div>
+                                                        <div class="pf-alert-name">${m.clienteNombre}</div>
+                                                        <div class="pf-alert-plan">${m.planNombre}</div>
+                                                    </div>
+                                                    <span class="pf-days-chip pf-days-expired">${m.diasVencido > 0 ? '-' + m.diasVencido : 'HOY'}d</span>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
                             ` : `
-                                <div class="text-center py-12 text-gray-500">
-                                    <i data-lucide="check-circle" class="w-16 h-16 mx-auto mb-3 text-emerald-500"></i>
-                                    <p class="font-bold text-gray-700">No hay alertas pendientes</p>
-                                    <p class="text-sm text-gray-500 mt-1">Todo en orden</p>
+                                <div class="pf-no-alerts">
+                                    <i data-lucide="check-circle"></i>
+                                    <div class="pf-no-alerts-title">Sin alertas pendientes</div>
+                                    <div class="pf-no-alerts-sub">Todo en orden</div>
                                 </div>
                             `}
                         </div>
@@ -423,51 +1295,49 @@
 
             renderTopClientes(topClientes) {
                 return `
-                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-gray-100">
-                        <div class="bg-gradient-to-r from-gray-800 to-black px-6 py-5">
-                            <h3 class="text-white font-black flex items-center gap-3 text-lg uppercase tracking-wide">
-                                <i data-lucide="trophy" class="w-6 h-6"></i>
-                                Top 10 Clientes del Mes
-                            </h3>
+                    <div class="pf-panel">
+                        <div class="pf-panel-header pf-panel-header-dark">
+                            <i data-lucide="trophy"></i>
+                            <h3>Top 10 Clientes del Mes</h3>
                         </div>
-                        <div class="p-6">
+                        <div class="pf-panel-body">
                             ${topClientes && topClientes.length > 0 ? `
-                                <div class="space-y-2 max-h-96 overflow-y-auto">
+                                <div class="pf-scroll-lg">
                                     ${topClientes.map((cliente, index) => `
-                                        <div class="flex items-center justify-between p-3 rounded-xl transition-all hover:shadow-md ${
-                                            index === 0 ? 'bg-gradient-to-r from-yellow-100 to-amber-100 border-2 border-yellow-400' :
-                                            index === 1 ? 'bg-gradient-to-r from-gray-100 to-slate-100 border-2 border-gray-400' :
-                                            index === 2 ? 'bg-gradient-to-r from-orange-100 to-amber-100 border-2 border-orange-400' :
-                                            'bg-gray-50 border border-gray-200'
+                                        <div class="pf-client-row ${
+                                            index === 0 ? 'pf-client-gold' :
+                                            index === 1 ? 'pf-client-silver' :
+                                            index === 2 ? 'pf-client-bronze' :
+                                            'pf-client-other'
                                         }">
-                                            <div class="flex items-center gap-3">
-                                                <div class="w-10 h-10 rounded-full ${
-                                                    index === 0 ? 'bg-gradient-to-br from-yellow-400 to-amber-500' :
-                                                    index === 1 ? 'bg-gradient-to-br from-gray-400 to-slate-500' :
-                                                    index === 2 ? 'bg-gradient-to-br from-orange-400 to-amber-500' :
-                                                    'bg-gray-700'
-                                                } flex items-center justify-center text-white font-black text-sm shadow-lg">
-                                                    ${index + 1}
-                                                </div>
+                                            <div style="display:flex;align-items:center;gap:.75rem;">
+                                                <div class="pf-client-avatar ${
+                                                    index === 0 ? 'pf-avatar-gold' :
+                                                    index === 1 ? 'pf-avatar-silver' :
+                                                    index === 2 ? 'pf-avatar-bronze' :
+                                                    'pf-avatar-other'
+                                                }">${index + 1}</div>
                                                 <div>
-                                                    <p class="font-bold text-gray-900 text-sm">${cliente.nombre}</p>
-                                                    <p class="text-xs text-gray-600 font-semibold">${cliente.totalCheckIns} visitas</p>
+                                                    <div class="pf-client-name">${cliente.nombre}</div>
+                                                    <div class="pf-client-visits">${cliente.totalCheckIns} visitas</div>
                                                 </div>
                                             </div>
                                             ${index < 3 ? `
-                                                <i data-lucide="award" class="w-6 h-6 ${
-                                                    index === 0 ? 'text-yellow-500' :
-                                                    index === 1 ? 'text-gray-500' :
-                                                    'text-orange-500'
-                                                }"></i>
+                                                <div class="pf-trophy-icon ${
+                                                    index === 0 ? 'pf-trophy-gold' :
+                                                    index === 1 ? 'pf-trophy-silver' :
+                                                    'pf-trophy-bronze'
+                                                }">
+                                                    <i data-lucide="award"></i>
+                                                </div>
                                             ` : ''}
                                         </div>
                                     `).join('')}
                                 </div>
                             ` : `
-                                <div class="text-center py-12 text-gray-500">
-                                    <i data-lucide="users" class="w-16 h-16 mx-auto mb-3 text-gray-400"></i>
-                                    <p class="font-bold text-gray-700">No hay datos disponibles</p>
+                                <div class="pf-empty">
+                                    <i data-lucide="users"></i>
+                                    <div class="pf-empty-text">No hay datos disponibles</div>
                                 </div>
                             `}
                         </div>

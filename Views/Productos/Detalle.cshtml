@@ -5,107 +5,89 @@
     ViewData["Subtitle"] = "Información completa del producto";
 }
 
-<div class="max-w-4xl mx-auto">
-    <div class="bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-gray-200">
-        <div class="bg-gradient-to-r from-red-600 to-red-800 p-8">
-            <div class="flex items-center justify-between">
+<style>
+    :root{--pf-blue:#3B82F6;--pf-blueB:#60A5FA;--pf-deep:#1E3A8A;--pf-purple:#7C3AED;--pf-card:#0D1526;--pf-border:#1E2D4A;--pf-text:#E2E8F0;--pf-soft:#94A3B8;--pf-muted:#64748B;--pf-green:#10B981;}
+    .pf-info-cell{background:rgba(255,255,255,.03);border:1px solid var(--pf-border);border-radius:.75rem;padding:1rem;}
+    .pf-info-label{font-size:.68rem;font-weight:800;color:var(--pf-muted);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.3rem;}
+    .pf-info-value{font-weight:800;color:var(--pf-text);font-size:1rem;}
+</style>
+
+<div style="max-width:52rem;margin:0 auto;">
+    <div style="background:var(--pf-card);border:1px solid var(--pf-border);border-radius:1.25rem;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.4);">
+
+        <!-- Header -->
+        <div style="background:linear-gradient(135deg,var(--pf-deep),var(--pf-purple));padding:2rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
                 <div>
-                    <h2 class="text-3xl font-black text-white mb-2 uppercase tracking-wide">Detalle de Producto</h2>
-                    <p class="text-white opacity-90 font-bold">@Model.Nombre</p>
+                    <h2 style="font-size:1.5rem;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:.06em;margin:0 0 .35rem 0;">Detalle de Producto</h2>
+                    <p style="color:rgba(255,255,255,.75);font-weight:700;margin:0;">@Model.Nombre</p>
                 </div>
-                <div class="text-right">
-                    @if (Model.Activo)
-                    {
-                        <span class="inline-flex items-center px-6 py-3 bg-emerald-500 text-white rounded-full font-black uppercase tracking-wide shadow-xl">
-                            <i data-lucide="check-circle" class="w-5 h-5 mr-2"></i>
-                            Activo
-                        </span>
-                    }
-                    else
-                    {
-                        <span class="inline-flex items-center px-6 py-3 bg-gray-500 text-white rounded-full font-black uppercase tracking-wide shadow-xl">
-                            <i data-lucide="x-circle" class="w-5 h-5 mr-2"></i>
-                            Inactivo
-                        </span>
-                    }
-                </div>
+                @if (Model.Activo)
+                {
+                    <span style="display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1.25rem;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);color:#34D399;border-radius:999px;font-weight:800;font-size:.8rem;text-transform:uppercase;">
+                        <i data-lucide="check-circle" style="width:16px;height:16px;"></i> Activo
+                    </span>
+                }
+                else
+                {
+                    <span style="display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1.25rem;background:rgba(100,116,139,.15);border:1px solid rgba(100,116,139,.3);color:#94A3B8;border-radius:999px;font-weight:800;font-size:.8rem;text-transform:uppercase;">
+                        <i data-lucide="x-circle" style="width:16px;height:16px;"></i> Inactivo
+                    </span>
+                }
             </div>
         </div>
 
-        <div class="p-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                <div class="md:col-span-2 flex justify-center">
-                    @if (!string.IsNullOrEmpty(Model.ImagenBase64))
-                    {
-                        <div class="w-64 h-64 bg-gray-100 rounded-2xl overflow-hidden shadow-lg">
-                            <img src="@Model.ImagenBase64" alt="@Model.Nombre" class="w-full h-full object-cover">
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="w-64 h-64 bg-gray-100 rounded-2xl flex items-center justify-center shadow-lg">
-                            <i data-lucide="package" class="w-24 h-24 text-gray-400"></i>
-                        </div>
-                    }
-                </div>
-
-                <div class="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
-                    <p class="text-sm font-black text-gray-600 uppercase tracking-wide mb-2">Nombre</p>
-                    <p class="text-xl font-bold text-gray-900">@Model.Nombre</p>
-                </div>
-
-                <div class="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
-                    <p class="text-sm font-black text-gray-600 uppercase tracking-wide mb-2">Categoría</p>
-                    <p class="text-xl font-bold text-gray-900">@(string.IsNullOrEmpty(Model.Categoria) ? "Sin categoría" : Model.Categoria)</p>
-                </div>
-
-                <div class="bg-emerald-50 p-6 rounded-xl border-2 border-emerald-300">
-                    <p class="text-sm font-black text-emerald-800 uppercase tracking-wide mb-2">Precio</p>
-                    <p class="text-3xl font-black text-emerald-600">$@Model.Precio.ToString("N2")</p>
-                </div>
-
-                <div class="bg-blue-50 p-6 rounded-xl border-2 border-blue-300">
-                    <p class="text-sm font-black text-blue-800 uppercase tracking-wide mb-2">Stock Disponible</p>
-                    <p class="text-3xl font-black text-blue-600">@Model.Stock</p>
-                </div>
-
-                @if (!string.IsNullOrEmpty(Model.Descripcion))
+        <div style="padding:2rem;">
+            <!-- Imagen -->
+            <div style="display:flex;justify-content:center;margin-bottom:2rem;">
+                @if (!string.IsNullOrEmpty(Model.ImagenBase64))
                 {
-                    <div class="md:col-span-2 bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
-                        <p class="text-sm font-black text-gray-600 uppercase tracking-wide mb-2">Descripción</p>
-                        <p class="text-gray-800 font-semibold">@Model.Descripcion</p>
+                    <div style="width:200px;height:200px;border-radius:1rem;overflow:hidden;border:2px solid var(--pf-border);box-shadow:0 8px 24px rgba(0,0,0,.4);">
+                        <img src="@Model.ImagenBase64" alt="@Model.Nombre" style="width:100%;height:100%;object-fit:cover;">
                     </div>
                 }
-
-                <div class="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
-                    <p class="text-sm font-black text-gray-600 uppercase tracking-wide mb-2">Fecha de Creación</p>
-                    <p class="text-gray-900 font-bold">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
-                </div>
-
-                <div class="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
-                    <p class="text-sm font-black text-gray-600 uppercase tracking-wide mb-2">Última Actualización</p>
-                    <p class="text-gray-900 font-bold">@Model.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</p>
-                </div>
+                else
+                {
+                    <div style="width:200px;height:200px;border-radius:1rem;background:rgba(59,130,246,.06);border:2px solid var(--pf-border);display:flex;align-items:center;justify-content:center;">
+                        <i data-lucide="package" style="width:80px;height:80px;color:var(--pf-border);"></i>
+                    </div>
+                }
             </div>
 
-            <div class="flex gap-4 pt-6 border-t-2 border-gray-200">
+            <!-- Info grid -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.875rem;margin-bottom:2rem;">
+                <div class="pf-info-cell"><div class="pf-info-label">Nombre</div><div class="pf-info-value">@Model.Nombre</div></div>
+                <div class="pf-info-cell"><div class="pf-info-label">Categoría</div><div class="pf-info-value">@(string.IsNullOrEmpty(Model.Categoria)?"Sin categoría":Model.Categoria)</div></div>
+                <div style="background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.25);border-radius:.75rem;padding:1rem;">
+                    <div style="font-size:.68rem;font-weight:800;color:rgba(16,185,129,.7);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.3rem;">Precio</div>
+                    <div style="font-size:1.75rem;font-weight:900;color:var(--pf-green);">$@Model.Precio.ToString("N2")</div>
+                </div>
+                <div style="background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.25);border-radius:.75rem;padding:1rem;">
+                    <div style="font-size:.68rem;font-weight:800;color:rgba(96,165,250,.7);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.3rem;">Stock</div>
+                    <div style="font-size:1.75rem;font-weight:900;color:var(--pf-blueB);">@Model.Stock</div>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Descripcion))
+                {
+                    <div class="pf-info-cell" style="grid-column:span 2;"><div class="pf-info-label">Descripción</div><div style="color:var(--pf-soft);font-weight:600;">@Model.Descripcion</div></div>
+                }
+                <div class="pf-info-cell"><div class="pf-info-label">Creado</div><div class="pf-info-value" style="font-size:.9rem;">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div></div>
+                <div class="pf-info-cell"><div class="pf-info-label">Actualizado</div><div class="pf-info-value" style="font-size:.9rem;">@Model.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</div></div>
+            </div>
+
+            <div style="display:flex;gap:1rem;padding-top:1.25rem;border-top:1px solid var(--pf-border);">
                 <a href="/productos/editar/@Model.Id"
-                   class="flex-1 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-black py-4 px-6 rounded-xl transition-all shadow-xl hover:shadow-2xl text-center uppercase tracking-wide flex items-center justify-center gap-2">
-                    <i data-lucide="edit" class="w-5 h-5"></i>
-                    Editar Producto
+                   style="flex:1;background:linear-gradient(135deg,var(--pf-blue),var(--pf-purple));color:#fff;font-weight:800;padding:1rem;border-radius:.875rem;text-align:center;text-decoration:none;text-transform:uppercase;letter-spacing:.06em;font-size:.85rem;display:flex;align-items:center;justify-content:center;gap:.5rem;transition:transform .2s;"
+                   onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                    <i data-lucide="edit" style="width:16px;height:16px;"></i> Editar Producto
                 </a>
                 <a href="/productos"
-                   class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 font-black py-4 px-6 rounded-xl transition-all text-center uppercase tracking-wide flex items-center justify-center gap-2">
-                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
-                    Volver al Listado
+                   style="flex:1;background:rgba(255,255,255,.05);border:1px solid var(--pf-border);color:var(--pf-soft);font-weight:800;padding:1rem;border-radius:.875rem;text-align:center;text-decoration:none;text-transform:uppercase;letter-spacing:.06em;font-size:.85rem;display:flex;align-items:center;justify-content:center;gap:.5rem;transition:background .2s;"
+                   onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
+                    <i data-lucide="arrow-left" style="width:16px;height:16px;"></i> Volver
                 </a>
             </div>
         </div>
     </div>
 </div>
 
-@section Scripts {
-    <script>
-        lucide.createIcons();
-    </script>
-}
+@section Scripts { <script>lucide.createIcons();</script> }

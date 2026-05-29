@@ -1,86 +1,80 @@
-﻿@model VidaFitBackend.Models.Producto
+@model VidaFitBackend.Models.Producto
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Editar Producto";
     ViewData["Subtitle"] = "Actualizar información del producto";
 }
 
-<div class="max-w-2xl mx-auto">
-    <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
-        <div class="flex items-center gap-4 mb-8 pb-6 border-b-2 border-gray-200">
-            <div class="bg-gradient-to-br from-red-600 to-red-800 rounded-xl p-4">
-                <i data-lucide="edit" class="w-8 h-8 text-white"></i>
+<style>
+    :root{--pf-blue:#3B82F6;--pf-blueB:#60A5FA;--pf-deep:#1E3A8A;--pf-purple:#7C3AED;--pf-card:#0D1526;--pf-border:#1E2D4A;--pf-text:#E2E8F0;--pf-soft:#94A3B8;--pf-muted:#64748B;--pf-orange:#F59E0B;}
+    .pf-input{width:100%;padding:.75rem 1rem;border:2px solid var(--pf-border);border-radius:.75rem;background:rgba(255,255,255,.03);color:var(--pf-text);font-weight:600;font-family:inherit;font-size:.9rem;outline:none;box-sizing:border-box;transition:border-color .2s;}
+    .pf-input:focus{border-color:var(--pf-blue);}
+    .pf-select{width:100%;padding:.75rem 1rem;border:2px solid var(--pf-border);border-radius:.75rem;background:var(--pf-card);color:var(--pf-text);font-weight:600;font-family:inherit;outline:none;box-sizing:border-box;}
+    .pf-label{display:block;font-size:.72rem;font-weight:800;color:var(--pf-soft);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.1em;}
+</style>
+
+<div style="max-width:40rem;margin:0 auto;">
+    <div style="background:var(--pf-card);border:1px solid var(--pf-border);border-radius:1.25rem;padding:2rem;box-shadow:0 4px 24px rgba(0,0,0,.4);">
+
+        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:2rem;padding-bottom:1.25rem;border-bottom:1px solid var(--pf-border);">
+            <div style="background:linear-gradient(135deg,#92400E,#B45309);border-radius:.875rem;padding:1rem;flex-shrink:0;">
+                <i data-lucide="edit" style="width:32px;height:32px;color:#FCD34D;"></i>
             </div>
             <div>
-                <h2 class="text-3xl font-black text-gray-900 uppercase tracking-wide">Editar Producto</h2>
-                <p class="text-sm text-gray-600 font-semibold mt-1">Actualizar información</p>
+                <h2 style="font-size:1.5rem;font-weight:900;color:var(--pf-text);text-transform:uppercase;letter-spacing:.06em;margin:0 0 .2rem 0;">Editar Producto</h2>
+                <p style="font-size:.8rem;color:var(--pf-muted);font-weight:600;margin:0;">Actualizar información</p>
             </div>
         </div>
 
-        <form id="form-producto" class="space-y-6">
+        <form id="form-producto" style="display:flex;flex-direction:column;gap:1.25rem;">
             <input type="hidden" id="producto-id" value="@Model.Id">
 
             <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Nombre *</label>
-                <input type="text" id="nombre" value="@Model.Nombre" required
-                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                <label class="pf-label">Nombre <span style="color:var(--pf-blue);">*</span></label>
+                <input type="text" id="nombre" value="@Model.Nombre" required class="pf-input">
             </div>
-
             <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Descripción</label>
-                <textarea id="descripcion" rows="2"
-                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">@Model.Descripcion</textarea>
+                <label class="pf-label">Descripción</label>
+                <textarea id="descripcion" rows="2" class="pf-input" style="resize:none;">@Model.Descripcion</textarea>
             </div>
-
-            <div class="grid grid-cols-2 gap-4">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
                 <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Precio *</label>
-                    <input type="number" id="precio" step="0.01" value="@Model.Precio" required
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                    <label class="pf-label">Precio <span style="color:var(--pf-blue);">*</span></label>
+                    <input type="number" id="precio" step="0.01" value="@Model.Precio" required class="pf-input">
                 </div>
                 <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Stock *</label>
-                    <input type="number" id="stock" value="@Model.Stock" required
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                    <label class="pf-label">Stock <span style="color:var(--pf-blue);">*</span></label>
+                    <input type="number" id="stock" value="@Model.Stock" required class="pf-input">
                 </div>
             </div>
-
             <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Categoría</label>
-                <select id="categoria"
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold bg-white">
+                <label class="pf-label">Categoría</label>
+                <select id="categoria" class="pf-select">
                     <option value="">Seleccionar...</option>
-                    <option value="Suplementos" selected="@(Model.Categoria == "Suplementos")">Suplementos</option>
-                    <option value="Bebidas" selected="@(Model.Categoria == "Bebidas")">Bebidas</option>
-                    <option value="Snacks" selected="@(Model.Categoria == "Snacks")">Snacks</option>
-                    <option value="Accesorios" selected="@(Model.Categoria == "Accesorios")">Accesorios</option>
-                    <option value="Ropa" selected="@(Model.Categoria == "Ropa")">Ropa</option>
+                    <option value="Suplementos" selected="@(Model.Categoria=="Suplementos")">Suplementos</option>
+                    <option value="Bebidas"     selected="@(Model.Categoria=="Bebidas")">Bebidas</option>
+                    <option value="Snacks"      selected="@(Model.Categoria=="Snacks")">Snacks</option>
+                    <option value="Accesorios"  selected="@(Model.Categoria=="Accesorios")">Accesorios</option>
+                    <option value="Ropa"        selected="@(Model.Categoria=="Ropa")">Ropa</option>
                 </select>
             </div>
-
             <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Imagen</label>
+                <label class="pf-label">Imagen</label>
                 @if (!string.IsNullOrEmpty(Model.ImagenBase64))
-                {
-                    <img id="preview" src="data:image/jpeg;base64,@Model.ImagenBase64" class="mb-3 w-32 h-32 object-cover rounded-xl border-2 border-gray-300">
-                }
+                { <img id="preview" src="data:image/jpeg;base64,@Model.ImagenBase64" style="width:96px;height:96px;object-fit:cover;border-radius:.875rem;border:2px solid var(--pf-border);margin-bottom:.75rem;display:block;"> }
                 else
-                {
-                    <img id="preview" src="" class="mb-3 w-32 h-32 object-cover rounded-xl hidden border-2 border-gray-300">
-                }
+                { <img id="preview" src="" style="width:96px;height:96px;object-fit:cover;border-radius:.875rem;border:2px solid var(--pf-border);margin-bottom:.75rem;display:none;"> }
                 <input type="file" id="imagen" accept="image/*"
-                       class="w-full px-4 py-2 border-2 border-gray-300 rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-gradient-to-r file:from-red-600 file:to-red-800 file:text-white file:font-bold hover:file:from-red-700 hover:file:to-red-900">
+                       style="width:100%;padding:.6rem 1rem;border:2px dashed var(--pf-border);border-radius:.75rem;background:rgba(255,255,255,.02);color:var(--pf-soft);box-sizing:border-box;">
             </div>
 
-            <div class="flex justify-end gap-3 pt-6 border-t-2 border-gray-200">
+            <div style="display:flex;justify-content:flex-end;gap:.75rem;padding-top:1.25rem;border-top:1px solid var(--pf-border);">
                 <a href="/productos"
-                   class="px-8 py-3 border-2 border-gray-300 text-gray-800 rounded-xl hover:bg-gray-100 font-black uppercase tracking-wide transition-all">
-                    Cancelar
-                </a>
+                   style="padding:.75rem 2rem;background:rgba(255,255,255,.05);border:1px solid var(--pf-border);color:var(--pf-soft);font-weight:800;border-radius:.875rem;text-decoration:none;text-transform:uppercase;letter-spacing:.06em;font-size:.85rem;transition:background .2s;"
+                   onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">Cancelar</a>
                 <button type="submit"
-                        class="px-8 py-3 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl shadow-xl hover:shadow-2xl transition-all uppercase tracking-wide transform hover:scale-105">
-                    Actualizar
-                </button>
+                        style="padding:.75rem 2rem;background:linear-gradient(135deg,#92400E,#B45309);color:#FCD34D;font-weight:800;border:none;border-radius:.875rem;cursor:pointer;font-family:inherit;font-size:.85rem;text-transform:uppercase;letter-spacing:.06em;box-shadow:0 4px 16px rgba(180,83,9,.3);transition:transform .2s;"
+                        onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">Actualizar</button>
             </div>
         </form>
     </div>
@@ -88,63 +82,22 @@
 
 @section Scripts {
     <script>
-        const API_URL = '/api';
         let imagenBase64 = '@Model.ImagenBase64';
-
         document.getElementById('imagen').addEventListener('change', function(e) {
             const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    imagenBase64 = event.target.result.split(',')[1];
-                    const preview = document.getElementById('preview');
-                    preview.src = event.target.result;
-                    preview.classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
-            }
+            if (file) { const r = new FileReader(); r.onload = ev => { imagenBase64 = ev.target.result.split(',')[1]; const p = document.getElementById('preview'); p.src = ev.target.result; p.style.display='block'; }; r.readAsDataURL(file); }
         });
-
         document.getElementById('form-producto').addEventListener('submit', async function(e) {
             e.preventDefault();
-
-            const productoId = document.getElementById('producto-id').value;
-
-            const producto = {
-                id: productoId,
-                nombre: document.getElementById('nombre').value,
-                descripcion: document.getElementById('descripcion').value,
-                precio: parseFloat(document.getElementById('precio').value),
-                stock: parseInt(document.getElementById('stock').value),
-                categoria: document.getElementById('categoria').value,
-                imagenBase64: imagenBase64,
-                activo: true
-            };
-
+            const id = document.getElementById('producto-id').value;
+            const data = { id, nombre:document.getElementById('nombre').value, descripcion:document.getElementById('descripcion').value, precio:parseFloat(document.getElementById('precio').value), stock:parseInt(document.getElementById('stock').value), categoria:document.getElementById('categoria').value, imagenBase64, activo:true };
             try {
-                const response = await fetch(`${API_URL}/Productos/${productoId}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(producto)
-                });
-
-                if (response.ok) {
-                    alert('✓ Producto actualizado exitosamente');
-                    window.location.href = '/productos';
-                } else {
-                    const error = await response.text();
-                    alert('Error al actualizar: ' + error);
-                }
-            } catch (error) {
-                alert('Error de conexión: ' + error.message);
-            }
+                const r = await fetch(`/api/Productos/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+                if (r.ok) { alert('✓ Producto actualizado exitosamente'); window.location.href='/productos'; }
+                else { alert('Error al actualizar: ' + await r.text()); }
+            } catch(e) { alert('Error de conexión: ' + e.message); }
         });
-                document.querySelectorAll('input[type="number"]').forEach(function(input) {
-            input.addEventListener('wheel', function(e) {
-                e.preventDefault();
-            }, { passive: false });
-        });
-
+        document.querySelectorAll('input[type="number"]').forEach(i=>i.addEventListener('wheel',e=>e.preventDefault(),{passive:false}));
         lucide.createIcons();
     </script>
 }

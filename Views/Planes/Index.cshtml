@@ -1,141 +1,151 @@
-﻿@model List<VidaFitBackend.Models.Plan>
+@model List<VidaFitBackend.Models.Plan>
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Gestión de Planes";
 }
 
-<div class="max-w-7xl mx-auto space-y-6">
+<style>
+    :root {
+        --pf-blue:#3B82F6;--pf-blueB:#60A5FA;--pf-deep:#1E3A8A;
+        --pf-purple:#7C3AED;--pf-card:#0D1526;--pf-border:#1E2D4A;
+        --pf-text:#E2E8F0;--pf-soft:#94A3B8;--pf-muted:#64748B;
+        --pf-green:#10B981;--pf-red:#EF4444;--pf-orange:#F59E0B;
+    }
+    .plan-card {
+        background:var(--pf-card); border:1px solid var(--pf-border);
+        border-radius:1rem; overflow:hidden;
+        transition:box-shadow .2s, transform .2s;
+    }
+    .plan-card:hover { box-shadow:0 12px 40px rgba(0,0,0,.4); transform:translateY(-3px); }
+    .plan-card.inactivo { opacity:.5; }
+    .pf-btn {
+        display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1.1rem;
+        border:none;border-radius:.625rem;font-weight:800;font-size:.78rem;
+        text-transform:uppercase;letter-spacing:.06em;cursor:pointer;
+        font-family:inherit;text-decoration:none;transition:opacity .2s, transform .15s;
+    }
+    .pf-btn:hover { opacity:.88; transform:scale(1.03); }
+    .pf-btn-blue   { background:linear-gradient(135deg,var(--pf-blue),var(--pf-purple)); color:#fff; }
+    .pf-btn-orange { background:rgba(245,158,11,.15); color:var(--pf-orange); border:1px solid rgba(245,158,11,.3); }
+    .pf-btn-green  { background:rgba(16,185,129,.15);  color:var(--pf-green);  border:1px solid rgba(16,185,129,.3); }
+    .pf-btn-red    { background:rgba(239,68,68,.12);   color:var(--pf-red);    border:1px solid rgba(239,68,68,.25); }
+    .pf-btn-gray   { background:rgba(255,255,255,.06); color:var(--pf-soft);   border:1px solid var(--pf-border); }
+</style>
+
+<div style="max-width:80rem;margin:0 auto;display:flex;flex-direction:column;gap:1.5rem;">
+
     <!-- Header -->
-    <div class="bg-white rounded-xl shadow-md p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <h2 class="text-2xl font-bold text-gray-800">📋 Gestión de Planes de Membresía</h2>
-                <p class="text-sm text-gray-600 mt-1">Administra los planes disponibles para tus clientes</p>
-            </div>
-            <div class="flex gap-3">
-                <a href="/membresias" class="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-bold rounded-lg transition">
-                    <i data-lucide="arrow-left" class="w-5 h-5 inline mr-2"></i>
-                    Volver a Membresías
-                </a>
-                <a href="/membresias/planes/crear" class="px-6 py-3 bg-vida-primary hover:bg-vida-accent text-vida-dark font-bold rounded-lg transition">
-                    <i data-lucide="plus" class="w-5 h-5 inline mr-2"></i>
-                    Crear Plan
-                </a>
-            </div>
+    <div style="background:var(--pf-card);border:1px solid var(--pf-border);border-radius:1rem;padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;">
+        <div>
+            <h2 style="font-size:1.3rem;font-weight:900;color:var(--pf-text);text-transform:uppercase;letter-spacing:.08em;margin:0 0 .2rem 0;">📋 Gestión de Planes de Membresía</h2>
+            <p style="font-size:.8rem;color:var(--pf-muted);font-weight:600;margin:0;">Administra los planes disponibles para tus clientes</p>
+        </div>
+        <div style="display:flex;gap:.75rem;">
+            <a href="/membresias" class="pf-btn pf-btn-gray">
+                <i data-lucide="arrow-left" style="width:16px;height:16px;"></i>
+                Volver a Membresías
+            </a>
+            <a href="/membresias/planes/crear" class="pf-btn pf-btn-blue">
+                <i data-lucide="plus" style="width:16px;height:16px;"></i>
+                Crear Plan
+            </a>
         </div>
     </div>
 
-    <!-- Estadísticas -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        @{
-            var totalPlanes = Model.Count;
-            var planesActivos = Model.Count(p => p.Activo);
-            var precioPromedio = Model.Where(p => p.Activo).Any() ? Model.Where(p => p.Activo).Average(p => p.Precio) : 0;
-            var duracionPromedio = Model.Where(p => p.Activo).Any() ? Model.Where(p => p.Activo).Average(p => p.DuracionDias) : 0;
-        }
-
-        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
-            <p class="text-sm text-gray-600 mb-1">Total Planes</p>
-            <p class="text-3xl font-bold text-gray-800">@totalPlanes</p>
+    <!-- Stats -->
+    @{
+        var totalPlanes     = Model.Count;
+        var planesActivos   = Model.Count(p => p.Activo);
+        var precioPromedio  = Model.Where(p => p.Activo).Any() ? Model.Where(p => p.Activo).Average(p => p.Precio) : 0;
+        var durPromedio     = Model.Where(p => p.Activo).Any() ? Model.Where(p => p.Activo).Average(p => p.DuracionDias) : 0;
+    }
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;">
+        <div style="background:var(--pf-card);border:1px solid var(--pf-border);border-left:4px solid var(--pf-blue);border-radius:.875rem;padding:1.25rem;">
+            <p style="font-size:.68rem;color:var(--pf-muted);font-weight:800;text-transform:uppercase;letter-spacing:.1em;margin:0 0 .35rem 0;">Total Planes</p>
+            <p style="font-size:2rem;font-weight:900;color:var(--pf-blueB);margin:0;">@totalPlanes</p>
         </div>
-
-        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
-            <p class="text-sm text-gray-600 mb-1">Planes Activos</p>
-            <p class="text-3xl font-bold text-green-600">@planesActivos</p>
+        <div style="background:var(--pf-card);border:1px solid var(--pf-border);border-left:4px solid var(--pf-green);border-radius:.875rem;padding:1.25rem;">
+            <p style="font-size:.68rem;color:var(--pf-muted);font-weight:800;text-transform:uppercase;letter-spacing:.1em;margin:0 0 .35rem 0;">Planes Activos</p>
+            <p style="font-size:2rem;font-weight:900;color:var(--pf-green);margin:0;">@planesActivos</p>
         </div>
-
-        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-vida-primary">
-            <p class="text-sm text-gray-600 mb-1">Precio Promedio</p>
-            <p class="text-3xl font-bold text-gray-800">$@precioPromedio.ToString("N0")</p>
+        <div style="background:var(--pf-card);border:1px solid var(--pf-border);border-left:4px solid var(--pf-purple);border-radius:.875rem;padding:1.25rem;">
+            <p style="font-size:.68rem;color:var(--pf-muted);font-weight:800;text-transform:uppercase;letter-spacing:.1em;margin:0 0 .35rem 0;">Precio Promedio</p>
+            <p style="font-size:2rem;font-weight:900;color:#A78BFA;margin:0;">$@precioPromedio.ToString("N0")</p>
         </div>
-
-        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-purple-500">
-            <p class="text-sm text-gray-600 mb-1">Duración Promedio</p>
-            <p class="text-3xl font-bold text-gray-800">@duracionPromedio.ToString("N0") días</p>
+        <div style="background:var(--pf-card);border:1px solid var(--pf-border);border-left:4px solid var(--pf-orange);border-radius:.875rem;padding:1.25rem;">
+            <p style="font-size:.68rem;color:var(--pf-muted);font-weight:800;text-transform:uppercase;letter-spacing:.1em;margin:0 0 .35rem 0;">Duración Promedio</p>
+            <p style="font-size:2rem;font-weight:900;color:var(--pf-orange);margin:0;">@durPromedio.ToString("N0") d</p>
         </div>
     </div>
 
-    <!-- Grid de Planes -->
-    <div class="bg-white rounded-xl shadow-md p-6">
-        <h3 class="text-lg font-bold text-gray-800 mb-4">Listado de Planes</h3>
+    <!-- Grid planes -->
+    <div style="background:var(--pf-card);border:1px solid var(--pf-border);border-radius:1rem;padding:1.5rem;">
+        <h3 style="font-size:1rem;font-weight:900;color:var(--pf-text);text-transform:uppercase;letter-spacing:.08em;margin:0 0 1.25rem 0;">Listado de Planes</h3>
 
         @if (Model.Count == 0)
         {
-            <div class="text-center py-12">
-                <i data-lucide="inbox" class="w-16 h-16 mx-auto mb-4 text-gray-400"></i>
-                <p class="text-gray-500 text-lg">No hay planes registrados</p>
-                <a href="/membresias/planes/crear" class="inline-block mt-4 px-6 py-2 bg-vida-primary text-vida-dark font-bold rounded-lg hover:bg-vida-accent transition">
-                    Crear primer plan
-                </a>
+            <div style="text-align:center;padding:3rem 1rem;color:var(--pf-muted);">
+                <i data-lucide="inbox" style="width:56px;height:56px;display:block;margin:0 auto 1rem;"></i>
+                <p style="font-size:1.1rem;font-weight:700;margin:0 0 1rem 0;">No hay planes registrados</p>
+                <a href="/membresias/planes/crear" class="pf-btn pf-btn-blue">Crear primer plan</a>
             </div>
         }
         else
         {
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;">
                 @foreach (var plan in Model)
                 {
-                    <div class="border-2 rounded-xl overflow-hidden hover:shadow-xl transition-all @(!plan.Activo ? "opacity-50" : "")"
-                         style="border-color: @plan.Color">
-                        <!-- Header del plan con color -->
-                        <div class="p-6 text-white relative overflow-hidden" style="background-color: @plan.Color">
-                            <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
-                            <div class="absolute bottom-0 left-0 w-24 h-24 bg-white opacity-10 rounded-full -ml-12 -mb-12"></div>
+                    <div class="plan-card @(!plan.Activo ? "inactivo" : "")" style="border-left:4px solid @plan.Color;">
 
-                            <div class="relative z-10">
-                                <div class="flex items-center justify-between mb-4">
-                                    <span class="px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm font-bold">
-                                        @plan.Tipo
-                                    </span>
+                        <!-- Header con color del plan -->
+                        <div style="padding:1.5rem;position:relative;overflow:hidden;background:@plan.Color;">
+                            <!-- Orbes decorativos -->
+                            <div style="position:absolute;top:-2rem;right:-2rem;width:6rem;height:6rem;border-radius:50%;background:rgba(255,255,255,.1);"></div>
+                            <div style="position:absolute;bottom:-1.5rem;left:-1.5rem;width:5rem;height:5rem;border-radius:50%;background:rgba(255,255,255,.08);"></div>
+
+                            <div style="position:relative;z-index:1;">
+                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.875rem;">
+                                    <span style="padding:.25rem .75rem;background:rgba(255,255,255,.2);border-radius:999px;font-size:.7rem;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.06em;">@plan.Tipo</span>
                                     @if (!plan.Activo)
                                     {
-                                        <span class="px-3 py-1 bg-red-500 rounded-full text-xs font-bold">
-                                            INACTIVO
-                                        </span>
+                                        <span style="padding:.2rem .625rem;background:rgba(239,68,68,.8);border-radius:999px;font-size:.65rem;font-weight:800;color:#fff;text-transform:uppercase;">INACTIVO</span>
                                     }
                                 </div>
-                                <h4 class="text-2xl font-bold mb-2">@plan.Nombre</h4>
-                                <div class="flex items-baseline gap-1">
-                                    <span class="text-4xl font-bold">$@plan.Precio.ToString("N0")</span>
-                                </div>
+                                <h4 style="font-size:1.25rem;font-weight:900;color:#fff;margin:0 0 .35rem 0;">@plan.Nombre</h4>
+                                <span style="font-size:2rem;font-weight:900;color:#fff;">$@plan.Precio.ToString("N0")</span>
                             </div>
                         </div>
 
-                        <!-- Cuerpo del plan -->
-                        <div class="p-6 bg-white">
-                            <div class="space-y-4 mb-6">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background-color: @(plan.Color)20">
-                                        <i data-lucide="calendar" class="w-5 h-5" style="color: @plan.Color"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm text-gray-600">Duración</p>
-                                        <p class="font-bold text-gray-800">@plan.DuracionDias días</p>
-                                    </div>
+                        <!-- Cuerpo -->
+                        <div style="padding:1.25rem;">
+                            <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;">
+                                <div style="width:36px;height:36px;border-radius:.5rem;display:flex;align-items:center;justify-content:center;background:@(plan.Color)22;">
+                                    <i data-lucide="calendar" style="width:18px;height:18px;color:@plan.Color;"></i>
                                 </div>
-
-                                @if (!string.IsNullOrEmpty(plan.Descripcion))
-                                {
-                                    <div class="pt-3 border-t border-gray-200">
-                                        <p class="text-sm text-gray-600 leading-relaxed">@plan.Descripcion</p>
-                                    </div>
-                                }
+                                <div>
+                                    <p style="font-size:.68rem;color:var(--pf-muted);font-weight:700;text-transform:uppercase;margin:0 0 .1rem 0;">Duración</p>
+                                    <p style="font-weight:800;color:var(--pf-text);margin:0;">@plan.DuracionDias días</p>
+                                </div>
                             </div>
 
+                            @if (!string.IsNullOrEmpty(plan.Descripcion))
+                            {
+                                <p style="font-size:.8rem;color:var(--pf-soft);margin:0 0 1rem 0;padding-top:.875rem;border-top:1px solid var(--pf-border);">@plan.Descripcion</p>
+                            }
+
                             <!-- Acciones -->
-                            <div class="flex gap-2">
-                                <a href="/membresias/planes/editar/@plan.Id"
-                                   class="flex-1 bg-blue-600 text-white text-center py-2 rounded-lg hover:bg-blue-700 transition text-sm font-bold">
-                                    <i data-lucide="edit" class="w-4 h-4 inline mr-1"></i>
+                            <div style="display:flex;gap:.5rem;">
+                                <a href="/membresias/planes/editar/@plan.Id" class="pf-btn pf-btn-blue" style="flex:1;justify-content:center;">
+                                    <i data-lucide="edit" style="width:14px;height:14px;"></i>
                                     Editar
                                 </a>
                                 <button onclick="toggleActivoPlan('@plan.Id', @(plan.Activo ? "false" : "true"), '@plan.Nombre')"
-                                        class="flex-1 @(plan.Activo ? "bg-orange-600 hover:bg-orange-700" : "bg-green-600 hover:bg-green-700") text-white py-2 rounded-lg transition text-sm font-bold">
-                                    <i data-lucide="@(plan.Activo ? "toggle-right" : "toggle-left")" class="w-4 h-4 inline mr-1"></i>
+                                        class="pf-btn @(plan.Activo ? "pf-btn-orange" : "pf-btn-green")" style="flex:1;justify-content:center;">
+                                    <i data-lucide="@(plan.Activo ? "toggle-right" : "toggle-left")" style="width:14px;height:14px;"></i>
                                     @(plan.Activo ? "Desactivar" : "Activar")
                                 </button>
-                                <button onclick="eliminarPlan('@plan.Id', '@plan.Nombre')"
-                                        class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm font-bold">
-                                    <i data-lucide="trash-2" class="w-4 h-4 inline"></i>
+                                <button onclick="eliminarPlan('@plan.Id', '@plan.Nombre')" class="pf-btn pf-btn-red">
+                                    <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
                                 </button>
                             </div>
                         </div>
@@ -148,68 +158,27 @@
 
 @section Scripts {
     <script>
-        // Eliminar plan
         async function eliminarPlan(id, nombre) {
-            const confirmar = confirm(
-                `⚠️ ¿Está seguro de eliminar el plan?\n\n` +
-                `Plan: ${nombre}\n\n` +
-                `Esta acción no se puede deshacer.\n` +
-                `Si el plan tiene membresías asociadas, no se podrá eliminar.`
-            );
-
-            if (!confirmar) return;
-
+            if (!confirm(`⚠️ ¿Está seguro de eliminar el plan?\n\nPlan: ${nombre}\n\nEsta acción no se puede deshacer.`)) return;
             try {
-                const response = await fetch(`/api/Planes/${id}`, {
-                    method: 'DELETE'
-                });
-
-                if (response.ok) {
-                    alert(`✅ Plan "${nombre}" eliminado exitosamente`);
-                    window.location.reload();
-                } else {
-                    const error = await response.json();
-                    alert(`❌ Error: ${error.mensaje || 'No se pudo eliminar el plan'}`);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al eliminar el plan: ' + error.message);
-            }
+                const response = await fetch(`/api/Planes/${id}`, { method: 'DELETE' });
+                if (response.ok) { alert(`✅ Plan "${nombre}" eliminado exitosamente`); window.location.reload(); }
+                else { const error = await response.json(); alert(`❌ Error: ${error.mensaje || 'No se pudo eliminar el plan'}`); }
+            } catch (error) { alert('❌ Error al eliminar el plan: ' + error.message); }
         }
 
-        // Toggle Activo/Inactivo
         async function toggleActivoPlan(id, nuevoEstado, nombre) {
             const accion = nuevoEstado === 'true' ? 'activar' : 'desactivar';
-            const confirmar = confirm(
-                `¿Está seguro de ${accion} el plan?\n\n` +
-                `Plan: ${nombre}`
-            );
-
-            if (!confirmar) return;
-
+            if (!confirm(`¿Está seguro de ${accion} el plan?\n\nPlan: ${nombre}`)) return;
             try {
-                const response = await fetch(`/api/Planes/${id}/toggle-activo`, {
-                    method: 'PATCH'
-                });
-
-                if (response.ok) {
-                    alert(`✅ Plan "${nombre}" ${accion === 'activar' ? 'activado' : 'desactivado'} exitosamente`);
-                    window.location.reload();
-                } else {
-                    const error = await response.json();
-                    alert(`❌ Error: ${error.mensaje || 'No se pudo actualizar el plan'}`);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al actualizar el plan: ' + error.message);
-            }
+                const response = await fetch(`/api/Planes/${id}/toggle-activo`, { method: 'PATCH' });
+                if (response.ok) { alert(`✅ Plan "${nombre}" ${accion === 'activar' ? 'activado' : 'desactivado'} exitosamente`); window.location.reload(); }
+                else { const error = await response.json(); alert(`❌ Error: ${error.mensaje || 'No se pudo actualizar el plan'}`); }
+            } catch (error) { alert('❌ Error al actualizar el plan: ' + error.message); }
         }
 
-        // Exponer funciones globalmente
         window.eliminarPlan = eliminarPlan;
         window.toggleActivoPlan = toggleActivoPlan;
-
-        // Inicializar iconos
         lucide.createIcons();
     </script>
 }
