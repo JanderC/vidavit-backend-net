@@ -1,432 +1,366 @@
-﻿@model VidaFitBackend.Models.Membresia
+﻿@model VidaFitBackend.Models.Plan
 @{
-    ViewData["Title"] = "Editar Membresía";
-    ViewData["Subtitle"] = "Modificar información de la membresía - TAURO GYM";
+    ViewData["Title"] = "Editar Plan";
+    ViewData["Subtitle"] = "Modificar plan de membresía - TAURO GYM";
     Layout = "_AdminLayout";
 }
 
-<div class="max-w-4xl mx-auto">
+<div class="max-w-3xl mx-auto">
     <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
+
+        <!-- Header -->
         <div class="flex items-center gap-4 mb-8 pb-6 border-b-2 border-gray-200">
-            <div class="bg-gradient-to-br from-amber-600 to-amber-800 rounded-xl p-4">
-                <i data-lucide="edit" class="w-8 h-8 text-white"></i>
+            <div class="bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl p-4">
+                <i data-lucide="edit-3" class="w-8 h-8 text-white"></i>
             </div>
             <div>
-                <h2 class="text-3xl font-black text-gray-900 uppercase tracking-wide">Editar Membresía</h2>
-                <p class="text-sm text-gray-600 font-semibold mt-1">
-                    Modificar datos sin afectar la caja
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-blue-100 text-blue-800 ml-2">
-                        <i data-lucide="info" class="w-3 h-3 mr-1"></i>
-                        NO REGISTRA INGRESO
-                    </span>
-                </p>
+                <h2 class="text-3xl font-black text-gray-900 uppercase tracking-wide">Editar Plan</h2>
+                <p class="text-sm text-gray-600 font-semibold mt-1">@Model.Nombre</p>
             </div>
         </div>
 
-        <!-- Alerta informativa -->
-        <div class="mb-6 p-5 bg-blue-50 border-2 border-blue-500 rounded-xl">
-            <div class="flex items-start gap-4">
-                <div class="bg-blue-200 p-3 rounded-xl">
-                    <i data-lucide="alert-circle" class="w-6 h-6 text-blue-700"></i>
-                </div>
-                <div>
-                    <h4 class="font-black text-blue-900 text-lg uppercase tracking-wide mb-2">ℹ️ Importante</h4>
-                    <ul class="text-sm text-blue-800 font-bold space-y-1">
-                        <li>✏️ Esta función solo EDITA datos de la membresía</li>
-                        <li>🚫 NO registra movimientos en caja</li>
-                        <li>💰 Para renovar y registrar pago, use el botón "RENOVAR" del listado</li>
-                    </ul>
-                </div>
-            </div>
+        <!-- Alerta si tiene membresías -->
+        <div class="mb-6 p-4 bg-amber-50 border-2 border-amber-300 rounded-xl flex items-start gap-3">
+            <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"></i>
+            <p class="text-sm text-amber-800 font-semibold">
+                Los cambios de precio y duración <strong>no afectan membresías ya creadas</strong>, solo las nuevas que se creen con este plan.
+            </p>
         </div>
 
-        <form id="editForm" class="space-y-6">
-            <input type="hidden" id="membresiaId" value="@Model.Id" />
-            <input type="hidden" id="createdAt" value="@Model.CreatedAt.ToString("yyyy-MM-ddTHH:mm:ss")" />
-            <input type="hidden" id="montoPagadoOriginal" value="@Model.MontoPagado" />
+        <form id="editarPlanForm" class="space-y-6">
 
-            <!-- CLIENTE (Solo lectura) -->
+            <!-- NOMBRE -->
             <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Cliente</label>
-                <div class="p-5 bg-gray-50 border-2 border-gray-300 rounded-xl">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-gray-300 p-3 rounded-xl">
-                            <i data-lucide="user" class="w-6 h-6 text-gray-700"></i>
-                        </div>
-                        <div>
-                            <p class="font-black text-gray-900 text-lg uppercase tracking-wide">@Model.Cliente?.Nombre @Model.Cliente?.Apellido</p>
-                            <p class="text-sm text-gray-600 font-bold">@Model.Cliente?.Cedula</p>
-                        </div>
-                    </div>
-                </div>
-                <input type="hidden" id="clienteId" value="@Model.ClienteId" />
+                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Nombre del Plan *</label>
+                <input type="text" id="nombre" value="@Model.Nombre"
+                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-gray-900 font-semibold">
             </div>
 
-            <!-- PLAN -->
+            <!-- DESCRIPCIÓN -->
             <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Plan *</label>
-                <select id="planId" required
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-600 focus:border-amber-600 text-gray-900 bg-white font-semibold">
-                    @if (ViewBag.Planes != null)
-                    {
-                        foreach (var plan in ViewBag.Planes)
-                        {
-                            var isSelected = plan.Id == Model.PlanId;
-                            // Calcular texto de duración según tipo
-                            string durTexto;
-                            string tipo = (plan.TipoCalculoVencimiento ?? "dias").ToLower();
-                            int cant = plan.CantidadUnidades;
-                            if (tipo == "meses")
-                                durTexto = cant == 1 ? "1 mes" : $"{cant} meses";
-                            else if (tipo == "semanas")
-                                durTexto = cant == 1 ? "1 semana" : $"{cant} semanas";
-                            else if (tipo == "anios")
-                                durTexto = cant == 1 ? "1 año" : $"{cant} años";
-                            else
-                                durTexto = $"{plan.DuracionDias} días";
-                            <option value="@plan.Id"
-                                    data-precio="@plan.Precio"
-                                    data-duracion="@plan.DuracionDias"
-                                    data-tipo="@plan.TipoCalculoVencimiento"
-                                    data-cantidad="@plan.CantidadUnidades"
-                                    selected="@isSelected">
-                                @plan.Nombre - $@plan.Precio (@durTexto)
-                            </option>
-                        }
-                    }
-                </select>
-                <div id="planInfo" class="mt-3 p-4 bg-blue-50 border-2 border-blue-500 rounded-xl text-sm text-blue-900 font-bold hidden"></div>
+                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Descripción <span class="text-gray-400 font-normal normal-case">(Opcional)</span></label>
+                <textarea id="descripcion" rows="2"
+                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-gray-900 font-semibold resize-none">@Model.Descripcion</textarea>
             </div>
 
-            <!-- FECHAS -->
+            <!-- TIPO Y PRECIO -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Fecha Inicio *</label>
-                    <input type="date" id="fechaInicio" value="@Model.FechaInicio.ToString("yyyy-MM-dd")" required
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-600 focus:border-amber-600 text-gray-900 font-semibold">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Fecha Vencimiento *</label>
-                    <input type="date" id="fechaVencimiento" value="@Model.FechaVencimiento.ToString("yyyy-MM-dd")" required
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-600 focus:border-amber-600 text-gray-900 font-semibold">
-                    <p class="text-xs text-gray-600 font-bold mt-2">
-                        <i data-lucide="info" class="w-3 h-3 inline"></i>
-                        Se actualizará automáticamente al cambiar el plan o fecha de inicio
-                    </p>
-                </div>
-            </div>
-
-            <!-- INFORMACIÓN DE DURACIÓN -->
-            <div id="duracionInfo" class="hidden">
-                <div class="bg-emerald-50 border-2 border-emerald-500 rounded-xl p-5">
-                    <div class="flex items-center gap-2 mb-4">
-                        <i data-lucide="calendar" class="w-6 h-6 text-emerald-600"></i>
-                        <h4 class="font-black text-emerald-900 uppercase tracking-wide">Duración de la Membresía</h4>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                            <p class="text-emerald-700 font-bold uppercase tracking-wide">Total:</p>
-                            <p class="font-black text-emerald-900 text-2xl" id="totalDias">-</p>
-                        </div>
-                        <div>
-                            <p class="text-emerald-700 font-bold uppercase tracking-wide">Vence el:</p>
-                            <p class="font-black text-emerald-900 text-lg" id="fechaVencTexto">-</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ESTADO -->
-            <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Estado *</label>
-                <select id="estado" required
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-600 focus:border-amber-600 text-gray-900 bg-white font-semibold">
-                    <option value="activa" selected="@(Model.Estado == "activa")">Activa</option>
-                    <option value="vencida" selected="@(Model.Estado == "vencida")">Vencida</option>
-                    <option value="suspendida" selected="@(Model.Estado == "suspendida")">Suspendida</option>
-                    <option value="cancelada" selected="@(Model.Estado == "cancelada")">Cancelada</option>
-                </select>
-            </div>
-
-            <!-- MÉTODO DE PAGO (Solo referencial) -->
-            <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
-                    Método de Pago (Referencial)
-                    <span class="text-xs text-gray-500 normal-case font-normal ml-2">(No afecta la caja)</span>
-                </label>
-                <select id="metodoPago" required
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-600 focus:border-amber-600 text-gray-900 bg-white font-semibold">
-                    <option value="efectivo" selected="@(Model.MetodoPago == "efectivo")">Efectivo</option>
-                    <option value="tarjeta" selected="@(Model.MetodoPago == "tarjeta")">Tarjeta</option>
-                    <option value="transferencia" selected="@(Model.MetodoPago == "transferencia")">Transferencia</option>
-                </select>
-            </div>
-
-            <!-- INFORMACIÓN DE PAGO (Solo lectura) -->
-            <div class="p-5 bg-gray-50 border-2 border-gray-300 rounded-xl">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-600 font-bold uppercase tracking-wide">Monto Pagado Originalmente:</p>
-                        <p class="text-2xl font-black text-gray-900">$@Model.MontoPagado.ToString("N2")</p>
-                        <p class="text-xs text-gray-500 font-bold mt-1">
-                            <i data-lucide="lock" class="w-3 h-3 inline"></i>
-                            Este campo no se puede editar desde aquí
-                        </p>
-                    </div>
-                    <div class="bg-gray-300 p-3 rounded-xl">
-                        <i data-lucide="dollar-sign" class="w-8 h-8 text-gray-700"></i>
-                    </div>
-                </div>
-            </div>
-
-            <!-- NOTAS -->
-            <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Notas (Opcional)</label>
-                <textarea id="notas" rows="3"
-                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-600 focus:border-amber-600 text-gray-900 font-semibold resize-none"
-                          placeholder="Observaciones o comentarios adicionales...">@Model.Notas</textarea>
-            </div>
-
-            <!-- INFORMACIÓN DE TIMESTAMPS -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-5 bg-gray-50 border-2 border-gray-300 rounded-xl">
-                <div>
-                    <p class="text-xs text-gray-600 font-bold uppercase tracking-wide">Creado:</p>
-                    <p class="text-sm font-black text-gray-900">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Tipo de Plan *</label>
+                    <select id="tipo"
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-gray-900 bg-white font-semibold">
+                        <option value="mensual" selected="@(Model.Tipo=="mensual")">Mensual</option>
+                        <option value="semanal" selected="@(Model.Tipo=="semanal")">Semanal</option>
+                        <option value="trimestral" selected="@(Model.Tipo=="trimestral")">Trimestral</option>
+                        <option value="semestral" selected="@(Model.Tipo=="semestral")">Semestral</option>
+                        <option value="anual" selected="@(Model.Tipo=="anual")">Anual</option>
+                        <option value="diario" selected="@(Model.Tipo=="diario")">Diario</option>
+                        <option value="personalizado" selected="@(Model.Tipo=="personalizado")">Personalizado</option>
+                        <option value="otro" selected="@(Model.Tipo=="otro")">Otro</option>
+                    </select>
                 </div>
                 <div>
-                    <p class="text-xs text-gray-600 font-bold uppercase tracking-wide">Última Actualización:</p>
-                    <p class="text-sm font-black text-gray-900">@Model.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Precio *</label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-black text-lg">$</span>
+                        <input type="number" id="precio" step="0.01" min="0.01" value="@Model.Precio"
+                               class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-gray-900 font-semibold text-lg">
+                    </div>
                 </div>
             </div>
+
+            <!-- DURACIÓN -->
+            <div class="p-5 bg-blue-50 border-2 border-blue-300 rounded-2xl">
+                <h3 class="text-sm font-black text-blue-800 uppercase tracking-wide mb-4 flex items-center gap-2">
+                    <i data-lucide="calendar" class="w-4 h-4"></i>
+                    Duración del Plan
+                </h3>
+
+                <!-- Tipo de cálculo -->
+                <div class="mb-4">
+                    <label class="block text-xs font-black text-gray-600 mb-2 uppercase">¿Cómo se calcula el vencimiento? *</label>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2" id="tipoCalcBtns">
+                        <button type="button" onclick="seleccionarTipoCalculo('meses')" id="btn-meses"
+                                class="tipo-calc-btn py-3 px-2 border-2 border-gray-300 text-gray-600 rounded-xl text-sm font-black transition-all hover:border-blue-400 text-center">
+                            <i data-lucide="calendar-days" class="w-4 h-4 mx-auto mb-1"></i>Meses
+                        </button>
+                        <button type="button" onclick="seleccionarTipoCalculo('dias')" id="btn-dias"
+                                class="tipo-calc-btn py-3 px-2 border-2 border-gray-300 text-gray-600 rounded-xl text-sm font-black transition-all hover:border-blue-400 text-center">
+                            <i data-lucide="calendar" class="w-4 h-4 mx-auto mb-1"></i>Días
+                        </button>
+                        <button type="button" onclick="seleccionarTipoCalculo('semanas')" id="btn-semanas"
+                                class="tipo-calc-btn py-3 px-2 border-2 border-gray-300 text-gray-600 rounded-xl text-sm font-black transition-all hover:border-blue-400 text-center">
+                            <i data-lucide="calendar-range" class="w-4 h-4 mx-auto mb-1"></i>Semanas
+                        </button>
+                        <button type="button" onclick="seleccionarTipoCalculo('anios')" id="btn-anios"
+                                class="tipo-calc-btn py-3 px-2 border-2 border-gray-300 text-gray-600 rounded-xl text-sm font-black transition-all hover:border-blue-400 text-center">
+                            <i data-lucide="calendar-check" class="w-4 h-4 mx-auto mb-1"></i>Años
+                        </button>
+                    </div>
+                    <input type="hidden" id="tipoCalculoVencimiento" value="@Model.TipoCalculoVencimiento">
+                </div>
+
+                <!-- Cantidad -->
+                <div>
+                    <label class="block text-xs font-black text-gray-600 mb-2 uppercase" id="labelCantidad">Cantidad *</label>
+                    <div class="flex items-center gap-3">
+                        <button type="button" onclick="ajustarCantidad(-1)"
+                                class="w-12 h-12 bg-white border-2 border-gray-300 rounded-xl text-xl font-black hover:border-blue-400 hover:bg-blue-50 transition-all flex items-center justify-center">
+                            −
+                        </button>
+                        <input type="number" id="cantidadUnidades" value="@Model.CantidadUnidades" min="1" max="60"
+                               class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 font-black text-2xl text-center"
+                               oninput="actualizarPreviewDuracion()">
+                        <button type="button" onclick="ajustarCantidad(1)"
+                                class="w-12 h-12 bg-white border-2 border-gray-300 rounded-xl text-xl font-black hover:border-blue-400 hover:bg-blue-50 transition-all flex items-center justify-center">
+                            +
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Preview duración -->
+                <div id="previewDuracion" class="mt-4 p-3 bg-white border border-blue-200 rounded-xl text-sm font-semibold text-blue-800">
+                    <i data-lucide="info" class="w-4 h-4 inline mr-1"></i>
+                    <span id="previewDuracionTexto"></span>
+                </div>
+            </div>
+
+            <!-- COLOR -->
+            <div>
+                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Color del Plan</label>
+                <div class="flex items-center gap-4">
+                    <input type="color" id="color" value="@Model.Color"
+                           class="w-14 h-14 border-2 border-gray-300 rounded-xl cursor-pointer p-1">
+                    <div class="flex gap-2 flex-wrap">
+                        <button type="button" onclick="setColor('#10b981')" style="background:#10b981" class="w-8 h-8 rounded-lg border-2 border-transparent hover:border-gray-400 transition-all"></button>
+                        <button type="button" onclick="setColor('#3b82f6')" style="background:#3b82f6" class="w-8 h-8 rounded-lg border-2 border-transparent hover:border-gray-400 transition-all"></button>
+                        <button type="button" onclick="setColor('#8b5cf6')" style="background:#8b5cf6" class="w-8 h-8 rounded-lg border-2 border-transparent hover:border-gray-400 transition-all"></button>
+                        <button type="button" onclick="setColor('#f59e0b')" style="background:#f59e0b" class="w-8 h-8 rounded-lg border-2 border-transparent hover:border-gray-400 transition-all"></button>
+                        <button type="button" onclick="setColor('#ef4444')" style="background:#ef4444" class="w-8 h-8 rounded-lg border-2 border-transparent hover:border-gray-400 transition-all"></button>
+                        <button type="button" onclick="setColor('#ec4899')" style="background:#ec4899" class="w-8 h-8 rounded-lg border-2 border-transparent hover:border-gray-400 transition-all"></button>
+                        <button type="button" onclick="setColor('#06b6d4')" style="background:#06b6d4" class="w-8 h-8 rounded-lg border-2 border-transparent hover:border-gray-400 transition-all"></button>
+                        <button type="button" onclick="setColor('#64748b')" style="background:#64748b" class="w-8 h-8 rounded-lg border-2 border-transparent hover:border-gray-400 transition-all"></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PREVIEW -->
+            <div>
+                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Preview</label>
+                <div class="border-2 border-gray-200 rounded-2xl overflow-hidden shadow-sm max-w-xs">
+                    <div class="p-5 text-white relative overflow-hidden" id="previewHeader" style="background-color:@Model.Color">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-white opacity-10 rounded-full -mr-12 -mt-12"></div>
+                        <span class="px-2 py-0.5 bg-white bg-opacity-20 rounded-full text-xs font-bold" id="previewTipo">@Model.Tipo</span>
+                        <h4 class="text-xl font-black mt-2" id="previewNombre">@Model.Nombre</h4>
+                        <p class="text-3xl font-black mt-1" id="previewPrecio">$@Model.Precio.ToString("N0")</p>
+                    </div>
+                    <div class="p-4 bg-white">
+                        <p class="text-sm text-gray-600 font-bold" id="previewDurCard">—</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACTIVO -->
+            <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border-2 border-gray-200">
+                <input type="checkbox" id="activo" @(Model.Activo ? "checked" : "")
+                       class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                <div>
+                    <label for="activo" class="text-sm font-black text-gray-700 uppercase tracking-wide cursor-pointer">Plan Activo</label>
+                    <p class="text-xs text-gray-500 font-semibold">Los planes inactivos no aparecen al crear membresías</p>
+                </div>
+            </div>
+
+            <!-- ERROR -->
+            <div id="errorMsg" class="hidden p-4 bg-red-50 border-2 border-red-300 rounded-xl text-red-700 font-semibold text-sm"></div>
 
             <!-- BOTONES -->
             <div class="flex gap-4 pt-6 border-t-2 border-gray-200">
-                <a href="/membresias"
-                   class="flex-1 px-6 py-4 bg-gray-200 text-gray-900 rounded-xl hover:bg-gray-300 font-black uppercase tracking-wide transition-all text-center flex items-center justify-center gap-2">
-                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
-                    Cancelar
+                <a href="/membresias/planes"
+                   class="flex-1 px-6 py-4 bg-gray-200 hover:bg-gray-300 text-gray-900 font-black rounded-xl transition-all text-center uppercase tracking-wide">
+                    <i data-lucide="x-circle" class="w-5 h-5 inline mr-2"></i>Cancelar
                 </a>
                 <button type="submit"
-                        class="flex-1 px-6 py-4 bg-gradient-to-r from-amber-600 to-amber-800 text-white rounded-xl hover:from-amber-700 hover:to-amber-900 font-black uppercase tracking-wide transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105">
-                    <i data-lucide="save" class="w-5 h-5"></i>
-                    Guardar Cambios
+                        class="flex-1 px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-black rounded-xl transition-all shadow-xl uppercase tracking-wide transform hover:scale-105">
+                    <i data-lucide="save" class="w-5 h-5 inline mr-2"></i>Guardar Cambios
                 </button>
             </div>
         </form>
     </div>
 </div>
 
+<!-- MODAL LOADING -->
+<div id="modalLoading" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm text-center p-10">
+        <div class="relative w-20 h-20 mx-auto mb-6">
+            <svg class="animate-spin w-20 h-20 text-blue-600" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+            <i data-lucide="save" class="w-8 h-8 text-blue-700 absolute inset-0 m-auto"></i>
+        </div>
+        <p class="text-xl font-black text-gray-900 uppercase tracking-wide mb-2">Guardando Cambios</p>
+        <p class="text-sm text-gray-500 font-semibold">Actualizando en el sistema...</p>
+    </div>
+</div>
+
 @section Scripts {
     <script>
-        let planesData = [];
-        let planSeleccionado = null;
+        // ── Estado inicial desde el modelo ────────────────────────────────
+        const planId          = '@Model.Id';
+        let tipoCalculo       = '@((Model.TipoCalculoVencimiento ?? "meses").ToLower())';
 
-        // Cargar planes al inicio
-        async function cargarPlanes() {
-            try {
-                const response = await fetch('/api/Planes');
-                planesData = await response.json();
+        // ── Tipo de cálculo ───────────────────────────────────────────────
+        function seleccionarTipoCalculo(tipo) {
+            tipoCalculo = tipo;
+            document.getElementById('tipoCalculoVencimiento').value = tipo;
 
-                // Establecer plan actual como seleccionado
-                const planActual = planesData.find(p => (p.id || p.Id) == '@Model.PlanId');
-                if (planActual) {
-                    planSeleccionado = {
-                        id:                      planActual.id    || planActual.Id,
-                        precio:                  planActual.precio || planActual.Precio,
-                        duracionDias:            planActual.duracionDias || planActual.DuracionDias,
-                        tipoCalculoVencimiento:  (planActual.tipoCalculoVencimiento || planActual.TipoCalculoVencimiento || 'dias').toLowerCase(),
-                        // ✅ FIX: nunca usar duracionDias como fallback de cantidadUnidades
-                        //    si cantidadUnidades es 0 o null usamos 1, no duracionDias
-                        cantidadUnidades: planActual.cantidadUnidades ?? planActual.CantidadUnidades ?? 1
-                    };
-                    mostrarInfoPlan();
-                }
-            } catch (error) {
-                console.error('Error cargando planes:', error);
-            }
+            document.querySelectorAll('.tipo-calc-btn').forEach(b => {
+                b.classList.remove('border-blue-500', 'bg-blue-100', 'text-blue-800');
+                b.classList.add('border-gray-300', 'text-gray-600');
+            });
+            const activo = document.getElementById('btn-' + tipo);
+            activo.classList.add('border-blue-500', 'bg-blue-100', 'text-blue-800');
+            activo.classList.remove('border-gray-300', 'text-gray-600');
+
+            const labels = { meses:'Cantidad de Meses', dias:'Cantidad de Días', semanas:'Cantidad de Semanas', anios:'Cantidad de Años' };
+            document.getElementById('labelCantidad').textContent = (labels[tipo] || 'Cantidad') + ' *';
+            actualizarPreviewDuracion();
         }
 
-        // Evento: cambio de plan
-        document.getElementById('planId').addEventListener('change', function() {
-            const option = this.options[this.selectedIndex];
-            if (!option.value) {
-                planSeleccionado = null;
-                document.getElementById('planInfo').classList.add('hidden');
-                document.getElementById('duracionInfo').classList.add('hidden');
-                return;
-            }
+        function ajustarCantidad(delta) {
+            const input = document.getElementById('cantidadUnidades');
+            input.value = Math.max(1, (parseInt(input.value) || 1) + delta);
+            actualizarPreviewDuracion();
+        }
 
-            planSeleccionado = {
-                id:                     option.value,
-                precio:                 parseFloat(option.dataset.precio),
-                duracionDias:           parseInt(option.dataset.duracion),
-                // ✅ FIX: leer tipo directamente del data-attribute del <option>
-                tipoCalculoVencimiento: (option.dataset.tipo || 'dias').toLowerCase(),
-                // ✅ FIX: nunca usar duracion como fallback de cantidad
-                cantidadUnidades:       parseInt(option.dataset.cantidad) || 1
-            };
+        function actualizarPreviewDuracion() {
+            const cant = parseInt(document.getElementById('cantidadUnidades').value) || 1;
+            const tipo = tipoCalculo;
+            let texto = '';
+            if (tipo === 'meses')   texto = `El plan durará ${cant} ${cant===1?'mes calendario':'meses calendario'} (ej: del 1 ene → 1 feb)`;
+            if (tipo === 'dias')    texto = `El plan durará exactamente ${cant} ${cant===1?'día':'días'}`;
+            if (tipo === 'semanas') texto = `El plan durará ${cant} ${cant===1?'semana':'semanas'} (${cant*7} días)`;
+            if (tipo === 'anios')   texto = `El plan durará ${cant} ${cant===1?'año':'años'} completo${cant>1?'s':''}`;
+            document.getElementById('previewDuracionTexto').textContent = texto;
 
-            mostrarInfoPlan();
-            recalcularFechaVencimiento();
-        });
-
-        // Evento: cambio de fecha inicio
-        document.getElementById('fechaInicio').addEventListener('change', function() {
-            if (planSeleccionado) {
-                recalcularFechaVencimiento();
-            }
-        });
-
-        function mostrarInfoPlan() {
-            if (!planSeleccionado) return;
-
-            // ✅ FIX: mostrar duración según tipo, no siempre "días"
-            let durTexto;
-            switch (planSeleccionado.tipoCalculoVencimiento) {
-                case 'meses':
-                    durTexto = `${planSeleccionado.cantidadUnidades} ${planSeleccionado.cantidadUnidades === 1 ? 'mes' : 'meses'}`;
-                    break;
-                case 'semanas':
-                    durTexto = `${planSeleccionado.cantidadUnidades} ${planSeleccionado.cantidadUnidades === 1 ? 'semana' : 'semanas'}`;
-                    break;
-                case 'anios':
-                    durTexto = `${planSeleccionado.cantidadUnidades} ${planSeleccionado.cantidadUnidades === 1 ? 'año' : 'años'}`;
-                    break;
-                default:
-                    durTexto = `${planSeleccionado.duracionDias} días`;
-            }
-
-            const info = document.getElementById('planInfo');
-            info.innerHTML = `
-                <div class="flex items-center gap-2">
-                    <i data-lucide="info" class="w-5 h-5"></i>
-                    <span>Precio: <strong>$${planSeleccionado.precio.toFixed(2)}</strong> | Duración: <strong>${durTexto}</strong></span>
-                </div>
-            `;
-            info.classList.remove('hidden');
+            const labelDur = { meses:`${cant} ${cant===1?'mes':'meses'}`, dias:`${cant} ${cant===1?'día':'días'}`, semanas:`${cant} ${cant===1?'semana':'semanas'}`, anios:`${cant} ${cant===1?'año':'años'}` };
+            document.getElementById('previewDurCard').textContent = labelDur[tipo] || '';
             lucide.createIcons();
         }
 
-        function recalcularFechaVencimiento() {
-            const fechaInicioStr = document.getElementById('fechaInicio').value;
-            if (!fechaInicioStr || !planSeleccionado) return;
+        // ── Color ─────────────────────────────────────────────────────────
+        function setColor(hex) {
+            document.getElementById('color').value = hex;
+            document.getElementById('previewHeader').style.backgroundColor = hex;
+        }
+        document.getElementById('color').addEventListener('input', function() {
+            document.getElementById('previewHeader').style.backgroundColor = this.value;
+        });
 
-            const [year, month, day] = fechaInicioStr.split('-').map(Number);
-            const fechaInicio = new Date(year, month - 1, day);
-            const tipo = planSeleccionado.tipoCalculoVencimiento;
-            const cant = planSeleccionado.cantidadUnidades;
+        // ── Preview en tiempo real ────────────────────────────────────────
+        document.getElementById('nombre').addEventListener('input', function() {
+            document.getElementById('previewNombre').textContent = this.value || 'Nombre del plan';
+        });
+        document.getElementById('precio').addEventListener('input', function() {
+            document.getElementById('previewPrecio').textContent = '$' + (parseFloat(this.value)||0).toLocaleString('es');
+        });
+        document.getElementById('tipo').addEventListener('change', function() {
+            document.getElementById('previewTipo').textContent = this.options[this.selectedIndex].text;
+        });
 
-            let fechaVenc;
-            let duracionTexto;
-
-            switch (tipo) {
-                case 'meses': {
-                    // Replicar AddMonths de C#: mismo día del mes destino,
-                    // si no existe usa el último día de ese mes.
-                    let nuevoMes = month - 1 + cant;
-                    let nuevoAnio = year + Math.floor(nuevoMes / 12);
-                    nuevoMes = nuevoMes % 12;
-                    const ultimoDia = new Date(nuevoAnio, nuevoMes + 1, 0).getDate();
-                    fechaVenc = new Date(nuevoAnio, nuevoMes, Math.min(day, ultimoDia));
-                    duracionTexto = `${cant} ${cant === 1 ? 'mes' : 'meses'}`;
-                    break;
-                }
-                case 'semanas':
-                    fechaVenc = new Date(fechaInicio);
-                    fechaVenc.setDate(fechaVenc.getDate() + cant * 7);
-                    duracionTexto = `${cant} ${cant === 1 ? 'semana' : 'semanas'}`;
-                    break;
-
-                case 'anios':
-                    fechaVenc = new Date(fechaInicio);
-                    fechaVenc.setFullYear(fechaVenc.getFullYear() + cant);
-                    duracionTexto = `${cant} ${cant === 1 ? 'año' : 'años'}`;
-                    break;
-
-                case 'dias':
-                default:
-                    fechaVenc = new Date(fechaInicio);
-                    fechaVenc.setDate(fechaVenc.getDate() + (planSeleccionado.duracionDias - 1));
-                    duracionTexto = `${planSeleccionado.duracionDias} días`;
-                    break;
-            }
-
-            const y2 = fechaVenc.getFullYear();
-            const m2 = String(fechaVenc.getMonth() + 1).padStart(2, '0');
-            const d2 = String(fechaVenc.getDate()).padStart(2, '0');
-
-            document.getElementById('fechaVencimiento').value = `${y2}-${m2}-${d2}`;
-            document.getElementById('totalDias').textContent = duracionTexto;
-            document.getElementById('fechaVencTexto').textContent = fechaVenc.toLocaleDateString('es-ES', {
-                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-            });
-            document.getElementById('duracionInfo').classList.remove('hidden');
+        // ── Toast ─────────────────────────────────────────────────────────
+        function mostrarToast(msg, tipo) {
+            const color = tipo === 'error' ? 'bg-red-600' : 'bg-blue-600';
+            const t = document.createElement('div');
+            t.className = `fixed bottom-6 right-6 z-[100] ${color} text-white px-6 py-4 rounded-2xl shadow-2xl font-bold text-sm`;
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity .4s'; setTimeout(()=>t.remove(),400); }, 4000);
         }
 
-        // Validación y envío al API
-        document.getElementById('editForm').addEventListener('submit', async function(e) {
+        // ── Submit ────────────────────────────────────────────────────────
+        document.getElementById('editarPlanForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            if (!confirm('⚠️ ¿Confirmar cambios en esta membresía?\n\n✏️ Solo se editarán los datos\n🚫 NO se registrará ningún movimiento en caja')) {
-                return false;
-            }
+            const nombre      = document.getElementById('nombre').value.trim();
+            const tipo        = document.getElementById('tipo').value;
+            const precio      = parseFloat(document.getElementById('precio').value);
+            const tipoCalcV   = document.getElementById('tipoCalculoVencimiento').value;
+            const cantidad    = parseInt(document.getElementById('cantidadUnidades').value) || 1;
+            const color       = document.getElementById('color').value;
+            const activo      = document.getElementById('activo').checked;
+            const descripcion = document.getElementById('descripcion').value.trim();
+            const errorEl     = document.getElementById('errorMsg');
+            errorEl.classList.add('hidden');
 
-            const membresiaId = document.getElementById('membresiaId').value;
-            const data = {
-                id: membresiaId,
-                clienteId: document.getElementById('clienteId').value,
-                planId: document.getElementById('planId').value,
-                fechaInicio: document.getElementById('fechaInicio').value,
-                fechaVencimiento: document.getElementById('fechaVencimiento').value,
-                estado: document.getElementById('estado').value,
-                montoPagado: parseFloat(document.getElementById('montoPagadoOriginal').value),
-                metodoPago: document.getElementById('metodoPago').value,
-                notas: document.getElementById('notas').value || null
+            if (!nombre)               { errorEl.textContent='El nombre es requerido'; errorEl.classList.remove('hidden'); return; }
+            if (!precio || precio <= 0){ errorEl.textContent='El precio debe ser mayor a $0'; errorEl.classList.remove('hidden'); return; }
+            if (cantidad < 1)          { errorEl.textContent='La cantidad debe ser al menos 1'; errorEl.classList.remove('hidden'); return; }
+
+            // DuracionDias de referencia (el PUT lo preserva si no lo necesita)
+            const duracionDias = tipoCalcV === 'dias' ? cantidad
+                : tipoCalcV === 'semanas' ? cantidad * 7
+                : tipoCalcV === 'anios'   ? cantidad * 365
+                : cantidad * 30;
+
+            // ✅ Mandamos tipoCalculoVencimiento y cantidadUnidades SIEMPRE
+            // para que el PUT no los pise con defaults
+            const payload = {
+                id: planId,
+                nombre,
+                descripcion: descripcion || null,
+                tipo,
+                duracionDias,
+                tipoCalculoVencimiento: tipoCalcV,
+                cantidadUnidades: cantidad,
+                precio,
+                color,
+                activo
             };
 
-            try {
-                const response = await fetch(`/api/Membresias/${membresiaId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
+            document.getElementById('modalLoading').classList.remove('hidden');
 
-                if (response.ok) {
-                    alert('✅ Membresía actualizada exitosamente');
-                    window.location.href = '/membresias';
-                } else {
-                    const error = await response.text();
-                    alert('❌ Error al actualizar: ' + error);
+            let intentos = 0;
+            while (intentos < 2) {
+                try {
+                    const res = await fetch(`/api/Planes/${planId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!res.ok) {
+                        const err = await res.text();
+                        throw new Error(err || `Error HTTP ${res.status}`);
+                    }
+                    document.getElementById('modalLoading').classList.add('hidden');
+                    mostrarToast('Plan actualizado correctamente', 'success');
+                    setTimeout(() => window.location.href = '/membresias/planes', 1200);
+                    return;
+                } catch(err) {
+                    intentos++;
+                    if (intentos < 2) {
+                        await new Promise(r => setTimeout(r, 800));
+                    } else {
+                        document.getElementById('modalLoading').classList.add('hidden');
+                        errorEl.textContent = 'Error al guardar: ' + err.message;
+                        errorEl.classList.remove('hidden');
+                    }
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al actualizar la membresía: ' + error.message);
             }
         });
 
-         document.querySelectorAll('input[type="number"]').forEach(function(input) {
-            input.addEventListener('wheel', function(e) {
-                e.preventDefault();
-            }, { passive: false });
-        });
-
-
-        // Inicializar
-        document.addEventListener('DOMContentLoaded', function() {
-            // cargarPlanes ya llama mostrarInfoPlan() internamente.
-            // recalcularFechaVencimiento() se llama al final de cargarPlanes
-            // para que use el tipo correcto del plan cargado desde la API.
-            cargarPlanes().then(() => {
-                if (planSeleccionado) {
-                    recalcularFechaVencimiento();
-                }
-            });
+        // ── Inicializar ───────────────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', () => {
+            seleccionarTipoCalculo(tipoCalculo);
+            actualizarPreviewDuracion();
             lucide.createIcons();
+            document.querySelectorAll('input[type="number"]').forEach(i => {
+                i.addEventListener('wheel', e => e.preventDefault(), { passive: false });
+            });
         });
 
-
+        window.seleccionarTipoCalculo = seleccionarTipoCalculo;
+        window.ajustarCantidad        = ajustarCantidad;
+        window.setColor               = setColor;
     </script>
 }

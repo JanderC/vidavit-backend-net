@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Gestión de Caja";
     ViewData["Subtitle"] = "Control financiero completo - TAURO GYM";
@@ -91,6 +91,13 @@
         </div>
     </div>
 
+
+    <!-- BADGE DÍA CERRADO -->
+    <div id="badge-dia-cerrado" class="hidden bg-gradient-to-r from-emerald-600 to-emerald-800 text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-3 font-black text-sm">
+        <i data-lucide="lock" class="w-5 h-5"></i>
+        <span></span>
+        <span class="ml-auto text-xs font-semibold text-emerald-200">Los datos mostrados incluyen todos los movimientos del día</span>
+    </div>
 
     <!-- DESGLOSE DE VENTAS DEL DÍA -->
     <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200">
@@ -444,6 +451,67 @@
                     </button>
                 </form>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- MODAL: LOADING INGRESO/EGRESO                   -->
+<!-- ═══════════════════════════════════════════════ -->
+<div id="modalLoadingMovimiento" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm text-center p-10">
+        <div class="relative w-20 h-20 mx-auto mb-6">
+            <svg class="animate-spin w-20 h-20" id="loadingMovSpinner" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+            <i data-lucide="loader" id="loadingMovIcon" class="w-8 h-8 absolute inset-0 m-auto"></i>
+        </div>
+        <p class="text-xl font-black text-gray-900 uppercase tracking-wide mb-2" id="loadingMovTitulo">Registrando...</p>
+        <p class="text-sm text-gray-500 font-semibold" id="loadingMovMsg">Guardando en el sistema...</p>
+        <div class="mt-4 w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+            <div class="h-2 rounded-full animate-pulse" id="loadingMovBar" style="width:60%"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- MODAL: DETALLE DE MOVIMIENTO REGISTRADO         -->
+<!-- ═══════════════════════════════════════════════ -->
+<div id="modalDetalleMovimiento" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md">
+        <div id="detalleMovHeader" class="px-8 py-6 rounded-t-3xl text-center text-white">
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-3">
+                <i data-lucide="check-circle" class="w-9 h-9 text-white"></i>
+            </div>
+            <h3 class="text-2xl font-black uppercase tracking-wide" id="detalleMovTitulo">¡Registrado!</h3>
+            <p class="text-sm font-semibold mt-1 opacity-80" id="detalleMovFecha"></p>
+        </div>
+        <div class="p-8">
+            <div class="bg-gray-50 rounded-2xl p-5 border-2 border-gray-200 space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-black text-gray-500 uppercase">Monto</span>
+                    <span class="text-3xl font-black" id="detalleMovMonto">$0.00</span>
+                </div>
+                <div class="flex justify-between items-center border-t border-gray-200 pt-3">
+                    <span class="text-sm font-black text-gray-500 uppercase">Categoría</span>
+                    <span class="font-bold text-gray-900 capitalize" id="detalleMovCategoria"></span>
+                </div>
+                <div class="flex justify-between items-center border-t border-gray-200 pt-3">
+                    <span class="text-sm font-black text-gray-500 uppercase">Método</span>
+                    <span class="font-bold text-gray-900 capitalize" id="detalleMovMetodo"></span>
+                </div>
+                <div class="border-t border-gray-200 pt-3">
+                    <span class="text-sm font-black text-gray-500 uppercase block mb-1">Descripción</span>
+                    <p class="text-sm text-gray-700 font-semibold" id="detalleMovDescripcion"></p>
+                </div>
+            </div>
+        </div>
+        <div class="px-8 pb-8">
+            <button onclick="cerrarDetalleMovimiento()"
+                    class="w-full px-6 py-3 bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-800 hover:to-black text-white font-black rounded-xl transition-all shadow-lg uppercase tracking-wide">
+                Aceptar
+            </button>
         </div>
     </div>
 </div>
@@ -834,6 +902,22 @@
                 } catch (errorDeudas) {
                     console.warn('⚠️ Error al cargar deudas (no crítico):', errorDeudas);
                     // No detener la ejecución si falla la carga de deudas
+                }
+
+                // MOSTRAR BADGE SI EL DÍA YA FUE CERRADO
+                if (data.ultimoCierre) {
+                    const hoy = new Date();
+                    const fechaCierre = new Date(data.ultimoCierre.FechaCierre || data.ultimoCierre.fechaCierre);
+                    const mismodia = fechaCierre.toDateString() === hoy.toDateString();
+                    const badgeEl = document.getElementById('badge-dia-cerrado');
+                    if (badgeEl) {
+                        if (mismodia) {
+                            badgeEl.classList.remove('hidden');
+                            badgeEl.textContent = `✓ Caja cerrada hoy · Balance: $${(data.ultimoCierre.BalanceGeneral || data.ultimoCierre.balanceGeneral || 0).toFixed(2)}`;
+                        } else {
+                            badgeEl.classList.add('hidden');
+                        }
+                    }
                 }
 
                 // MOSTRAR ALERTA SI HAY DÍAS PENDIENTES
@@ -1333,73 +1417,136 @@
         async function registrarIngreso(event) {
             event.preventDefault();
 
-            const monto = parseFloat(document.getElementById('ingreso-monto').value);
-            const categoria = document.getElementById('ingreso-categoria').value;
-            const metodo = document.getElementById('ingreso-metodo').value;
+            const monto       = parseFloat(document.getElementById('ingreso-monto').value);
+            const categoria   = document.getElementById('ingreso-categoria').value;
+            const metodo      = document.getElementById('ingreso-metodo').value;
             const descripcion = document.getElementById('ingreso-descripcion').value;
 
-            try {
-                const response = await fetch(`${API_URL}/Caja/ingreso`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        categoria: categoria,
-                        monto: monto,
-                        descripcion: descripcion,
-                        metodoPago: metodo
-                    })
-                });
+            if (!monto || monto <= 0) { mostrarToast('El monto debe ser mayor a 0', 'error'); return; }
+            if (!descripcion.trim())  { mostrarToast('La descripción es requerida', 'error'); return; }
 
-                const result = await response.json();
+            // Deshabilitar botón y mostrar loading
+            const btn = event.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            const loadingEl = document.getElementById('modalLoadingMovimiento');
+            document.getElementById('loadingMovSpinner').style.color = '#16a34a';
+            document.getElementById('loadingMovBar').style.background = '#16a34a';
+            document.getElementById('loadingMovTitulo').textContent = 'Registrando Ingreso';
+            document.getElementById('loadingMovMsg').textContent = 'Guardando el movimiento en el sistema...';
+            loadingEl.classList.remove('hidden');
 
-                if (result.success) {
-                    alert('✅ Ingreso registrado exitosamente');
-                    event.target.reset();
-                    cargarResumen();
-                    cambiarTab('movimientos');
-                } else {
-                    alert(`❌ Error: ${result.message}`);
+            // Reintentos
+            let intentos = 0; let result = null;
+            while (intentos < 2) {
+                try {
+                    const response = await fetch(`${API_URL}/Caja/ingreso`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ categoria, monto, descripcion, metodoPago: metodo })
+                    });
+                    if (!response.ok) {
+                        const err = await response.json().catch(() => ({}));
+                        throw new Error(err.message || `Error HTTP ${response.status}`);
+                    }
+                    result = await response.json();
+                    if (!result.success) throw new Error(result.message || 'Error desconocido');
+                    break;
+                } catch (err) {
+                    intentos++;
+                    if (intentos < 2) {
+                        document.getElementById('loadingMovMsg').textContent = 'Reintentando...';
+                        await new Promise(r => setTimeout(r, 800));
+                    } else {
+                        loadingEl.classList.add('hidden');
+                        btn.disabled = false;
+                        mostrarToast('Error al registrar ingreso: ' + err.message, 'error');
+                        return;
+                    }
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al registrar ingreso');
             }
+
+            loadingEl.classList.add('hidden');
+            btn.disabled = false;
+            event.target.reset();
+
+            // Mostrar modal de detalle
+            const ahora = new Date();
+            document.getElementById('detalleMovHeader').className = 'px-8 py-6 rounded-t-3xl text-center text-white bg-gradient-to-r from-green-600 to-green-800';
+            document.getElementById('detalleMovTitulo').textContent = '¡Ingreso Registrado!';
+            document.getElementById('detalleMovFecha').textContent = ahora.toLocaleString('es');
+            document.getElementById('detalleMovMonto').textContent = '$' + monto.toFixed(2);
+            document.getElementById('detalleMovMonto').className = 'text-3xl font-black text-green-600';
+            document.getElementById('detalleMovCategoria').textContent = categoria.replace('_', ' ');
+            document.getElementById('detalleMovMetodo').textContent = metodo;
+            document.getElementById('detalleMovDescripcion').textContent = descripcion;
+            document.getElementById('modalDetalleMovimiento').classList.remove('hidden');
+            lucide.createIcons();
         }
 
         async function registrarEgreso(event) {
             event.preventDefault();
 
-            const monto = parseFloat(document.getElementById('egreso-monto').value);
-            const categoria = document.getElementById('egreso-categoria').value;
-            const metodo = document.getElementById('egreso-metodo').value;
+            const monto       = parseFloat(document.getElementById('egreso-monto').value);
+            const categoria   = document.getElementById('egreso-categoria').value;
+            const metodo      = document.getElementById('egreso-metodo').value;
             const descripcion = document.getElementById('egreso-descripcion').value;
 
-            try {
-                const response = await fetch(`${API_URL}/Caja/egreso`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        categoria: categoria,
-                        monto: monto,
-                        descripcion: descripcion,
-                        metodoPago: metodo
-                    })
-                });
+            if (!monto || monto <= 0) { mostrarToast('El monto debe ser mayor a 0', 'error'); return; }
+            if (!descripcion.trim())  { mostrarToast('La descripción es requerida', 'error'); return; }
 
-                const result = await response.json();
+            const btn = event.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            const loadingEl = document.getElementById('modalLoadingMovimiento');
+            document.getElementById('loadingMovSpinner').style.color = '#dc2626';
+            document.getElementById('loadingMovBar').style.background = '#dc2626';
+            document.getElementById('loadingMovTitulo').textContent = 'Registrando Egreso';
+            document.getElementById('loadingMovMsg').textContent = 'Guardando el movimiento en el sistema...';
+            loadingEl.classList.remove('hidden');
 
-                if (result.success) {
-                    alert('✅ Egreso registrado exitosamente');
-                    event.target.reset();
-                    cargarResumen();
-                    cambiarTab('movimientos');
-                } else {
-                    alert(`❌ Error: ${result.message}`);
+            let intentos = 0; let result = null;
+            while (intentos < 2) {
+                try {
+                    const response = await fetch(`${API_URL}/Caja/egreso`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ categoria, monto, descripcion, metodoPago: metodo })
+                    });
+                    if (!response.ok) {
+                        const err = await response.json().catch(() => ({}));
+                        throw new Error(err.message || `Error HTTP ${response.status}`);
+                    }
+                    result = await response.json();
+                    if (!result.success) throw new Error(result.message || 'Error desconocido');
+                    break;
+                } catch (err) {
+                    intentos++;
+                    if (intentos < 2) {
+                        document.getElementById('loadingMovMsg').textContent = 'Reintentando...';
+                        await new Promise(r => setTimeout(r, 800));
+                    } else {
+                        loadingEl.classList.add('hidden');
+                        btn.disabled = false;
+                        mostrarToast('Error al registrar egreso: ' + err.message, 'error');
+                        return;
+                    }
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al registrar egreso');
             }
+
+            loadingEl.classList.add('hidden');
+            btn.disabled = false;
+            event.target.reset();
+
+            const ahora = new Date();
+            document.getElementById('detalleMovHeader').className = 'px-8 py-6 rounded-t-3xl text-center text-white bg-gradient-to-r from-red-600 to-red-800';
+            document.getElementById('detalleMovTitulo').textContent = '¡Egreso Registrado!';
+            document.getElementById('detalleMovFecha').textContent = ahora.toLocaleString('es');
+            document.getElementById('detalleMovMonto').textContent = '$' + monto.toFixed(2);
+            document.getElementById('detalleMovMonto').className = 'text-3xl font-black text-red-600';
+            document.getElementById('detalleMovCategoria').textContent = categoria;
+            document.getElementById('detalleMovMetodo').textContent = metodo;
+            document.getElementById('detalleMovDescripcion').textContent = descripcion;
+            document.getElementById('modalDetalleMovimiento').classList.remove('hidden');
+            lucide.createIcons();
         }
 
         // ========================================
@@ -1656,63 +1803,128 @@
         }
 
         async function confirmarAbono() {
-            const monto    = parseFloat(document.getElementById('input-monto-abono').value);
-            const metodo   = document.getElementById('input-metodo-abono').value;
+            const monto       = parseFloat(document.getElementById('input-monto-abono').value);
+            const metodo      = document.getElementById('input-metodo-abono').value;
             const saldoActual = deudaSeleccionada.Saldo || deudaSeleccionada.saldo || 0;
-            const deudaId  = deudaSeleccionada.Id || deudaSeleccionada.id;
-            const concepto = deudaSeleccionada.Concepto || deudaSeleccionada.concepto || '';
+            const deudaId     = deudaSeleccionada.Id   || deudaSeleccionada.id;
+            const concepto    = deudaSeleccionada.Concepto || deudaSeleccionada.concepto || '';
+            const clienteNom  = document.getElementById('modal-cliente-nombre')?.textContent || '';
 
-            if (isNaN(monto) || monto <= 0) { alert('❌ Monto inválido'); return; }
-            if (monto > saldoActual)         { alert('❌ El monto no puede ser mayor al saldo pendiente'); return; }
+            if (isNaN(monto) || monto <= 0) { mostrarToast('El monto es inválido', 'error'); return; }
+            if (monto > saldoActual)         { mostrarToast('El monto no puede superar el saldo pendiente', 'error'); return; }
 
+            // Loading
             const btn = document.querySelector('#modalAbonarDeuda button[onclick="confirmarAbono()"]');
             if (btn) { btn.disabled = true; btn.textContent = 'Registrando…'; }
+            document.getElementById('modalAbonarDeuda').classList.add('hidden');
 
-            try {
-                const r = await fetch(`${API_URL}/Deudas/abonar`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ deudaId, monto, metodoPago: metodo, notas: `Abono a deuda - ${concepto}` })
-                });
-                const result = await r.json();
-                if (result.success) {
-                    cerrarModalAbonar();
-                    await cargarDeudas();
-                    cargarResumen();
-                } else {
-                    alert(`❌ ${result.message}`);
+            const loadingEl = document.getElementById('modalLoadingMovimiento');
+            document.getElementById('loadingMovSpinner').style.color = '#16a34a';
+            document.getElementById('loadingMovBar').style.background = '#16a34a';
+            document.getElementById('loadingMovTitulo').textContent = 'Registrando Abono';
+            document.getElementById('loadingMovMsg').textContent = 'Guardando el pago en el sistema...';
+            loadingEl.classList.remove('hidden');
+
+            let result = null;
+            let intentos = 0;
+            while (intentos < 2) {
+                try {
+                    const r = await fetch(`${API_URL}/Deudas/abonar`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ deudaId, monto, metodoPago: metodo, notas: `Abono a deuda - ${concepto}` })
+                    });
+                    if (!r.ok) { const err = await r.json().catch(() => ({})); throw new Error(err.message || `Error HTTP ${r.status}`); }
+                    result = await r.json();
+                    if (!result.success) throw new Error(result.message || 'Error desconocido');
+                    break;
+                } catch (err) {
+                    intentos++;
+                    if (intentos < 2) {
+                        document.getElementById('loadingMovMsg').textContent = 'Reintentando...';
+                        await new Promise(r => setTimeout(r, 800));
+                    } else {
+                        loadingEl.classList.add('hidden');
+                        if (btn) { btn.disabled = false; btn.textContent = 'Confirmar'; }
+                        document.getElementById('modalAbonarDeuda').classList.remove('hidden');
+                        mostrarToast('Error al registrar abono: ' + err.message, 'error');
+                        return;
+                    }
                 }
-            } catch (e) {
-                alert('❌ Error al registrar abono');
-            } finally {
-                if (btn) { btn.disabled = false; btn.textContent = 'Confirmar'; }
             }
+
+            loadingEl.classList.add('hidden');
+            deudaSeleccionada = null;
+
+            // Modal de detalle
+            const ahora = new Date();
+            document.getElementById('detalleMovHeader').className = 'px-8 py-6 rounded-t-3xl text-center text-white bg-gradient-to-r from-green-600 to-green-800';
+            document.getElementById('detalleMovTitulo').textContent = '¡Abono Registrado!';
+            document.getElementById('detalleMovFecha').textContent = ahora.toLocaleString('es');
+            document.getElementById('detalleMovMonto').textContent = '$' + monto.toFixed(2);
+            document.getElementById('detalleMovMonto').className = 'text-3xl font-black text-green-600';
+            document.getElementById('detalleMovCategoria').textContent = 'Abono a deuda · ' + (concepto || clienteNom);
+            document.getElementById('detalleMovMetodo').textContent = metodo;
+            document.getElementById('detalleMovDescripcion').textContent = `Saldo anterior: $${saldoActual.toFixed(2)} → Saldo nuevo: $${(saldoActual - monto).toFixed(2)}`;
+            document.getElementById('modalDetalleMovimiento').classList.remove('hidden');
+            lucide.createIcons();
         }
 
         async function pagarCompleto(deudaId) {
             const deuda = deudasData.find(d => (d.Id || d.id) === deudaId);
             if (!deuda) return;
-            const saldo = deuda.Saldo || deuda.saldo || 0;
-            if (!confirm(`¿Pagar completamente $${saldo.toFixed(2)}?`)) return;
+            const saldo   = deuda.Saldo   || deuda.saldo   || 0;
+            const concepto = deuda.Concepto || deuda.concepto || '';
+            const clienteNomPago = deuda.ClienteNombre || deuda.clienteNombre || '';
 
-            try {
-                const response = await fetch(`${API_URL}/Deudas/abonar`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ deudaId: deuda.Id || deuda.id, monto: saldo, metodoPago: 'efectivo', notas: 'Pago completo de deuda' })
-                });
-                const result = await response.json();
-                if (result.success) {
-                    alert('✅ Deuda pagada completamente');
-                    cargarDeudas();
-                    cargarResumen();
-                } else {
-                    alert(`❌ Error: ${result.message}`);
+            // Loading inmediato, sin confirm bloqueante
+            const loadingEl = document.getElementById('modalLoadingMovimiento');
+            document.getElementById('loadingMovSpinner').style.color = '#16a34a';
+            document.getElementById('loadingMovBar').style.background = '#16a34a';
+            document.getElementById('loadingMovTitulo').textContent = 'Pagando Deuda Completa';
+            document.getElementById('loadingMovMsg').textContent = 'Registrando el pago en el sistema...';
+            loadingEl.classList.remove('hidden');
+
+            let result = null;
+            let intentos = 0;
+            while (intentos < 2) {
+                try {
+                    const response = await fetch(`${API_URL}/Deudas/abonar`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ deudaId: deuda.Id || deuda.id, monto: saldo, metodoPago: 'efectivo', notas: 'Pago completo de deuda' })
+                    });
+                    if (!response.ok) { const err = await response.json().catch(() => ({})); throw new Error(err.message || `Error HTTP ${response.status}`); }
+                    result = await response.json();
+                    if (!result.success) throw new Error(result.message || 'Error desconocido');
+                    break;
+                } catch (err) {
+                    intentos++;
+                    if (intentos < 2) {
+                        document.getElementById('loadingMovMsg').textContent = 'Reintentando...';
+                        await new Promise(r => setTimeout(r, 800));
+                    } else {
+                        loadingEl.classList.add('hidden');
+                        mostrarToast('Error al pagar deuda: ' + err.message, 'error');
+                        return;
+                    }
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al pagar deuda');
             }
+
+            loadingEl.classList.add('hidden');
+
+            // Modal de detalle
+            const ahora = new Date();
+            document.getElementById('detalleMovHeader').className = 'px-8 py-6 rounded-t-3xl text-center text-white bg-gradient-to-r from-emerald-600 to-emerald-800';
+            document.getElementById('detalleMovTitulo').textContent = '¡Deuda Pagada!';
+            document.getElementById('detalleMovFecha').textContent = ahora.toLocaleString('es');
+            document.getElementById('detalleMovMonto').textContent = '$' + saldo.toFixed(2);
+            document.getElementById('detalleMovMonto').className = 'text-3xl font-black text-emerald-600';
+            document.getElementById('detalleMovCategoria').textContent = 'Pago completo · ' + (concepto || clienteNomPago);
+            document.getElementById('detalleMovMetodo').textContent = 'Efectivo';
+            document.getElementById('detalleMovDescripcion').textContent = 'Deuda saldada al 100%. Saldo restante: $0.00';
+            document.getElementById('modalDetalleMovimiento').classList.remove('hidden');
+            lucide.createIcons();
         }
 
 
@@ -1857,6 +2069,24 @@
         window.cargarHistorialCierres = cargarHistorialCierres;
         window.abrirModalCerrarCaja = abrirModalCerrarCaja;
         window.cerrarModalCerrarCaja = cerrarModalCerrarCaja;
+        function mostrarToast(mensaje, tipo) {
+            const colores = { error: 'bg-red-600', success: 'bg-green-600', info: 'bg-blue-600' };
+            const color = colores[tipo] || 'bg-gray-800';
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-6 right-6 z-[100] ${color} text-white px-6 py-4 rounded-2xl shadow-2xl font-bold text-sm flex items-center gap-3`;
+            toast.innerHTML = `<span>${mensaje}</span>`;
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.4s'; setTimeout(() => toast.remove(), 400); }, 4000);
+        }
+
+        function cerrarDetalleMovimiento() {
+            document.getElementById('modalDetalleMovimiento').classList.add('hidden');
+            cargarResumen();
+            cargarMovimientos();
+            cambiarTab('movimientos');
+        }
+
+        window.cerrarDetalleMovimiento = cerrarDetalleMovimiento;
         window.confirmarCierreCaja = confirmarCierreCaja;
         window.registrarIngreso = registrarIngreso;
         window.registrarEgreso = registrarEgreso;

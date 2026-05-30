@@ -1168,6 +1168,311 @@ namespace VidaFit.Controllers.API
         // DIAGNÓSTICO Y SINCRONIZACIÓN
         // =============================================
 
+
+        // =============================================
+        // RESUMEN FINANCIERO COMPLETO DEL MES
+        // =============================================
+
+        /// <summary>
+        /// GET /api/cajafuerte/resumen-mes?mes=&anio=
+        /// Devuelve el desglose financiero completo del mes:
+        /// - Ingresos/egresos de Caja Fuerte agrupados por origen
+        /// - Ventas de Caja Diaria agrupadas por categoría (membresías, productos, abonos…)
+        /// - Resumen por día del mes
+        /// </summary>
+        [HttpGet("resumen-mes")]
+        public async Task<IActionResult> GetResumenMes(
+            [FromQuery] int? mes = null,
+            [FromQuery] int? anio = null)
+        {
+            try
+            {
+                var hoy = DateTime.Now;
+                var mesQ = mes ?? hoy.Month;
+                var anioQ = anio ?? hoy.Year;
+                var inicio = new DateTime(anioQ, mesQ, 1);
+                var fin = inicio.AddMonths(1);
+
+                // ── 1) Movimientos de Caja Fuerte del mes ──────────────────
+                var movsCF = await _context.MovimientosCajaFuerte
+                    .Where(m => m.Fecha >= inicio && m.Fecha < fin)
+                    .ToListAsync();
+
+                var ingEfCF = movsCF.Where(m => m.Tipo == "ingreso" && m.MetodoPago == "efectivo").Sum(m => m.Monto);
+                var ingTrCF = movsCF.Where(m => m.Tipo == "ingreso" && m.MetodoPago == "transferencia").Sum(m => m.Monto);
+                var egrEfCF = movsCF.Where(m => m.Tipo == "egreso" && m.MetodoPago == "efectivo").Sum(m => m.Monto);
+                var egrTrCF = movsCF.Where(m => m.Tipo == "egreso" && m.MetodoPago == "transferencia").Sum(m => m.Monto);
+
+                var desgloseCF = movsCF
+                    .GroupBy(m => new { m.Origen, m.Tipo, m.MetodoPago })
+                    .Select(g => new
+                    {
+                        origen = g.Key.Origen,
+                        origenLabel = ObtenerOrigenLabel(g.Key.Origen),
+                        tipo = g.Key.Tipo,
+                        metodoPago = g.Key.MetodoPago,
+                        total = g.Sum(m => m.Monto),
+                        cantidad = g.Count()
+                    })
+                    .OrderBy(x => x.tipo).ThenBy(x => x.origen)
+                    .ToList();
+
+                // ── 2) Ventas de Caja Diaria del mes (todos los movimientos) ──
+                var movsCD = await _context.MovimientosCaja
+                    .Where(m => m.Fecha >= inicio && m.Fecha < fin)
+                    .ToListAsync();
+
+                var ventasCategorias = new
+                {
+                    membresias = movsCD.Where(m => m.Tipo == "ingreso" && (m.Categoria == "membresia" || m.Categoria == "renovacion")).Sum(m => m.Monto),
+                    productos = movsCD.Where(m => m.Tipo == "ingreso" && m.Categoria == "producto").Sum(m => m.Monto),
+                    abonos = movsCD.Where(m => m.Tipo == "ingreso" && m.Categoria == "abono_deuda").Sum(m => m.Monto),
+                    otros = movsCD.Where(m => m.Tipo == "ingreso" && m.Categoria != "membresia" && m.Categoria != "renovacion" && m.Categoria != "producto" && m.Categoria != "abono_deuda").Sum(m => m.Monto),
+                    egresos = movsCD.Where(m => m.Tipo == "egreso").Sum(m => m.Monto),
+                    totalCDIngresos = movsCD.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto),
+                    totalCDEgresos = movsCD.Where(m => m.Tipo == "egreso").Sum(m => m.Monto),
+                    cantidadMovimientos = movsCD.Count
+                };
+
+                // ── 3) Resumen por día del mes ─────────────────────────────
+                var resumenPorDia = movsCD
+                    .GroupBy(m => m.Fecha.Date)
+                    .Select(g => new
+                    {
+                        fecha = g.Key.ToString("yyyy-MM-dd"),
+                        diaNombre = g.Key.ToString("dddd", new System.Globalization.CultureInfo("es-ES")),
+                        totalIngresos = g.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto),
+                        totalEgresos = g.Where(m => m.Tipo == "egreso").Sum(m => m.Monto),
+                        balance = g.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto) - g.Where(m => m.Tipo == "egreso").Sum(m => m.Monto),
+                        efectivo = g.Where(m => m.Tipo == "ingreso" && m.MetodoPago == "efectivo").Sum(m => m.Monto),
+                        transferencia = g.Where(m => m.Tipo == "ingreso" && m.MetodoPago == "transferencia").Sum(m => m.Monto),
+                        membresias = g.Where(m => m.Tipo == "ingreso" && (m.Categoria == "membresia" || m.Categoria == "renovacion")).Sum(m => m.Monto),
+                        productos = g.Where(m => m.Tipo == "ingreso" && m.Categoria == "producto").Sum(m => m.Monto),
+                        cantidadMovs = g.Count(),
+                        yaCerrado = g.Any(m => m.Cerrado)
+                    })
+                    .OrderBy(x => x.fecha)
+                    .ToList<object>();
+
+                // ── 4) Info del mes (¿ya pasó? ¿es el actual?) ────────────
+                var esMesActual = (mesQ == hoy.Month && anioQ == hoy.Year);
+                var esMesPasado = inicio < new DateTime(hoy.Year, hoy.Month, 1);
+                var yaConsolidado = await _context.ConsolidadosMensuales
+                    .AnyAsync(c => c.Mes == mesQ && c.Anio == anioQ);
+
+                return Ok(new
+                {
+                    success = true,
+                    mes = mesQ,
+                    anio = anioQ,
+                    mesNombre = ObtenerNombreMes(mesQ),
+                    periodo = $"{ObtenerNombreMes(mesQ)} {anioQ}",
+                    esMesActual,
+                    esMesPasado,
+                    yaConsolidado,
+                    // Caja Fuerte
+                    cajaFuerte = new
+                    {
+                        ingresosEfectivo = ingEfCF,
+                        ingresosTransferencia = ingTrCF,
+                        egresosEfectivo = egrEfCF,
+                        egresosTransferencia = egrTrCF,
+                        balanceEfectivo = ingEfCF - egrEfCF,
+                        balanceTransferencia = ingTrCF - egrTrCF,
+                        totalIngresos = ingEfCF + ingTrCF,
+                        totalEgresos = egrEfCF + egrTrCF,
+                        balance = (ingEfCF + ingTrCF) - (egrEfCF + egrTrCF),
+                        desglose = desgloseCF
+                    },
+                    // Caja Diaria (ventas brutas)
+                    cajaDiaria = ventasCategorias,
+                    // Por día
+                    resumenPorDia,
+                    cantidadDiasConMovimientos = resumenPorDia.Count
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener resumen del mes");
+                return StatusCode(500, new { success = false, message = "Error al obtener resumen del mes" });
+            }
+        }
+
+        // =============================================
+        // EXPORTAR MES COMPLETO (datos para Excel)
+        // =============================================
+
+        /// <summary>
+        /// GET /api/cajafuerte/exportar-mes?mes=&anio=
+        /// Devuelve TODOS los movimientos de Caja Diaria del mes para exportar a Excel.
+        /// Incluye: fecha, hora, tipo, categoría, método, descripción, monto.
+        /// </summary>
+        [HttpGet("exportar-mes")]
+        public async Task<IActionResult> ExportarMes(
+            [FromQuery] int? mes = null,
+            [FromQuery] int? anio = null)
+        {
+            try
+            {
+                var hoy = DateTime.Now;
+                var mesQ = mes ?? hoy.Month;
+                var anioQ = anio ?? hoy.Year;
+                var inicio = new DateTime(anioQ, mesQ, 1);
+                var fin = inicio.AddMonths(1);
+
+                // Todos los movimientos de Caja Diaria del mes, ordenados por fecha
+                var movs = await _context.MovimientosCaja
+                    .Where(m => m.Fecha >= inicio && m.Fecha < fin)
+                    .OrderBy(m => m.Fecha)
+                    .ToListAsync();
+
+                // Cierres del mes para saber qué días están cerrados
+                var cierres = await _context.CierresCaja
+                    .Where(c => c.FechaCierre >= inicio && c.FechaCierre < fin)
+                    .OrderBy(c => c.FechaCierre)
+                    .ToListAsync();
+
+                var totalIngresos = movs.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto);
+                var totalEgresos = movs.Where(m => m.Tipo == "egreso").Sum(m => m.Monto);
+
+                // Filas detalladas para Excel
+                var filas = movs.Select(m => new
+                {
+                    fecha = m.Fecha.ToString("yyyy-MM-dd"),
+                    hora = m.Fecha.ToString("HH:mm"),
+                    tipo = m.Tipo,
+                    categoria = m.Categoria ?? "",
+                    metodoPago = m.MetodoPago ?? "",
+                    descripcion = m.Descripcion ?? "",
+                    monto = m.Tipo == "ingreso" ? m.Monto : -m.Monto,
+                    montoAbs = m.Monto,
+                    cerrado = m.Cerrado,
+                    cierreCajaId = m.CierreCajaId?.ToString() ?? ""
+                }).ToList();
+
+                // Resumen por día
+                var resumenDias = movs
+                    .GroupBy(m => m.Fecha.Date)
+                    .Select(g => new
+                    {
+                        fecha = g.Key.ToString("yyyy-MM-dd"),
+                        ingresos = g.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto),
+                        egresos = g.Where(m => m.Tipo == "egreso").Sum(m => m.Monto),
+                        balance = g.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto) - g.Where(m => m.Tipo == "egreso").Sum(m => m.Monto),
+                        efectivo = g.Where(m => m.Tipo == "ingreso" && m.MetodoPago == "efectivo").Sum(m => m.Monto),
+                        transferencia = g.Where(m => m.Tipo == "ingreso" && m.MetodoPago == "transferencia").Sum(m => m.Monto),
+                        membresias = g.Where(m => m.Tipo == "ingreso" && (m.Categoria == "membresia" || m.Categoria == "renovacion")).Sum(m => m.Monto),
+                        productos = g.Where(m => m.Tipo == "ingreso" && m.Categoria == "producto").Sum(m => m.Monto),
+                        cantidadMovs = g.Count()
+                    })
+                    .OrderBy(x => x.fecha)
+                    .ToList();
+
+                return Ok(new
+                {
+                    success = true,
+                    mes = mesQ,
+                    anio = anioQ,
+                    periodo = $"{ObtenerNombreMes(mesQ)} {anioQ}",
+                    generadoEn = hoy.ToString("yyyy-MM-ddTHH:mm:ss"),
+                    resumen = new
+                    {
+                        totalMovimientos = movs.Count,
+                        totalIngresos,
+                        totalEgresos,
+                        balance = totalIngresos - totalEgresos,
+                        diasConMovimientos = resumenDias.Count,
+                        cantidadCierres = cierres.Count
+                    },
+                    filas,
+                    resumenDias,
+                    cierres = cierres.Select(c => new
+                    {
+                        c.Id,
+                        fechaCierre = c.FechaCierre.ToString("yyyy-MM-dd"),
+                        c.TotalIngresos,
+                        c.TotalEgresos,
+                        c.BalanceGeneral,
+                        c.EfectivoFinal,
+                        c.IngresosEfectivo,
+                        c.IngresosTransferencia,
+                        c.CantidadMovimientos
+                    })
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al exportar mes");
+                return StatusCode(500, new { success = false, message = "Error al exportar mes" });
+            }
+        }
+
+        // =============================================
+        // VENTAS DE UN DÍA ESPECÍFICO (Caja Diaria)
+        // =============================================
+
+        /// <summary>
+        /// GET /api/cajafuerte/ventas-dia?fecha=yyyy-MM-dd
+        /// Devuelve todos los movimientos de Caja Diaria de un día específico.
+        /// Usado para ver el detalle completo de ventas desde Caja Fuerte.
+        /// </summary>
+        [HttpGet("ventas-dia")]
+        public async Task<IActionResult> GetVentasDia([FromQuery] string fecha)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(fecha) || !DateTime.TryParse(fecha, out var fechaParsed))
+                    return BadRequest(new { success = false, message = "Fecha inválida. Use formato yyyy-MM-dd" });
+
+                var inicio = fechaParsed.Date;
+                var fin = inicio.AddDays(1);
+
+                var movs = await _context.MovimientosCaja
+                    .Where(m => m.Fecha >= inicio && m.Fecha < fin)
+                    .OrderBy(m => m.Fecha)
+                    .ToListAsync();
+
+                var ingresos = movs.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto);
+                var egresos = movs.Where(m => m.Tipo == "egreso").Sum(m => m.Monto);
+
+                return Ok(new
+                {
+                    success = true,
+                    fecha = inicio.ToString("yyyy-MM-dd"),
+                    cantidad = movs.Count,
+                    totalIngresos = ingresos,
+                    totalEgresos = egresos,
+                    balance = ingresos - egresos,
+                    efectivo = movs.Where(m => m.Tipo == "ingreso" && m.MetodoPago == "efectivo").Sum(m => m.Monto),
+                    transferencia = movs.Where(m => m.Tipo == "ingreso" && m.MetodoPago == "transferencia").Sum(m => m.Monto),
+                    categorias = new
+                    {
+                        membresias = movs.Where(m => m.Tipo == "ingreso" && (m.Categoria == "membresia" || m.Categoria == "renovacion")).Sum(m => m.Monto),
+                        productos = movs.Where(m => m.Tipo == "ingreso" && m.Categoria == "producto").Sum(m => m.Monto),
+                        abonos = movs.Where(m => m.Tipo == "ingreso" && m.Categoria == "abono_deuda").Sum(m => m.Monto),
+                        otros = movs.Where(m => m.Tipo == "ingreso" && m.Categoria != "membresia" && m.Categoria != "renovacion" && m.Categoria != "producto" && m.Categoria != "abono_deuda").Sum(m => m.Monto)
+                    },
+                    data = movs.Select(m => new
+                    {
+                        m.Id,
+                        m.Tipo,
+                        m.Categoria,
+                        m.Monto,
+                        m.Descripcion,
+                        m.MetodoPago,
+                        fecha = m.Fecha.ToString("yyyy-MM-ddTHH:mm:ss"),
+                        m.Cerrado,
+                        m.CierreCajaId
+                    })
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener ventas del día");
+                return StatusCode(500, new { success = false, message = "Error al obtener ventas del día" });
+            }
+        }
+
         [HttpGet("diagnostico")]
         public async Task<IActionResult> Diagnostico([FromQuery] int? mes = null, [FromQuery] int? anio = null)
         {

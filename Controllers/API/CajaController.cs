@@ -51,6 +51,21 @@ namespace VidaFit.Controllers.API
                 .ToList();
         }
 
+        /// <summary>
+        /// Trae TODOS los movimientos del día (cerrados o pendientes).
+        /// Usado por Dashboard y GetMovimientosHoy para mostrar la realidad del día
+        /// incluso cuando ya se realizó el cierre.
+        /// </summary>
+        private async Task<List<MovimientoCaja>> ObtenerTodosMovimientosDelDiaAsync(DateTime fecha)
+        {
+            var inicio = fecha.Date;
+            var fin = inicio.AddDays(1);
+            return await _context.MovimientosCaja
+                .Where(m => m.Fecha >= inicio && m.Fecha < fin)
+                .OrderBy(m => m.Fecha)
+                .ToListAsync();
+        }
+
         private async Task<List<MovimientoCaja>> ObtenerTodosMovimientosPendientesAsync()
         {
             return await _context.MovimientosCaja
@@ -69,7 +84,8 @@ namespace VidaFit.Controllers.API
             try
             {
                 var hoy = DateTime.Now.Date;
-                var movimientosHoy = await ObtenerMovimientosPendientesPorFechaAsync(hoy);
+                // ✅ Todos los movimientos del día (pendientes + ya cerrados)
+                var movimientosHoy = await ObtenerTodosMovimientosDelDiaAsync(hoy);
 
                 var ingresosHoy = movimientosHoy.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto);
                 var egresosHoy = movimientosHoy.Where(m => m.Tipo == "egreso").Sum(m => m.Monto);
@@ -134,10 +150,11 @@ namespace VidaFit.Controllers.API
                 var hoy = DateTime.Now.Date;
                 var hace7Dias = hoy.AddDays(-6);
 
-                var movimientos = await _context.MovimientosCaja.ToListAsync();
-                var movimientosSemana = movimientos
-                    .Where(m => { var f = m.Fecha.Date; return f >= hace7Dias && f <= hoy; })
-                    .ToList();
+                // ✅ Filtrar directamente en SQL sin cargar toda la tabla
+                var fin7Dias = hoy.AddDays(1); // Para incluir hoy completo
+                var movimientosSemana = await _context.MovimientosCaja
+                    .Where(m => m.Fecha >= hace7Dias && m.Fecha < fin7Dias)
+                    .ToListAsync();
 
                 var resumenPorDia = new List<object>();
                 for (int i = 0; i < 7; i++)
@@ -198,7 +215,8 @@ namespace VidaFit.Controllers.API
             try
             {
                 var hoy = DateTime.Now.Date;
-                var movimientosHoy = await ObtenerMovimientosPendientesPorFechaAsync(hoy);
+                // ✅ Todos los movimientos del día (pendientes + ya cerrados)
+                var movimientosHoy = await ObtenerTodosMovimientosDelDiaAsync(hoy);
 
                 var ingresos = movimientosHoy.Where(m => m.Tipo == "ingreso").Sum(m => m.Monto);
                 var egresos = movimientosHoy.Where(m => m.Tipo == "egreso").Sum(m => m.Monto);
@@ -283,22 +301,22 @@ namespace VidaFit.Controllers.API
         {
             try
             {
+                // ✅ Filtrar en SQL directamente sin cargar toda la tabla
                 var query = _context.MovimientosCaja.AsQueryable();
                 if (soloPendientes) query = query.Where(m => !m.Cerrado);
-
-                var todosMovimientos = await query.OrderByDescending(m => m.Fecha).ToListAsync();
-                var movimientos = todosMovimientos;
 
                 if (!string.IsNullOrEmpty(desde))
                 {
                     var fechaDesde = DateTime.Parse(desde).Date;
-                    movimientos = movimientos.Where(m => m.Fecha.Date >= fechaDesde).ToList();
+                    query = query.Where(m => m.Fecha >= fechaDesde);
                 }
                 if (!string.IsNullOrEmpty(hasta))
                 {
-                    var fechaHasta = DateTime.Parse(hasta).Date;
-                    movimientos = movimientos.Where(m => m.Fecha.Date <= fechaHasta).ToList();
+                    var fechaHasta = DateTime.Parse(hasta).Date.AddDays(1);
+                    query = query.Where(m => m.Fecha < fechaHasta);
                 }
+
+                var movimientos = await query.OrderByDescending(m => m.Fecha).ToListAsync();
 
                 var resultado = movimientos.Select(m => new
                 {

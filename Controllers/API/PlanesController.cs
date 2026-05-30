@@ -91,8 +91,23 @@ namespace VidaFit.Controllers.API
             if (!TIPOS_VALIDOS.Contains(planDto.Tipo.ToLower()))
                 return BadRequest($"Tipo inválido '{planDto.Tipo}'. Solo se permite: semanal, mensual, personalizado");
 
-            if (planDto.DuracionDias <= 0)
-                return BadRequest("La duración debe ser mayor a 0");
+            // DuracionDias es obligatorio solo cuando el tipo de cálculo es "dias".
+            // Para meses/semanas/años el sistema calcula la fecha de vencimiento
+            // desde CantidadUnidades y no necesita DuracionDias > 0.
+            if (planDto.TipoCalculoVencimiento.ToLower() == "dias" && planDto.DuracionDias <= 0)
+                return BadRequest("La duración en días debe ser mayor a 0");
+
+            // Si el tipo no es días, calculamos DuracionDias automáticamente como referencia
+            if (planDto.TipoCalculoVencimiento.ToLower() != "dias" && planDto.DuracionDias <= 0)
+            {
+                planDto.DuracionDias = planDto.TipoCalculoVencimiento.ToLower() switch
+                {
+                    "meses" => planDto.CantidadUnidades * 30,
+                    "semanas" => planDto.CantidadUnidades * 7,
+                    "anios" => planDto.CantidadUnidades * 365,
+                    _ => planDto.CantidadUnidades
+                };
+            }
 
             if (planDto.Precio <= 0)
                 return BadRequest("El precio debe ser mayor a 0");
@@ -115,13 +130,13 @@ namespace VidaFit.Controllers.API
             {
                 Id = Guid.NewGuid(),
                 Nombre = planDto.Nombre,
-                Descripcion = planDto.Descripcion,
+                Descripcion = planDto.Descripcion ?? string.Empty,
                 Tipo = planDto.Tipo.ToLower(),
                 DuracionDias = planDto.DuracionDias,
                 TipoCalculoVencimiento = planDto.TipoCalculoVencimiento.ToLower(),  // 🆕 NUEVO
                 CantidadUnidades = planDto.CantidadUnidades,                        // 🆕 NUEVO
                 Precio = planDto.Precio,
-                Color = string.IsNullOrWhiteSpace(planDto.Color) ? "#00FF00" : planDto.Color,
+                Color = string.IsNullOrWhiteSpace(planDto.Color) ? "#10b981" : planDto.Color,
                 Activo = planDto.Activo,
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now
@@ -152,8 +167,10 @@ namespace VidaFit.Controllers.API
             if (!TIPOS_VALIDOS.Contains(plan.Tipo.ToLower()))
                 return BadRequest($"Tipo inválido '{plan.Tipo}'. Solo se permite: semanal, mensual, personalizado");
 
-            if (plan.DuracionDias <= 0)
-                return BadRequest("La duración debe ser mayor a 0");
+            // Mismo criterio que POST: DuracionDias obligatorio solo si tipo == "dias"
+            var tipoPut = plan.TipoCalculoVencimiento?.ToLower() ?? "dias";
+            if (tipoPut == "dias" && plan.DuracionDias <= 0)
+                return BadRequest("La duración en días debe ser mayor a 0");
 
             if (plan.Precio <= 0)
                 return BadRequest("El precio debe ser mayor a 0");
@@ -174,15 +191,34 @@ namespace VidaFit.Controllers.API
                 return BadRequest("Ya existe otro plan con ese nombre");
 
             dbPlan.Nombre = plan.Nombre;
-            dbPlan.Descripcion = plan.Descripcion;
+            dbPlan.Descripcion = plan.Descripcion ?? string.Empty;
             dbPlan.Tipo = plan.Tipo.ToLower();
-            dbPlan.DuracionDias = plan.DuracionDias;
-            dbPlan.TipoCalculoVencimiento = plan.TipoCalculoVencimiento?.ToLower() ?? "dias";  // 🆕 NUEVO
-            dbPlan.CantidadUnidades = plan.CantidadUnidades > 0 ? plan.CantidadUnidades : 1;   // 🆕 NUEVO
             dbPlan.Precio = plan.Precio;
             dbPlan.Color = plan.Color;
             dbPlan.Activo = plan.Activo;
             dbPlan.UpdatedAt = DateTime.Now;
+
+            // ✅ FIX: solo actualizar TipoCalculoVencimiento si viene explícito y válido.
+            // Si el frontend no lo manda (null/vacío), preservamos el valor actual en BD.
+            if (!string.IsNullOrWhiteSpace(plan.TipoCalculoVencimiento))
+                dbPlan.TipoCalculoVencimiento = plan.TipoCalculoVencimiento.ToLower();
+            // Si TipoCalculoVencimiento no cambió, tampoco pisamos DuracionDias ni CantidadUnidades
+            // a menos que el frontend los mande explícitamente con valores válidos.
+            if (plan.CantidadUnidades > 0)
+                dbPlan.CantidadUnidades = plan.CantidadUnidades;
+            if (plan.DuracionDias > 0)
+                dbPlan.DuracionDias = plan.DuracionDias;
+            else if (plan.DuracionDias <= 0 && !string.IsNullOrWhiteSpace(plan.TipoCalculoVencimiento))
+            {
+                // Recalcular DuracionDias de referencia si cambiaron unidades o tipo
+                dbPlan.DuracionDias = dbPlan.TipoCalculoVencimiento switch
+                {
+                    "meses" => dbPlan.CantidadUnidades * 30,
+                    "semanas" => dbPlan.CantidadUnidades * 7,
+                    "anios" => dbPlan.CantidadUnidades * 365,
+                    _ => dbPlan.DuracionDias  // dias: mantener el que ya tenía
+                };
+            }
 
             await _context.SaveChangesAsync();
             return NoContent();

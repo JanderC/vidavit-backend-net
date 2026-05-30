@@ -109,7 +109,22 @@
                                     </div>
                                     <div>
                                         <p class="text-sm text-gray-600">Duración</p>
-                                        <p class="font-bold text-gray-800">@plan.DuracionDias días</p>
+                                        <p class="font-bold text-gray-800">
+                                            @{
+                                                var tipoV = (plan.TipoCalculoVencimiento ?? "dias").ToLower();
+                                                var cantV = plan.CantidadUnidades;
+                                                string durLabel;
+                                                if (tipoV == "meses")
+                                                    durLabel = cantV == 1 ? "1 mes" : $"{cantV} meses";
+                                                else if (tipoV == "semanas")
+                                                    durLabel = cantV == 1 ? "1 semana" : $"{cantV} semanas";
+                                                else if (tipoV == "anios")
+                                                    durLabel = cantV == 1 ? "1 año" : $"{cantV} años";
+                                                else
+                                                    durLabel = $"{plan.DuracionDias} días";
+                                            }
+                                            @durLabel
+                                        </p>
                                     </div>
                                 </div>
 

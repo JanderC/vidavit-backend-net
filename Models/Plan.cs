@@ -17,7 +17,7 @@ namespace VidaFitBackend.Models
         public string Nombre { get; set; }
 
         [Column("descripcion")]
-        public string Descripcion { get; set; }
+        public string? Descripcion { get; set; }
 
         [Column("tipo")]
         [Required]
@@ -38,7 +38,7 @@ namespace VidaFitBackend.Models
         /// </summary>
         [Column("tipo_calculo_vencimiento")]
         [MaxLength(20)]
-        public string TipoCalculoVencimiento { get; set; } = "dias";
+        public string? TipoCalculoVencimiento { get; set; } = "dias";
 
         // 🆕 NUEVO CAMPO
         /// <summary>
@@ -58,7 +58,7 @@ namespace VidaFitBackend.Models
 
         [Column("color")]
         [MaxLength(7)]
-        public string Color { get; set; } = "#00FF00";
+        public string? Color { get; set; } = "#10b981";
 
         [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.Now;

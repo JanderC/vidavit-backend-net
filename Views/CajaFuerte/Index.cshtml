@@ -101,7 +101,11 @@
             </button>
             <button onclick="cambiarTab('consolidados')" id="tab-consolidados"
                     class="tab-cf-btn flex-shrink-0 px-6 py-4 font-black uppercase tracking-wide transition-all text-sm hover:bg-gray-50 text-gray-500 border-b-4 border-transparent">
-                <i data-lucide="archive" class="w-4 h-4 inline-block mr-1"></i> Consolidados Mensuales
+                <i data-lucide="archive" class="w-4 h-4 inline-block mr-1"></i> Consolidados
+            </button>
+            <button onclick="cambiarTab('financiero')" id="tab-financiero"
+                    class="tab-cf-btn flex-shrink-0 px-6 py-4 font-black uppercase tracking-wide transition-all text-sm hover:bg-gray-50 text-gray-500 border-b-4 border-transparent">
+                <i data-lucide="bar-chart-3" class="w-4 h-4 inline-block mr-1"></i> Resumen Financiero
             </button>
         </div>
 
@@ -217,6 +221,56 @@
                 <div class="text-center py-12 text-gray-400">
                     <i data-lucide="loader" class="w-8 h-8 mx-auto mb-2 animate-spin"></i>
                     <p>Cargando consolidados...</p>
+                </div>
+            </div>
+        </div>
+        <!-- ====== TAB RESUMEN FINANCIERO ====== -->
+        <div id="content-financiero" class="tab-cf-content hidden p-6">
+            <!-- Selector de mes -->
+            <div class="flex flex-wrap items-end gap-4 mb-6">
+                <div>
+                    <label class="block text-xs font-black text-gray-600 mb-1 uppercase">Mes</label>
+                    <select id="fin-mes" class="px-4 py-3 border-2 border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 font-semibold" onchange="cargarResumenFinanciero()">
+                        <option value="1">Enero</option>
+                        <option value="2">Febrero</option>
+                        <option value="3">Marzo</option>
+                        <option value="4">Abril</option>
+                        <option value="5">Mayo</option>
+                        <option value="6">Junio</option>
+                        <option value="7">Julio</option>
+                        <option value="8">Agosto</option>
+                        <option value="9">Septiembre</option>
+                        <option value="10">Octubre</option>
+                        <option value="11">Noviembre</option>
+                        <option value="12">Diciembre</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-black text-gray-600 mb-1 uppercase">Año</label>
+                    <input type="number" id="fin-anio" min="2020" max="2030"
+                           class="px-4 py-3 border-2 border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 font-semibold w-28"
+                           onchange="cargarResumenFinanciero()">
+                </div>
+                <button onclick="cargarResumenFinanciero()"
+                        class="px-5 py-3 bg-amber-600 hover:bg-amber-700 text-white font-black rounded-xl text-sm transition-all flex items-center gap-2">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i> Actualizar
+                </button>
+                <!-- Botón exportar Excel -->
+                <button onclick="exportarExcel()"
+                        class="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl text-sm transition-all flex items-center gap-2">
+                    <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Exportar Excel
+                </button>
+                <!-- Botón cerrar y consolidar mes (aparece solo cuando aplica) -->
+                <button id="btn-cerrar-mes" onclick="cerrarYConsolidarMes()" class="hidden px-5 py-3 bg-purple-700 hover:bg-purple-800 text-white font-black rounded-xl text-sm transition-all flex items-center gap-2 shadow-lg ring-2 ring-purple-300">
+                    <i data-lucide="archive" class="w-4 h-4"></i> Cerrar y Consolidar Mes
+                </button>
+            </div>
+
+            <!-- Contenido del resumen financiero -->
+            <div id="financiero-contenido">
+                <div class="text-center py-16 text-gray-400">
+                    <div class="animate-spin w-10 h-10 border-4 border-amber-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                    <p class="font-semibold">Cargando resumen financiero...</p>
                 </div>
             </div>
         </div>
@@ -589,6 +643,9 @@
             document.getElementById('consolidar-anio').value = hoy.getFullYear();
             document.getElementById('preview-mes').value = hoy.getMonth() + 1;
             document.getElementById('preview-anio').value = hoy.getFullYear();
+            // ✅ Inicializar selector del tab financiero
+            document.getElementById('fin-mes').value  = hoy.getMonth() + 1;
+            document.getElementById('fin-anio').value = hoy.getFullYear();
         });
 
         // =========================================================
@@ -1445,6 +1502,7 @@
             const btn = document.getElementById(`tab-${tab}`);
             if (btn) { btn.classList.add('border-amber-600','bg-amber-50','text-amber-700'); btn.classList.remove('text-gray-500','border-transparent'); }
             if (tab === 'consolidados') cargarConsolidados();
+            if (tab === 'financiero')   cargarResumenFinanciero();
         }
 
         function setVista(vista) {
@@ -1593,6 +1651,341 @@
             toast.classList.remove('hidden');
             toastTimeout = setTimeout(() => toast.classList.add('hidden'), 3500);
         }
+
+        // =========================================================
+        // RESUMEN FINANCIERO MENSUAL COMPLETO
+        // =========================================================
+        let _resumenMesData = null; // Cache para exportar
+
+        async function cargarResumenFinanciero() {
+            const mes  = document.getElementById('fin-mes').value;
+            const anio = document.getElementById('fin-anio').value;
+            const cont = document.getElementById('financiero-contenido');
+            const btnCerrar = document.getElementById('btn-cerrar-mes');
+
+            cont.innerHTML = `<div class="text-center py-16 text-gray-400">
+                <div class="animate-spin w-10 h-10 border-4 border-amber-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p class="font-semibold">Calculando resumen de ${document.getElementById('fin-mes').options[mes-1].text} ${anio}...</p>
+            </div>`;
+            btnCerrar.classList.add('hidden');
+
+            try {
+                const res  = await fetch(`/api/cajafuerte/resumen-mes?mes=${mes}&anio=${anio}`);
+                const data = await res.json();
+                if (!data.success) throw new Error(data.message);
+                _resumenMesData = data;
+
+                // Mostrar botón consolidar si el mes ya pasó y no está consolidado
+                if (data.esMesPasado && !data.yaConsolidado) {
+                    btnCerrar.classList.remove('hidden');
+                    btnCerrar.textContent = '';
+                    btnCerrar.innerHTML = `<i data-lucide="archive" class="w-4 h-4"></i> Cerrar y Consolidar ${data.mesNombre} ${anio}`;
+                    lucide.createIcons();
+                } else if (data.yaConsolidado) {
+                    btnCerrar.classList.add('hidden');
+                }
+
+                renderResumenFinanciero(data);
+            } catch(e) {
+                cont.innerHTML = `<div class="text-center py-12 text-red-500 font-semibold">${e.message || 'Error al cargar resumen'}</div>`;
+            }
+        }
+
+        function renderResumenFinanciero(data) {
+            const cont = document.getElementById('financiero-contenido');
+            const cd   = data.cajaDiaria;
+            const cf   = data.cajaFuerte;
+
+            let html = `
+            <!-- Badge estado del mes -->
+            <div class="flex items-center gap-3 mb-6 flex-wrap">
+                <h3 class="text-xl font-black text-gray-800">${data.periodo}</h3>
+                ${data.esMesActual  ? '<span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-black rounded-full uppercase">Mes en curso</span>' : ''}
+                ${data.esMesPasado && !data.yaConsolidado ? '<span class="px-3 py-1 bg-orange-100 text-orange-700 text-xs font-black rounded-full uppercase">⚠ Pendiente de consolidar</span>' : ''}
+                ${data.yaConsolidado ? '<span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-black rounded-full uppercase">✓ Consolidado</span>' : ''}
+            </div>
+
+            <!-- Tarjetas resumen ventas brutas (Caja Diaria) -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-gradient-to-br from-red-600 to-red-800 rounded-2xl p-5 text-white">
+                    <p class="text-xs font-black uppercase tracking-wide text-red-200 mb-1">Membresías</p>
+                    <p class="text-3xl font-black">${fmt(cd.membresias)}</p>
+                    <p class="text-xs text-red-200 mt-1">del mes</p>
+                </div>
+                <div class="bg-gradient-to-br from-amber-500 to-amber-700 rounded-2xl p-5 text-white">
+                    <p class="text-xs font-black uppercase tracking-wide text-amber-100 mb-1">Productos</p>
+                    <p class="text-3xl font-black">${fmt(cd.productos)}</p>
+                    <p class="text-xs text-amber-100 mt-1">vendidos</p>
+                </div>
+                <div class="bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-2xl p-5 text-white">
+                    <p class="text-xs font-black uppercase tracking-wide text-emerald-200 mb-1">Abonos Deuda</p>
+                    <p class="text-3xl font-black">${fmt(cd.abonos)}</p>
+                    <p class="text-xs text-emerald-200 mt-1">cobrados</p>
+                </div>
+                <div class="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-5 text-white">
+                    <p class="text-xs font-black uppercase tracking-wide text-blue-200 mb-1">Otros Ingresos</p>
+                    <p class="text-3xl font-black">${fmt(cd.otros)}</p>
+                    <p class="text-xs text-blue-200 mt-1">varios</p>
+                </div>
+            </div>
+
+            <!-- Balance Caja Fuerte del mes -->
+            <div class="grid md:grid-cols-2 gap-4 mb-6">
+                <div class="bg-white border-2 border-gray-200 rounded-2xl p-5 shadow-sm">
+                    <h4 class="text-sm font-black text-gray-700 uppercase tracking-wide mb-4 flex items-center gap-2">
+                        <i data-lucide="vault" class="w-4 h-4 text-amber-600"></i> Balance Caja Fuerte del Mes
+                    </h4>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center p-2 bg-emerald-50 rounded-lg">
+                            <span class="text-sm font-semibold text-gray-600">Ingresos Efectivo</span>
+                            <span class="font-black text-emerald-700">+${fmt(cf.ingresosEfectivo)}</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 bg-blue-50 rounded-lg">
+                            <span class="text-sm font-semibold text-gray-600">Ingresos Transferencia</span>
+                            <span class="font-black text-blue-700">+${fmt(cf.ingresosTransferencia)}</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 bg-red-50 rounded-lg">
+                            <span class="text-sm font-semibold text-gray-600">Egresos Efectivo</span>
+                            <span class="font-black text-red-600">-${fmt(cf.egresosEfectivo)}</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 bg-red-50 rounded-lg">
+                            <span class="text-sm font-semibold text-gray-600">Egresos Transferencia</span>
+                            <span class="font-black text-red-600">-${fmt(cf.egresosTransferencia)}</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-amber-50 border-2 border-amber-300 rounded-xl mt-2">
+                            <span class="text-base font-black text-gray-800 uppercase">Balance Neto CF</span>
+                            <span class="text-xl font-black ${cf.balance >= 0 ? 'text-emerald-700' : 'text-red-600'}">${fmt(cf.balance)}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white border-2 border-gray-200 rounded-2xl p-5 shadow-sm">
+                    <h4 class="text-sm font-black text-gray-700 uppercase tracking-wide mb-4 flex items-center gap-2">
+                        <i data-lucide="shopping-bag" class="w-4 h-4 text-amber-600"></i> Ventas Brutas (Caja Diaria)
+                    </h4>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
+                            <span class="text-sm font-semibold text-gray-600">Total Ingresos</span>
+                            <span class="font-black text-emerald-700">+${fmt(cd.totalCDIngresos)}</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
+                            <span class="text-sm font-semibold text-gray-600">Total Egresos</span>
+                            <span class="font-black text-red-600">-${fmt(cd.totalCDEgresos)}</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
+                            <span class="text-sm font-semibold text-gray-600">Movimientos registrados</span>
+                            <span class="font-black text-gray-800">${cd.cantidadMovimientos}</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-slate-50 border-2 border-slate-300 rounded-xl mt-2">
+                            <span class="text-base font-black text-gray-800 uppercase">Balance Neto Caja</span>
+                            <span class="text-xl font-black ${(cd.totalCDIngresos - cd.totalCDEgresos) >= 0 ? 'text-emerald-700' : 'text-red-600'}">${fmt(cd.totalCDIngresos - cd.totalCDEgresos)}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla por día -->
+            <div class="bg-white border-2 border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+                <div class="px-5 py-4 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+                    <h4 class="text-sm font-black text-gray-700 uppercase tracking-wide flex items-center gap-2">
+                        <i data-lucide="calendar" class="w-4 h-4 text-amber-600"></i>
+                        Detalle por Día — ${data.cantidadDiasConMovimientos} días con movimientos
+                    </h4>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gradient-to-r from-amber-600 to-amber-700 text-white">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-black uppercase">Fecha</th>
+                                <th class="px-4 py-3 text-right text-xs font-black uppercase">Membresías</th>
+                                <th class="px-4 py-3 text-right text-xs font-black uppercase">Productos</th>
+                                <th class="px-4 py-3 text-right text-xs font-black uppercase">Total Ingresos</th>
+                                <th class="px-4 py-3 text-right text-xs font-black uppercase">Egresos</th>
+                                <th class="px-4 py-3 text-right text-xs font-black uppercase">Balance</th>
+                                <th class="px-4 py-3 text-right text-xs font-black uppercase">Efectivo</th>
+                                <th class="px-4 py-3 text-right text-xs font-black uppercase">Transf.</th>
+                                <th class="px-4 py-3 text-center text-xs font-black uppercase">Movs</th>
+                                <th class="px-4 py-3 text-center text-xs font-black uppercase">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">`;
+
+            if (!data.resumenPorDia || data.resumenPorDia.length === 0) {
+                html += `<tr><td colspan="10" class="px-4 py-8 text-center text-gray-400 font-semibold">Sin movimientos en este período</td></tr>`;
+            } else {
+                let totalIng = 0, totalEgr = 0, totalMem = 0, totalProd = 0;
+                for (const d of data.resumenPorDia) {
+                    const bal = d.balance ?? (d.totalIngresos - d.totalEgresos);
+                    const balCls = bal >= 0 ? 'text-emerald-700' : 'text-red-600';
+                    const fechaD = parsearFechaLocal(d.fecha + 'T00:00:00');
+                    const diaNom = fechaD ? fechaD.toLocaleDateString('es-CO', { weekday:'short', day:'2-digit', month:'short' }) : d.fecha;
+                    totalIng  += d.totalIngresos || 0;
+                    totalEgr  += d.totalEgresos  || 0;
+                    totalMem  += d.membresias    || 0;
+                    totalProd += d.productos     || 0;
+                    html += `
+                        <tr class="hover:bg-amber-50/30 transition-all cursor-pointer" onclick="abrirDetalleDia('${d.fecha}', '${diaNom}')">
+                            <td class="px-4 py-3">
+                                <p class="font-bold text-gray-800 capitalize">${diaNom}</p>
+                            </td>
+                            <td class="px-4 py-3 text-right font-semibold text-red-700">${d.membresias > 0 ? fmt(d.membresias) : '—'}</td>
+                            <td class="px-4 py-3 text-right font-semibold text-amber-700">${d.productos > 0 ? fmt(d.productos) : '—'}</td>
+                            <td class="px-4 py-3 text-right font-black text-emerald-700">+${fmt(d.totalIngresos)}</td>
+                            <td class="px-4 py-3 text-right font-semibold text-red-600">${d.totalEgresos > 0 ? '-' + fmt(d.totalEgresos) : '—'}</td>
+                            <td class="px-4 py-3 text-right font-black ${balCls}">${bal >= 0 ? '+' : ''}${fmt(bal)}</td>
+                            <td class="px-4 py-3 text-right text-sm text-gray-600">${fmt(d.efectivo)}</td>
+                            <td class="px-4 py-3 text-right text-sm text-gray-600">${fmt(d.transferencia)}</td>
+                            <td class="px-4 py-3 text-center"><span class="px-2 py-1 bg-gray-100 rounded-full text-xs font-bold text-gray-600">${d.cantidadMovs}</span></td>
+                            <td class="px-4 py-3 text-center">
+                                ${d.yaCerrado
+                                    ? '<span class="px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold">Cerrado</span>'
+                                    : '<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">Pendiente</span>'}
+                            </td>
+                        </tr>`;
+                }
+                // Fila de totales
+                html += `
+                        <tr class="bg-amber-50 border-t-2 border-amber-300 font-black">
+                            <td class="px-4 py-4 text-sm uppercase text-amber-800">TOTAL ${data.mesNombre.toUpperCase()}</td>
+                            <td class="px-4 py-4 text-right text-red-700">+${fmt(totalMem)}</td>
+                            <td class="px-4 py-4 text-right text-amber-700">+${fmt(totalProd)}</td>
+                            <td class="px-4 py-4 text-right text-emerald-700">+${fmt(totalIng)}</td>
+                            <td class="px-4 py-4 text-right text-red-600">-${fmt(totalEgr)}</td>
+                            <td class="px-4 py-4 text-right ${(totalIng-totalEgr)>=0?'text-emerald-700':'text-red-600'}">${fmt(totalIng-totalEgr)}</td>
+                            <td colspan="4" class="px-4 py-4 text-center text-xs text-amber-700">Clic en un día para ver el detalle completo</td>
+                        </tr>`;
+            }
+
+            html += `</tbody></table></div></div>`;
+            cont.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        // =========================================================
+        // EXPORTAR A EXCEL (SheetJS)
+        // =========================================================
+        async function exportarExcel() {
+            const mes  = document.getElementById('fin-mes').value;
+            const anio = document.getElementById('fin-anio').value;
+            const mesNombre = document.getElementById('fin-mes').options[mes - 1].text;
+
+            showToast(`Preparando Excel de ${mesNombre} ${anio}...`, 'success');
+
+            try {
+                const res  = await fetch(`/api/cajafuerte/exportar-mes?mes=${mes}&anio=${anio}`);
+                const data = await res.json();
+                if (!data.success) throw new Error(data.message);
+
+                // Cargar SheetJS dinámicamente si no está disponible
+                if (typeof XLSX === 'undefined') {
+                    await new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+                        script.onload = resolve;
+                        script.onerror = reject;
+                        document.head.appendChild(script);
+                    });
+                }
+
+                const wb = XLSX.utils.book_new();
+
+                // ── Hoja 1: Movimientos detallados ──────────────────────────
+                const catMap = { membresia:'Membresía', renovacion:'Renovación', producto:'Producto',
+                    abono_deuda:'Abono Deuda', transferencia_cajafuerte:'Desde CF', otro:'Otro', salario:'Salario',
+                    servicio:'Servicio', compra:'Compra', mantenimiento:'Mantenimiento' };
+
+                const filasCabecera = [['Fecha', 'Hora', 'Tipo', 'Categoría', 'Método Pago', 'Descripción', 'Ingreso', 'Egreso', 'Estado']];
+                const filasDetalle  = data.filas.map(f => [
+                    f.fecha, f.hora,
+                    f.tipo === 'ingreso' ? 'Ingreso' : 'Egreso',
+                    catMap[f.categoria] || f.categoria || '',
+                    f.metodoPago === 'efectivo' ? 'Efectivo' : 'Transferencia',
+                    f.descripcion,
+                    f.tipo === 'ingreso' ? f.montoAbs : '',
+                    f.tipo === 'egreso'  ? f.montoAbs : '',
+                    f.cerrado ? 'Cerrado' : 'Pendiente'
+                ]);
+
+                const ws1 = XLSX.utils.aoa_to_sheet([...filasCabecera, ...filasDetalle]);
+                ws1['!cols'] = [{ wch: 12 }, { wch: 6 }, { wch: 10 }, { wch: 16 }, { wch: 14 }, { wch: 40 }, { wch: 12 }, { wch: 12 }, { wch: 10 }];
+                XLSX.utils.book_append_sheet(wb, ws1, 'Movimientos');
+
+                // ── Hoja 2: Resumen por día ──────────────────────────────────
+                const diasCabecera  = [['Fecha', 'Membresías', 'Productos', 'Total Ingresos', 'Egresos', 'Balance', 'Efectivo', 'Transferencia', 'Movimientos']];
+                const diasDetalle   = data.resumenDias.map(d => [
+                    d.fecha, d.membresias, d.productos,
+                    d.ingresos, d.egresos, d.balance,
+                    d.efectivo, d.transferencia, d.cantidadMovs
+                ]);
+                // Fila de totales
+                const totIng  = data.resumen.totalIngresos;
+                const totEgr  = data.resumen.totalEgresos;
+                diasDetalle.push(['TOTAL', '', '', totIng, totEgr, totIng - totEgr, '', '', data.resumen.totalMovimientos]);
+
+                const ws2 = XLSX.utils.aoa_to_sheet([...diasCabecera, ...diasDetalle]);
+                ws2['!cols'] = [{ wch: 12 }, { wch: 14 }, { wch: 14 }, { wch: 16 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 12 }];
+                XLSX.utils.book_append_sheet(wb, ws2, 'Resumen por Día');
+
+                // ── Hoja 3: Resumen del mes ──────────────────────────────────
+                const resFilas = [
+                    ['RESUMEN FINANCIERO — ' + data.periodo.toUpperCase()],
+                    [],
+                    ['Generado el', data.generadoEn],
+                    [],
+                    ['VENTAS BRUTAS (CAJA DIARIA)'],
+                    ['Total Ingresos',       data.resumen.totalIngresos],
+                    ['Total Egresos',        data.resumen.totalEgresos],
+                    ['Balance Neto',         data.resumen.balance],
+                    ['Días con Movimientos', data.resumen.diasConMovimientos],
+                    ['Cantidad Cierres',     data.resumen.cantidadCierres],
+                    ['Total Movimientos',    data.resumen.totalMovimientos],
+                ];
+                const ws3 = XLSX.utils.aoa_to_sheet(resFilas);
+                ws3['!cols'] = [{ wch: 30 }, { wch: 18 }];
+                XLSX.utils.book_append_sheet(wb, ws3, 'Resumen');
+
+                // ── Descargar ────────────────────────────────────────────────
+                XLSX.writeFile(wb, `CajaFuerte_${mesNombre}_${anio}.xlsx`);
+                showToast(`Excel de ${mesNombre} ${anio} descargado`, 'success');
+
+            } catch(e) {
+                console.error(e);
+                showToast('Error al generar el Excel: ' + e.message, 'error');
+            }
+        }
+
+        // =========================================================
+        // CERRAR Y CONSOLIDAR MES (desde botón en tab financiero)
+        // =========================================================
+        async function cerrarYConsolidarMes() {
+            const mes  = parseInt(document.getElementById('fin-mes').value);
+            const anio = parseInt(document.getElementById('fin-anio').value);
+            const mesNombre = document.getElementById('fin-mes').options[mes - 1].text;
+
+            if (!confirm(`¿Consolidar ${mesNombre} ${anio}?\n\nEsto archiva el mes. Los movimientos no se modifican y pueden seguir viéndose. Si no presionas este botón el mes sigue visible igual.`)) return;
+
+            try {
+                const res  = await fetch('/api/cajafuerte/consolidar-mes', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mes, anio })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    document.getElementById('btn-cerrar-mes').classList.add('hidden');
+                    cargarResumenFinanciero();
+                } else {
+                    showToast(data.message || 'Error al consolidar', 'error');
+                }
+            } catch(e) {
+                showToast('Error de conexión', 'error');
+            }
+        }
+
+        window.cargarResumenFinanciero = cargarResumenFinanciero;
+        window.exportarExcel           = exportarExcel;
+        window.cerrarYConsolidarMes    = cerrarYConsolidarMes;
+
          document.querySelectorAll('input[type="number"]').forEach(function(input) {
             input.addEventListener('wheel', function(e) {
                 e.preventDefault();
