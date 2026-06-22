@@ -1,103 +1,306 @@
 @{
     ViewData["Title"] = "Crear Membresía";
-    ViewData["Subtitle"] = "Nueva membresía con opción de pago parcial - TAURO GYM";
+    ViewData["Subtitle"] = "Nueva membresía con opción de pago parcial - POWER FITNESS";
     Layout = "_AdminLayout";
 }
 
-<div class="max-w-4xl mx-auto">
-    <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
-        <div class="flex items-center gap-4 mb-8 pb-6 border-b-2 border-gray-200">
-            <div class="bg-gradient-to-br from-red-600 to-red-800 rounded-xl p-4">
-                <i data-lucide="credit-card" class="w-8 h-8 text-white"></i>
+<style>
+    .pf-input {
+        width: 100%; padding: 13px 16px;
+        background: rgba(255,255,255,0.04); border: 1px solid rgba(30,111,227,0.2);
+        border-radius: 12px; color: #fff; font-size: 0.9rem; font-weight: 600;
+        font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .pf-input::placeholder { color: rgba(255,255,255,0.2); }
+    .pf-input:focus { border-color: #1E6FE3; box-shadow: 0 0 0 3px rgba(30,111,227,0.15); }
+
+    .pf-label {
+        display: block; font-size: 0.68rem; font-weight: 800;
+        letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 8px;
+    }
+
+    .pf-select {
+        width: 100%; padding: 13px 16px;
+        background: rgba(255,255,255,0.04); border: 1px solid rgba(30,111,227,0.2);
+        border-radius: 12px; color: #fff; font-size: 0.9rem; font-weight: 600;
+        font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s;
+    }
+    .pf-select:focus { border-color: #1E6FE3; }
+    .pf-select option { background: #0D0D20; color: #fff; }
+
+    /* Modal overlay */
+    .pf-overlay {
+        display: none; position: fixed; inset: 0;
+        background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);
+        z-index: 9999; align-items: center; justify-content: center; padding: 16px;
+    }
+    .pf-overlay.show { display: flex; }
+
+    .pf-modal {
+        background: #0D0D20; border: 1px solid rgba(30,111,227,0.2);
+        border-radius: 20px; width: 100%; max-width: 520px;
+        box-shadow: 0 32px 80px rgba(0,0,0,0.6); overflow: hidden;
+    }
+
+    .pf-modal-header {
+        background: linear-gradient(135deg,#1E6FE3,#6B3FA0);
+        padding: 22px 28px; text-align: center;
+    }
+
+    .cfm-row {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 12px 14px; border-radius: 10px;
+    }
+
+    /* Toast */
+    .pf-toast {
+        position: fixed; bottom: 24px; right: 24px; z-index: 10000;
+        padding: 14px 20px; border-radius: 12px; font-weight: 700; font-size: 0.85rem;
+        box-shadow: 0 12px 32px rgba(0,0,0,0.5); transition: opacity 0.3s;
+        display: flex; align-items: center; gap: 8px;
+    }
+
+    /* Spinner */
+    .btn-spinner {
+        width: 15px; height: 15px; border: 2px solid rgba(255,255,255,0.3);
+        border-top-color: #fff; border-radius: 50%;
+        animation: spin 0.7s linear infinite; flex-shrink: 0;
+    }
+    @@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+
+<!-- Modal Confirmación -->
+<div id="modalConfirmarMembresia" class="pf-overlay">
+    <div class="pf-modal">
+        <div class="pf-modal-header">
+            <i data-lucide="credit-card" style="width:28px;height:28px;color:#fff;margin:0 auto 8px;display:block;"></i>
+            <h3 style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:3px;color:#fff;margin:0;">Confirmar Membresía</h3>
+        </div>
+        <div style="padding:22px 24px;display:flex;flex-direction:column;gap:10px;">
+            <div class="cfm-row" style="background:rgba(30,111,227,0.08);border:1px solid rgba(30,111,227,0.15);">
+                <span style="font-size:0.65rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#3D8EFF;">Cliente</span>
+                <span style="font-weight:800;color:#fff;font-size:0.9rem;" id="cfm-cliente"></span>
+            </div>
+            <div class="cfm-row" style="background:rgba(107,63,160,0.08);border:1px solid rgba(107,63,160,0.15);">
+                <span style="font-size:0.65rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#a78bfa;">Plan</span>
+                <span style="font-weight:800;color:#fff;font-size:0.9rem;" id="cfm-plan"></span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px 14px;">
+                    <p style="font-size:0.6rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:0 0 4px 0;">Inicio</p>
+                    <p style="font-weight:800;color:#fff;margin:0;" id="cfm-inicio"></p>
+                </div>
+                <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px 14px;">
+                    <p style="font-size:0.6rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:0 0 4px 0;">Vence</p>
+                    <p style="font-weight:800;color:#fff;margin:0;" id="cfm-vence"></p>
+                </div>
+            </div>
+            <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:12px;display:flex;flex-direction:column;gap:8px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:0.85rem;font-weight:800;color:rgba(255,255,255,0.6);">Total del Plan</span>
+                    <span style="font-size:1.1rem;font-weight:900;color:#fff;" id="cfm-total"></span>
+                </div>
+                <div id="cfm-pago-row" style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:0.8rem;color:rgba(255,255,255,0.4);">Paga Ahora</span>
+                    <span style="font-weight:800;color:#10B981;" id="cfm-paga-ahora"></span>
+                </div>
+                <div id="cfm-deuda-row" style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:0.8rem;color:rgba(255,255,255,0.4);">Queda a Deber</span>
+                    <span style="font-weight:800;color:#F87171;" id="cfm-deuda"></span>
+                </div>
+            </div>
+            <div id="cfm-tipo-badge" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;border:1px solid;">
+                <i data-lucide="banknote" style="width:16px;height:16px;"></i>
+                <div>
+                    <p style="font-weight:800;font-size:0.78rem;text-transform:uppercase;letter-spacing:1px;margin:0;" id="cfm-tipo-texto"></p>
+                    <p style="font-size:0.72rem;opacity:0.7;margin:2px 0 0 0;" id="cfm-metodo-texto"></p>
+                </div>
+            </div>
+        </div>
+        <div style="display:flex;gap:10px;padding:0 24px 24px;">
+            <button onclick="cerrarModalConfirmarMembresia()"
+                    style="flex:1;padding:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:rgba(255,255,255,0.5);font-weight:800;font-size:0.78rem;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:background 0.15s;"
+                    onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+                Cancelar
+            </button>
+            <button onclick="ejecutarCrearMembresia()"
+                    style="flex:1;padding:12px;background:linear-gradient(135deg,#1E6FE3,#6B3FA0);color:#fff;border:none;border-radius:10px;font-weight:800;font-size:0.78rem;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:opacity 0.2s;"
+                    onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'">
+                <i data-lucide="check" style="width:15px;height:15px;display:inline;margin-right:4px;"></i>
+                Confirmar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Loading -->
+<div id="modalLoadingMembresia" class="pf-overlay">
+    <div style="background:#0D0D20;border:1px solid rgba(30,111,227,0.2);border-radius:20px;padding:40px;text-align:center;max-width:360px;width:100%;">
+        <div style="width:64px;height:64px;border:4px solid rgba(30,111,227,0.2);border-left-color:#1E6FE3;border-radius:50%;margin:0 auto 20px;animation:spin 0.9s linear infinite;"></div>
+        <p style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:3px;color:#fff;margin:0 0 8px 0;">Creando Membresía</p>
+        <p style="font-size:0.8rem;color:rgba(255,255,255,0.4);font-weight:600;margin:0 0 16px 0;">Registrando en el sistema, por favor espere...</p>
+        <div style="height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;">
+            <div style="height:100%;width:70%;background:linear-gradient(90deg,#1E6FE3,#6B3FA0);border-radius:2px;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Comprobante -->
+<div id="modalDetalleMem" class="pf-overlay">
+    <div class="pf-modal">
+        <div style="background:linear-gradient(135deg,#0E5C2E,#10B981);padding:22px 28px;border-radius:20px 20px 0 0;text-align:center;">
+            <div style="width:56px;height:56px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                <i data-lucide="check-circle" style="width:28px;height:28px;color:#fff;"></i>
+            </div>
+            <h3 style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:3px;color:#fff;margin:0 0 4px 0;">¡Membresía Creada!</h3>
+            <p style="font-size:0.78rem;color:rgba(255,255,255,0.65);margin:0;" id="det-fecha-registro"></p>
+        </div>
+        <div style="padding:22px 24px;display:flex;flex-direction:column;gap:10px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div style="background:rgba(30,111,227,0.08);border:1px solid rgba(30,111,227,0.15);border-radius:10px;padding:12px 14px;">
+                    <p style="font-size:0.6rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#3D8EFF;margin:0 0 4px 0;">Cliente</p>
+                    <p style="font-weight:800;color:#fff;font-size:0.85rem;margin:0;" id="det-cliente"></p>
+                </div>
+                <div style="background:rgba(107,63,160,0.08);border:1px solid rgba(107,63,160,0.15);border-radius:10px;padding:12px 14px;">
+                    <p style="font-size:0.6rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#a78bfa;margin:0 0 4px 0;">Plan</p>
+                    <p style="font-weight:800;color:#fff;font-size:0.85rem;margin:0;" id="det-plan"></p>
+                </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px 14px;">
+                    <p style="font-size:0.6rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:0 0 4px 0;">Inicio</p>
+                    <p style="font-weight:700;color:#fff;margin:0;font-size:0.85rem;" id="det-inicio"></p>
+                </div>
+                <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px 14px;">
+                    <p style="font-size:0.6rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:0 0 4px 0;">Vencimiento</p>
+                    <p style="font-weight:700;color:#fff;margin:0;font-size:0.85rem;" id="det-vence"></p>
+                </div>
+            </div>
+            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:8px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:800;color:rgba(255,255,255,0.7);">Total Plan</span>
+                    <span style="font-size:1.1rem;font-weight:900;color:#fff;" id="det-total"></span>
+                </div>
+                <div id="det-pagado-row" style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,0.06);padding-top:8px;">
+                    <span style="font-size:0.82rem;color:rgba(255,255,255,0.4);">Pagado Ahora</span>
+                    <span style="font-weight:800;color:#10B981;" id="det-pagado"></span>
+                </div>
+                <div id="det-deuda-row" style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:0.82rem;color:rgba(255,255,255,0.4);">Deuda Registrada</span>
+                    <span style="font-weight:800;color:#F87171;" id="det-deuda"></span>
+                </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(217,119,6,0.06);border:1px solid rgba(217,119,6,0.15);border-radius:10px;">
+                <span style="font-size:0.65rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#D97706;">Método de Pago</span>
+                <span style="font-weight:800;color:#fff;text-transform:capitalize;" id="det-metodo"></span>
+            </div>
+            <div id="det-deuda-alert" style="display:none;padding:12px 14px;background:rgba(217,119,6,0.06);border:1px solid rgba(217,119,6,0.2);border-radius:10px;">
+                <p style="font-size:0.8rem;font-weight:700;color:#D97706;margin:0;">📝 Se generó automáticamente una deuda por el saldo pendiente.</p>
+            </div>
+        </div>
+        <div style="display:flex;gap:10px;padding:0 24px 24px;">
+            <button onclick="nuevaMembresia()"
+                    style="flex:1;padding:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:rgba(255,255,255,0.5);font-weight:800;font-size:0.78rem;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:background 0.15s;"
+                    onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+                Nueva Membresía
+            </button>
+            <a href="/membresias"
+               style="flex:1;padding:12px;background:linear-gradient(135deg,#1E6FE3,#6B3FA0);color:#fff;border-radius:10px;font-weight:800;font-size:0.78rem;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;text-align:center;display:flex;align-items:center;justify-content:center;">
+                Ir a Membresías
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Formulario -->
+<div style="max-width:860px;margin:0 auto;">
+    <div style="background:#0D0D20;border:1px solid rgba(30,111,227,0.15);border-radius:16px;padding:32px;">
+
+        <!-- Header -->
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid rgba(30,111,227,0.12);">
+            <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#1E6FE3,#6B3FA0);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i data-lucide="credit-card" style="width:24px;height:24px;color:#fff;"></i>
             </div>
             <div>
-                <h2 class="text-3xl font-black text-gray-900 uppercase tracking-wide">Nueva Membresía</h2>
-                <p class="text-sm text-gray-600 font-semibold mt-1">Registrar membresía con opción de pago parcial</p>
+                <h2 style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:3px;color:#fff;margin:0;line-height:1;">Nueva Membresía</h2>
+                <p style="font-size:0.78rem;color:rgba(255,255,255,0.35);margin:4px 0 0 0;font-weight:600;">Registrar membresía con opción de pago parcial</p>
             </div>
         </div>
 
-        <form id="membresiaForm" class="space-y-6">
-            <!-- CLIENTE -->
-            <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Buscar Cliente *</label>
-                <div class="relative">
+        <form id="membresiaForm" style="display:flex;flex-direction:column;gap:22px;">
+
+            <!-- Cliente -->
+            <div style="position:relative;">
+                <label class="pf-label">Buscar Cliente *</label>
+                <div style="position:relative;">
                     <input type="text" id="clienteBuscar" placeholder="Buscar por nombre, apellido o cédula..."
-                           class="w-full px-4 py-3 pr-12 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 text-gray-900 bg-white font-semibold"
-                           autocomplete="off">
-                    <i data-lucide="search" class="absolute right-4 top-4 w-5 h-5 text-gray-400"></i>
+                           class="pf-input" style="padding-right:44px;" autocomplete="off">
+                    <i data-lucide="search" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:rgba(255,255,255,0.25);pointer-events:none;"></i>
                 </div>
-
-                <div id="clienteResultados" class="hidden absolute z-10 mt-1 w-full bg-white border-2 border-gray-300 rounded-xl shadow-xl max-h-64 overflow-y-auto">
-                </div>
-
-                <div id="clienteSeleccionado" class="hidden mt-3 p-5 bg-emerald-50 border-2 border-emerald-500 rounded-xl">
-                    <div class="flex items-center justify-between">
+                <div id="clienteResultados" style="display:none;position:absolute;z-index:20;top:100%;left:0;right:0;background:#0D0D20;border:1px solid rgba(30,111,227,0.25);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,0.5);max-height:240px;overflow-y:auto;margin-top:4px;"></div>
+                <div id="clienteSeleccionado" style="display:none;margin-top:10px;padding:14px 16px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:12px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;">
                         <div>
-                            <p class="font-black text-emerald-900 text-lg uppercase tracking-wide" id="clienteNombre"></p>
-                            <p class="text-sm text-emerald-700 font-bold" id="clienteCedula"></p>
+                            <p style="font-weight:800;color:#fff;margin:0 0 3px 0;" id="clienteNombre"></p>
+                            <p style="font-size:0.78rem;color:rgba(255,255,255,0.4);margin:0;" id="clienteCedula"></p>
                         </div>
-                        <button type="button" onclick="limpiarCliente()" class="text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded-lg transition-all">
-                            <i data-lucide="x" class="w-6 h-6"></i>
+                        <button type="button" onclick="limpiarCliente()"
+                                style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#F87171;transition:background 0.15s;"
+                                onmouseover="this.style.background='rgba(248,113,113,0.18)'" onmouseout="this.style.background='rgba(248,113,113,0.08)'">
+                            <i data-lucide="x" style="width:15px;height:15px;"></i>
                         </button>
                     </div>
                 </div>
-
                 <input type="hidden" name="clienteId" id="clienteId" required>
             </div>
 
-            <!-- PLAN -->
+            <!-- Plan -->
             <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Plan *</label>
-                <select name="planId" id="planSelect" required
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 text-gray-900 bg-white font-semibold">
-                    <option value="" class="text-gray-500">Seleccione un plan...</option>
+                <label class="pf-label">Plan *</label>
+                <select name="planId" id="planSelect" required class="pf-select">
+                    <option value="">Seleccione un plan...</option>
                 </select>
-                <div id="planInfo" class="mt-3 p-4 bg-blue-50 border-2 border-blue-500 rounded-xl text-sm text-blue-900 font-bold hidden"></div>
+                <div id="planInfo" style="display:none;margin-top:8px;padding:12px 14px;background:rgba(30,111,227,0.06);border:1px solid rgba(30,111,227,0.18);border-radius:10px;font-size:0.82rem;color:#7EB8FF;font-weight:700;"></div>
             </div>
 
-            <!-- FECHAS -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Fechas -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
                 <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Fecha Inicio *</label>
-                    <input type="date" name="fechaInicio" id="fechaInicio" required
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 text-gray-900 font-semibold">
+                    <label class="pf-label">Fecha Inicio *</label>
+                    <input type="date" name="fechaInicio" id="fechaInicio" required class="pf-input">
                 </div>
-
                 <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Fecha Vencimiento</label>
+                    <label class="pf-label">Fecha Vencimiento</label>
                     <input type="date" name="fechaVencimiento" id="fechaVencimiento" readonly
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl bg-gray-100 text-gray-900 font-semibold">
+                           class="pf-input" style="opacity:0.6;cursor:not-allowed;">
                 </div>
             </div>
 
-            <!-- PRECIO DEL PLAN (DISPLAY) -->
-            <div id="precioContainer" class="hidden p-5 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-400 rounded-xl">
-                <div class="flex items-center justify-between">
+            <!-- Precio display -->
+            <div id="precioContainer" style="display:none;padding:18px 20px;background:rgba(30,111,227,0.06);border:1px solid rgba(30,111,227,0.18);border-radius:12px;display:none;">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
                     <div>
-                        <p class="text-sm text-blue-700 font-bold uppercase tracking-wide">Precio Total del Plan:</p>
-                        <p class="text-3xl font-black text-blue-900" id="precioPlan">$0.00</p>
+                        <p style="font-size:0.65rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(30,111,227,0.7);margin:0 0 4px 0;">Precio Total del Plan</p>
+                        <p style="font-size:2rem;font-weight:900;color:#fff;margin:0;" id="precioPlan">$0.00</p>
                     </div>
-                    <div class="bg-blue-200 p-3 rounded-xl">
-                        <i data-lucide="dollar-sign" class="w-8 h-8 text-blue-700"></i>
+                    <div style="width:44px;height:44px;border-radius:12px;background:rgba(30,111,227,0.12);display:flex;align-items:center;justify-content:center;">
+                        <i data-lucide="dollar-sign" style="width:22px;height:22px;color:#3D8EFF;"></i>
                     </div>
                 </div>
             </div>
 
-            <!-- MONTO PAGADO Y MÉTODO -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Monto + método -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
                 <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
-                        Monto a Pagar Ahora *
-                        <span class="text-xs text-gray-500 normal-case">(Puede pagar menos del total)</span>
+                    <label class="pf-label">Monto a Pagar Ahora *
+                        <span style="font-size:0.6rem;color:rgba(255,255,255,0.25);normal-case;text-transform:none;">(puede ser parcial)</span>
                     </label>
                     <input type="number" step="0.01" min="0" name="montoPagado" id="montoPagado" required
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 text-gray-900 font-semibold text-lg">
+                           class="pf-input" style="font-size:1.1rem;">
                 </div>
-
                 <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Método de Pago *</label>
-                    <select name="metodoPago" required
-                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 text-gray-900 bg-white font-semibold">
+                    <label class="pf-label">Método de Pago *</label>
+                    <select name="metodoPago" required class="pf-select">
                         <option value="efectivo">Efectivo</option>
                         <option value="tarjeta">Tarjeta</option>
                         <option value="transferencia">Transferencia</option>
@@ -105,241 +308,68 @@
                 </div>
             </div>
 
-            <!-- ALERTA DE SALDO PENDIENTE -->
-            <div id="saldoPendienteAlert" class="hidden p-5 bg-gradient-to-r from-orange-50 to-red-50 border-2 border-orange-400 rounded-xl">
-                <div class="flex items-start gap-4">
-                    <div class="bg-orange-200 p-3 rounded-xl">
-                        <i data-lucide="alert-triangle" class="w-8 h-8 text-orange-700"></i>
+            <!-- Alerta saldo pendiente -->
+            <div id="saldoPendienteAlert" style="display:none;padding:16px 18px;background:rgba(217,119,6,0.06);border:1px solid rgba(217,119,6,0.2);border-radius:12px;">
+                <h4 style="font-size:0.78rem;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:#D97706;margin:0 0 12px 0;"></h4>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div>
+                        <p style="font-size:0.65rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin:0 0 4px 0;">Monto a Pagar</p>
+                        <p style="font-size:1.4rem;font-weight:900;color:#D97706;margin:0;" id="montoPagandoDisplay">$0.00</p>
                     </div>
-                    <div class="flex-1">
-                        <h4 class="font-black text-orange-900 text-lg uppercase tracking-wide mb-2">⚠️ Pago Parcial Detectado</h4>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <p class="text-sm text-orange-700 font-bold">Monto a Pagar:</p>
-                                <p class="text-2xl font-black text-orange-900" id="montoPagandoDisplay">$0.00</p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-red-700 font-bold">Saldo a Deber:</p>
-                                <p class="text-2xl font-black text-red-600" id="saldoDeberDisplay">$0.00</p>
-                            </div>
-                        </div>
-                        <p class="text-sm text-orange-800 font-bold mt-3 bg-orange-100 p-3 rounded-lg border border-orange-300">
-                            📝 Se creará automáticamente una DEUDA por el saldo pendiente
-                        </p>
+                    <div>
+                        <p style="font-size:0.65rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin:0 0 4px 0;">Saldo a Deber</p>
+                        <p style="font-size:1.4rem;font-weight:900;color:#F87171;margin:0;" id="saldoDeberDisplay">$0.00</p>
                     </div>
                 </div>
+                <p style="font-size:0.78rem;color:rgba(255,255,255,0.45);font-weight:700;margin:10px 0 0 0;padding:8px 12px;background:rgba(217,119,6,0.08);border-radius:8px;">
+                    📝 Se creará automáticamente una deuda por el saldo pendiente
+                </p>
             </div>
 
-            <!-- INFORMACIÓN DE DURACIÓN -->
-            <div id="duracionInfo" class="hidden">
-                <div class="bg-emerald-50 border-2 border-emerald-500 rounded-xl p-5">
-                    <div class="flex items-center gap-2 mb-4">
-                        <i data-lucide="calendar" class="w-6 h-6 text-emerald-600"></i>
-                        <h4 class="font-black text-emerald-900 uppercase tracking-wide">Duración de la Membresía</h4>
+            <!-- Duración info -->
+            <div id="duracionInfo" style="display:none;">
+                <div style="padding:16px 18px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.18);border-radius:12px;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+                        <i data-lucide="calendar" style="width:16px;height:16px;color:#10B981;"></i>
+                        <span style="font-size:0.68rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#10B981;">Duración de la Membresía</span>
                     </div>
-                    <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
                         <div>
-                            <p class="text-emerald-700 font-bold uppercase tracking-wide">Total de días:</p>
-                            <p class="font-black text-emerald-900 text-2xl" id="totalDias">-</p>
+                            <p style="font-size:0.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:0 0 4px 0;">Total</p>
+                            <p style="font-size:1.5rem;font-weight:900;color:#fff;margin:0;" id="totalDias">—</p>
                         </div>
                         <div>
-                            <p class="text-emerald-700 font-bold uppercase tracking-wide">Vence el:</p>
-                            <p class="font-black text-emerald-900 text-lg" id="fechaVencTexto">-</p>
+                            <p style="font-size:0.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:0 0 4px 0;">Vence el</p>
+                            <p style="font-weight:700;color:rgba(255,255,255,0.8);margin:0;" id="fechaVencTexto">—</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- NOTAS -->
+            <!-- Notas -->
             <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Notas (Opcional)</label>
-                <textarea name="notas" rows="2" placeholder="Ingrese notas adicionales..."
-                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 text-gray-900 font-semibold"></textarea>
+                <label class="pf-label">Notas (Opcional)</label>
+                <textarea name="notas" rows="2" placeholder="Ingrese notas adicionales..." class="pf-input"></textarea>
             </div>
 
-            <!-- BOTONES -->
-            <div class="flex gap-4 pt-6 border-t-2 border-gray-200">
+            <!-- Botones -->
+            <div style="display:flex;gap:12px;padding-top:20px;border-top:1px solid rgba(30,111,227,0.12);">
                 <button type="submit"
-                        class="flex-1 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black py-4 px-6 rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
-                    <i data-lucide="check-circle" class="w-5 h-5 inline mr-2"></i>
+                        style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;background:linear-gradient(135deg,#1E6FE3,#6B3FA0);color:#fff;font-weight:800;font-size:0.85rem;letter-spacing:1.5px;text-transform:uppercase;border:none;border-radius:12px;cursor:pointer;transition:opacity 0.2s,transform 0.2s;"
+                        onmouseover="this.style.opacity='0.88';this.style.transform='scale(1.02)'"
+                        onmouseout="this.style.opacity='1';this.style.transform='scale(1)'">
+                    <i data-lucide="check-circle" style="width:18px;height:18px;"></i>
                     Crear Membresía
                 </button>
                 <a href="/membresias"
-                   class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 font-black py-4 px-6 rounded-xl transition-all text-center uppercase tracking-wide">
-                    <i data-lucide="x-circle" class="w-5 h-5 inline mr-2"></i>
+                   style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.5);font-weight:800;font-size:0.85rem;letter-spacing:1.5px;text-transform:uppercase;border:1px solid rgba(255,255,255,0.08);border-radius:12px;text-decoration:none;transition:all 0.15s;"
+                   onmouseover="this.style.background='rgba(255,255,255,0.08)';this.style.color='rgba(255,255,255,0.8)'"
+                   onmouseout="this.style.background='rgba(255,255,255,0.04)';this.style.color='rgba(255,255,255,0.5)'">
+                    <i data-lucide="x-circle" style="width:18px;height:18px;"></i>
                     Cancelar
                 </a>
             </div>
         </form>
-    </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- MODAL: CONFIRMACIÓN DE MEMBRESÍA                    -->
-<!-- ═══════════════════════════════════════════════════ -->
-<div id="modalConfirmarMembresia" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg transform transition-all">
-        <div class="bg-gradient-to-r from-red-600 to-red-800 text-white px-8 py-6 rounded-t-3xl">
-            <h3 class="text-2xl font-black uppercase tracking-wide flex items-center gap-3">
-                <i data-lucide="credit-card" class="w-7 h-7"></i>
-                Confirmar Membresía
-            </h3>
-        </div>
-        <div class="p-8 space-y-4">
-            <!-- Cliente -->
-            <div class="flex justify-between items-center p-4 bg-blue-50 rounded-xl border border-blue-200">
-                <span class="text-sm font-black text-blue-600 uppercase">Cliente</span>
-                <span class="font-black text-gray-900" id="cfm-cliente"></span>
-            </div>
-            <!-- Plan -->
-            <div class="flex justify-between items-center p-4 bg-purple-50 rounded-xl border border-purple-200">
-                <span class="text-sm font-black text-purple-600 uppercase">Plan</span>
-                <span class="font-black text-gray-900" id="cfm-plan"></span>
-            </div>
-            <!-- Fechas -->
-            <div class="grid grid-cols-2 gap-3">
-                <div class="p-4 bg-gray-50 rounded-xl border border-gray-200">
-                    <p class="text-xs font-black text-gray-500 uppercase">Inicio</p>
-                    <p class="font-black text-gray-900" id="cfm-inicio"></p>
-                </div>
-                <div class="p-4 bg-gray-50 rounded-xl border border-gray-200">
-                    <p class="text-xs font-black text-gray-500 uppercase">Vence</p>
-                    <p class="font-black text-gray-900" id="cfm-vence"></p>
-                </div>
-            </div>
-            <!-- Montos -->
-            <div class="border-t-2 border-gray-200 pt-4 space-y-2">
-                <div class="flex justify-between font-black text-lg">
-                    <span class="text-gray-700">Total del Plan</span>
-                    <span class="text-gray-900" id="cfm-total"></span>
-                </div>
-                <div class="flex justify-between font-semibold text-sm" id="cfm-pago-row">
-                    <span class="text-gray-600">Paga Ahora</span>
-                    <span class="text-emerald-600" id="cfm-paga-ahora"></span>
-                </div>
-                <div class="flex justify-between font-semibold text-sm text-red-600" id="cfm-deuda-row">
-                    <span>Queda a Deber</span>
-                    <span id="cfm-deuda"></span>
-                </div>
-            </div>
-            <!-- Badge tipo pago -->
-            <div class="flex items-center gap-3 p-4 rounded-xl border-2" id="cfm-tipo-badge">
-                <i data-lucide="banknote" class="w-5 h-5"></i>
-                <div>
-                    <p class="font-black text-sm uppercase tracking-wide" id="cfm-tipo-texto"></p>
-                    <p class="text-xs font-semibold" id="cfm-metodo-texto"></p>
-                </div>
-            </div>
-        </div>
-        <div class="flex gap-3 px-8 pb-8">
-            <button onclick="cerrarModalConfirmarMembresia()"
-                    class="flex-1 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-900 font-black rounded-xl transition-all uppercase tracking-wide">
-                Cancelar
-            </button>
-            <button onclick="ejecutarCrearMembresia()"
-                    class="flex-1 px-6 py-3 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all shadow-lg uppercase tracking-wide">
-                <i data-lucide="check" class="w-4 h-4 inline mr-2"></i>
-                Confirmar
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- MODAL: LOADING / PROCESANDO                         -->
-<!-- ═══════════════════════════════════════════════════ -->
-<div id="modalLoadingMembresia" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm text-center p-10">
-        <div class="relative w-20 h-20 mx-auto mb-6">
-            <svg class="animate-spin w-20 h-20 text-red-600" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-            </svg>
-            <i data-lucide="credit-card" class="w-8 h-8 text-red-700 absolute inset-0 m-auto"></i>
-        </div>
-        <p class="text-xl font-black text-gray-900 uppercase tracking-wide mb-2">Creando Membresía</p>
-        <p class="text-sm text-gray-500 font-semibold">Registrando en el sistema, por favor espere...</p>
-        <div class="mt-4 w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-            <div class="bg-red-600 h-2 rounded-full animate-pulse" style="width:70%"></div>
-        </div>
-    </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- MODAL: DETALLE / COMPROBANTE DE MEMBRESÍA CREADA   -->
-<!-- ═══════════════════════════════════════════════════ -->
-<div id="modalDetalleMem" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg">
-        <!-- Header éxito -->
-        <div class="bg-gradient-to-r from-emerald-500 to-emerald-700 text-white px-8 py-6 rounded-t-3xl text-center">
-            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-3">
-                <i data-lucide="check-circle" class="w-9 h-9 text-white"></i>
-            </div>
-            <h3 class="text-2xl font-black uppercase tracking-wide">¡Membresía Creada!</h3>
-            <p class="text-emerald-100 text-sm font-semibold mt-1" id="det-fecha-registro"></p>
-        </div>
-        <!-- Body comprobante -->
-        <div class="p-8 space-y-4">
-            <!-- Cliente + Plan -->
-            <div class="grid grid-cols-2 gap-3">
-                <div class="bg-blue-50 rounded-xl p-4 border border-blue-200">
-                    <p class="text-xs font-black text-blue-600 uppercase mb-1">Cliente</p>
-                    <p class="font-black text-gray-900 text-sm" id="det-cliente"></p>
-                </div>
-                <div class="bg-purple-50 rounded-xl p-4 border border-purple-200">
-                    <p class="text-xs font-black text-purple-600 uppercase mb-1">Plan</p>
-                    <p class="font-black text-gray-900 text-sm" id="det-plan"></p>
-                </div>
-            </div>
-            <!-- Fechas -->
-            <div class="grid grid-cols-2 gap-3">
-                <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                    <p class="text-xs font-black text-gray-500 uppercase mb-1">Inicio</p>
-                    <p class="font-bold text-gray-900 text-sm" id="det-inicio"></p>
-                </div>
-                <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                    <p class="text-xs font-black text-gray-500 uppercase mb-1">Vencimiento</p>
-                    <p class="font-bold text-gray-900 text-sm" id="det-vence"></p>
-                </div>
-            </div>
-            <!-- Montos -->
-            <div class="bg-gray-50 rounded-2xl p-5 border-2 border-gray-200 space-y-2">
-                <div class="flex justify-between font-black text-lg">
-                    <span>Total Plan</span>
-                    <span class="text-gray-900" id="det-total"></span>
-                </div>
-                <div class="flex justify-between text-sm font-semibold border-t border-gray-200 pt-2" id="det-pagado-row">
-                    <span class="text-gray-600">Pagado Ahora</span>
-                    <span class="text-emerald-600" id="det-pagado"></span>
-                </div>
-                <div class="flex justify-between text-sm font-semibold text-red-600" id="det-deuda-row">
-                    <span>Deuda Registrada</span>
-                    <span id="det-deuda"></span>
-                </div>
-            </div>
-            <!-- Método -->
-            <div class="flex justify-between items-center p-4 bg-amber-50 rounded-xl border border-amber-200">
-                <span class="text-sm font-black text-amber-700 uppercase">Método de Pago</span>
-                <span class="font-black text-gray-900 capitalize" id="det-metodo"></span>
-            </div>
-            <!-- Alerta deuda si aplica -->
-            <div id="det-deuda-alert" class="hidden p-4 bg-orange-50 border-2 border-orange-300 rounded-xl">
-                <p class="text-sm font-black text-orange-800">
-                    📝 Se generó automáticamente una deuda por el saldo pendiente en el sistema.
-                </p>
-            </div>
-        </div>
-        <!-- Footer -->
-        <div class="flex gap-3 px-8 pb-8">
-            <button onclick="nuevaMembresia()"
-                    class="flex-1 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-900 font-black rounded-xl transition-all uppercase tracking-wide">
-                Nueva Membresía
-            </button>
-            <a href="/membresias"
-               class="flex-1 px-6 py-3 bg-gradient-to-r from-red-600 to-red-800 text-white font-black rounded-xl transition-all shadow-lg text-center uppercase tracking-wide">
-                Ir a Membresías
-            </a>
-        </div>
     </div>
 </div>
 
@@ -353,406 +383,266 @@
         let planSeleccionado = null;
         let _membresiaPayload = null;
 
-        // ─── CARGA INICIAL ────────────────────────────────────────
         async function cargarPlanes() {
             try {
-                let planesRes = await fetch('/api/Planes/activos');
-                if (!planesRes.ok) {
-                    planesRes = await fetch('/api/Planes');
-                    if (!planesRes.ok) throw new Error('Error al cargar planes');
-                }
-
-                const planesData = await planesRes.json();
-                planes = planesData.map(p => ({
-                    id: p.Id || p.id,
-                    nombre: p.Nombre || p.nombre,
-                    precio: p.Precio || p.precio,
-                    duracionDias: p.DuracionDias || p.duracionDias,
-                    tipoCalculoVencimiento: p.TipoCalculoVencimiento || p.tipoCalculoVencimiento || 'dias',
-                    cantidadUnidades: p.CantidadUnidades || p.cantidadUnidades || 1
+                let res = await fetch('/api/Planes/activos');
+                if (!res.ok) res = await fetch('/api/Planes');
+                if (!res.ok) throw new Error('Error al cargar planes');
+                const data = await res.json();
+                planes = data.map(p => ({
+                    id: p.Id||p.id, nombre: p.Nombre||p.nombre, precio: p.Precio||p.precio,
+                    duracionDias: p.DuracionDias||p.duracionDias,
+                    tipoCalculoVencimiento: p.TipoCalculoVencimiento||p.tipoCalculoVencimiento||'dias',
+                    cantidadUnidades: p.CantidadUnidades||p.cantidadUnidades||1
                 }));
-
-                const planSelect = document.getElementById('planSelect');
+                const sel = document.getElementById('planSelect');
                 planes.forEach(p => {
-                    const option = document.createElement('option');
-                    option.value = p.id;
-                    let duracionTexto = `${p.duracionDias} días`;
-                    if (p.tipoCalculoVencimiento === 'meses')   duracionTexto = `${p.cantidadUnidades} ${p.cantidadUnidades === 1 ? 'mes' : 'meses'}`;
-                    if (p.tipoCalculoVencimiento === 'semanas')  duracionTexto = `${p.cantidadUnidades} ${p.cantidadUnidades === 1 ? 'semana' : 'semanas'}`;
-                    if (p.tipoCalculoVencimiento === 'anios')    duracionTexto = `${p.cantidadUnidades} ${p.cantidadUnidades === 1 ? 'año' : 'años'}`;
-                    option.textContent = `${p.nombre} - $${p.precio.toFixed(2)} (${duracionTexto})`;
-                    option.className = 'text-gray-900 font-semibold';
-                    planSelect.appendChild(option);
+                    const opt = document.createElement('option');
+                    opt.value = p.id;
+                    const tipo = p.tipoCalculoVencimiento.toLowerCase();
+                    const cant = p.cantidadUnidades;
+                    const durTxt = tipo==='meses' ? `${cant} ${cant===1?'mes':'meses'}` :
+                                   tipo==='semanas' ? `${cant} ${cant===1?'semana':'semanas'}` :
+                                   tipo==='anios'   ? `${cant} ${cant===1?'año':'años'}` : `${p.duracionDias} días`;
+                    opt.textContent = `${p.nombre} - $${p.precio.toFixed(2)} (${durTxt})`;
+                    sel.appendChild(opt);
                 });
-
                 const hoy = new Date();
-                const fechaHoyLocal = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}-${String(hoy.getDate()).padStart(2,'0')}`;
-                document.getElementById('fechaInicio').value = fechaHoyLocal;
-
-                const clientesRes = await fetch('/api/Clientes');
-                if (clientesRes.ok) {
-                    const clientesData = await clientesRes.json();
-                    todosLosClientes = clientesData.map(c => ({
-                        id: c.Id || c.id,
-                        nombre: c.Nombre || c.nombre,
-                        apellido: c.Apellido || c.apellido,
-                        cedula: c.Cedula || c.cedula,
-                        telefono: c.Telefono || c.telefono
+                document.getElementById('fechaInicio').value = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}-${String(hoy.getDate()).padStart(2,'0')}`;
+                const cr = await fetch('/api/Clientes');
+                if (cr.ok) {
+                    const cd = await cr.json();
+                    todosLosClientes = cd.map(c => ({
+                        id:c.Id||c.id, nombre:c.Nombre||c.nombre, apellido:c.Apellido||c.apellido,
+                        cedula:c.Cedula||c.cedula, telefono:c.Telefono||c.telefono
                     }));
                 }
-            } catch (error) {
-                console.error('Error cargando datos:', error);
-                mostrarToast('Error al cargar planes y clientes', 'error');
-            }
+            } catch(e) { console.error(e); mostrarToast('Error al cargar planes y clientes','error'); }
         }
 
-        // ─── BÚSQUEDA DE CLIENTES ─────────────────────────────────
         document.getElementById('clienteBuscar').addEventListener('input', function(e) {
             clearTimeout(buscarTimeout);
-            const termino = e.target.value.toLowerCase().trim();
-            if (termino.length < 2) { document.getElementById('clienteResultados').classList.add('hidden'); return; }
+            const t = e.target.value.toLowerCase().trim();
+            if (t.length < 2) { document.getElementById('clienteResultados').style.display='none'; return; }
             buscarTimeout = setTimeout(() => {
-                const resultados = todosLosClientes.filter(c =>
-                    c.nombre.toLowerCase().includes(termino) ||
-                    c.apellido.toLowerCase().includes(termino) ||
-                    c.cedula.includes(termino)
-                ).slice(0, 5);
-                mostrarResultados(resultados);
+                const r = todosLosClientes.filter(c =>
+                    c.nombre.toLowerCase().includes(t)||c.apellido.toLowerCase().includes(t)||c.cedula.includes(t)
+                ).slice(0,5);
+                mostrarResultados(r);
             }, 300);
         });
 
         function mostrarResultados(clientes) {
-            const resultadosDiv = document.getElementById('clienteResultados');
-            if (clientes.length === 0) {
-                resultadosDiv.innerHTML = '<div class="p-4 text-gray-500 text-center font-bold">No se encontraron clientes</div>';
-                resultadosDiv.classList.remove('hidden'); return;
+            const div = document.getElementById('clienteResultados');
+            if (!clientes.length) {
+                div.innerHTML = `<div style="padding:16px;text-align:center;color:rgba(255,255,255,0.35);font-weight:600;font-size:0.85rem;">No se encontraron clientes</div>`;
+            } else {
+                div.innerHTML = clientes.map(c => `
+                    <div onclick='seleccionarCliente(${JSON.stringify(c).replace(/'/g,"&#39;")})'
+                         style="padding:14px 16px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.05);transition:background 0.15s;"
+                         onmouseover="this.style.background='rgba(30,111,227,0.08)'" onmouseout="this.style.background='transparent'">
+                        <p style="font-weight:800;color:#fff;margin:0 0 2px 0;">${c.nombre} ${c.apellido}</p>
+                        <p style="font-size:0.75rem;color:rgba(255,255,255,0.35);font-weight:600;margin:0;">Cédula: ${c.cedula}${c.telefono?' · '+c.telefono:''}</p>
+                    </div>`).join('');
             }
-            resultadosDiv.innerHTML = clientes.map(c => `
-                <div onclick='seleccionarCliente(${JSON.stringify(c).replace(/'/g, "&#39;")})'
-                     class="p-4 hover:bg-gray-50 cursor-pointer border-b last:border-b-0 transition-all">
-                    <p class="font-black text-gray-900">${c.nombre} ${c.apellido}</p>
-                    <p class="text-sm text-gray-600 font-semibold">Cédula: ${c.cedula}${c.telefono ? ' - Tel: ' + c.telefono : ''}</p>
-                </div>`).join('');
-            resultadosDiv.classList.remove('hidden');
+            div.style.display = 'block';
         }
 
         async function seleccionarCliente(cliente) {
             try {
-                const response = await fetch(`/api/Membresias/cliente/${cliente.id}`);
-                if (response.ok) {
-                    const membresias = await response.json();
-                    const tieneActiva = membresias.some(m => (m.Estado || m.estado) === 'activa');
-                    if (tieneActiva) {
-                        // Toast de advertencia no bloqueante + confirmación visual en el badge
-                        mostrarToast('⚠ Este cliente ya tiene una membresía activa', 'warning');
-                    }
+                const r = await fetch(`/api/Membresias/cliente/${cliente.id}`);
+                if (r.ok) {
+                    const mems = await r.json();
+                    if (mems.some(m=>(m.Estado||m.estado)==='activa')) mostrarToast('⚠ Este cliente ya tiene una membresía activa','warning');
                 }
-            } catch (error) {
-                console.error('Error al verificar membresías:', error);
-            }
-
+            } catch {}
             clienteSeleccionadoId = cliente.id;
             clienteSeleccionadoNombre = `${cliente.nombre} ${cliente.apellido}`;
             document.getElementById('clienteId').value = cliente.id;
             document.getElementById('clienteNombre').textContent = clienteSeleccionadoNombre;
             document.getElementById('clienteCedula').textContent = `Cédula: ${cliente.cedula}`;
-            document.getElementById('clienteSeleccionado').classList.remove('hidden');
-            document.getElementById('clienteResultados').classList.add('hidden');
+            document.getElementById('clienteSeleccionado').style.display = 'block';
+            document.getElementById('clienteResultados').style.display = 'none';
             document.getElementById('clienteBuscar').value = '';
             lucide.createIcons();
         }
 
         function limpiarCliente() {
-            clienteSeleccionadoId = null;
-            clienteSeleccionadoNombre = '';
+            clienteSeleccionadoId = null; clienteSeleccionadoNombre = '';
             document.getElementById('clienteId').value = '';
-            document.getElementById('clienteSeleccionado').classList.add('hidden');
+            document.getElementById('clienteSeleccionado').style.display = 'none';
         }
 
-        // ─── SELECCIÓN DE PLAN ────────────────────────────────────
         document.getElementById('planSelect').addEventListener('change', function() {
-            const planId = this.value;
-            planSeleccionado = planes.find(p => p.id == planId);
+            planSeleccionado = planes.find(p=>p.id==this.value);
             if (planSeleccionado) {
-                let duracionTexto = `${planSeleccionado.duracionDias} días`;
-                if (planSeleccionado.tipoCalculoVencimiento === 'meses')   duracionTexto = `${planSeleccionado.cantidadUnidades} ${planSeleccionado.cantidadUnidades === 1 ? 'mes' : 'meses'}`;
-                if (planSeleccionado.tipoCalculoVencimiento === 'semanas')  duracionTexto = `${planSeleccionado.cantidadUnidades} ${planSeleccionado.cantidadUnidades === 1 ? 'semana' : 'semanas'}`;
-                if (planSeleccionado.tipoCalculoVencimiento === 'anios')    duracionTexto = `${planSeleccionado.cantidadUnidades} ${planSeleccionado.cantidadUnidades === 1 ? 'año' : 'años'}`;
-
-                document.getElementById('planInfo').textContent = `${planSeleccionado.nombre} - ${duracionTexto} - $${planSeleccionado.precio.toFixed(2)}`;
-                document.getElementById('planInfo').classList.remove('hidden');
+                const tipo=planSeleccionado.tipoCalculoVencimiento.toLowerCase(), cant=planSeleccionado.cantidadUnidades;
+                const durTxt = tipo==='meses'?`${cant} ${cant===1?'mes':'meses'}`:tipo==='semanas'?`${cant} ${cant===1?'semana':'semanas'}`:tipo==='anios'?`${cant} ${cant===1?'año':'años'}`:`${planSeleccionado.duracionDias} días`;
+                document.getElementById('planInfo').textContent = `${planSeleccionado.nombre} – ${durTxt} – $${planSeleccionado.precio.toFixed(2)}`;
+                document.getElementById('planInfo').style.display = 'block';
                 document.getElementById('precioPlan').textContent = `$${planSeleccionado.precio.toFixed(2)}`;
-                document.getElementById('precioContainer').classList.remove('hidden');
+                document.getElementById('precioContainer').style.display = 'block';
                 document.getElementById('montoPagado').value = planSeleccionado.precio.toFixed(2);
                 document.getElementById('montoPagado').max = planSeleccionado.precio;
-
-                const fechaInicio = document.getElementById('fechaInicio').value;
-                if (fechaInicio) calcularFechaVencimiento(fechaInicio, planSeleccionado);
-                calcularSaldoPendiente();
-                lucide.createIcons();
+                const fi = document.getElementById('fechaInicio').value;
+                if (fi) calcularFechaVencimiento(fi, planSeleccionado);
+                calcularSaldoPendiente(); lucide.createIcons();
             }
         });
 
         document.getElementById('fechaInicio').addEventListener('change', function() {
             if (planSeleccionado && this.value) calcularFechaVencimiento(this.value, planSeleccionado);
         });
-
         document.getElementById('montoPagado').addEventListener('input', calcularSaldoPendiente);
 
         function calcularSaldoPendiente() {
             if (!planSeleccionado) return;
-            const precioPlan   = planSeleccionado.precio;
-            const montoPagado  = parseFloat(document.getElementById('montoPagado').value) || 0;
-            const saldoPendiente = Math.max(0, precioPlan - montoPagado);
-            const alertDiv     = document.getElementById('saldoPendienteAlert');
-
-            if (montoPagado === 0) {
-                document.getElementById('montoPagandoDisplay').textContent = '$0.00';
-                document.getElementById('saldoDeberDisplay').textContent   = `$${precioPlan.toFixed(2)}`;
-                alertDiv.querySelector('h4').textContent = '⚠️ Membresía Fiada Completa';
-                alertDiv.classList.remove('hidden');
-            } else if (saldoPendiente > 0) {
-                document.getElementById('montoPagandoDisplay').textContent = `$${montoPagado.toFixed(2)}`;
-                document.getElementById('saldoDeberDisplay').textContent   = `$${saldoPendiente.toFixed(2)}`;
-                alertDiv.querySelector('h4').textContent = '⚠️ Pago Parcial Detectado';
-                alertDiv.classList.remove('hidden');
-            } else {
-                alertDiv.classList.add('hidden');
-            }
-            lucide.createIcons();
+            const precio = planSeleccionado.precio;
+            const monto  = parseFloat(document.getElementById('montoPagado').value)||0;
+            const saldo  = Math.max(0, precio-monto);
+            const alerta = document.getElementById('saldoPendienteAlert');
+            const titulo = alerta.querySelector('h4');
+            if (monto===0) {
+                document.getElementById('montoPagandoDisplay').textContent='$0.00';
+                document.getElementById('saldoDeberDisplay').textContent=`$${precio.toFixed(2)}`;
+                titulo.textContent='⚠️ Membresía Fiada Completa'; titulo.style.color='#F87171';
+                alerta.style.display='block';
+            } else if (saldo>0) {
+                document.getElementById('montoPagandoDisplay').textContent=`$${monto.toFixed(2)}`;
+                document.getElementById('saldoDeberDisplay').textContent=`$${saldo.toFixed(2)}`;
+                titulo.textContent='⚠️ Pago Parcial Detectado'; titulo.style.color='#D97706';
+                alerta.style.display='block';
+            } else { alerta.style.display='none'; }
         }
 
         function calcularFechaVencimiento(fechaInicioStr, plan) {
-            const [year, month, day] = fechaInicioStr.split('-').map(Number);
-            const fechaInicio = new Date(year, month - 1, day);
-            let fechaVenc; let duracionTexto;
-            const tipo = (plan.tipoCalculoVencimiento || 'dias').toLowerCase();
-            const cant = plan.cantidadUnidades || 1;
-
-            switch (tipo) {
-                case 'meses': {
-                    let nuevoMes  = month - 1 + cant;
-                    let nuevoAnio = year + Math.floor(nuevoMes / 12);
-                    nuevoMes      = nuevoMes % 12;
-                    const ultimoDia = new Date(nuevoAnio, nuevoMes + 1, 0).getDate();
-                    fechaVenc    = new Date(nuevoAnio, nuevoMes, Math.min(day, ultimoDia));
-                    duracionTexto = `${cant} ${cant === 1 ? 'mes' : 'meses'}`;
-                    break;
-                }
-                case 'semanas':
-                    fechaVenc = new Date(fechaInicio);
-                    fechaVenc.setDate(fechaVenc.getDate() + cant * 7);
-                    duracionTexto = `${cant} ${cant === 1 ? 'semana' : 'semanas'}`;
-                    break;
-                case 'anios':
-                    fechaVenc = new Date(fechaInicio);
-                    fechaVenc.setFullYear(fechaVenc.getFullYear() + cant);
-                    duracionTexto = `${cant} ${cant === 1 ? 'año' : 'años'}`;
-                    break;
-                default:
-                    fechaVenc = new Date(fechaInicio);
-                    fechaVenc.setDate(fechaVenc.getDate() + (plan.duracionDias - 1));
-                    duracionTexto = `${plan.duracionDias} días`;
-            }
-
-            const y2 = fechaVenc.getFullYear();
-            const m2 = String(fechaVenc.getMonth() + 1).padStart(2, '0');
-            const d2 = String(fechaVenc.getDate()).padStart(2, '0');
-            document.getElementById('fechaVencimiento').value = `${y2}-${m2}-${d2}`;
-            document.getElementById('totalDias').textContent = duracionTexto;
-            document.getElementById('fechaVencTexto').textContent = fechaVenc.toLocaleDateString('es-ES', {
-                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-            });
-            document.getElementById('duracionInfo').classList.remove('hidden');
+            const [year,month,day] = fechaInicioStr.split('-').map(Number);
+            const tipo=(plan.tipoCalculoVencimiento||'dias').toLowerCase(), cant=plan.cantidadUnidades||1;
+            let v;
+            if (tipo==='meses') {
+                let nm=month-1+cant, na=year+Math.floor(nm/12); nm=nm%12;
+                const ult=new Date(na,nm+1,0).getDate();
+                v=new Date(na,nm,Math.min(day,ult));
+            } else if (tipo==='semanas') { v=new Date(year,month-1,day); v.setDate(v.getDate()+cant*7); }
+            else if (tipo==='anios') { v=new Date(year,month-1,day); v.setFullYear(v.getFullYear()+cant); }
+            else { v=new Date(year,month-1,day); v.setDate(v.getDate()+(plan.duracionDias-1)); }
+            document.getElementById('fechaVencimiento').value=`${v.getFullYear()}-${String(v.getMonth()+1).padStart(2,'0')}-${String(v.getDate()).padStart(2,'0')}`;
+            const tipo2=plan.tipoCalculoVencimiento.toLowerCase();
+            const durTxt=tipo2==='meses'?`${cant} ${cant===1?'mes':'meses'}`:tipo2==='semanas'?`${cant} ${cant===1?'semana':'semanas'}`:tipo2==='anios'?`${cant} ${cant===1?'año':'años'}`:`${plan.duracionDias} días`;
+            document.getElementById('totalDias').textContent=durTxt;
+            document.getElementById('fechaVencTexto').textContent=v.toLocaleDateString('es-ES',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+            document.getElementById('duracionInfo').style.display='block';
         }
 
-        // ─── ABRIR MODAL DE CONFIRMACIÓN ─────────────────────────
         document.getElementById('membresiaForm').addEventListener('submit', function(e) {
             e.preventDefault();
-
-            if (!clienteSeleccionadoId) { mostrarToast('Debe seleccionar un cliente', 'error'); return; }
-            if (!planSeleccionado)      { mostrarToast('Debe seleccionar un plan', 'error'); return; }
-
-            const formData    = new FormData(e.target);
-            const montoPagado = parseFloat(formData.get('montoPagado'));
-            const metodo      = formData.get('metodoPago');
-            const fechaInicio = formData.get('fechaInicio');
-            const notas       = formData.get('notas') || '';
-            const precioPlan  = planSeleccionado.precio;
-            const saldo       = precioPlan - montoPagado;
-
-            if (isNaN(montoPagado) || montoPagado < 0 || montoPagado > precioPlan) {
-                mostrarToast(`El monto debe estar entre $0.00 y $${precioPlan.toFixed(2)}`, 'error'); return;
-            }
-
-            // Guardar payload
-            _membresiaPayload = { clienteId: clienteSeleccionadoId, planId: formData.get('planId'), fechaInicio, montoPagado, metodo, notas };
-
-            // Poblar modal confirmación
-            document.getElementById('cfm-cliente').textContent = clienteSeleccionadoNombre;
-            document.getElementById('cfm-plan').textContent    = planSeleccionado.nombre;
-            document.getElementById('cfm-total').textContent   = `$${precioPlan.toFixed(2)}`;
-
-            // Fechas legibles
-            const fmtFecha = f => { const [y,m,d] = f.split('-'); return new Date(y,m-1,d).toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'}); };
-            document.getElementById('cfm-inicio').textContent = fmtFecha(fechaInicio);
-            document.getElementById('cfm-vence').textContent  = fmtFecha(document.getElementById('fechaVencimiento').value);
-
-            const pagoRow  = document.getElementById('cfm-pago-row');
-            const deudaRow = document.getElementById('cfm-deuda-row');
-            if (saldo > 0) {
-                pagoRow.classList.remove('hidden');
-                deudaRow.classList.remove('hidden');
-                document.getElementById('cfm-paga-ahora').textContent = `$${montoPagado.toFixed(2)}`;
-                document.getElementById('cfm-deuda').textContent      = `$${saldo.toFixed(2)}`;
-            } else {
-                pagoRow.classList.add('hidden');
-                deudaRow.classList.add('hidden');
-            }
-
-            // Badge tipo
-            const badge = document.getElementById('cfm-tipo-badge');
-            let tipoCls, tipoTxt;
-            if (montoPagado === 0)     { tipoCls = 'border-red-400 bg-red-50 text-red-700';     tipoTxt = 'Fiado Completo'; }
-            else if (saldo > 0)        { tipoCls = 'border-orange-400 bg-orange-50 text-orange-700'; tipoTxt = 'Pago Parcial'; }
-            else                       { tipoCls = 'border-emerald-400 bg-emerald-50 text-emerald-700'; tipoTxt = 'Pago Completo'; }
-            badge.className = `flex items-center gap-3 p-4 rounded-xl border-2 ${tipoCls}`;
-            document.getElementById('cfm-tipo-texto').textContent   = tipoTxt;
-            document.getElementById('cfm-metodo-texto').textContent = metodo.charAt(0).toUpperCase() + metodo.slice(1);
-
-            document.getElementById('modalConfirmarMembresia').classList.remove('hidden');
+            if (!clienteSeleccionadoId) { mostrarToast('Debe seleccionar un cliente','error'); return; }
+            if (!planSeleccionado) { mostrarToast('Debe seleccionar un plan','error'); return; }
+            const fd=new FormData(e.target);
+            const montoPagado=parseFloat(fd.get('montoPagado'));
+            const metodo=fd.get('metodoPago'), fechaInicio=fd.get('fechaInicio'), notas=fd.get('notas')||'';
+            const precio=planSeleccionado.precio, saldo=precio-montoPagado;
+            if (isNaN(montoPagado)||montoPagado<0||montoPagado>precio) { mostrarToast(`El monto debe estar entre $0.00 y $${precio.toFixed(2)}`,'error'); return; }
+            _membresiaPayload={clienteId:clienteSeleccionadoId, planId:fd.get('planId'), fechaInicio, montoPagado, metodo, notas};
+            document.getElementById('cfm-cliente').textContent=clienteSeleccionadoNombre;
+            document.getElementById('cfm-plan').textContent=planSeleccionado.nombre;
+            document.getElementById('cfm-total').textContent=`$${precio.toFixed(2)}`;
+            const fmt=f=>{const[y,m,d]=f.split('-');return new Date(y,m-1,d).toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'});};
+            document.getElementById('cfm-inicio').textContent=fmt(fechaInicio);
+            document.getElementById('cfm-vence').textContent=fmt(document.getElementById('fechaVencimiento').value);
+            const pr=document.getElementById('cfm-pago-row'), dr=document.getElementById('cfm-deuda-row');
+            if (saldo>0){pr.style.display='flex';dr.style.display='flex';document.getElementById('cfm-paga-ahora').textContent=`$${montoPagado.toFixed(2)}`;document.getElementById('cfm-deuda').textContent=`$${saldo.toFixed(2)}`;}
+            else{pr.style.display='none';dr.style.display='none';}
+            const badge=document.getElementById('cfm-tipo-badge');
+            let bg,color,txt;
+            if (montoPagado===0){bg='rgba(248,113,113,0.08)';color='#F87171';txt='Fiado Completo';}
+            else if (saldo>0){bg='rgba(217,119,6,0.08)';color='#D97706';txt='Pago Parcial';}
+            else{bg='rgba(16,185,129,0.08)';color='#10B981';txt='Pago Completo';}
+            badge.style.cssText=`display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;border:1px solid;background:${bg};color:${color};border-color:${color}40;`;
+            document.getElementById('cfm-tipo-texto').textContent=txt;
+            document.getElementById('cfm-metodo-texto').textContent=metodo.charAt(0).toUpperCase()+metodo.slice(1);
+            document.getElementById('modalConfirmarMembresia').classList.add('show');
             lucide.createIcons();
         });
 
-        function cerrarModalConfirmarMembresia() {
-            document.getElementById('modalConfirmarMembresia').classList.add('hidden');
-        }
+        function cerrarModalConfirmarMembresia() { document.getElementById('modalConfirmarMembresia').classList.remove('show'); }
 
-        // ─── EJECUTAR CREACIÓN (con loading y reintento) ──────────
         async function ejecutarCrearMembresia() {
             cerrarModalConfirmarMembresia();
-
-            const { clienteId, planId, fechaInicio, montoPagado, metodo, notas } = _membresiaPayload;
-            const precioPlan = planSeleccionado.precio;
-            const saldo      = precioPlan - montoPagado;
-
-            // Mostrar loading
-            document.getElementById('modalLoadingMembresia').classList.remove('hidden');
-
-            const data = { clienteId, planId, fechaInicio, montoPagado, metodoPago: metodo, notas, usuarioId: null };
-
-            let result = null;
-            let intentos = 0;
-            while (intentos < 2) {
+            const{clienteId,planId,fechaInicio,montoPagado,metodo,notas}=_membresiaPayload;
+            const precio=planSeleccionado.precio, saldo=precio-montoPagado;
+            document.getElementById('modalLoadingMembresia').classList.add('show');
+            const data={clienteId,planId,fechaInicio,montoPagado,metodoPago:metodo,notas,usuarioId:null};
+            let result=null, intentos=0;
+            while (intentos<2) {
                 try {
-                    const response = await fetch('/api/Membresias', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data)
-                    });
-                    if (!response.ok) {
-                        const err = await response.json().catch(() => ({}));
-                        throw new Error(err.message || `Error HTTP ${response.status}`);
-                    }
-                    result = await response.json();
-                    if (!result.success) throw new Error(result.message || 'Error desconocido');
+                    const r=await fetch('/api/Membresias',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+                    if (!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.message||`Error HTTP ${r.status}`);}
+                    result=await r.json();
+                    if (!result.success) throw new Error(result.message||'Error desconocido');
                     break;
-                } catch (err) {
+                } catch(err){
                     intentos++;
-                    if (intentos < 2) {
-                        await new Promise(r => setTimeout(r, 800));
-                    } else {
-                        document.getElementById('modalLoadingMembresia').classList.add('hidden');
-                        mostrarToast('Error al crear membresía: ' + err.message, 'error');
-                        return;
-                    }
+                    if (intentos<2){await new Promise(r=>setTimeout(r,800));}
+                    else{document.getElementById('modalLoadingMembresia').classList.remove('show');mostrarToast('Error al crear membresía: '+err.message,'error');return;}
                 }
             }
-
-            document.getElementById('modalLoadingMembresia').classList.add('hidden');
-
-            // Poblar modal de detalle/comprobante
-            const ahora = new Date();
-            document.getElementById('det-fecha-registro').textContent = ahora.toLocaleString('es-ES');
-            document.getElementById('det-cliente').textContent  = clienteSeleccionadoNombre;
-            document.getElementById('det-plan').textContent     = planSeleccionado.nombre;
-            document.getElementById('det-total').textContent    = `$${precioPlan.toFixed(2)}`;
-            document.getElementById('det-metodo').textContent   = metodo;
-
-            const fmtFecha = f => { const [y,m,d] = f.split('-'); return new Date(y,m-1,d).toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'}); };
-            document.getElementById('det-inicio').textContent = fmtFecha(fechaInicio);
-            document.getElementById('det-vence').textContent  = fmtFecha(document.getElementById('fechaVencimiento').value);
-
-            const detPagadoRow = document.getElementById('det-pagado-row');
-            const detDeudaRow  = document.getElementById('det-deuda-row');
-            const detDeudaAlert = document.getElementById('det-deuda-alert');
-            const deudaFinal   = result.saldoPendiente || saldo;
-
-            if (deudaFinal > 0) {
-                detPagadoRow.classList.remove('hidden');
-                detDeudaRow.classList.remove('hidden');
-                detDeudaAlert.classList.remove('hidden');
-                document.getElementById('det-pagado').textContent = `$${montoPagado.toFixed(2)}`;
-                document.getElementById('det-deuda').textContent  = `$${deudaFinal.toFixed(2)}`;
-            } else {
-                detPagadoRow.classList.add('hidden');
-                detDeudaRow.classList.add('hidden');
-                detDeudaAlert.classList.add('hidden');
-            }
-
-            document.getElementById('modalDetalleMem').classList.remove('hidden');
+            document.getElementById('modalLoadingMembresia').classList.remove('show');
+            const ahora=new Date();
+            document.getElementById('det-fecha-registro').textContent=ahora.toLocaleString('es-ES');
+            document.getElementById('det-cliente').textContent=clienteSeleccionadoNombre;
+            document.getElementById('det-plan').textContent=planSeleccionado.nombre;
+            document.getElementById('det-total').textContent=`$${precio.toFixed(2)}`;
+            document.getElementById('det-metodo').textContent=metodo;
+            const fmt=f=>{const[y,m,d]=f.split('-');return new Date(y,m-1,d).toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'});};
+            document.getElementById('det-inicio').textContent=fmt(fechaInicio);
+            document.getElementById('det-vence').textContent=fmt(document.getElementById('fechaVencimiento').value);
+            const deudaFinal=result.saldoPendiente||saldo;
+            const pr=document.getElementById('det-pagado-row'),dr=document.getElementById('det-deuda-row'),da=document.getElementById('det-deuda-alert');
+            if (deudaFinal>0){pr.style.display='flex';dr.style.display='flex';da.style.display='block';document.getElementById('det-pagado').textContent=`$${montoPagado.toFixed(2)}`;document.getElementById('det-deuda').textContent=`$${deudaFinal.toFixed(2)}`;}
+            else{pr.style.display='none';dr.style.display='none';da.style.display='none';}
+            document.getElementById('modalDetalleMem').classList.add('show');
             lucide.createIcons();
         }
 
         function nuevaMembresia() {
-            document.getElementById('modalDetalleMem').classList.add('hidden');
+            document.getElementById('modalDetalleMem').classList.remove('show');
             document.getElementById('membresiaForm').reset();
-            limpiarCliente();
-            planSeleccionado = null;
-            _membresiaPayload = null;
-            document.getElementById('planInfo').classList.add('hidden');
-            document.getElementById('precioContainer').classList.add('hidden');
-            document.getElementById('saldoPendienteAlert').classList.add('hidden');
-            document.getElementById('duracionInfo').classList.add('hidden');
-            document.getElementById('fechaVencimiento').value = '';
-            // Restaurar fecha de hoy
-            const hoy = new Date();
-            document.getElementById('fechaInicio').value = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}-${String(hoy.getDate()).padStart(2,'0')}`;
+            limpiarCliente(); planSeleccionado=null; _membresiaPayload=null;
+            document.getElementById('planInfo').style.display='none';
+            document.getElementById('precioContainer').style.display='none';
+            document.getElementById('saldoPendienteAlert').style.display='none';
+            document.getElementById('duracionInfo').style.display='none';
+            document.getElementById('fechaVencimiento').value='';
+            const hoy=new Date();
+            document.getElementById('fechaInicio').value=`${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}-${String(hoy.getDate()).padStart(2,'0')}`;
         }
 
-        // ─── TOAST ───────────────────────────────────────────────
-        function mostrarToast(mensaje, tipo) {
-            const colores = { error: 'bg-red-600', success: 'bg-green-600', warning: 'bg-amber-500', info: 'bg-blue-600' };
-            const color = colores[tipo] || 'bg-gray-800';
-            const toast = document.createElement('div');
-            toast.className = `fixed bottom-6 right-6 z-[100] ${color} text-white px-6 py-4 rounded-2xl shadow-2xl font-bold text-sm flex items-center gap-3`;
-            toast.innerHTML = `<span>${mensaje}</span>`;
-            document.body.appendChild(toast);
-            setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.4s'; setTimeout(() => toast.remove(), 400); }, 4000);
+        function mostrarToast(msg, tipo) {
+            const cols={error:'rgba(248,113,113,0.12)',success:'rgba(16,185,129,0.12)',warning:'rgba(217,119,6,0.12)',info:'rgba(30,111,227,0.12)'};
+            const bords={error:'rgba(248,113,113,0.3)',success:'rgba(16,185,129,0.3)',warning:'rgba(217,119,6,0.3)',info:'rgba(30,111,227,0.3)'};
+            const t=document.createElement('div');
+            t.className='pf-toast';
+            t.style.cssText=`background:${cols[tipo]||cols.info};border:1px solid ${bords[tipo]||bords.info};color:#fff;`;
+            t.innerHTML=`<span>${msg}</span>`;
+            document.body.appendChild(t);
+            setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300);},4000);
         }
 
-        // ─── CERRAR RESULTADOS AL CLICK FUERA ────────────────────
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('#clienteBuscar') && !e.target.closest('#clienteResultados'))
-                document.getElementById('clienteResultados').classList.add('hidden');
+        document.addEventListener('click', e => {
+            if (!e.target.closest('#clienteBuscar')&&!e.target.closest('#clienteResultados'))
+                document.getElementById('clienteResultados').style.display='none';
         });
 
-        // Evitar scroll en inputs numéricos
-        document.querySelectorAll('input[type="number"]').forEach(function(input) {
-            input.addEventListener('wheel', function(e) { e.preventDefault(); }, { passive: false });
-        });
+        document.querySelectorAll('input[type="number"]').forEach(i =>
+            i.addEventListener('wheel', e=>e.preventDefault(), {passive:false})
+        );
 
-        // ─── EXPONER ─────────────────────────────────────────────
-        window.seleccionarCliente           = seleccionarCliente;
-        window.limpiarCliente               = limpiarCliente;
-        window.ejecutarCrearMembresia       = ejecutarCrearMembresia;
-        window.cerrarModalConfirmarMembresia = cerrarModalConfirmarMembresia;
-        window.nuevaMembresia               = nuevaMembresia;
+        window.seleccionarCliente=seleccionarCliente; window.limpiarCliente=limpiarCliente;
+        window.ejecutarCrearMembresia=ejecutarCrearMembresia;
+        window.cerrarModalConfirmarMembresia=cerrarModalConfirmarMembresia;
+        window.nuevaMembresia=nuevaMembresia;
 
-        // ─── INICIALIZAR ──────────────────────────────────────────
-        document.addEventListener('DOMContentLoaded', function() {
-            cargarPlanes();
-            lucide.createIcons();
-        });
+        document.addEventListener('DOMContentLoaded', () => { cargarPlanes(); lucide.createIcons(); });
     </script>
 }

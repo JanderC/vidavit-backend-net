@@ -24,17 +24,17 @@
       <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-Jtxf9L\u002B5ITKRc1gIRl4VbUpGkRNfOBXjYTdhJD4facM="}]]]></EndpointProperties>
       <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=3600, must-revalidate"},{"Name":"Content-Length","Value":"5430"},{"Name":"Content-Type","Value":"image/x-icon"},{"Name":"ETag","Value":"\u0022Jtxf9L\u002B5ITKRc1gIRl4VbUpGkRNfOBXjYTdhJD4facM=\u0022"},{"Name":"Last-Modified","Value":"Thu, 18 Dec 2025 23:09:04 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/VidaFit/images/IMG_2929.25n7x9x44g.JPG">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\IMG_2929.JPG'))</AssetFile>
+    <StaticWebAssetEndpoint Include="_content/VidaFit/images/power-fitness-logo.jqty6zes4v.png">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\power-fitness-logo.png'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"25n7x9x44g"},{"Name":"integrity","Value":"sha256-GvpeXj0CAX3PSWNQBVppDGEn\u002B0fjZ5RHzOUUb05M9dg="},{"Name":"label","Value":"_content/VidaFit/images/IMG_2929.JPG"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"697960"},{"Name":"Content-Type","Value":"image/jpeg"},{"Name":"ETag","Value":"\u0022GvpeXj0CAX3PSWNQBVppDGEn\u002B0fjZ5RHzOUUb05M9dg=\u0022"},{"Name":"Last-Modified","Value":"Wed, 20 May 2026 16:05:46 GMT"}]]]></ResponseHeaders>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"jqty6zes4v"},{"Name":"integrity","Value":"sha256-C90YjtP2UJVIsORfJeEXOD51r/K9LHJ0hhAzl/1HZms="},{"Name":"label","Value":"_content/VidaFit/images/power-fitness-logo.png"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"373048"},{"Name":"Content-Type","Value":"image/png"},{"Name":"ETag","Value":"\u0022C90YjtP2UJVIsORfJeEXOD51r/K9LHJ0hhAzl/1HZms=\u0022"},{"Name":"Last-Modified","Value":"Thu, 28 May 2026 19:14:05 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/VidaFit/images/IMG_2929.JPG">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\IMG_2929.JPG'))</AssetFile>
+    <StaticWebAssetEndpoint Include="_content/VidaFit/images/power-fitness-logo.png">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\power-fitness-logo.png'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-GvpeXj0CAX3PSWNQBVppDGEn\u002B0fjZ5RHzOUUb05M9dg="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=3600, must-revalidate"},{"Name":"Content-Length","Value":"697960"},{"Name":"Content-Type","Value":"image/jpeg"},{"Name":"ETag","Value":"\u0022GvpeXj0CAX3PSWNQBVppDGEn\u002B0fjZ5RHzOUUb05M9dg=\u0022"},{"Name":"Last-Modified","Value":"Wed, 20 May 2026 16:05:46 GMT"}]]]></ResponseHeaders>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-C90YjtP2UJVIsORfJeEXOD51r/K9LHJ0hhAzl/1HZms="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=3600, must-revalidate"},{"Name":"Content-Length","Value":"373048"},{"Name":"Content-Type","Value":"image/png"},{"Name":"ETag","Value":"\u0022C90YjtP2UJVIsORfJeEXOD51r/K9LHJ0hhAzl/1HZms=\u0022"},{"Name":"Last-Modified","Value":"Thu, 28 May 2026 19:14:05 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/VidaFit/images/tauro-gym-logo.png">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\tauro-gym-logo.png'))</AssetFile>

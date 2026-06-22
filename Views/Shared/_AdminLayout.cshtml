@@ -1,10 +1,10 @@
-﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Http
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - TAURO GYM Admin</title>
+    <title>@ViewData["Title"] - POWER FITNESS Admin</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -13,11 +13,14 @@
             theme: {
                 extend: {
                     colors: {
-                        'tauro-red': '#E31E24',
-                        'tauro-dark': '#000000',
-                        'tauro-gray': '#1a1a1a',
-                        'tauro-light-red': '#FF4448',
-                        'tauro-accent': '#C41E23'
+                        'pf-blue':        '#1E6FE3',
+                        'pf-blue-dark':   '#1550B0',
+                        'pf-purple':      '#6B3FA0',
+                        'pf-purple-dark': '#4A2878',
+                        'pf-dark':        '#05050F',
+                        'pf-gray':        '#0D0D1A',
+                        'pf-mid':         '#12122A',
+                        'pf-accent':      '#3D8EFF',
                     }
                 }
             }
@@ -31,8 +34,13 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
+            background: #0A0A18;
         }
 
         h1, h2, h3, h4, h5, h6 {
@@ -41,181 +49,444 @@
         }
 
         ::-webkit-scrollbar {
-            width: 10px;
+            width: 6px;
         }
 
         ::-webkit-scrollbar-track {
-            background: #1a1a1a;
+            background: #05050F;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #E31E24 0%, #C41E23 100%);
-            border-radius: 5px;
+            background: linear-gradient(180deg, #1E6FE3 0%, #6B3FA0 100%);
+            border-radius: 3px;
         }
 
             ::-webkit-scrollbar-thumb:hover {
-                background: linear-gradient(180deg, #FF4448 0%, #E31E24 100%);
+                background: linear-gradient(180deg, #3D8EFF 0%, #1E6FE3 100%);
             }
 
-        .nav-item {
-            position: relative;
-            overflow: hidden;
+        /* ══════════════════════════════════════
+                   SIDEBAR
+                ══════════════════════════════════════ */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 260px;
+            background: #07071A;
+            border-right: 1px solid rgba(30,111,227,0.15);
+            display: flex;
+            flex-direction: column;
+            z-index: 50;
         }
 
-            .nav-item::before {
-                content: '';
-                position: absolute;
-                left: 0;
-                top: 0;
+        /* Logo area */
+        .sidebar-brand {
+            padding: 24px 20px 20px;
+            border-bottom: 1px solid rgba(30,111,227,0.12);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-logo-img {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: rgba(30,111,227,0.1);
+            border: 1px solid rgba(30,111,227,0.2);
+            overflow: hidden;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .sidebar-logo-img img {
+                width: 100%;
                 height: 100%;
-                width: 4px;
-                background: linear-gradient(180deg, #E31E24 0%, #FF4448 100%);
-                transform: scaleY(0);
-                transition: transform 0.3s ease;
+                object-fit: contain;
             }
 
-            .nav-item:hover::before {
-                transform: scaleY(1);
+        .sidebar-brand-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-brand-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.45rem;
+            letter-spacing: 4px;
+            background: linear-gradient(135deg, #3D8EFF, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+
+        .sidebar-brand-sub {
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.25);
+            margin-top: 3px;
+        }
+
+        /* Section label */
+        .nav-section-label {
+            font-size: 0.6rem;
+            font-weight: 800;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.2);
+            padding: 16px 20px 6px;
+        }
+
+        /* Nav links */
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 20px;
+            margin: 2px 10px;
+            border-radius: 10px;
+            color: rgba(255,255,255,0.5);
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-decoration: none;
+            transition: background 0.18s, color 0.18s;
+            position: relative;
+        }
+
+            .nav-link .nav-icon {
+                width: 18px;
+                height: 18px;
+                flex-shrink: 0;
+                color: rgba(30,111,227,0.5);
+                transition: color 0.18s;
             }
 
-            .nav-item.active::before {
-                transform: scaleY(1);
+            .nav-link:hover {
+                background: rgba(30,111,227,0.1);
+                color: #fff;
             }
 
-            .nav-item:hover {
-                background: rgba(227, 30, 36, 0.1);
+                .nav-link:hover .nav-icon {
+                    color: #3D8EFF;
+                }
+
+            .nav-link.active {
+                background: rgba(30,111,227,0.15);
+                color: #fff;
             }
 
+                .nav-link.active .nav-icon {
+                    color: #3D8EFF;
+                }
 
-        .logo-container {
-            animation: pulse-glow 3s ease-in-out infinite;
+                /* active pill indicator */
+                .nav-link.active::before {
+                    content: '';
+                    position: absolute;
+                    left: 0;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 3px;
+                    height: 60%;
+                    background: linear-gradient(180deg, #1E6FE3, #6B3FA0);
+                    border-radius: 0 3px 3px 0;
+                    margin-left: -10px;
+                }
+
+            /* Special gold icon for vault */
+            .nav-link .nav-icon-gold {
+                color: #D4A017;
+            }
+
+            .nav-link:hover .nav-icon-gold {
+                color: #F5C842;
+            }
+
+        /* Divider */
+        .nav-divider {
+            height: 1px;
+            background: rgba(30,111,227,0.1);
+            margin: 8px 20px;
+        }
+
+        /* Scrollable nav body */
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 8px;
+        }
+
+        /* Bottom user section */
+        .sidebar-footer {
+            border-top: 1px solid rgba(30,111,227,0.12);
+            padding: 16px 16px 20px;
+            flex-shrink: 0;
+        }
+
+        .user-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #1E6FE3, #6B3FA0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            flex-shrink: 0;
+        }
+
+        .user-info-name {
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #fff;
+        }
+
+        .user-info-role {
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.3);
+        }
+
+        .btn-logout {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 11px;
+            background: rgba(30,111,227,0.1);
+            border: 1px solid rgba(30,111,227,0.2);
+            border-radius: 10px;
+            color: rgba(255,255,255,0.6);
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+            .btn-logout:hover {
+                background: rgba(30,111,227,0.2);
+                border-color: rgba(30,111,227,0.4);
+                color: #fff;
+            }
+
+        /* ══════════════════════════════════════
+                   MAIN CONTENT
+                ══════════════════════════════════════ */
+        .main-content {
+            margin-left: 260px;
+            min-height: 100vh;
+            background: #0A0A18;
+        }
+
+        /* Sticky topbar */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            background: rgba(7,7,26,0.92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(30,111,227,0.12);
+            padding: 18px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .topbar-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, #3D8EFF, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+
+        .topbar-subtitle {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.3);
+            margin-top: 4px;
+        }
+
+        .time-chip {
+            padding: 10px 18px;
+            background: rgba(30,111,227,0.08);
+            border: 1px solid rgba(30,111,227,0.15);
+            border-radius: 10px;
+            text-align: right;
+        }
+
+        .time-chip-label {
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.25);
+        }
+
+        .time-chip-value {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #7EB8FF;
+            margin-top: 2px;
+        }
+
+        .page-body {
+            padding: 32px;
         }
     </style>
 
     @RenderSection("Styles", required: false)
 </head>
-<body class="bg-gray-50">
-    <aside class="fixed left-0 top-0 h-screen w-64 bg-gradient-to-b from-black via-tauro-gray to-black text-white shadow-2xl z-50 border-r-2 border-red-600">
-        <div class="p-6 border-b-2 border-red-600">
-            <div class="flex flex-col items-center gap-3">
-                <div class="logo-container inline-block px-6 py-3 bg-gradient-to-r from-red-600 to-red-800 rounded-xl">
-                    <h1 class="text-3xl font-black text-white tracking-widest">TAURO GYM</h1>
-                </div>
-                <p class="text-xs text-gray-400 uppercase tracking-widest font-bold">Panel Administrativo</p>
+<body>
+    <!-- ══ SIDEBAR ══ -->
+    <aside class="sidebar">
+
+        <!-- Brand -->
+        <div class="sidebar-brand">
+            <div class="sidebar-logo-img">
+                <img src="/images/power-fitness-logo.png" alt="Power Fitness" />
+            </div>
+            <div class="sidebar-brand-text">
+                <span class="sidebar-brand-name">POWER FITNESS</span>
+                <span class="sidebar-brand-sub">Panel Admin</span>
             </div>
         </div>
 
-        <nav class="p-4 space-y-2 overflow-y-auto h-[calc(100vh-280px)]">
-            <a href="/admin/dashboard" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-900 transition-all group">
-                <i data-lucide="layout-dashboard" class="w-5 h-5 text-red-500 group-hover:scale-110 transition-transform"></i>
-                <span class="font-semibold">Dashboard</span>
+        <!-- Scrollable nav -->
+        <nav class="sidebar-nav">
+
+            <!-- Principal -->
+            <div class="nav-section-label">Principal</div>
+
+            <a href="/admin/dashboard" class="nav-link">
+                <i data-lucide="layout-dashboard" class="nav-icon"></i>
+                <span>Dashboard</span>
             </a>
 
-            <a href="/clientes" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-900 transition-all group">
-                <i data-lucide="users" class="w-5 h-5 text-red-500 group-hover:scale-110 transition-transform"></i>
-                <span class="font-semibold">Clientes</span>
+            <a href="/clientes" class="nav-link">
+                <i data-lucide="users" class="nav-icon"></i>
+                <span>Clientes</span>
             </a>
 
-            <a href="/membresias" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-900 transition-all group">
-                <i data-lucide="credit-card" class="w-5 h-5 text-red-500 group-hover:scale-110 transition-transform"></i>
-                <span class="font-semibold">Membresías</span>
+            <a href="/membresias" class="nav-link">
+                <i data-lucide="credit-card" class="nav-icon"></i>
+                <span>Membresías</span>
             </a>
 
-            <a href="/membresias/planes" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-900 transition-all group">
-                <i data-lucide="star" class="w-5 h-5 text-red-500 group-hover:scale-110 transition-transform"></i>
-                <span class="font-semibold">Planes</span>
+            <a href="/membresias/planes" class="nav-link">
+                <i data-lucide="star" class="nav-icon"></i>
+                <span>Planes</span>
             </a>
 
-            <a href="/productos" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-900 transition-all group">
-                <i data-lucide="package" class="w-5 h-5 text-red-500 group-hover:scale-110 transition-transform"></i>
-                <span class="font-semibold">Tienda</span>
+            <a href="/productos" class="nav-link">
+                <i data-lucide="package" class="nav-icon"></i>
+                <span>Tienda</span>
             </a>
 
-            <!-- SECCIÓN DE GESTIÓN FINANCIERA -->
-            <div class="pt-4 border-t-2 border-gray-800 mt-4">
-                <p class="text-xs text-gray-500 uppercase font-black mb-3 px-4 tracking-wider">Gestión Financiera</p>
+            <!-- Finanzas -->
+            <div class="nav-divider"></div>
+            <div class="nav-section-label">Gestión Financiera</div>
 
-                <a href="/caja" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-900 transition-all group">
-                    <i data-lucide="wallet" class="w-5 h-5 text-red-500 group-hover:scale-110 transition-transform"></i>
-                    <span class="font-semibold">Caja Diaria</span>
-                </a>
+            <a href="/caja" class="nav-link">
+                <i data-lucide="wallet" class="nav-icon"></i>
+                <span>Caja Diaria</span>
+            </a>
 
-                <a href="/cajafuerte" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-900 transition-all group">
-                    <i data-lucide="vault" class="w-5 h-5 text-yellow-500 group-hover:scale-110 transition-transform"></i>
-                    <span class="font-semibold">Caja Fuerte</span>
-                </a>
-            </div>
+            <a href="/cajafuerte" class="nav-link">
+                <i data-lucide="vault" class="nav-icon nav-icon-gold"></i>
+                <span>Caja Fuerte</span>
+            </a>
 
-            <!-- SECCIÓN DE REPORTES -->
-            <div class="pt-4 border-t-2 border-gray-800 mt-4">
-                <p class="text-xs text-gray-500 uppercase font-black mb-3 px-4 tracking-wider">Reportes</p>
+            <!-- Reportes -->
+            <div class="nav-divider"></div>
+            <div class="nav-section-label">Reportes</div>
 
-                <a href="/reportes/ingresos-membresias" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-900 transition-all text-sm group">
-                    <i data-lucide="trending-up" class="w-4 h-4 text-red-500 group-hover:scale-110 transition-transform"></i>
-                    <span>Ingresos Membresías</span>
-                </a>
+            <a href="/reportes/ingresos-membresias" class="nav-link">
+                <i data-lucide="trending-up" class="nav-icon"></i>
+                <span>Ingresos Membresías</span>
+            </a>
 
-                <a href="/reportes/asistencia" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-900 transition-all text-sm group">
-                    <i data-lucide="calendar-check" class="w-4 h-4 text-red-500 group-hover:scale-110 transition-transform"></i>
-                    <span>Asistencia</span>
-                </a>
+            <a href="/reportes/asistencia" class="nav-link">
+                <i data-lucide="calendar-check" class="nav-icon"></i>
+                <span>Asistencia</span>
+            </a>
 
-                <a href="/reportes/productos-mas-vendidos" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-900 transition-all text-sm group">
-                    <i data-lucide="shopping-cart" class="w-4 h-4 text-red-500 group-hover:scale-110 transition-transform"></i>
-                    <span>Productos Vendidos</span>
-                </a>
+            <a href="/reportes/productos-mas-vendidos" class="nav-link">
+                <i data-lucide="shopping-cart" class="nav-icon"></i>
+                <span>Productos Vendidos</span>
+            </a>
 
-                <a href="/reportes/clientes-inactivos" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-900 transition-all text-sm group">
-                    <i data-lucide="user-x" class="w-4 h-4 text-red-500 group-hover:scale-110 transition-transform"></i>
-                    <span>Clientes Inactivos</span>
-                </a>
-            </div>
+            <a href="/reportes/clientes-inactivos" class="nav-link">
+                <i data-lucide="user-x" class="nav-icon"></i>
+                <span>Clientes Inactivos</span>
+            </a>
+
         </nav>
 
-        <div class="absolute bottom-0 left-0 right-0 p-4 border-t-2 border-gray-800 bg-gradient-to-t from-black to-transparent">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center text-white font-black text-lg shadow-lg">
-                    A
-                </div>
-                <div class="flex-1">
-                    <p class="text-sm font-bold">Administrador</p>
-                    <p class="text-xs text-gray-500 uppercase tracking-wide">TAURO GYM</p>
+        <!-- Footer / user -->
+        <div class="sidebar-footer">
+            <div class="user-row">
+                <div class="user-avatar">A</div>
+                <div>
+                    <div class="user-info-name">Administrador</div>
+                    <div class="user-info-role">Power Fitness</div>
                 </div>
             </div>
-            <form action="/admin/logout" method="post" class="w-full">
+            <form action="/admin/logout" method="post">
                 @Html.AntiForgeryToken()
-                <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 rounded-xl transition-all font-bold shadow-xl hover:shadow-2xl transform hover:scale-105">
-                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                <button type="submit" class="btn-logout">
+                    <i data-lucide="log-out" style="width:16px;height:16px;"></i>
                     Cerrar Sesión
                 </button>
             </form>
         </div>
     </aside>
 
-    <main class="ml-64 min-h-screen">
-        <header class="bg-gradient-to-r from-white to-gray-100 shadow-lg border-b-4 border-red-600 sticky top-0 z-40">
-            <div class="px-8 py-5">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h2 class="text-4xl font-black bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent uppercase tracking-wide">
-                            @ViewData["Title"]
-                        </h2>
-                        @if (ViewData["Subtitle"] != null)
-                        {
-                            <p class="text-sm text-gray-600 mt-2 font-semibold">@ViewData["Subtitle"]</p>
-                        }
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <div class="text-right px-6 py-3 bg-gray-900 rounded-xl border border-gray-800">
-                            <p class="text-xs text-gray-400 uppercase tracking-wide font-bold">Última actualización</p>
-                            <p class="text-sm text-white font-bold" id="current-time"></p>
-                        </div>
-                    </div>
-                </div>
+    <!-- ══ MAIN ══ -->
+    <main class="main-content">
+        <!-- Topbar -->
+        <header class="topbar">
+            <div>
+                <div class="topbar-title">@ViewData["Title"]</div>
+                @if (ViewData["Subtitle"] != null)
+                {
+                    <div class="topbar-subtitle">@ViewData["Subtitle"]</div>
+                }
+            </div>
+            <div class="time-chip">
+                <div class="time-chip-label">Última actualización</div>
+                <div class="time-chip-value" id="current-time"></div>
             </div>
         </header>
 
-        <div class="p-8">
+        <!-- Page content -->
+        <div class="page-body">
             @RenderBody()
         </div>
     </main>
@@ -226,21 +497,212 @@
         function updateTime() {
             const now = new Date();
             const timeStr = now.toLocaleString('es-ES', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
             });
-            const timeElement = document.getElementById('current-time');
-            if (timeElement) {
-                timeElement.textContent = timeStr;
-            }
+            const el = document.getElementById('current-time');
+            if (el) el.textContent = timeStr;
         }
         updateTime();
         setInterval(updateTime, 60000);
+
+        // Mark active nav link
+        (function() {
+            const path = window.location.pathname;
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if (link.getAttribute('href') === path) {
+                    link.classList.add('active');
+                }
+            });
+        })();
     </script>
 
     @RenderSection("Scripts", required: false)
+
+    <!-- ══ TÉRMINOS Y CONDICIONES MODAL ══ -->
+    <div id="modal-tos" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(6px);z-index:9999;align-items:center;justify-content:center;padding:16px;overflow-y:auto;">
+        <div style="background:#07071A;border:1px solid rgba(30,111,227,0.25);border-radius:20px;width:100%;max-width:760px;margin:auto;box-shadow:0 32px 80px rgba(0,0,0,0.7);overflow:hidden;">
+
+            <!-- Header -->
+            <div style="background:linear-gradient(135deg,#1E6FE3,#6B3FA0);padding:22px 28px;display:flex;align-items:center;justify-content:space-between;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <i data-lucide="shield-check" style="width:24px;height:24px;color:#fff;flex-shrink:0;"></i>
+                    <div>
+                        <h2 style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:3px;color:#fff;margin:0;line-height:1;">Términos y Condiciones de Uso</h2>
+                        <p style="font-size:0.7rem;color:rgba(255,255,255,0.6);font-weight:600;margin:3px 0 0 0;letter-spacing:1.5px;text-transform:uppercase;">Licencia de Software · POWER FITNESS</p>
+                    </div>
+                </div>
+                <button onclick="document.getElementById('modal-tos').style.display='none'"
+                        style="background:rgba(255,255,255,0.1);border:none;border-radius:8px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;flex-shrink:0;">
+                    <i data-lucide="x" style="width:16px;height:16px;"></i>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div style="padding:28px 32px;max-height:65vh;overflow-y:auto;display:flex;flex-direction:column;gap:20px;">
+
+                <!-- Fecha y versión -->
+                <div style="background:rgba(30,111,227,0.06);border:1px solid rgba(30,111,227,0.2);border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+                    <span style="font-size:0.72rem;font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:1px;">Versión 1.0 · Última actualización: Junio 2026</span>
+                    <span style="font-size:0.72rem;font-weight:800;color:#3D8EFF;letter-spacing:1px;">Documento legalmente vinculante</span>
+                </div>
+
+                <!-- Sección 1 -->
+                <div>
+                    <p style="font-family:'Bebas Neue',sans-serif;font-size:0.95rem;letter-spacing:2px;color:#3D8EFF;margin:0 0 8px 0;">1. LICENCIA DE USO</p>
+                    <p style="font-size:0.82rem;color:rgba(255,255,255,0.6);font-weight:500;line-height:1.6;margin:0;">
+                        El presente software es propiedad exclusiva de su desarrollador y se otorga al cliente bajo una <strong style="color:rgba(255,255,255,0.85);">licencia de uso personal, intransferible y no exclusiva</strong>. La adquisición del sistema no implica la transferencia de derechos de propiedad intelectual. El cliente obtiene el derecho de uso del sistema en el establecimiento para el cual fue contratado, sin posibilidad de extensión a terceros sin autorización expresa y por escrito del titular de la licencia.
+                    </p>
+                </div>
+
+                <!-- Sección 2 -->
+                <div>
+                    <p style="font-family:'Bebas Neue',sans-serif;font-size:0.95rem;letter-spacing:2px;color:#3D8EFF;margin:0 0 8px 0;">2. PROHIBICIONES EXPRESAS</p>
+                    <p style="font-size:0.82rem;color:rgba(255,255,255,0.6);font-weight:500;line-height:1.6;margin:0 0 10px 0;">Queda estrictamente prohibido, bajo pena de acción legal:</p>
+                    <div style="display:flex;flex-direction:column;gap:7px;">
+                        @foreach (var item in new[] {
+                        "Reproducir, copiar, distribuir o compartir el código fuente o compilado del sistema, parcial o totalmente, a cualquier tercero.",
+                        "Vender, sublicenciar, alquilar o ceder el sistema a otras personas naturales o jurídicas sin ser el titular de la licencia.",
+                        "Modificar, descompilar, realizar ingeniería inversa o intentar acceder al código fuente del sistema.",
+                        "Utilizar el sistema para fines distintos a la gestión interna del establecimiento para el que fue contratado.",
+                        "Remover o alterar cualquier aviso de propiedad intelectual, marca o crédito de autoría presente en el sistema."
+                        })
+                        {
+                            <div style="display:flex;align-items:flex-start;gap:10px;background:rgba(248,113,113,0.05);border:1px solid rgba(248,113,113,0.12);border-radius:8px;padding:10px 14px;">
+                                <i data-lucide="x-circle" style="width:14px;height:14px;color:#F87171;flex-shrink:0;margin-top:2px;"></i>
+                                <p style="font-size:0.8rem;color:rgba(255,255,255,0.55);font-weight:500;margin:0;line-height:1.5;">@item</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Sección 3 -->
+                <div>
+                    <p style="font-family:'Bebas Neue',sans-serif;font-size:0.95rem;letter-spacing:2px;color:#3D8EFF;margin:0 0 8px 0;">3. REPORTE DE FALLAS Y SOPORTE TÉCNICO</p>
+                    <p style="font-size:0.82rem;color:rgba(255,255,255,0.6);font-weight:500;line-height:1.6;margin:0 0 10px 0;">
+                        Cualquier falla, error o mal funcionamiento del sistema debe ser <strong style="color:rgba(255,255,255,0.85);">reportado directamente al proveedor de la licencia</strong> a través de los canales oficiales. El cliente no debe intentar corregir, modificar ni delegar la corrección a terceros no autorizados.
+                    </p>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                        <div style="background:rgba(30,111,227,0.07);border:1px solid rgba(30,111,227,0.2);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:10px;">
+                            <i data-lucide="mail" style="width:16px;height:16px;color:#3D8EFF;flex-shrink:0;"></i>
+                            <div>
+                                <p style="font-size:0.6rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:0 0 3px 0;">Correo oficial</p>
+                                <p style="font-size:0.8rem;font-weight:700;color:#7EB8FF;margin:0;">janderalexisc@gmail.com</p>
+                            </div>
+                        </div>
+                        <div style="background:rgba(30,111,227,0.07);border:1px solid rgba(30,111,227,0.2);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:10px;">
+                            <i data-lucide="phone" style="width:16px;height:16px;color:#3D8EFF;flex-shrink:0;"></i>
+                            <div>
+                                <p style="font-size:0.6rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:0 0 3px 0;">Soporte telefónico</p>
+                                <p style="font-size:0.8rem;font-weight:700;color:#7EB8FF;margin:0;">Vía inducción inicial acordada</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección 4 -->
+                <div>
+                    <p style="font-family:'Bebas Neue',sans-serif;font-size:0.95rem;letter-spacing:2px;color:#3D8EFF;margin:0 0 8px 0;">4. NUEVAS INTEGRACIONES Y DESARROLLO ADICIONAL</p>
+                    <p style="font-size:0.82rem;color:rgba(255,255,255,0.6);font-weight:500;line-height:1.6;margin:0;">
+                        Toda solicitud de nueva funcionalidad, módulo, integración con servicios de terceros o modificación del sistema actual debe ser <strong style="color:rgba(255,255,255,0.85);">consultada y aprobada previamente por el titular del sistema</strong>. Dichas adiciones tienen un costo adicional a negociar por separado del precio original de la licencia. El pago de la licencia base <strong style="color:rgba(255,255,255,0.85);">no da derecho a exigir nuevas funcionalidades</strong> o mejoras más allá del alcance del desarrollo entregado y documentado al momento de la adquisición.
+                    </p>
+                </div>
+
+                <!-- Sección 5 -->
+                <div>
+                    <p style="font-family:'Bebas Neue',sans-serif;font-size:0.95rem;letter-spacing:2px;color:#3D8EFF;margin:0 0 8px 0;">5. MANEJO DE DATOS FINANCIEROS Y RESPONSABILIDAD</p>
+                    <p style="font-size:0.82rem;color:rgba(255,255,255,0.6);font-weight:500;line-height:1.6;margin:0 0 10px 0;">
+                        El sistema gestiona información financiera sensible del negocio (ingresos, egresos, membresías, deudas y cierres de caja). El cliente acepta y reconoce que:
+                    </p>
+                    <div style="display:flex;flex-direction:column;gap:7px;">
+                        @foreach (var item in new[] {
+                        "El sistema es una herramienta de apoyo administrativo. El proveedor no se hace responsable por decisiones financieras tomadas con base en los datos del sistema.",
+                        "El cliente es el único responsable de la veracidad, integridad y custodia de los datos ingresados al sistema.",
+                        "El proveedor no tiene acceso remoto a los datos del cliente salvo solicitud expresa para soporte técnico.",
+                        "El cliente debe mantener respaldos periódicos de su base de datos. El proveedor no garantiza recuperación de datos en caso de pérdida por causas externas al sistema.",
+                        "El uso del sistema en actividades ilícitas, evasión fiscal o cualquier actividad contraria a la ley es responsabilidad exclusiva del cliente y puede dar lugar a la revocación inmediata de la licencia."
+                        })
+                        {
+                            <div style="display:flex;align-items:flex-start;gap:10px;background:rgba(107,63,160,0.06);border:1px solid rgba(107,63,160,0.18);border-radius:8px;padding:10px 14px;">
+                                <i data-lucide="info" style="width:14px;height:14px;color:#a78bfa;flex-shrink:0;margin-top:2px;"></i>
+                                <p style="font-size:0.8rem;color:rgba(255,255,255,0.55);font-weight:500;margin:0;line-height:1.5;">@item</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Sección 6 -->
+                <div>
+                    <p style="font-family:'Bebas Neue',sans-serif;font-size:0.95rem;letter-spacing:2px;color:#3D8EFF;margin:0 0 8px 0;">6. INDUCCIÓN Y CAPACITACIÓN</p>
+                    <p style="font-size:0.82rem;color:rgba(255,255,255,0.6);font-weight:500;line-height:1.6;margin:0;">
+                        Al momento de la adquisición del sistema, el proveedor ofrece una <strong style="color:rgba(255,255,255,0.85);">sesión de inducción y aclaración de dudas</strong> vía telefónica o por correo electrónico. Esta inducción cubre el alcance funcional acordado. Capacitaciones adicionales, sesiones de entrenamiento a nuevo personal o actualizaciones formativas pueden tener costo adicional a convenir con el proveedor.
+                    </p>
+                </div>
+
+                <!-- Sección 7 -->
+                <div>
+                    <p style="font-family:'Bebas Neue',sans-serif;font-size:0.95rem;letter-spacing:2px;color:#3D8EFF;margin:0 0 8px 0;">7. VIGENCIA Y REVOCACIÓN DE LICENCIA</p>
+                    <p style="font-size:0.82rem;color:rgba(255,255,255,0.6);font-weight:500;line-height:1.6;margin:0;">
+                        La licencia tiene vigencia indefinida salvo incumplimiento de los presentes términos. El proveedor se reserva el derecho de <strong style="color:rgba(255,255,255,0.85);">revocar la licencia de forma inmediata y sin reembolso</strong> ante cualquier violación comprobada de estas condiciones, incluyendo pero no limitándose a: redistribución del sistema, uso fraudulento, o incumplimiento de pago acordado.
+                    </p>
+                </div>
+
+                <!-- Sección 8 -->
+                <div>
+                    <p style="font-family:'Bebas Neue',sans-serif;font-size:0.95rem;letter-spacing:2px;color:#3D8EFF;margin:0 0 8px 0;">8. JURISDICCIÓN Y LEY APLICABLE</p>
+                    <p style="font-size:0.82rem;color:rgba(255,255,255,0.6);font-weight:500;line-height:1.6;margin:0;">
+                        Cualquier disputa, reclamación o controversia derivada del uso de este sistema o de los presentes términos será resuelta conforme a la legislación vigente aplicable, sometiéndose ambas partes a la jurisdicción competente correspondiente. El uso del sistema implica la aceptación plena e incondicional de estos términos.
+                    </p>
+                </div>
+
+                <!-- Firma -->
+                <div style="background:rgba(30,111,227,0.06);border:1px solid rgba(30,111,227,0.2);border-radius:12px;padding:16px 18px;text-align:center;">
+                    <p style="font-size:0.75rem;color:rgba(255,255,255,0.35);font-weight:600;margin:0 0 4px 0;">Desarrollado y licenciado por</p>
+                    <p style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:3px;color:#3D8EFF;margin:0;">JANDER ALEXIS — POWER FITNESS SYSTEM</p>
+                    <p style="font-size:0.72rem;color:rgba(255,255,255,0.25);margin:4px 0 0 0;">janderalexisc@gmail.com · Todos los derechos reservados © 2025</p>
+                </div>
+
+            </div>
+
+            <!-- Footer del modal -->
+            <div style="padding:16px 32px;border-top:1px solid rgba(30,111,227,0.12);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+                <p style="font-size:0.72rem;color:rgba(255,255,255,0.25);font-weight:600;margin:0;">
+                    Al usar este sistema confirmas haber leído y aceptado estos términos.
+                </p>
+                <button onclick="document.getElementById('modal-tos').style.display='none'"
+                        style="display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:linear-gradient(135deg,#1E6FE3,#6B3FA0);color:#fff;font-weight:800;font-size:0.78rem;letter-spacing:1.5px;text-transform:uppercase;border:none;border-radius:10px;cursor:pointer;">
+                    <i data-lucide="check" style="width:15px;height:15px;"></i>
+                    Entendido
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ FOOTER BAR ══ -->
+    <div style="margin-left:260px;padding:10px 32px;background:#07071A;border-top:1px solid rgba(30,111,227,0.08);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <p style="font-size:0.65rem;color:rgba(255,255,255,0.2);font-weight:600;margin:0;letter-spacing:1px;">
+            POWER FITNESS SYSTEM © 2026 · Todos los derechos reservados
+        </p>
+        <button onclick="(function(){var m=document.getElementById('modal-tos');m.style.display='flex';if(window.lucide)lucide.createIcons();})()"
+                style="display:inline-flex;align-items:center;gap:6px;background:transparent;border:none;cursor:pointer;color:rgba(255,255,255,0.3);font-size:0.65rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;transition:color 0.15s;padding:4px 0;"
+                onmouseover="this.style.color='#3D8EFF'" onmouseout="this.style.color='rgba(255,255,255,0.3)'">
+            <i data-lucide="shield" style="width:12px;height:12px;"></i>
+            Términos y Condiciones
+        </button>
+    </div>
+
+    <script>
+        // Cerrar modal TOS con Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                var m = document.getElementById('modal-tos');
+                if (m) m.style.display = 'none';
+            }
+        });
+        // Cerrar al click fuera del contenido
+        document.getElementById('modal-tos').addEventListener('click', function(e) {
+            if (e.target === this) this.style.display = 'none';
+        });
+    </script>
 </body>
 </html>

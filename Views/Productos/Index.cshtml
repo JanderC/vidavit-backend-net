@@ -1,141 +1,256 @@
-﻿@model IEnumerable<VidaFitBackend.Models.Producto>
+@model IEnumerable<VidaFitBackend.Models.Producto>
 
 @{
     ViewData["Title"] = "Productos";
-    ViewData["Subtitle"] = "Gestión de productos - TAURO GYM";
+    ViewData["Subtitle"] = "Gestión de productos - POWER FITNESS";
     Layout = "_AdminLayout";
 }
 
-<div class="max-w-7xl mx-auto">
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-4xl font-black text-gray-900 uppercase tracking-wide">Gestión de Productos</h2>
-        <div class="flex gap-3">
-            <a href="/productos/crear"
-               class="bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black py-3 px-8 rounded-xl transition-all shadow-xl hover:shadow-2xl flex items-center gap-2 uppercase tracking-wide transform hover:scale-105">
-                <i data-lucide="plus-circle" class="w-5 h-5"></i>
-                Nuevo Producto
-            </a>
-            <a href="/productos/vender"
-               class="bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900 text-white font-black py-3 px-8 rounded-xl transition-all shadow-xl hover:shadow-2xl flex items-center gap-2 uppercase tracking-wide transform hover:scale-105">
-                <i data-lucide="shopping-cart" class="w-5 h-5"></i>
-                Vender Productos
-            </a>
-            <a href="/caja"
-               class="bg-gradient-to-r from-orange-600 to-orange-800 hover:from-orange-700 hover:to-orange-900 text-white font-black py-3 px-8 rounded-xl transition-all shadow-xl hover:shadow-2xl flex items-center gap-2 uppercase tracking-wide transform hover:scale-105">
-                <i data-lucide="alert-circle" class="w-5 h-5"></i>
-                Ver deudas en caja
-            </a>
+<style>
+    .pf-input {
+        width: 100%;
+        padding: 11px 16px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(30,111,227,0.2);
+        border-radius: 12px;
+        color: #fff;
+        font-size: 0.88rem;
+        font-weight: 600;
+        font-family: 'Inter',sans-serif;
+        outline: none;
+        transition: border-color .2s,box-shadow .2s;
+    }
+
+        .pf-input::placeholder {
+            color: rgba(255,255,255,0.25);
+        }
+
+        .pf-input:focus {
+            border-color: #1E6FE3;
+            box-shadow: 0 0 0 3px rgba(30,111,227,0.15);
+        }
+
+    .pf-select {
+        width: 100%;
+        padding: 11px 16px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(30,111,227,0.2);
+        border-radius: 12px;
+        color: #fff;
+        font-size: 0.88rem;
+        font-weight: 600;
+        font-family: 'Inter',sans-serif;
+        outline: none;
+    }
+
+        .pf-select:focus {
+            border-color: #1E6FE3;
+        }
+
+        .pf-select option {
+            background: #0D0D20;
+            color: #fff;
+        }
+
+    .pf-label {
+        display: block;
+        font-size: 0.62rem;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.35);
+        margin-bottom: 6px;
+    }
+
+    .pf-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .pf-table thead tr {
+            border-bottom: 1px solid rgba(30,111,227,0.2);
+        }
+
+        .pf-table thead th {
+            padding: 13px 18px;
+            text-align: left;
+            font-size: 0.6rem;
+            font-weight: 800;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.3);
+        }
+
+        .pf-table tbody tr {
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            transition: background .15s;
+        }
+
+            .pf-table tbody tr:hover {
+                background: rgba(30,111,227,0.05);
+            }
+
+        .pf-table tbody td {
+            padding: 14px 18px;
+        }
+
+    .pf-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 10px;
+        border-radius: 100px;
+        font-size: 0.6rem;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+    }
+
+    .action-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: background .15s;
+        text-decoration: none;
+    }
+</style>
+
+<!-- Toolbar -->
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+    <h2 style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:3px;color:#fff;margin:0;">Gestión de Productos</h2>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <a href="/productos/crear"
+           style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:linear-gradient(135deg,#1E6FE3,#6B3FA0);color:#fff;font-weight:800;font-size:0.78rem;letter-spacing:1.5px;text-transform:uppercase;border-radius:12px;text-decoration:none;transition:opacity .2s,transform .2s;"
+           onmouseover="this.style.opacity='0.88';this.style.transform='scale(1.02)'" onmouseout="this.style.opacity='1';this.style.transform='scale(1)'">
+            <i data-lucide="plus-circle" style="width:15px;height:15px;"></i> Nuevo Producto
+        </a>
+        <a href="/productos/vender"
+           style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);color:#10B981;font-weight:800;font-size:0.78rem;letter-spacing:1.5px;text-transform:uppercase;border-radius:12px;text-decoration:none;transition:all .15s;"
+           onmouseover="this.style.background='rgba(16,185,129,0.2)'" onmouseout="this.style.background='rgba(16,185,129,0.12)'">
+            <i data-lucide="shopping-cart" style="width:15px;height:15px;"></i> Vender Productos
+        </a>
+        <a href="/caja"
+           style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:rgba(217,119,6,0.1);border:1px solid rgba(217,119,6,0.2);color:#D97706;font-weight:800;font-size:0.78rem;letter-spacing:1.5px;text-transform:uppercase;border-radius:12px;text-decoration:none;transition:all .15s;"
+           onmouseover="this.style.background='rgba(217,119,6,0.2)'" onmouseout="this.style.background='rgba(217,119,6,0.1)'">
+            <i data-lucide="alert-circle" style="width:15px;height:15px;"></i> Ver Deudas en Caja
+        </a>
+    </div>
+</div>
+
+<!-- Filters -->
+<div style="background:#0D0D20;border:1px solid rgba(30,111,227,0.15);border-radius:14px;padding:18px 20px;margin-bottom:16px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+        <div>
+            <label class="pf-label">Buscar</label>
+            <input type="text" id="buscarProducto" placeholder="Nombre o categoría..." class="pf-input">
+        </div>
+        <div>
+            <label class="pf-label">Categoría</label>
+            <select id="filtroCategoria" class="pf-select">
+                <option value="">Todas</option>
+                <option value="suplementos">Suplementos</option>
+                <option value="bebidas">Bebidas</option>
+                <option value="snacks">Snacks</option>
+                <option value="accesorios">Accesorios</option>
+                <option value="otros">Otros</option>
+            </select>
+        </div>
+        <div>
+            <label class="pf-label">Estado</label>
+            <select id="filtroEstado" class="pf-select">
+                <option value="">Todos</option>
+                <option value="activo">Activos</option>
+                <option value="inactivo">Inactivos</option>
+                <option value="sin-stock">Sin Stock</option>
+            </select>
         </div>
     </div>
+</div>
 
-    <div class="bg-white rounded-2xl shadow-xl p-6 mb-6 border-2 border-gray-200">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Buscar</label>
-                <input type="text" id="buscarProducto" placeholder="Nombre o categoría..."
-                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
-            </div>
-            <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Categoría</label>
-                <select id="filtroCategoria"
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold bg-white">
-                    <option value="">Todas</option>
-                    <option value="suplementos">Suplementos</option>
-                    <option value="bebidas">Bebidas</option>
-                    <option value="snacks">Snacks</option>
-                    <option value="accesorios">Accesorios</option>
-                    <option value="otros">Otros</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Estado</label>
-                <select id="filtroEstado"
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold bg-white">
-                    <option value="">Todos</option>
-                    <option value="activo">Activos</option>
-                    <option value="inactivo">Inactivos</option>
-                    <option value="sin-stock">Sin Stock</option>
-                </select>
-            </div>
-        </div>
-    </div>
-
-    <div class="bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-gray-200">
-        <table class="min-w-full divide-y-2 divide-gray-200">
-            <thead class="bg-gradient-to-r from-gray-900 to-black">
-                <tr>
-                    <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-wider">Imagen</th>
-                    <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-wider">Producto</th>
-                    <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-wider">Categoría</th>
-                    <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-wider">Precio</th>
-                    <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-wider">Stock</th>
-                    <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-wider">Estado</th>
-                    <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-wider">Acciones</th>
+<!-- Table -->
+<div style="background:#0D0D20;border:1px solid rgba(30,111,227,0.15);border-radius:16px;overflow:hidden;">
+    <table class="pf-table">
+        <thead>
+            <tr>
+                <th>Imagen</th>
+                <th>Producto</th>
+                <th>Categoría</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Estado</th>
+                <th style="text-align:right;">Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="productosTable">
+            @foreach (var producto in Model)
+            {
+                <tr class="producto-row"
+                    data-nombre="@producto.Nombre.ToLower()"
+                    data-categoria="@producto.Categoria?.ToLower()"
+                    data-activo="@producto.Activo.ToString().ToLower()"
+                    data-stock="@producto.Stock">
+                    <td>
+                        <div style="width:48px;height:48px;border-radius:10px;overflow:hidden;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;">
+                            @if (!string.IsNullOrEmpty(producto.ImagenBase64))
+                            {
+                                <img src="@producto.ImagenBase64" style="width:100%;height:100%;object-fit:cover;" alt="@producto.Nombre">
+                            }
+                            else
+                            {
+                                <i data-lucide="package" style="width:20px;height:20px;color:rgba(255,255,255,0.2);"></i>
+                            }
+                        </div>
+                    </td>
+                    <td>
+                        <p style="font-weight:800;color:#fff;font-size:0.9rem;margin:0 0 2px 0;">@producto.Nombre</p>
+                        @if (!string.IsNullOrEmpty(producto.Descripcion))
+                        {
+                            <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);font-weight:600;margin:0;">@producto.Descripcion</p>
+                        }
+                    </td>
+                    <td>
+                        <span class="pf-badge" style="background:rgba(30,111,227,0.1);color:#7EB8FF;border:1px solid rgba(30,111,227,0.2);">
+                            @producto.Categoria
+                        </span>
+                    </td>
+                    <td>
+                        <span style="font-weight:900;color:#10B981;font-size:1rem;">$@producto.Precio.ToString("N2")</span>
+                    </td>
+                    <td>
+                        <span class="pf-badge" style="background:@(producto.Stock > 10 ? "rgba(16,185,129,0.1)" : producto.Stock > 0 ? "rgba(217,119,6,0.1)" : "rgba(248,113,113,0.1)");color:@(producto.Stock > 10 ? "#10B981" : producto.Stock > 0 ? "#D97706" : "#F87171");border:1px solid @(producto.Stock > 10 ? "rgba(16,185,129,0.25)" : producto.Stock > 0 ? "rgba(217,119,6,0.25)" : "rgba(248,113,113,0.25)");">
+                            @producto.Stock uds
+                        </span>
+                    </td>
+                    <td>
+                        <span class="pf-badge" style="background:@(producto.Activo ? "rgba(16,185,129,0.1)" : "rgba(255,255,255,0.05)");color:@(producto.Activo ? "#10B981" : "rgba(255,255,255,0.3)");border:1px solid @(producto.Activo ? "rgba(16,185,129,0.25)" : "rgba(255,255,255,0.08)");">
+                            @(producto.Activo ? "Activo" : "Inactivo")
+                        </span>
+                    </td>
+                    <td style="text-align:right;">
+                        <div style="display:flex;align-items:center;justify-content:flex-end;gap:4px;">
+                            <a href="/productos/detalle/@producto.Id" class="action-btn" title="Ver"
+                               style="background:rgba(30,111,227,0.08);" onmouseover="this.style.background='rgba(30,111,227,0.18)'" onmouseout="this.style.background='rgba(30,111,227,0.08)'">
+                                <i data-lucide="eye" style="width:14px;height:14px;color:#3D8EFF;"></i>
+                            </a>
+                            <a href="/productos/editar/@producto.Id" class="action-btn" title="Editar"
+                               style="background:rgba(217,119,6,0.08);" onmouseover="this.style.background='rgba(217,119,6,0.18)'" onmouseout="this.style.background='rgba(217,119,6,0.08)'">
+                                <i data-lucide="edit" style="width:14px;height:14px;color:#D97706;"></i>
+                            </a>
+                            <button onclick="eliminarProducto('@producto.Id','@producto.Nombre')" class="action-btn" title="Eliminar"
+                                    style="background:rgba(248,113,113,0.08);border:none;cursor:pointer;" onmouseover="this.style.background='rgba(248,113,113,0.18)'" onmouseout="this.style.background='rgba(248,113,113,0.08)'">
+                                <i data-lucide="trash-2" style="width:14px;height:14px;color:#F87171;"></i>
+                            </button>
+                        </div>
+                    </td>
                 </tr>
-            </thead>
-            <tbody class="bg-white divide-y-2 divide-gray-200" id="productosTable">
-                @foreach (var producto in Model)
-                {
-                    <tr class="hover:bg-gray-50 transition-colors producto-row"
-                        data-nombre="@producto.Nombre.ToLower()"
-                        data-categoria="@producto.Categoria?.ToLower()"
-                        data-activo="@producto.Activo.ToString().ToLower()"
-                        data-stock="@producto.Stock">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="w-16 h-16 bg-gray-200 rounded-xl flex items-center justify-center overflow-hidden border-2 border-gray-300">
-                                @if (!string.IsNullOrEmpty(producto.ImagenBase64))
-                                {
-                                    <img src="@producto.ImagenBase64" class="w-full h-full object-cover" alt="@producto.Nombre">
-                                }
-                                else
-                                {
-                                    <i data-lucide="package" class="w-8 h-8 text-gray-400"></i>
-                                }
-                            </div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="text-sm font-black text-gray-900">@producto.Nombre</div>
-                            <div class="text-sm text-gray-600 font-semibold">@producto.Descripcion</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-black rounded-full bg-blue-100 text-blue-800 uppercase tracking-wide">
-                                @producto.Categoria
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-black text-emerald-600 text-lg">$@producto.Precio.ToString("N2")</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-black rounded-full uppercase tracking-wide @(producto.Stock > 10 ? "bg-green-100 text-green-800" : producto.Stock > 0 ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800")">
-                                @producto.Stock unidades
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-black rounded-full uppercase tracking-wide @(producto.Activo ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800")">
-                                @(producto.Activo ? "Activo" : "Inactivo")
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div class="flex gap-2">
-                                <a href="/productos/detalle/@producto.Id"
-                                   class="text-blue-600 hover:text-blue-900 p-2 hover:bg-blue-50 rounded-lg transition-colors" title="Ver detalles">
-                                    <i data-lucide="eye" class="w-5 h-5"></i>
-                                </a>
-                                <a href="/productos/editar/@producto.Id"
-                                   class="text-amber-600 hover:text-amber-900 p-2 hover:bg-amber-50 rounded-lg transition-colors" title="Editar">
-                                    <i data-lucide="edit" class="w-5 h-5"></i>
-                                </a>
-                                <button type="button" onclick="eliminarProducto('@producto.Id', '@producto.Nombre')"
-                                        class="text-red-600 hover:text-red-900 p-2 hover:bg-red-50 rounded-lg transition-colors cursor-pointer border-0 bg-transparent" title="Eliminar">
-                                    <i data-lucide="trash-2" class="w-5 h-5"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+            }
+        </tbody>
+    </table>
 </div>
 
 @section Scripts {
@@ -145,59 +260,31 @@
         document.getElementById('filtroEstado').addEventListener('change', filtrarProductos);
 
         function filtrarProductos() {
-            const busqueda = document.getElementById('buscarProducto').value.toLowerCase();
+            const busqueda  = document.getElementById('buscarProducto').value.toLowerCase();
             const categoria = document.getElementById('filtroCategoria').value.toLowerCase();
-            const estado = document.getElementById('filtroEstado').value.toLowerCase();
-
-            const rows = document.querySelectorAll('.producto-row');
-
-            rows.forEach(row => {
+            const estado    = document.getElementById('filtroEstado').value.toLowerCase();
+            document.querySelectorAll('.producto-row').forEach(row => {
                 const nombre = row.dataset.nombre;
-                const cat = row.dataset.categoria;
+                const cat    = row.dataset.categoria;
                 const activo = row.dataset.activo === 'true';
-                const stock = parseInt(row.dataset.stock);
-
-                let mostrar = true;
-
-                if (busqueda && !nombre.includes(busqueda) && !cat.includes(busqueda)) {
-                    mostrar = false;
-                }
-
-                if (categoria && cat !== categoria) {
-                    mostrar = false;
-                }
-
-                if (estado === 'activo' && !activo) mostrar = false;
-                if (estado === 'inactivo' && activo) mostrar = false;
+                const stock  = parseInt(row.dataset.stock);
+                let mostrar  = true;
+                if (busqueda && !nombre.includes(busqueda) && !cat.includes(busqueda)) mostrar = false;
+                if (categoria && cat !== categoria) mostrar = false;
+                if (estado === 'activo'    && !activo)  mostrar = false;
+                if (estado === 'inactivo'  &&  activo)  mostrar = false;
                 if (estado === 'sin-stock' && stock > 0) mostrar = false;
-
                 row.style.display = mostrar ? '' : 'none';
             });
         }
 
-
         async function eliminarProducto(id, nombre) {
-            if (!confirm(`¿Estás seguro de que deseas eliminar el producto "${nombre}"?\n\nEsta acción no se puede deshacer.`)) {
-                return;
-            }
-
+            if (!confirm(`¿Eliminar el producto "${nombre}"?\n\nEsta acción no se puede deshacer.`)) return;
             try {
-                const response = await fetch(`/api/Productos/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-
-                if (response.ok) {
-                    alert('✅ Producto eliminado exitosamente');
-                    location.reload();
-                } else {
-                    const error = await response.text();
-                    alert('❌ Error: ' + error);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al eliminar el producto');
-            }
+                const r = await fetch(`/api/Productos/${id}`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' } });
+                if (r.ok) { alert('✅ Producto eliminado'); location.reload(); }
+                else { alert('❌ Error: ' + await r.text()); }
+            } catch(e) { alert('❌ Error: ' + e.message); }
         }
 
         window.eliminarProducto = eliminarProducto;

@@ -249,8 +249,8 @@
       ]
     },
     {
-      "Route": "images/IMG_2929.25n7x9x44g.JPG",
-      "AssetFile": "images/IMG_2929.JPG",
+      "Route": "images/power-fitness-logo.jqty6zes4v.png",
+      "AssetFile": "images/power-fitness-logo.png",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -263,39 +263,39 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "697960"
+          "Value": "373048"
         },
         {
           "Name": "Content-Type",
-          "Value": "image/jpeg"
+          "Value": "image/png"
         },
         {
           "Name": "ETag",
-          "Value": "\"GvpeXj0CAX3PSWNQBVppDGEn+0fjZ5RHzOUUb05M9dg=\""
+          "Value": "\"C90YjtP2UJVIsORfJeEXOD51r/K9LHJ0hhAzl/1HZms=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Wed, 20 May 2026 16:05:46 GMT"
+          "Value": "Thu, 28 May 2026 19:14:05 GMT"
         }
       ],
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "25n7x9x44g"
+          "Value": "jqty6zes4v"
         },
         {
           "Name": "integrity",
-          "Value": "sha256-GvpeXj0CAX3PSWNQBVppDGEn+0fjZ5RHzOUUb05M9dg="
+          "Value": "sha256-C90YjtP2UJVIsORfJeEXOD51r/K9LHJ0hhAzl/1HZms="
         },
         {
           "Name": "label",
-          "Value": "images/IMG_2929.JPG"
+          "Value": "images/power-fitness-logo.png"
         }
       ]
     },
     {
-      "Route": "images/IMG_2929.JPG",
-      "AssetFile": "images/IMG_2929.JPG",
+      "Route": "images/power-fitness-logo.png",
+      "AssetFile": "images/power-fitness-logo.png",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -308,25 +308,25 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "697960"
+          "Value": "373048"
         },
         {
           "Name": "Content-Type",
-          "Value": "image/jpeg"
+          "Value": "image/png"
         },
         {
           "Name": "ETag",
-          "Value": "\"GvpeXj0CAX3PSWNQBVppDGEn+0fjZ5RHzOUUb05M9dg=\""
+          "Value": "\"C90YjtP2UJVIsORfJeEXOD51r/K9LHJ0hhAzl/1HZms=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Wed, 20 May 2026 16:05:46 GMT"
+          "Value": "Thu, 28 May 2026 19:14:05 GMT"
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-GvpeXj0CAX3PSWNQBVppDGEn+0fjZ5RHzOUUb05M9dg="
+          "Value": "sha256-C90YjtP2UJVIsORfJeEXOD51r/K9LHJ0hhAzl/1HZms="
         }
       ]
     },

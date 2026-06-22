@@ -1,14 +1,53 @@
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Gestión de Caja";
-    ViewData["Subtitle"] = "Control financiero completo - TAURO GYM";
+    ViewData["Subtitle"] = "Control financiero completo - POWER FITNESS";
 }
+
+<style>
+    /* ─── Tabs ─── */
+    .tab-btn {
+        background: transparent !important;
+        color: rgba(255,255,255,0.4) !important;
+        border-bottom-color: transparent !important;
+    }
+    .tab-btn.border-b-4.border-red-600 {
+        color: #1E6FE3 !important;
+        border-bottom-color: #1E6FE3 !important;
+        background: rgba(30,111,227,0.06) !important;
+    }
+    .tab-btn:hover { background: rgba(255,255,255,0.04) !important; color: #fff !important; }
+
+    /* ─── Filtro deudas ─── */
+    .ftd-btn { color: rgba(255,255,255,0.4) !important; }
+    .ftd-btn.bg-[\#0D0D20] { background: rgba(30,111,227,0.12) !important; color: #1E6FE3 !important; box-shadow: none !important; }
+
+    /* ─── Tabla encabezado semanal ─── */
+    thead.bg-gradient-to-r.from-red-600 { background: linear-gradient(90deg,#1E6FE3,#0d4fa8) !important; }
+    th.bg-amber-600 { background: rgba(217,119,6,0.7) !important; }
+    tfoot td.bg-amber-50 { background: rgba(217,119,6,0.06) !important; }
+
+    /* ─── Scrollbar ─── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #05050F; }
+    ::-webkit-scrollbar-thumb { background: linear-gradient(180deg,#1E6FE3,#6B3FA0); border-radius:3px; }
+
+    /* ─── Select options ─── */
+    select option { background: #0D0D20; color: #fff; }
+
+    /* ─── Inputs focus ─── */
+    input:focus, select:focus, textarea:focus {
+        border-color: #1E6FE3 !important;
+        box-shadow: 0 0 0 3px rgba(30,111,227,0.15) !important;
+        outline: none !important;
+    }
+</style>
 
 <div class="space-y-6">
     <!-- ALERTA DE DÍAS PENDIENTES -->
     <!-- RESUMEN GENERAL DE CAJA -->
     <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
-        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl shadow-xl p-6 border-l-4 border-emerald-600 transform hover:scale-105 transition-all">
+        <div class="bg-gradient-to-br from-emerald-50 to-[#111428] rounded-2xl shadow-xl p-6 border-l-4 border-emerald-600 transform hover:scale-105 transition-all">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-emerald-700 font-black uppercase tracking-wide mb-1">Efectivo Hoy</p>
@@ -21,15 +60,15 @@
             </div>
         </div>
 
-        <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl shadow-xl p-6 border-l-4 border-purple-600 transform hover:scale-105 transition-all">
+        <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl shadow-xl p-6 border-l-4 border-[#1E6FE3] transform hover:scale-105 transition-all">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-purple-700 font-black uppercase tracking-wide mb-1">Transferencias Hoy</p>
-                    <p class="text-3xl font-black text-purple-600" id="transferencias-hoy">$0.00</p>
-                    <p class="text-xs text-purple-600 font-semibold mt-1" id="detalle-transferencias">Ingresos del día</p>
+                    <p class="text-sm text-[#3D8EFF] font-black uppercase tracking-wide mb-1">Transferencias Hoy</p>
+                    <p class="text-3xl font-black text-[#3D8EFF]" id="transferencias-hoy">$0.00</p>
+                    <p class="text-xs text-[#3D8EFF] font-semibold mt-1" id="detalle-transferencias">Ingresos del día</p>
                 </div>
                 <div class="w-12 h-12 bg-purple-200 rounded-full flex items-center justify-center">
-                    <i data-lucide="credit-card" class="w-6 h-6 text-purple-600"></i>
+                    <i data-lucide="credit-card" class="w-6 h-6 text-[#3D8EFF]"></i>
                 </div>
             </div>
         </div>
@@ -60,7 +99,7 @@
             </div>
         </div>
 
-        <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl shadow-xl p-6 border-l-4 border-amber-600 transform hover:scale-105 transition-all">
+        <div class="bg-gradient-to-br from-[#111428] to-[#0D0D20] rounded-2xl shadow-xl p-6 border-l-4 border-amber-600 transform hover:scale-105 transition-all">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-amber-700 font-black uppercase tracking-wide mb-1">Deudas Pendientes</p>
@@ -100,8 +139,8 @@
     </div>
 
     <!-- DESGLOSE DE VENTAS DEL DÍA -->
-    <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200">
-        <h3 class="text-lg font-black text-gray-800 mb-4 uppercase tracking-wide flex items-center gap-2">
+    <div class="bg-[#0D0D20] rounded-2xl shadow-xl p-6 border-2 border-white/8">
+        <h3 class="text-lg font-black text-white mb-4 uppercase tracking-wide flex items-center gap-2">
             <i data-lucide="pie-chart" class="w-5 h-5 text-blue-600"></i>
             Desglose de Ventas del Día
         </h3>
@@ -110,11 +149,11 @@
                 <p class="text-xs text-red-700 font-bold uppercase mb-1">Membresías</p>
                 <p class="text-2xl font-black text-red-600" id="venta-membresias">$0.00</p>
             </div>
-            <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-4 border border-amber-200">
+            <div class="bg-gradient-to-br from-[#111428] to-[#0D0D20] rounded-xl p-4 border border-amber-200">
                 <p class="text-xs text-amber-700 font-bold uppercase mb-1">Productos</p>
                 <p class="text-2xl font-black text-amber-600" id="venta-productos">$0.00</p>
             </div>
-            <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-4 border border-emerald-200">
+            <div class="bg-gradient-to-br from-emerald-50 to-[#111428] rounded-xl p-4 border border-emerald-200">
                 <p class="text-xs text-emerald-700 font-bold uppercase mb-1">Abonos a Deudas</p>
                 <p class="text-2xl font-black text-emerald-600" id="venta-abonos">$0.00</p>
             </div>
@@ -127,35 +166,35 @@
 
 
     <!-- TABS DE NAVEGACIÓN -->
-    <div class="bg-white rounded-2xl shadow-xl border-2 border-gray-200 overflow-hidden">
-        <div class="flex border-b-2 border-gray-200">
+    <div class="bg-[#0D0D20] rounded-2xl shadow-xl border-2 border-white/8 overflow-hidden">
+        <div class="flex border-b-2 border-white/8">
             <button onclick="cambiarTab('movimientos')" id="tab-movimientos"
                     class="tab-btn flex-1 px-6 py-4 font-black uppercase tracking-wide transition-all border-b-4 border-red-600 bg-red-50 text-red-600">
                 <i data-lucide="list" class="w-5 h-5 inline-block mr-2"></i>
                 Movimientos
             </button>
             <button onclick="cambiarTab('pendientes')" id="tab-pendientes"
-                    class="tab-btn flex-1 px-6 py-4 font-black uppercase tracking-wide transition-all hover:bg-gray-50">
+                    class="tab-btn flex-1 px-6 py-4 font-black uppercase tracking-wide transition-all hover:bg-[#111428]">
                 <i data-lucide="calendar-clock" class="w-5 h-5 inline-block mr-2"></i>
                 Días Pendientes
             </button>
             <button onclick="cambiarTab('deudas')" id="tab-deudas"
-                    class="tab-btn flex-1 px-6 py-4 font-black uppercase tracking-wide transition-all hover:bg-gray-50">
+                    class="tab-btn flex-1 px-6 py-4 font-black uppercase tracking-wide transition-all hover:bg-[#111428]">
                 <i data-lucide="file-text" class="w-5 h-5 inline-block mr-2"></i>
                 Deudas Clientes
             </button>
             <button onclick="cambiarTab('semanal')" id="tab-semanal"
-                    class="tab-btn flex-1 px-6 py-4 font-black uppercase tracking-wide transition-all hover:bg-gray-50">
+                    class="tab-btn flex-1 px-6 py-4 font-black uppercase tracking-wide transition-all hover:bg-[#111428]">
                 <i data-lucide="calendar" class="w-5 h-5 inline-block mr-2"></i>
                 Resumen Semanal
             </button>
             <button onclick="cambiarTab('cierres')" id="tab-cierres"
-                    class="tab-btn flex-1 px-6 py-4 font-black uppercase tracking-wide transition-all hover:bg-gray-50">
+                    class="tab-btn flex-1 px-6 py-4 font-black uppercase tracking-wide transition-all hover:bg-[#111428]">
                 <i data-lucide="archive" class="w-5 h-5 inline-block mr-2"></i>
                 Historial Cierres
             </button>
             <button onclick="cambiarTab('registrar')" id="tab-registrar"
-                    class="tab-btn flex-1 px-6 py-4 font-black uppercase tracking-wide transition-all hover:bg-gray-50">
+                    class="tab-btn flex-1 px-6 py-4 font-black uppercase tracking-wide transition-all hover:bg-[#111428]">
                 <i data-lucide="plus-circle" class="w-5 h-5 inline-block mr-2"></i>
                 Registrar
             </button>
@@ -164,22 +203,22 @@
 
     <!-- TAB: MOVIMIENTOS -->
     <div id="content-movimientos" class="tab-content">
-        <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200 mb-4">
+        <div class="bg-[#0D0D20] rounded-2xl shadow-xl p-6 border-2 border-white/8 mb-4">
             <div class="flex flex-wrap items-end gap-4">
                 <div class="flex-1 min-w-[200px]">
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Fecha Desde</label>
+                    <label class="block text-sm font-black text-white mb-2 uppercase tracking-wide">Fecha Desde</label>
                     <input type="date" id="fecha-desde"
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                           class="w-full px-4 py-3 border-2 border-white/10 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
                 </div>
                 <div class="flex-1 min-w-[200px]">
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Fecha Hasta</label>
+                    <label class="block text-sm font-black text-white mb-2 uppercase tracking-wide">Fecha Hasta</label>
                     <input type="date" id="fecha-hasta"
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                           class="w-full px-4 py-3 border-2 border-white/10 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
                 </div>
                 <div class="flex-1 min-w-[200px]">
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Categoría</label>
+                    <label class="block text-sm font-black text-white mb-2 uppercase tracking-wide">Categoría</label>
                     <select id="filtro-categoria"
-                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                            class="w-full px-4 py-3 border-2 border-white/10 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
                         <option value="">Todas</option>
                         <option value="membresia">Membresías</option>
                         <option value="renovacion">Renovaciones</option>
@@ -196,25 +235,25 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-gray-200">
-            <div class="p-4 border-b-2 border-gray-200 bg-gray-50">
-                <h3 class="text-xl font-black uppercase tracking-wide text-gray-900">Historial de Movimientos</h3>
+        <div class="bg-[#0D0D20] rounded-2xl shadow-xl overflow-hidden border-2 border-white/8">
+            <div class="p-4 border-b-2 border-white/8 bg-[#111428]">
+                <h3 class="text-xl font-black uppercase tracking-wide text-white">Historial de Movimientos</h3>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full">
-                    <thead class="bg-gray-100 border-b-2 border-gray-200">
+                    <thead class="bg-white/5 border-b-2 border-white/8">
                         <tr>
-                            <th class="px-6 py-4 text-left text-xs font-black text-gray-700 uppercase tracking-wider">Fecha</th>
-                            <th class="px-6 py-4 text-left text-xs font-black text-gray-700 uppercase tracking-wider">Tipo</th>
-                            <th class="px-6 py-4 text-left text-xs font-black text-gray-700 uppercase tracking-wider">Categoría</th>
-                            <th class="px-6 py-4 text-left text-xs font-black text-gray-700 uppercase tracking-wider">Descripción</th>
-                            <th class="px-6 py-4 text-left text-xs font-black text-gray-700 uppercase tracking-wider">Método</th>
-                            <th class="px-6 py-4 text-right text-xs font-black text-gray-700 uppercase tracking-wider">Monto</th>
+                            <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-wider">Fecha</th>
+                            <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-wider">Tipo</th>
+                            <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-wider">Categoría</th>
+                            <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-wider">Descripción</th>
+                            <th class="px-6 py-4 text-left text-xs font-black text-white uppercase tracking-wider">Método</th>
+                            <th class="px-6 py-4 text-right text-xs font-black text-white uppercase tracking-wider">Monto</th>
                         </tr>
                     </thead>
-                    <tbody id="tabla-movimientos" class="divide-y divide-gray-200">
+                    <tbody id="tabla-movimientos" class="divide-y divide-white/6">
                         <tr>
-                            <td colspan="6" class="px-6 py-12 text-center text-gray-500 font-bold">
+                            <td colspan="6" class="px-6 py-12 text-center text-white/40 font-bold">
                                 Cargando movimientos...
                             </td>
                         </tr>
@@ -227,13 +266,13 @@
 
     <!-- TAB: DÍAS PENDIENTES -->
     <div id="content-pendientes" class="tab-content hidden">
-        <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200">
-            <h3 class="text-xl font-black text-gray-900 uppercase tracking-wide mb-6">
+        <div class="bg-[#0D0D20] rounded-2xl shadow-xl p-6 border-2 border-white/8">
+            <h3 class="text-xl font-black text-white uppercase tracking-wide mb-6">
                 <i data-lucide="calendar-clock" class="w-6 h-6 inline-block mr-2 text-yellow-600"></i>
                 Días con Movimientos Sin Cerrar
             </h3>
             <div id="lista-dias-pendientes" class="space-y-4">
-                <p class="text-center text-gray-500 font-semibold py-8">Cargando...</p>
+                <p class="text-center text-white/40 font-semibold py-8">Cargando...</p>
             </div>
         </div>
     </div>
@@ -242,19 +281,19 @@
     <div id="content-deudas" class="tab-content hidden">
         <!-- Tarjetas resumen -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div onclick="filtroEstadoDeuda('')" class="bg-white rounded-2xl shadow-xl p-4 border-2 border-gray-200 cursor-pointer hover:shadow-2xl transition-all border-l-4 border-l-slate-500">
-                <p class="text-xs text-gray-500 font-black uppercase mb-1">Total por cobrar</p>
+            <div onclick="filtroEstadoDeuda('')" class="bg-[#0D0D20] rounded-2xl shadow-xl p-4 border-2 border-white/8 cursor-pointer hover:shadow-2xl transition-all border-l-4 border-l-slate-500">
+                <p class="text-xs text-white/40 font-black uppercase mb-1">Total por cobrar</p>
                 <p class="text-2xl font-black text-slate-700" id="rv-deuda-total">—</p>
-                <p class="text-xs text-gray-400 font-semibold" id="rs-deuda-total">0 deudas</p>
+                <p class="text-xs text-white/30 font-semibold" id="rs-deuda-total">0 deudas</p>
             </div>
-            <div onclick="filtroEstadoDeuda('pendiente')" class="bg-white rounded-2xl shadow-xl p-4 border-2 border-gray-200 cursor-pointer hover:shadow-2xl transition-all border-l-4 border-l-amber-500">
-                <p class="text-xs text-gray-500 font-black uppercase mb-1">Deudas pendientes</p>
+            <div onclick="filtroEstadoDeuda('pendiente')" class="bg-[#0D0D20] rounded-2xl shadow-xl p-4 border-2 border-white/8 cursor-pointer hover:shadow-2xl transition-all border-l-4 border-l-amber-500">
+                <p class="text-xs text-white/40 font-black uppercase mb-1">Deudas pendientes</p>
                 <p class="text-2xl font-black text-amber-600" id="rv-deuda-pendiente">—</p>
-                <p class="text-xs text-gray-400 font-semibold" id="rs-deuda-pendiente">0 deudas</p>
+                <p class="text-xs text-white/30 font-semibold" id="rs-deuda-pendiente">0 deudas</p>
             </div>
             <!-- Botón que lleva a la vista de deudas pagadas -->
             <a href="/Caja/DeudasPagadas"
-               class="bg-gradient-to-br from-green-50 to-emerald-100 rounded-2xl shadow-xl p-4 border-2 border-emerald-200 hover:shadow-2xl transition-all border-l-4 border-l-emerald-600 flex flex-col justify-between group cursor-pointer no-underline">
+               class="bg-gradient-to-br from-[#0D0D20] to-[#111428] rounded-2xl shadow-xl p-4 border-2 border-emerald-200 hover:shadow-2xl transition-all border-l-4 border-l-emerald-600 flex flex-col justify-between group cursor-pointer no-underline">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-xs text-emerald-700 font-black uppercase mb-1">Deudas Pagadas</p>
@@ -270,33 +309,33 @@
             </a>
         </div>
         <!-- Búsqueda + filtros -->
-        <div class="bg-white rounded-2xl shadow-xl p-4 border-2 border-gray-200 mb-4 flex flex-wrap items-center gap-3">
+        <div class="bg-[#0D0D20] rounded-2xl shadow-xl p-4 border-2 border-white/8 mb-4 flex flex-wrap items-center gap-3">
             <div class="flex-1 min-w-[200px] relative">
-                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-white/30"></i>
                 <input type="text" id="buscar-deuda" placeholder="Buscar por nombre, cedula o concepto..."
-                       class="w-full pl-9 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
+                       class="w-full pl-9 pr-4 py-3 border-2 border-white/10 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
                        oninput="debounceBusquedaDeuda(this.value)">
             </div>
-            <div class="flex gap-1 bg-gray-100 rounded-xl p-1">
-                <button onclick="filtroEstadoDeuda('')" id="ft-d-todos" class="ftd-btn px-4 py-2 rounded-lg text-sm font-black uppercase tracking-wide bg-white shadow text-red-600">Todos</button>
-                <button onclick="filtroEstadoDeuda('pendiente')" id="ft-d-pendiente" class="ftd-btn px-4 py-2 rounded-lg text-sm font-black uppercase tracking-wide text-gray-500 hover:bg-gray-50">Pendientes</button>
+            <div class="flex gap-1 bg-white/5 rounded-xl p-1">
+                <button onclick="filtroEstadoDeuda('')" id="ft-d-todos" class="ftd-btn px-4 py-2 rounded-lg text-sm font-black uppercase tracking-wide bg-[#0D0D20] shadow text-red-600">Todos</button>
+                <button onclick="filtroEstadoDeuda('pendiente')" id="ft-d-pendiente" class="ftd-btn px-4 py-2 rounded-lg text-sm font-black uppercase tracking-wide text-white/40 hover:bg-[#111428]">Pendientes</button>
             </div>
         </div>
         <div id="lista-deudas" class="space-y-4">
-            <div class="text-center py-12 text-gray-500 font-bold">Cargando deudas...</div>
+            <div class="text-center py-12 text-white/40 font-bold">Cargando deudas...</div>
         </div>
     </div>
 
     <!-- TAB: RESUMEN SEMANAL -->
     <!-- TAB: RESUMEN SEMANAL -->
     <div id="content-semanal" class="tab-content hidden">
-        <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200">
+        <div class="bg-[#0D0D20] rounded-2xl shadow-xl p-6 border-2 border-white/8">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-black text-gray-800 uppercase tracking-wide flex items-center gap-2">
+                <h3 class="text-xl font-black text-white uppercase tracking-wide flex items-center gap-2">
                     <i data-lucide="calendar-range" class="w-6 h-6 text-blue-600"></i>
                     Resumen de los Últimos 7 Días
                 </h3>
-                <p class="text-sm text-gray-600 font-bold" id="periodo-semanal">Cargando...</p>
+                <p class="text-sm text-white/50 font-bold" id="periodo-semanal">Cargando...</p>
             </div>
 
             <!-- TABLA -->
@@ -317,19 +356,19 @@
                             <th class="px-6 py-4 text-center text-sm font-black uppercase">Movimientos</th>
                         </tr>
                     </thead>
-                    <tbody id="tabla-resumen-semanal" class="divide-y divide-gray-200">
+                    <tbody id="tabla-resumen-semanal" class="divide-y divide-white/6">
                         <!-- Los datos se cargan dinámicamente con JavaScript -->
                     </tbody>
-                    <tfoot class="bg-gray-50 border-t-2 border-gray-300">
+                    <tfoot class="bg-[#111428] border-t-2 border-white/10">
                         <tr>
-                            <td class="px-6 py-4 text-sm font-black uppercase text-gray-900">TOTAL</td>
+                            <td class="px-6 py-4 text-sm font-black uppercase text-white">TOTAL</td>
                             <td class="px-6 py-4 text-right text-xl font-black text-blue-600" id="total-ingresos-semana">$0.00</td>
                             <td class="px-6 py-4 text-right text-xl font-black text-red-600" id="total-egresos-semana">$0.00</td>
                             <td class="px-6 py-4 text-right text-xl font-black text-emerald-600" id="balance-semana">$0.00</td>
                             <td class="px-6 py-4" colspan="2"></td>
                             <td class="px-6 py-4 text-right text-xl font-black text-amber-600 bg-amber-50" id="total-productos-semana">$0.00</td>
                             <td class="px-6 py-4 text-center">
-                                <span class="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-full" id="cantidad-movimientos-semana">0</span>
+                                <span class="px-3 py-1 bg-blue-500/10 text-[#3D8EFF] text-xs font-bold rounded-full" id="cantidad-movimientos-semana">0</span>
                             </td>
                         </tr>
                     </tfoot>
@@ -339,11 +378,11 @@
     </div>
     <!-- TAB: HISTORIAL CIERRES -->
     <div id="content-cierres" class="tab-content hidden">
-        <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200 mb-4">
+        <div class="bg-[#0D0D20] rounded-2xl shadow-xl p-6 border-2 border-white/8 mb-4">
             <div class="flex items-center justify-between">
-                <h3 class="text-2xl font-black text-gray-900 uppercase tracking-wide">Historial de Cierres de Caja</h3>
+                <h3 class="text-2xl font-black text-white uppercase tracking-wide">Historial de Cierres de Caja</h3>
                 <button onclick="cargarHistorialCierres()"
-                        class="px-6 py-2 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white font-black rounded-xl transition-all shadow-xl">
+                        class="px-6 py-2 bg-gradient-to-r from-[#1E6FE3] to-[#1550B0] hover:from-[#1550B0] hover:to-[#0d3d8a] text-white font-black rounded-xl transition-all shadow-xl">
                     <i data-lucide="refresh-cw" class="w-4 h-4 inline-block mr-2"></i>
                     Actualizar
                 </button>
@@ -351,8 +390,8 @@
         </div>
 
         <div id="lista-cierres" class="space-y-4">
-            <div class="bg-white rounded-2xl shadow-xl p-8 text-center border-2 border-gray-200">
-                <p class="text-gray-500 font-bold">Cargando historial...</p>
+            <div class="bg-[#0D0D20] rounded-2xl shadow-xl p-8 text-center border-2 border-white/8">
+                <p class="text-white/40 font-bold">Cargando historial...</p>
             </div>
         </div>
     </div>
@@ -361,16 +400,16 @@
     <div id="content-registrar" class="tab-content hidden">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Formulario de Ingreso -->
-            <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-green-200">
+            <div class="bg-[#0D0D20] rounded-2xl shadow-xl p-6 border-2 border-green-200">
                 <h3 class="text-2xl font-black text-green-700 mb-6 uppercase tracking-wide flex items-center">
                     <i data-lucide="plus-circle" class="w-6 h-6 mr-2"></i>
                     Registrar Ingreso
                 </h3>
                 <form onsubmit="registrarIngreso(event)" class="space-y-4">
                     <div>
-                        <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Categoría</label>
+                        <label class="block text-sm font-black text-white mb-2 uppercase">Categoría</label>
                         <select id="ingreso-categoria" required
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-600 focus:border-green-600 font-semibold">
+                                class="w-full px-4 py-3 border-2 border-white/10 rounded-xl focus:ring-2 focus:ring-green-600 focus:border-green-600 font-semibold">
                             <option value="membresia">Membresía</option>
                             <option value="renovacion">Renovación</option>
                             <option value="producto">Producto</option>
@@ -379,23 +418,23 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Monto</label>
+                        <label class="block text-sm font-black text-white mb-2 uppercase">Monto</label>
                         <input type="number" id="ingreso-monto" step="0.01" required
-                               class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-600 focus:border-green-600 font-semibold"
+                               class="w-full px-4 py-3 border-2 border-white/10 rounded-xl focus:ring-2 focus:ring-green-600 focus:border-green-600 font-semibold"
                                placeholder="0.00">
                     </div>
                     <div>
-                        <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Método de Pago</label>
+                        <label class="block text-sm font-black text-white mb-2 uppercase">Método de Pago</label>
                         <select id="ingreso-metodo" required
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-600 focus:border-green-600 font-semibold">
+                                class="w-full px-4 py-3 border-2 border-white/10 rounded-xl focus:ring-2 focus:ring-green-600 focus:border-green-600 font-semibold">
                             <option value="efectivo">Efectivo</option>
                             <option value="transferencia">Transferencia</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Descripción</label>
+                        <label class="block text-sm font-black text-white mb-2 uppercase">Descripción</label>
                         <textarea id="ingreso-descripcion" rows="3" required
-                                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-600 focus:border-green-600 font-semibold"
+                                  class="w-full px-4 py-3 border-2 border-white/10 rounded-xl focus:ring-2 focus:ring-green-600 focus:border-green-600 font-semibold"
                                   placeholder="Detalles del ingreso"></textarea>
                     </div>
                     <button type="submit"
@@ -407,16 +446,16 @@
             </div>
 
             <!-- Formulario de Egreso -->
-            <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-red-200">
+            <div class="bg-[#0D0D20] rounded-2xl shadow-xl p-6 border-2 border-red-200">
                 <h3 class="text-2xl font-black text-red-700 mb-6 uppercase tracking-wide flex items-center">
                     <i data-lucide="minus-circle" class="w-6 h-6 mr-2"></i>
                     Registrar Egreso
                 </h3>
                 <form onsubmit="registrarEgreso(event)" class="space-y-4">
                     <div>
-                        <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Categoría</label>
+                        <label class="block text-sm font-black text-white mb-2 uppercase">Categoría</label>
                         <select id="egreso-categoria" required
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                                class="w-full px-4 py-3 border-2 border-white/10 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
                             <option value="salario">Salario</option>
                             <option value="servicio">Servicio</option>
                             <option value="compra">Compra</option>
@@ -425,23 +464,23 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Monto</label>
+                        <label class="block text-sm font-black text-white mb-2 uppercase">Monto</label>
                         <input type="number" id="egreso-monto" step="0.01" required
-                               class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
+                               class="w-full px-4 py-3 border-2 border-white/10 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
                                placeholder="0.00">
                     </div>
                     <div>
-                        <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Método de Pago</label>
+                        <label class="block text-sm font-black text-white mb-2 uppercase">Método de Pago</label>
                         <select id="egreso-metodo" required
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                                class="w-full px-4 py-3 border-2 border-white/10 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
                             <option value="efectivo">Efectivo</option>
                             <option value="transferencia">Transferencia</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Descripción</label>
+                        <label class="block text-sm font-black text-white mb-2 uppercase">Descripción</label>
                         <textarea id="egreso-descripcion" rows="3" required
-                                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
+                                  class="w-full px-4 py-3 border-2 border-white/10 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
                                   placeholder="Detalles del egreso"></textarea>
                     </div>
                     <button type="submit"
@@ -459,7 +498,7 @@
 <!-- MODAL: LOADING INGRESO/EGRESO                   -->
 <!-- ═══════════════════════════════════════════════ -->
 <div id="modalLoadingMovimiento" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm text-center p-10">
+    <div class="bg-[#0D0D20] rounded-3xl shadow-2xl w-full max-w-sm text-center p-10">
         <div class="relative w-20 h-20 mx-auto mb-6">
             <svg class="animate-spin w-20 h-20" id="loadingMovSpinner" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -467,9 +506,9 @@
             </svg>
             <i data-lucide="loader" id="loadingMovIcon" class="w-8 h-8 absolute inset-0 m-auto"></i>
         </div>
-        <p class="text-xl font-black text-gray-900 uppercase tracking-wide mb-2" id="loadingMovTitulo">Registrando...</p>
-        <p class="text-sm text-gray-500 font-semibold" id="loadingMovMsg">Guardando en el sistema...</p>
-        <div class="mt-4 w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+        <p class="text-xl font-black text-white uppercase tracking-wide mb-2" id="loadingMovTitulo">Registrando...</p>
+        <p class="text-sm text-white/40 font-semibold" id="loadingMovMsg">Guardando en el sistema...</p>
+        <div class="mt-4 w-full bg-white/8 rounded-full h-2 overflow-hidden">
             <div class="h-2 rounded-full animate-pulse" id="loadingMovBar" style="width:60%"></div>
         </div>
     </div>
@@ -479,37 +518,37 @@
 <!-- MODAL: DETALLE DE MOVIMIENTO REGISTRADO         -->
 <!-- ═══════════════════════════════════════════════ -->
 <div id="modalDetalleMovimiento" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md">
+    <div class="bg-[#0D0D20] rounded-3xl shadow-2xl w-full max-w-md">
         <div id="detalleMovHeader" class="px-8 py-6 rounded-t-3xl text-center text-white">
-            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-3">
+            <div class="w-16 h-16 bg-white/15 rounded-full flex items-center justify-center mx-auto mb-3">
                 <i data-lucide="check-circle" class="w-9 h-9 text-white"></i>
             </div>
             <h3 class="text-2xl font-black uppercase tracking-wide" id="detalleMovTitulo">¡Registrado!</h3>
             <p class="text-sm font-semibold mt-1 opacity-80" id="detalleMovFecha"></p>
         </div>
         <div class="p-8">
-            <div class="bg-gray-50 rounded-2xl p-5 border-2 border-gray-200 space-y-3">
+            <div class="bg-[#111428] rounded-2xl p-5 border-2 border-white/8 space-y-3">
                 <div class="flex justify-between items-center">
-                    <span class="text-sm font-black text-gray-500 uppercase">Monto</span>
+                    <span class="text-sm font-black text-white/40 uppercase">Monto</span>
                     <span class="text-3xl font-black" id="detalleMovMonto">$0.00</span>
                 </div>
-                <div class="flex justify-between items-center border-t border-gray-200 pt-3">
-                    <span class="text-sm font-black text-gray-500 uppercase">Categoría</span>
-                    <span class="font-bold text-gray-900 capitalize" id="detalleMovCategoria"></span>
+                <div class="flex justify-between items-center border-t border-white/8 pt-3">
+                    <span class="text-sm font-black text-white/40 uppercase">Categoría</span>
+                    <span class="font-bold text-white capitalize" id="detalleMovCategoria"></span>
                 </div>
-                <div class="flex justify-between items-center border-t border-gray-200 pt-3">
-                    <span class="text-sm font-black text-gray-500 uppercase">Método</span>
-                    <span class="font-bold text-gray-900 capitalize" id="detalleMovMetodo"></span>
+                <div class="flex justify-between items-center border-t border-white/8 pt-3">
+                    <span class="text-sm font-black text-white/40 uppercase">Método</span>
+                    <span class="font-bold text-white capitalize" id="detalleMovMetodo"></span>
                 </div>
-                <div class="border-t border-gray-200 pt-3">
-                    <span class="text-sm font-black text-gray-500 uppercase block mb-1">Descripción</span>
-                    <p class="text-sm text-gray-700 font-semibold" id="detalleMovDescripcion"></p>
+                <div class="border-t border-white/8 pt-3">
+                    <span class="text-sm font-black text-white/40 uppercase block mb-1">Descripción</span>
+                    <p class="text-sm text-white font-semibold" id="detalleMovDescripcion"></p>
                 </div>
             </div>
         </div>
         <div class="px-8 pb-8">
             <button onclick="cerrarDetalleMovimiento()"
-                    class="w-full px-6 py-3 bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-800 hover:to-black text-white font-black rounded-xl transition-all shadow-lg uppercase tracking-wide">
+                    class="w-full px-6 py-3 bg-gradient-to-r from-[#1E6FE3] to-[#6B3FA0] hover:from-[#1550B0] hover:to-[#4A2878] text-white font-black rounded-xl transition-all shadow-lg uppercase tracking-wide">
                 Aceptar
             </button>
         </div>
@@ -518,7 +557,7 @@
 
 <!-- MODAL DE CIERRE DE CAJA -->
 <div id="modal-cerrar-caja" class="fixed inset-0 bg-black bg-opacity-70 hidden flex items-center justify-center z-50">
-    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-3xl mx-4 transform transition-all">
+    <div class="bg-[#0D0D20] rounded-3xl shadow-2xl w-full max-w-3xl mx-4 transform transition-all">
         <div class="bg-gradient-to-r from-red-600 to-red-800 text-white px-8 py-6 rounded-t-3xl">
             <h3 class="text-3xl font-black uppercase tracking-wide flex items-center">
                 <i data-lucide="lock" class="w-8 h-8 mr-3"></i>
@@ -528,48 +567,48 @@
 
         <div class="p-8">
             <!-- RESUMEN DEL CIERRE -->
-            <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 mb-6 border-2 border-gray-200">
-                <h4 class="text-xl font-black text-gray-900 mb-6 uppercase flex items-center gap-2">
+            <div class="bg-gradient-to-br from-[#0D0D20] to-[#111428] rounded-2xl p-6 mb-6 border-2 border-white/8">
+                <h4 class="text-xl font-black text-white mb-6 uppercase flex items-center gap-2">
                     <i data-lucide="bar-chart-3" class="w-6 h-6 text-blue-600"></i>
                     Resumen del Cierre
                 </h4>
 
                 <div class="grid grid-cols-2 gap-6">
                     <!-- Efectivo Final -->
-                    <div class="bg-white rounded-xl p-4 border-l-4 border-emerald-600">
-                        <p class="text-xs text-gray-600 font-bold mb-1 uppercase">💵 Efectivo Final</p>
+                    <div class="bg-[#0D0D20] rounded-xl p-4 border-l-4 border-emerald-600">
+                        <p class="text-xs text-white/50 font-bold mb-1 uppercase">💵 Efectivo Final</p>
                         <p class="text-3xl font-black text-emerald-600" id="cierre-efectivo-final">$0.00</p>
                     </div>
 
                     <!-- Transferencias -->
-                    <div class="bg-white rounded-xl p-4 border-l-4 border-purple-600">
-                        <p class="text-xs text-gray-600 font-bold mb-1 uppercase">💳 Transferencias</p>
-                        <p class="text-3xl font-black text-purple-600" id="cierre-transferencias">$0.00</p>
+                    <div class="bg-[#0D0D20] rounded-xl p-4 border-l-4 border-[#1E6FE3]">
+                        <p class="text-xs text-white/50 font-bold mb-1 uppercase">💳 Transferencias</p>
+                        <p class="text-3xl font-black text-[#3D8EFF]" id="cierre-transferencias">$0.00</p>
                     </div>
 
                     <!-- Ingresos Hoy -->
-                    <div class="bg-white rounded-xl p-4 border-l-4 border-blue-600">
-                        <p class="text-xs text-gray-600 font-bold mb-1 uppercase">📈 Ingresos Hoy</p>
+                    <div class="bg-[#0D0D20] rounded-xl p-4 border-l-4 border-blue-600">
+                        <p class="text-xs text-white/50 font-bold mb-1 uppercase">📈 Ingresos Hoy</p>
                         <p class="text-2xl font-black text-blue-600" id="cierre-ingresos">$0.00</p>
                     </div>
 
                     <!-- Egresos Hoy -->
-                    <div class="bg-white rounded-xl p-4 border-l-4 border-red-600">
-                        <p class="text-xs text-gray-600 font-bold mb-1 uppercase">📉 Egresos Hoy</p>
+                    <div class="bg-[#0D0D20] rounded-xl p-4 border-l-4 border-red-600">
+                        <p class="text-xs text-white/50 font-bold mb-1 uppercase">📉 Egresos Hoy</p>
                         <p class="text-2xl font-black text-red-600" id="cierre-egresos">$0.00</p>
                     </div>
 
                     <!-- Balance General -->
-                    <div class="bg-white rounded-xl p-4 border-l-4 border-amber-600 col-span-2">
-                        <p class="text-sm text-gray-600 font-bold mb-1 uppercase">💰 Balance General</p>
+                    <div class="bg-[#0D0D20] rounded-xl p-4 border-l-4 border-amber-600 col-span-2">
+                        <p class="text-sm text-white/50 font-bold mb-1 uppercase">💰 Balance General</p>
                         <p class="text-4xl font-black text-amber-600" id="cierre-balance">$0.00</p>
                     </div>
                 </div>
             </div>
 
             <!-- DESGLOSE DE PRODUCTOS -->
-            <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl p-6 mb-6 border-2 border-amber-200">
-                <h4 class="text-lg font-black text-gray-900 mb-4 uppercase flex items-center gap-2">
+            <div class="bg-gradient-to-br from-[#111428] to-[#0D0D20] rounded-2xl p-6 mb-6 border-2 border-amber-200">
+                <h4 class="text-lg font-black text-white mb-4 uppercase flex items-center gap-2">
                     <i data-lucide="shopping-bag" class="w-5 h-5 text-amber-600"></i>
                     Productos Vendidos
                 </h4>
@@ -585,19 +624,19 @@
 
             <!-- OBSERVACIONES -->
             <div class="mb-6">
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase flex items-center gap-2">
+                <label class="block text-sm font-black text-white mb-2 uppercase flex items-center gap-2">
                     <i data-lucide="file-text" class="w-4 h-4"></i>
                     Observaciones (Opcional)
                 </label>
                 <textarea id="cierre-observaciones" rows="3"
-                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
+                          class="w-full px-4 py-3 border-2 border-white/10 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold"
                           placeholder="Notas adicionales sobre el cierre del día..."></textarea>
             </div>
 
             <!-- BOTONES -->
             <div class="flex gap-4">
                 <button onclick="cerrarModalCerrarCaja()"
-                        class="flex-1 px-6 py-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-black rounded-xl transition-all uppercase tracking-wide flex items-center justify-center gap-2">
+                        class="flex-1 px-6 py-4 bg-white/8 hover:bg-white/12 text-white font-black rounded-xl transition-all uppercase tracking-wide flex items-center justify-center gap-2">
                     <i data-lucide="x" class="w-5 h-5"></i>
                     Cancelar
                 </button>
@@ -613,22 +652,22 @@
 
 <!-- MODAL: CERRAR DÍA ESPECÍFICO -->
 <div id="modalCerrarDiaEspecifico" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4">
-        <h3 class="text-2xl font-black text-gray-900 mb-4 uppercase tracking-wide">
+    <div class="bg-[#0D0D20] rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4">
+        <h3 class="text-2xl font-black text-white mb-4 uppercase tracking-wide">
             <i data-lucide="calendar-check" class="w-6 h-6 inline-block mr-2 text-blue-600"></i>
             Cerrar Día Específico
         </h3>
-        <p class="text-gray-600 mb-4 font-semibold">Fecha: <span id="modal-fecha-cerrar" class="text-blue-600 font-black"></span></p>
-        <p class="text-gray-600 mb-4 font-semibold">Movimientos: <span id="modal-cantidad-movimientos" class="text-gray-900 font-black"></span></p>
-        <p class="text-gray-600 mb-6 font-semibold">Balance: <span id="modal-balance-dia" class="text-emerald-600 font-black"></span></p>
+        <p class="text-white/50 mb-4 font-semibold">Fecha: <span id="modal-fecha-cerrar" class="text-blue-600 font-black"></span></p>
+        <p class="text-white/50 mb-4 font-semibold">Movimientos: <span id="modal-cantidad-movimientos" class="text-white font-black"></span></p>
+        <p class="text-white/50 mb-6 font-semibold">Balance: <span id="modal-balance-dia" class="text-emerald-600 font-black"></span></p>
 
         <div class="mb-4">
-            <label class="block text-sm font-black text-gray-700 mb-2 uppercase">Observaciones (opcional)</label>
-            <textarea id="input-observaciones-cierre-dia" rows="3" class="w-full px-4 py-3 rounded-xl border-2 border-gray-300 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Agregar notas sobre este cierre..."></textarea>
+            <label class="block text-sm font-black text-white mb-2 uppercase">Observaciones (opcional)</label>
+            <textarea id="input-observaciones-cierre-dia" rows="3" class="w-full px-4 py-3 rounded-xl border-2 border-white/10 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Agregar notas sobre este cierre..."></textarea>
         </div>
 
         <div class="flex gap-3">
-            <button onclick="cerrarModalDiaEspecifico()" class="flex-1 px-6 py-3 bg-gray-300 hover:bg-gray-400 text-gray-800 font-black rounded-xl transition-all uppercase tracking-wide">
+            <button onclick="cerrarModalDiaEspecifico()" class="flex-1 px-6 py-3 bg-white/12 hover:bg-white/15 text-white font-black rounded-xl transition-all uppercase tracking-wide">
                 Cancelar
             </button>
             <button onclick="confirmarCierreDiaEspecifico()" class="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-black rounded-xl transition-all shadow-lg uppercase tracking-wide">
@@ -640,7 +679,7 @@
 
 <!-- MODAL PARA ABONAR DEUDA -->
 <div id="modalAbonarDeuda" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4">
+    <div class="bg-[#0D0D20] rounded-2xl shadow-2xl w-full max-w-md mx-4">
         <div class="bg-gradient-to-r from-emerald-600 to-emerald-800 text-white p-6 rounded-t-2xl">
             <div class="flex items-center justify-between">
                 <h3 class="text-2xl font-black uppercase tracking-wide">Abonar a Deuda</h3>
@@ -652,30 +691,30 @@
 
         <div class="p-6">
             <div class="mb-4">
-                <p class="text-sm text-gray-600 font-bold uppercase mb-1">Cliente</p>
-                <p class="text-lg font-black text-gray-900" id="modal-cliente-nombre">-</p>
+                <p class="text-sm text-white/50 font-bold uppercase mb-1">Cliente</p>
+                <p class="text-lg font-black text-white" id="modal-cliente-nombre">-</p>
             </div>
 
             <div class="mb-4">
-                <p class="text-sm text-gray-600 font-bold uppercase mb-1">Concepto</p>
-                <p class="text-lg font-black text-gray-900" id="modal-concepto">-</p>
+                <p class="text-sm text-white/50 font-bold uppercase mb-1">Concepto</p>
+                <p class="text-lg font-black text-white" id="modal-concepto">-</p>
             </div>
 
             <div class="mb-4">
-                <p class="text-sm text-gray-600 font-bold uppercase mb-1">Saldo Pendiente</p>
+                <p class="text-sm text-white/50 font-bold uppercase mb-1">Saldo Pendiente</p>
                 <p class="text-2xl font-black text-red-600" id="modal-saldo">$0.00</p>
             </div>
 
             <div class="mb-4">
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Monto a Abonar</label>
+                <label class="block text-sm font-black text-white mb-2 uppercase tracking-wide">Monto a Abonar</label>
                 <input type="number" step="0.01" id="input-monto-abono"
-                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-emerald-600 focus:outline-none font-bold text-lg">
+                       class="w-full px-4 py-3 border-2 border-white/10 rounded-xl focus:border-emerald-600 focus:outline-none font-bold text-lg">
             </div>
 
             <div class="mb-6">
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Método de Pago</label>
+                <label class="block text-sm font-black text-white mb-2 uppercase tracking-wide">Método de Pago</label>
                 <select id="input-metodo-abono"
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-emerald-600 focus:outline-none font-bold">
+                        class="w-full px-4 py-3 border-2 border-white/10 rounded-xl focus:border-emerald-600 focus:outline-none font-bold">
                     <option value="efectivo">Efectivo</option>
                     <option value="transferencia">Transferencia</option>
                 </select>
@@ -683,7 +722,7 @@
 
             <div class="flex gap-3">
                 <button onclick="cerrarModalAbonar()"
-                        class="flex-1 px-6 py-3 bg-gray-200 text-gray-900 rounded-xl hover:bg-gray-300 font-black uppercase tracking-wide transition-all">
+                        class="flex-1 px-6 py-3 bg-white/8 text-white rounded-xl hover:bg-white/12 font-black uppercase tracking-wide transition-all">
                     Cancelar
                 </button>
                 <button onclick="confirmarAbono()"
@@ -972,15 +1011,15 @@
                             : '<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded">Transferencia</span>';
 
                         return `
-                            <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="px-6 py-4 text-sm font-semibold text-gray-900">
+                            <tr class="hover:bg-[#111428] transition-colors">
+                                <td class="px-6 py-4 text-sm font-semibold text-white">
                                     ${formatearFechaHoraUTC(m.fecha || m.Fecha)}
                                 </td>
                                 <td class="px-6 py-4">
                                     <span class="px-3 py-1 ${tipoColor} bg-opacity-10 rounded-full text-xs font-black uppercase">${m.Tipo}</span>
                                 </td>
-                                <td class="px-6 py-4 text-sm font-semibold text-gray-700">${m.Categoria}</td>
-                                <td class="px-6 py-4 text-sm font-semibold text-gray-600">${m.Descripcion}</td>
+                                <td class="px-6 py-4 text-sm font-semibold text-white">${m.Categoria}</td>
+                                <td class="px-6 py-4 text-sm font-semibold text-white/50">${m.Descripcion}</td>
                                 <td class="px-6 py-4">${metodoBadge}</td>
                                 <td class="px-6 py-4 text-right text-lg font-black ${tipoColor}">$${m.Monto.toFixed(2)}</td>
                             </tr>
@@ -989,7 +1028,7 @@
                 } else {
                     tbody.innerHTML = `
                         <tr>
-                            <td colspan="6" class="px-6 py-12 text-center text-gray-500 font-bold">
+                            <td colspan="6" class="px-6 py-12 text-center text-white/40 font-bold">
                                 No hay movimientos para mostrar
                             </td>
                         </tr>
@@ -1069,16 +1108,16 @@
                         tbody.innerHTML = data.resumenPorDia.map(dia => {
                             const balanceColor = (dia.balance || 0) >= 0 ? 'text-emerald-600' : 'text-red-600';
                             return `
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-6 py-4 text-sm font-black text-gray-900 uppercase">${dia.diaNombre || ''}</td>
+                                <tr class="hover:bg-[#111428] transition-colors">
+                                    <td class="px-6 py-4 text-sm font-black text-white uppercase">${dia.diaNombre || ''}</td>
                                     <td class="px-6 py-4 text-right text-lg font-black text-blue-600">$${(dia.ingresos || 0).toFixed(2)}</td>
                                     <td class="px-6 py-4 text-right text-lg font-black text-red-600">$${(dia.egresos || 0).toFixed(2)}</td>
                                     <td class="px-6 py-4 text-right text-lg font-black ${balanceColor}">$${(dia.balance || 0).toFixed(2)}</td>
-                                    <td class="px-6 py-4 text-right text-sm font-semibold text-gray-700">$${(dia.ingresosEfectivo || 0).toFixed(2)}</td>
-                                    <td class="px-6 py-4 text-right text-sm font-semibold text-gray-700">$${(dia.ingresosTransferencia || 0).toFixed(2)}</td>
+                                    <td class="px-6 py-4 text-right text-sm font-semibold text-white">$${(dia.ingresosEfectivo || 0).toFixed(2)}</td>
+                                    <td class="px-6 py-4 text-right text-sm font-semibold text-white">$${(dia.ingresosTransferencia || 0).toFixed(2)}</td>
                                     <td class="px-6 py-4 text-right text-lg font-black text-amber-600 bg-amber-50">$${(dia.productosVendidos || 0).toFixed(2)}</td>
                                     <td class="px-6 py-4 text-center">
-                                        <span class="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-full">${dia.cantidadMovimientos || 0}</span>
+                                        <span class="px-3 py-1 bg-blue-500/10 text-[#3D8EFF] text-xs font-bold rounded-full">${dia.cantidadMovimientos || 0}</span>
                                     </td>
                                 </tr>
                             `;
@@ -1088,7 +1127,7 @@
                         if (tbody) {
                             tbody.innerHTML = `
                                 <tr>
-                                    <td colspan="8" class="px-6 py-12 text-center text-gray-500 font-bold">
+                                    <td colspan="8" class="px-6 py-12 text-center text-white/40 font-bold">
                                         No hay datos disponibles para esta semana
                                     </td>
                                 </tr>
@@ -1142,14 +1181,14 @@
                     container.innerHTML = data.data.map(cierre => {
                         const tipoBadge = cierre.TipoCierre === 'automatico'
                             ? '<span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full">AUTOMÁTICO</span>'
-                            : '<span class="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-full">MANUAL</span>';
+                            : '<span class="px-3 py-1 bg-blue-500/10 text-[#3D8EFF] text-xs font-bold rounded-full">MANUAL</span>';
 
                         return `
-                            <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-gray-200 hover:shadow-2xl transition-all">
+                            <div class="bg-[#0D0D20] rounded-2xl shadow-xl p-6 border-2 border-white/8 hover:shadow-2xl transition-all">
                                 <div class="flex items-center justify-between mb-4">
                                     <div>
-                                        <h4 class="text-lg font-black text-gray-900">${formatearFechaLargaUTC(cierre.FechaCierre)}</h4>
-                                        <p class="text-sm text-gray-600 font-semibold">${formatearFechaHoraUTC(cierre.FechaCierre)}</p>
+                                        <h4 class="text-lg font-black text-white">${formatearFechaLargaUTC(cierre.FechaCierre)}</h4>
+                                        <p class="text-sm text-white/50 font-semibold">${formatearFechaHoraUTC(cierre.FechaCierre)}</p>
                                     </div>
                                     ${tipoBadge}
                                 </div>
@@ -1168,9 +1207,9 @@
                                     </div>
                                 </div>
                                 ${cierre.Observaciones ? `
-                                    <div class="bg-gray-50 rounded-xl p-3 mt-3">
-                                        <p class="text-xs text-gray-600 font-bold mb-1">Observaciones</p>
-                                        <p class="text-sm text-gray-800">${cierre.Observaciones}</p>
+                                    <div class="bg-[#111428] rounded-xl p-3 mt-3">
+                                        <p class="text-xs text-white/50 font-bold mb-1">Observaciones</p>
+                                        <p class="text-sm text-white">${cierre.Observaciones}</p>
                                     </div>
                                 ` : ''}
                             </div>
@@ -1178,10 +1217,10 @@
                     }).join('');
                 } else {
                     container.innerHTML = `
-                        <div class="bg-gray-50 rounded-2xl p-12 text-center border-2 border-dashed border-gray-300">
-                            <i data-lucide="inbox" class="w-16 h-16 text-gray-400 mx-auto mb-4"></i>
-                            <p class="text-xl font-black text-gray-600 mb-2">No hay cierres registrados</p>
-                            <p class="text-sm text-gray-500">Los cierres de caja aparecerán aquí</p>
+                        <div class="bg-[#111428] rounded-2xl p-12 text-center border-2 border-dashed border-white/10">
+                            <i data-lucide="inbox" class="w-16 h-16 text-white/30 mx-auto mb-4"></i>
+                            <p class="text-xl font-black text-white/50 mb-2">No hay cierres registrados</p>
+                            <p class="text-sm text-white/40">Los cierres de caja aparecerán aquí</p>
                         </div>
                     `;
                     lucide.createIcons();
@@ -1320,10 +1359,10 @@
             if (tablaMovimientos) {
                 tablaMovimientos.innerHTML = `
                     <tr>
-                        <td colspan="6" class="px-6 py-12 text-center text-gray-500 font-bold">
-                            <i data-lucide="inbox" class="w-12 h-12 text-gray-400 mx-auto mb-3"></i>
+                        <td colspan="6" class="px-6 py-12 text-center text-white/40 font-bold">
+                            <i data-lucide="inbox" class="w-12 h-12 text-white/30 mx-auto mb-3"></i>
                             <p class="text-lg">No hay movimientos registrados hoy</p>
-                            <p class="text-sm text-gray-400 mt-2">Los movimientos del nuevo día aparecerán aquí</p>
+                            <p class="text-sm text-white/30 mt-2">Los movimientos del nuevo día aparecerán aquí</p>
                         </td>
                     </tr>
                 `;
@@ -1612,15 +1651,15 @@
         function filtroEstadoDeuda(estado) {
             _filtroEstadoDeuda = estado;
             document.querySelectorAll('.ftd-btn').forEach(b => {
-                b.classList.remove('bg-white', 'shadow', 'text-red-600');
-                b.classList.add('text-gray-500');
+                b.classList.remove('bg-[#0D0D20]', 'shadow', 'text-red-600');
+                b.classList.add('text-white/40');
             });
             const mapTab = { '': 'ft-d-todos', 'pendiente': 'ft-d-pendiente' };
             if (mapTab[estado]) {
                 const el = document.getElementById(mapTab[estado]);
                 if (el) {
-                    el.classList.add('bg-white', 'shadow', 'text-red-600');
-                    el.classList.remove('text-gray-500');
+                    el.classList.add('bg-[#0D0D20]', 'shadow', 'text-red-600');
+                    el.classList.remove('text-white/40');
                 }
             }
             renderDeudas(deudasData);
@@ -1640,14 +1679,14 @@
 
         function chipEstadoDeuda(estado) {
             if (estado === 'pagada')    return '<span class="px-3 py-1 rounded-full text-xs font-black uppercase bg-green-100 text-green-800">✓ Pagada</span>';
-            if (estado === 'cancelada') return '<span class="px-3 py-1 rounded-full text-xs font-black uppercase bg-gray-100 text-gray-600">Cancelada</span>';
+            if (estado === 'cancelada') return '<span class="px-3 py-1 rounded-full text-xs font-black uppercase bg-white/5 text-white/50">Cancelada</span>';
             return '<span class="px-3 py-1 rounded-full text-xs font-black uppercase bg-amber-100 text-amber-800">Pendiente</span>';
         }
 
         function infoVencimientoDeuda(d) {
             if (!d.FechaVencimiento) return '';
             const fechaStr = formatearFechaUTC(d.FechaVencimiento);
-            return `<p class="text-xs text-gray-400 font-semibold mt-1"><i data-lucide="calendar" class="w-3 h-3 inline-block mr-1"></i>Fecha límite: ${fechaStr}</p>`;
+            return `<p class="text-xs text-white/30 font-semibold mt-1"><i data-lucide="calendar" class="w-3 h-3 inline-block mr-1"></i>Fecha límite: ${fechaStr}</p>`;
         }
 
         function renderDeudas(deudas) {
@@ -1671,10 +1710,10 @@
 
             if (filtradas.length === 0) {
                 container.innerHTML = `
-                    <div class="bg-white rounded-2xl shadow-xl p-12 text-center border-2 border-gray-200">
-                        <i data-lucide="inbox" class="w-16 h-16 mx-auto text-gray-400 mb-4"></i>
-                        <p class="text-xl font-black text-gray-900 uppercase">Sin resultados</p>
-                        <p class="text-gray-600 mt-2 font-semibold">Prueba ajustando los filtros</p>
+                    <div class="bg-[#0D0D20] rounded-2xl shadow-xl p-12 text-center border-2 border-white/8">
+                        <i data-lucide="inbox" class="w-16 h-16 mx-auto text-white/30 mb-4"></i>
+                        <p class="text-xl font-black text-white uppercase">Sin resultados</p>
+                        <p class="text-white/50 mt-2 font-semibold">Prueba ajustando los filtros</p>
                     </div>`;
                 lucide.createIcons();
                 return;
@@ -1711,23 +1750,23 @@
                         : '—';
 
                     return `
-                    <div class="border border-gray-100 rounded-xl p-4 bg-gray-50 hover:bg-white transition-colors">
+                    <div class="border border-white/5 rounded-xl p-4 bg-[#111428] hover:bg-[#0D0D20] transition-colors">
                         <div class="flex items-start justify-between gap-3 flex-wrap">
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-2 mb-1 flex-wrap">
-                                    <span class="text-sm font-black text-gray-900">${concepto}</span>
+                                    <span class="text-sm font-black text-white">${concepto}</span>
                                     ${chipEstadoDeuda(estado)}
                                 </div>
-                                <div class="flex items-center gap-4 text-xs text-gray-500 font-semibold mb-2">
+                                <div class="flex items-center gap-4 text-xs text-white/40 font-semibold mb-2">
                                     <span><i data-lucide="calendar" class="w-3 h-3 inline-block mr-1"></i>${fechaStr}</span>
                                 </div>
                                 <div class="flex items-center gap-4 flex-wrap">
-                                    <span class="text-xs text-gray-500 font-semibold">Total: <span class="text-gray-900 font-black">$${total.toFixed(2)}</span></span>
-                                    <span class="text-xs text-gray-500 font-semibold">Pagado: <span class="text-emerald-600 font-black">$${pagado.toFixed(2)}</span></span>
-                                    <span class="text-xs text-gray-500 font-semibold">Saldo: <span class="text-red-600 font-black text-sm">$${saldo.toFixed(2)}</span></span>
+                                    <span class="text-xs text-white/40 font-semibold">Total: <span class="text-white font-black">$${total.toFixed(2)}</span></span>
+                                    <span class="text-xs text-white/40 font-semibold">Pagado: <span class="text-emerald-600 font-black">$${pagado.toFixed(2)}</span></span>
+                                    <span class="text-xs text-white/40 font-semibold">Saldo: <span class="text-red-600 font-black text-sm">$${saldo.toFixed(2)}</span></span>
                                 </div>
                                 <!-- Barra de progreso -->
-                                <div class="w-full bg-gray-200 rounded-full h-1.5 mt-2">
+                                <div class="w-full bg-white/8 rounded-full h-1.5 mt-2">
                                     <div class="h-1.5 rounded-full ${pct >= 100 ? 'bg-emerald-500' : 'bg-red-400'}" style="width:${pct.toFixed(1)}%"></div>
                                 </div>
                             </div>
@@ -1746,26 +1785,26 @@
                 }).join('');
 
                 return `
-                <div class="bg-white rounded-2xl shadow-xl border-2 border-gray-200 hover:shadow-2xl transition-shadow overflow-hidden">
+                <div class="bg-[#0D0D20] rounded-2xl shadow-xl border-2 border-white/8 hover:shadow-2xl transition-shadow overflow-hidden">
                     <!-- Cabecera del cliente -->
-                    <div class="p-5 border-b border-gray-100 flex items-center justify-between gap-4 flex-wrap">
+                    <div class="p-5 border-b border-white/5 flex items-center justify-between gap-4 flex-wrap">
                         <div class="flex items-center gap-3">
-                            <div class="w-11 h-11 rounded-full bg-indigo-100 text-indigo-700 font-black text-sm flex items-center justify-center flex-shrink-0">
+                            <div class="w-11 h-11 rounded-full bg-blue-500/10 text-[#3D8EFF] font-black text-sm flex items-center justify-center flex-shrink-0">
                                 ${iniciales}
                             </div>
                             <div>
-                                <h3 class="text-lg font-black text-gray-900 uppercase tracking-wide leading-tight">${nombre}</h3>
-                                <p class="text-xs text-gray-500 font-semibold">Cédula: ${cedula}</p>
+                                <h3 class="text-lg font-black text-white uppercase tracking-wide leading-tight">${nombre}</h3>
+                                <p class="text-xs text-white/40 font-semibold">Cédula: ${cedula}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-4 flex-wrap">
                             <div class="text-right">
-                                <p class="text-xs text-gray-500 font-bold uppercase">Saldo total</p>
+                                <p class="text-xs text-white/40 font-bold uppercase">Saldo total</p>
                                 <p class="text-xl font-black text-red-600">$${totalSaldo.toFixed(2)}</p>
-                                <p class="text-xs text-gray-400 font-semibold">${deudasCliente.length} deuda${deudasCliente.length !== 1 ? 's' : ''} pendiente${deudasCliente.length !== 1 ? 's' : ''}</p>
+                                <p class="text-xs text-white/30 font-semibold">${deudasCliente.length} deuda${deudasCliente.length !== 1 ? 's' : ''} pendiente${deudasCliente.length !== 1 ? 's' : ''}</p>
                             </div>
                             <a href="/Caja/Historial?clienteId=${cid}"
-                               class="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white text-xs font-black rounded-xl transition-all shadow uppercase flex items-center gap-1.5">
+                               class="px-4 py-2 bg-gradient-to-r from-[#1E6FE3] to-[#1550B0] hover:from-[#1550B0] hover:to-[#0d3d8a] text-white text-xs font-black rounded-xl transition-all shadow uppercase flex items-center gap-1.5">
                                 <i data-lucide="history" class="w-3.5 h-3.5"></i>Historial
                             </a>
                         </div>
@@ -1943,13 +1982,13 @@
                         const balanceColor = dia.balance >= 0 ? 'text-emerald-600' : 'text-red-600';
 
                         return `
-                            <div class="bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl p-6 border-l-4 border-yellow-500 shadow-lg">
+                            <div class="bg-gradient-to-r from-[#111428] to-[#0D0D20] rounded-xl p-6 border-l-4 border-yellow-500 shadow-lg">
                                 <div class="flex items-center justify-between mb-4">
                                     <div>
-                                        <h4 class="text-lg font-black text-gray-900">
+                                        <h4 class="text-lg font-black text-white">
                                             ${formatearFechaLargaUTC(dia.fecha)}
                                         </h4>
-                                        <p class="text-sm text-gray-600 font-semibold">
+                                        <p class="text-sm text-white/50 font-semibold">
                                             ${dia.cantidadMovimientos} movimientos sin cerrar
                                         </p>
                                     </div>
@@ -2071,7 +2110,7 @@
         window.cerrarModalCerrarCaja = cerrarModalCerrarCaja;
         function mostrarToast(mensaje, tipo) {
             const colores = { error: 'bg-red-600', success: 'bg-green-600', info: 'bg-blue-600' };
-            const color = colores[tipo] || 'bg-gray-800';
+            const color = colores[tipo] || 'bg-[#111428]';
             const toast = document.createElement('div');
             toast.className = `fixed bottom-6 right-6 z-[100] ${color} text-white px-6 py-4 rounded-2xl shadow-2xl font-bold text-sm flex items-center gap-3`;
             toast.innerHTML = `<span>${mensaje}</span>`;

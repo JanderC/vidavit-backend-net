@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "K1wM1C/B8TloPKUBXQvgQVSLOjRQT0L5mAgT4+uha3A=",
+  "Hash": "gYReSIiZ2zr3yq1Qe04SlfIYpc9hJQ+H7vuB8rb/i2g=",
   "Source": "VidaFit",
   "BasePath": "_content/VidaFit",
   "Mode": "Default",
@@ -101,12 +101,12 @@
       "OriginalItemSpec": "wwwroot\\favicon.ico"
     },
     {
-      "Identity": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\images\\IMG_2929.JPG",
+      "Identity": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\images\\power-fitness-logo.png",
       "SourceId": "VidaFit",
       "SourceType": "Discovered",
       "ContentRoot": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\",
       "BasePath": "_content/VidaFit",
-      "RelativePath": "images/IMG_2929#[.{fingerprint}]?.JPG",
+      "RelativePath": "images/power-fitness-logo#[.{fingerprint}]?.png",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Primary",
@@ -115,11 +115,11 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "25n7x9x44g",
-      "Integrity": "GvpeXj0CAX3PSWNQBVppDGEn+0fjZ5RHzOUUb05M9dg=",
+      "Fingerprint": "jqty6zes4v",
+      "Integrity": "C90YjtP2UJVIsORfJeEXOD51r/K9LHJ0hhAzl/1HZms=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\images\\IMG_2929.JPG"
+      "OriginalItemSpec": "wwwroot\\images\\power-fitness-logo.png"
     },
     {
       "Identity": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\images\\tauro-gym-logo.png",
@@ -1527,8 +1527,8 @@
       ]
     },
     {
-      "Route": "images/IMG_2929.25n7x9x44g.JPG",
-      "AssetFile": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\images\\IMG_2929.JPG",
+      "Route": "images/power-fitness-logo.jqty6zes4v.png",
+      "AssetFile": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\images\\power-fitness-logo.png",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -1537,19 +1537,19 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "697960"
+          "Value": "373048"
         },
         {
           "Name": "Content-Type",
-          "Value": "image/jpeg"
+          "Value": "image/png"
         },
         {
           "Name": "ETag",
-          "Value": "\"GvpeXj0CAX3PSWNQBVppDGEn+0fjZ5RHzOUUb05M9dg=\""
+          "Value": "\"C90YjtP2UJVIsORfJeEXOD51r/K9LHJ0hhAzl/1HZms=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Wed, 20 May 2026 16:05:46 GMT"
+          "Value": "Thu, 28 May 2026 19:14:05 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -1559,21 +1559,21 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "25n7x9x44g"
+          "Value": "jqty6zes4v"
         },
         {
           "Name": "label",
-          "Value": "images/IMG_2929.JPG"
+          "Value": "images/power-fitness-logo.png"
         },
         {
           "Name": "integrity",
-          "Value": "sha256-GvpeXj0CAX3PSWNQBVppDGEn+0fjZ5RHzOUUb05M9dg="
+          "Value": "sha256-C90YjtP2UJVIsORfJeEXOD51r/K9LHJ0hhAzl/1HZms="
         }
       ]
     },
     {
-      "Route": "images/IMG_2929.JPG",
-      "AssetFile": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\images\\IMG_2929.JPG",
+      "Route": "images/power-fitness-logo.png",
+      "AssetFile": "C:\\Users\\usuario\\source\\repos\\vidafit-prueba\\VidaFit\\wwwroot\\images\\power-fitness-logo.png",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -1582,19 +1582,19 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "697960"
+          "Value": "373048"
         },
         {
           "Name": "Content-Type",
-          "Value": "image/jpeg"
+          "Value": "image/png"
         },
         {
           "Name": "ETag",
-          "Value": "\"GvpeXj0CAX3PSWNQBVppDGEn+0fjZ5RHzOUUb05M9dg=\""
+          "Value": "\"C90YjtP2UJVIsORfJeEXOD51r/K9LHJ0hhAzl/1HZms=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Wed, 20 May 2026 16:05:46 GMT"
+          "Value": "Thu, 28 May 2026 19:14:05 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -1604,7 +1604,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-GvpeXj0CAX3PSWNQBVppDGEn+0fjZ5RHzOUUb05M9dg="
+          "Value": "sha256-C90YjtP2UJVIsORfJeEXOD51r/K9LHJ0hhAzl/1HZms="
         }
       ]
     },

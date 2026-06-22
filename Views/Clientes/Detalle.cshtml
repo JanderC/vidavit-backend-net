@@ -1,100 +1,167 @@
-﻿@model VidaFitBackend.Models.Cliente
+@model VidaFitBackend.Models.Cliente
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = $"{Model.Nombre} {Model.Apellido}";
     ViewData["Subtitle"] = "Información detallada del cliente";
 }
 
-<div class="space-y-6">
-    <!-- Header con acciones -->
-    <div class="flex items-center justify-between">
-        <a href="/clientes" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 font-bold transition-colors">
-            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+<style>
+    .detail-card {
+        background: #0D0D20;
+        border: 1px solid rgba(30,111,227,0.15);
+        border-radius: 16px;
+        padding: 28px;
+        margin-bottom: 20px;
+    }
+
+    .detail-field {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 10px;
+        padding: 14px 16px;
+    }
+
+    .detail-field-label {
+        font-size: 0.62rem;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.3);
+        margin-bottom: 5px;
+    }
+
+    .detail-field-value {
+        font-weight: 700;
+        color: #fff;
+        font-size: 0.95rem;
+    }
+
+    .pf-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 12px;
+        border-radius: 100px;
+        font-size: 0.65rem;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+    }
+
+    .membresia-row {
+        border: 1px solid rgba(30,111,227,0.15);
+        border-radius: 12px;
+        padding: 18px 20px;
+        transition: border-color 0.15s;
+    }
+    .membresia-row:hover { border-color: rgba(30,111,227,0.35); }
+
+    .checkin-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 10px;
+        transition: background 0.15s;
+    }
+    .checkin-row:hover { background: rgba(30,111,227,0.04); }
+</style>
+
+<div class="space-y-5">
+
+    <!-- Nav + acciones -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <a href="/clientes"
+           style="display:inline-flex;align-items:center;gap:8px;font-size:0.8rem;font-weight:700;color:rgba(255,255,255,0.4);text-decoration:none;letter-spacing:1px;text-transform:uppercase;transition:color 0.15s;"
+           onmouseover="this.style.color='#7EB8FF'" onmouseout="this.style.color='rgba(255,255,255,0.4)'">
+            <i data-lucide="arrow-left" style="width:16px;height:16px;"></i>
             Volver a Clientes
         </a>
-
-        <div class="flex gap-3">
-            <a href="/clientes/edit/@Model.Id"
-               class="px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-xl transition-all inline-flex items-center gap-2 font-black uppercase tracking-wide shadow-xl hover:shadow-2xl transform hover:scale-105">
-                <i data-lucide="edit" class="w-5 h-5"></i>
-                Editar
-            </a>
-        </div>
+        <a href="/clientes/edit/@Model.Id"
+           style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:rgba(217,119,6,0.12);border:1px solid rgba(217,119,6,0.25);color:#D97706;font-weight:800;font-size:0.78rem;letter-spacing:1.5px;text-transform:uppercase;border-radius:10px;text-decoration:none;transition:all 0.15s;"
+           onmouseover="this.style.background='rgba(217,119,6,0.2)';this.style.borderColor='rgba(217,119,6,0.4)'"
+           onmouseout="this.style.background='rgba(217,119,6,0.12)';this.style.borderColor='rgba(217,119,6,0.25)'">
+            <i data-lucide="edit" style="width:15px;height:15px;"></i>
+            Editar
+        </a>
     </div>
 
-    <!-- Información Principal -->
-    <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
-        <div class="flex items-start gap-6">
+    <!-- Info principal -->
+    <div class="detail-card">
+        <div style="display:flex;align-items:flex-start;gap:24px;flex-wrap:wrap;">
+
             <!-- Foto -->
-            <div class="flex-shrink-0">
+            <div style="flex-shrink:0;">
                 @if (!string.IsNullOrEmpty(Model.FotoBase64))
                 {
                     <img src="data:image/jpeg;base64,@Model.FotoBase64"
-                         class="w-40 h-40 rounded-2xl object-cover border-4 border-red-600 shadow-xl" alt="@Model.Nombre">
+                         style="width:140px;height:140px;border-radius:16px;object-fit:cover;border:3px solid rgba(30,111,227,0.4);" alt="@Model.Nombre">
                 }
                 else
                 {
-                    <div class="w-40 h-40 rounded-2xl bg-gray-100 border-4 border-gray-300 flex items-center justify-center">
-                        <i data-lucide="user" class="w-20 h-20 text-gray-400"></i>
+                    <div style="width:140px;height:140px;border-radius:16px;background:rgba(30,111,227,0.06);border:2px solid rgba(30,111,227,0.15);display:flex;align-items:center;justify-content:center;">
+                        <i data-lucide="user" style="width:60px;height:60px;color:rgba(30,111,227,0.3);"></i>
                     </div>
                 }
             </div>
 
-            <!-- Información -->
-            <div class="flex-1">
-                <h2 class="text-4xl font-black text-gray-900 mb-4 uppercase tracking-wide">@Model.Nombre @Model.Apellido</h2>
+            <!-- Datos -->
+            <div style="flex:1;min-width:0;">
+                <h2 style="font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:3px;color:#fff;margin:0 0 20px 0;text-transform:uppercase;">
+                    @Model.Nombre @Model.Apellido
+                </h2>
 
-                <div class="grid grid-cols-2 gap-6 mt-6">
-                    <div class="bg-gray-50 p-4 rounded-xl border-2 border-gray-200">
-                        <p class="text-sm text-gray-600 mb-1 font-black uppercase tracking-wide">Cédula</p>
-                        <p class="font-black text-gray-900 text-lg">@Model.Cedula</p>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div class="detail-field">
+                        <div class="detail-field-label">Cédula</div>
+                        <div class="detail-field-value" style="font-family:monospace;">@Model.Cedula</div>
                     </div>
-                    <div class="bg-gray-50 p-4 rounded-xl border-2 border-gray-200">
-                        <p class="text-sm text-gray-600 mb-1 font-black uppercase tracking-wide">Teléfono</p>
-                        <p class="font-black text-gray-900 text-lg">@Model.Telefono</p>
+                    <div class="detail-field">
+                        <div class="detail-field-label">Teléfono</div>
+                        <div class="detail-field-value">@Model.Telefono</div>
                     </div>
                     @if (!string.IsNullOrEmpty(Model.Email))
                     {
-                        <div class="bg-gray-50 p-4 rounded-xl border-2 border-gray-200">
-                            <p class="text-sm text-gray-600 mb-1 font-black uppercase tracking-wide">Email</p>
-                            <p class="font-bold text-gray-900">@Model.Email</p>
+                        <div class="detail-field">
+                            <div class="detail-field-label">Email</div>
+                            <div class="detail-field-value" style="font-size:0.85rem;">@Model.Email</div>
                         </div>
                     }
                     @if (Model.FechaNacimiento.HasValue)
                     {
-                        <div class="bg-gray-50 p-4 rounded-xl border-2 border-gray-200">
-                            <p class="text-sm text-gray-600 mb-1 font-black uppercase tracking-wide">Fecha de Nacimiento</p>
-                            <p class="font-black text-gray-900 text-lg">@Model.FechaNacimiento.Value.ToString("dd/MM/yyyy")</p>
+                        <div class="detail-field">
+                            <div class="detail-field-label">Fecha de Nacimiento</div>
+                            <div class="detail-field-value">@Model.FechaNacimiento.Value.ToString("dd/MM/yyyy")</div>
                         </div>
                     }
                 </div>
 
                 @if (!string.IsNullOrEmpty(Model.Direccion))
                 {
-                    <div class="mt-6 bg-gray-50 p-4 rounded-xl border-2 border-gray-200">
-                        <p class="text-sm text-gray-600 mb-1 font-black uppercase tracking-wide">Dirección</p>
-                        <p class="font-bold text-gray-900">@Model.Direccion</p>
+                    <div class="detail-field" style="margin-top:12px;">
+                        <div class="detail-field-label">Dirección</div>
+                        <div class="detail-field-value" style="font-size:0.85rem;">@Model.Direccion</div>
                     </div>
                 }
 
-                <div class="mt-6 flex gap-3">
+                <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;">
                     @if (Model.Activo)
                     {
-                        <span class="px-4 py-2 bg-emerald-100 text-emerald-800 font-black rounded-full uppercase tracking-wide text-xs inline-flex items-center gap-2">
-                            <i data-lucide="check-circle" class="w-4 h-4"></i> Activo
+                        <span class="pf-badge" style="background:rgba(16,185,129,0.1);color:#10B981;border:1px solid rgba(16,185,129,0.2);">
+                            <i data-lucide="check-circle" style="width:12px;height:12px;"></i> Activo
                         </span>
                     }
                     else
                     {
-                        <span class="px-4 py-2 bg-red-100 text-red-800 font-black rounded-full uppercase tracking-wide text-xs inline-flex items-center gap-2">
-                            <i data-lucide="x-circle" class="w-4 h-4"></i> Inactivo
+                        <span class="pf-badge" style="background:rgba(248,113,113,0.1);color:#F87171;border:1px solid rgba(248,113,113,0.2);">
+                            <i data-lucide="x-circle" style="width:12px;height:12px;"></i> Inactivo
                         </span>
                     }
-
                     @if (!string.IsNullOrEmpty(Model.HuellaTemplate))
                     {
-                        <span class="px-4 py-2 bg-purple-100 text-purple-800 font-black rounded-full uppercase tracking-wide text-xs inline-flex items-center gap-2">
-                            <i data-lucide="fingerprint" class="w-4 h-4"></i> Con Huella
+                        <span class="pf-badge" style="background:rgba(107,63,160,0.1);color:#a78bfa;border:1px solid rgba(107,63,160,0.2);">
+                            <i data-lucide="fingerprint" style="width:12px;height:12px;"></i> Con Huella
                         </span>
                     }
                 </div>
@@ -103,38 +170,41 @@
     </div>
 
     <!-- Membresías -->
-    <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
-        <div class="flex items-center justify-between mb-6">
-            <h3 class="text-2xl font-black text-gray-900 flex items-center gap-3 uppercase tracking-wide">
-                <i data-lucide="credit-card" class="w-6 h-6 text-red-600"></i>
-                Membresías
-            </h3>
+    <div class="detail-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:36px;height:36px;border-radius:9px;background:rgba(30,111,227,0.1);border:1px solid rgba(30,111,227,0.2);display:flex;align-items:center;justify-content:center;">
+                    <i data-lucide="credit-card" style="width:16px;height:16px;color:#3D8EFF;"></i>
+                </div>
+                <span style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;color:#fff;">Membresías</span>
+            </div>
             <button onclick="window.location.href='/membresias/crear?clienteId=@Model.Id'"
-                    class="px-6 py-3 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all inline-flex items-center gap-2 shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
-                <i data-lucide="plus" class="w-5 h-5"></i>
+                    style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:linear-gradient(135deg,#1E6FE3,#6B3FA0);color:#fff;font-weight:800;font-size:0.78rem;letter-spacing:1.5px;text-transform:uppercase;border:none;border-radius:10px;cursor:pointer;transition:opacity 0.2s;"
+                    onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'">
+                <i data-lucide="plus" style="width:15px;height:15px;"></i>
                 Nueva Membresía
             </button>
         </div>
-
-        <div id="membresias-list" class="space-y-4">
-            <div class="text-center py-12 text-gray-500">
-                <i data-lucide="loader" class="w-10 h-10 mx-auto mb-3 animate-spin"></i>
-                <p class="font-bold">Cargando membresías...</p>
+        <div id="membresias-list">
+            <div style="text-align:center;padding:32px 0;">
+                <div class="animate-spin" style="width:32px;height:32px;border:3px solid rgba(30,111,227,0.2);border-left-color:#1E6FE3;border-radius:50%;margin:0 auto 12px;"></div>
+                <p style="color:rgba(255,255,255,0.3);font-weight:600;font-size:0.8rem;">Cargando membresías...</p>
             </div>
         </div>
     </div>
 
-    <!-- Historial de Check-ins -->
-    <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
-        <h3 class="text-2xl font-black text-gray-900 mb-6 flex items-center gap-3 uppercase tracking-wide">
-            <i data-lucide="history" class="w-6 h-6 text-red-600"></i>
-            Historial de Check-ins
-        </h3>
-
-        <div id="checkins-list" class="space-y-3">
-            <div class="text-center py-12 text-gray-500">
-                <i data-lucide="loader" class="w-10 h-10 mx-auto mb-3 animate-spin"></i>
-                <p class="font-bold">Cargando historial...</p>
+    <!-- Check-ins -->
+    <div class="detail-card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+            <div style="width:36px;height:36px;border-radius:9px;background:rgba(30,111,227,0.1);border:1px solid rgba(30,111,227,0.2);display:flex;align-items:center;justify-content:center;">
+                <i data-lucide="history" style="width:16px;height:16px;color:#3D8EFF;"></i>
+            </div>
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;color:#fff;">Historial de Check-ins</span>
+        </div>
+        <div id="checkins-list">
+            <div style="text-align:center;padding:32px 0;">
+                <div class="animate-spin" style="width:32px;height:32px;border:3px solid rgba(30,111,227,0.2);border-left-color:#1E6FE3;border-radius:50%;margin:0 auto 12px;"></div>
+                <p style="color:rgba(255,255,255,0.3);font-weight:600;font-size:0.8rem;">Cargando historial...</p>
             </div>
         </div>
     </div>
@@ -145,134 +215,113 @@
         const API_URL = '/api';
         const clienteId = '@Model.Id';
 
-        // Cargar membresías
         async function loadMembresias() {
             try {
                 const response = await fetch(`${API_URL}/Clientes/${clienteId}/membresias`);
                 const membresias = await response.json();
-
                 const container = document.getElementById('membresias-list');
 
                 if (membresias.length === 0) {
                     container.innerHTML = `
-                        <div class="text-center py-12 text-gray-500">
-                            <i data-lucide="inbox" class="w-16 h-16 mx-auto mb-4 text-gray-400"></i>
-                            <p class="font-bold text-lg">No hay membresías registradas</p>
-                        </div>
-                    `;
+                        <div style="text-align:center;padding:32px 0;">
+                            <i data-lucide="inbox" style="width:40px;height:40px;color:rgba(255,255,255,0.15);margin:0 auto 12px;display:block;"></i>
+                            <p style="color:rgba(255,255,255,0.3);font-weight:700;">No hay membresías registradas</p>
+                        </div>`;
                 } else {
-                    container.innerHTML = membresias.map(m => {
-                        const fechaVenc = new Date(m.fechaVencimiento || m.FechaVencimiento);
-                        const fechaInicio = new Date(m.fechaInicio || m.FechaInicio);
-                        const montoPagado = m.montoPagado || m.MontoPagado || 0;
-                        const estado = m.estado || m.Estado || 'desconocido';
-                        const planNombre = m.plan?.nombre || m.Plan?.Nombre || m.plan?.Nombre || m.Plan?.nombre || 'Plan';
+                    container.innerHTML = `<div style="display:flex;flex-direction:column;gap:12px;">` +
+                        membresias.map(m => {
+                            const fechaVenc   = new Date(m.fechaVencimiento || m.FechaVencimiento);
+                            const fechaInicio = new Date(m.fechaInicio || m.FechaInicio);
+                            const montoPagado = m.montoPagado || m.MontoPagado || 0;
+                            const estado      = m.estado || m.Estado || 'desconocido';
+                            const planNombre  = m.plan?.nombre || m.Plan?.Nombre || m.plan?.Nombre || m.Plan?.nombre || 'Plan';
+                            const hoy         = new Date();
+                            const diasRestantes = Math.ceil((fechaVenc - hoy) / (1000 * 60 * 60 * 24));
 
-                        const hoy = new Date();
-                        const diasRestantes = Math.ceil((fechaVenc - hoy) / (1000 * 60 * 60 * 24));
-
-                        let estadoClass = 'bg-gray-100 text-gray-800';
-                        let estadoIcon = 'circle';
-
-                        if (estado === 'activa') {
-                            if (diasRestantes <= 3) {
-                                estadoClass = 'bg-red-100 text-red-800';
-                                estadoIcon = 'alert-circle';
-                            } else if (diasRestantes <= 7) {
-                                estadoClass = 'bg-amber-100 text-amber-800';
-                                estadoIcon = 'alert-triangle';
-                            } else {
-                                estadoClass = 'bg-emerald-100 text-emerald-800';
-                                estadoIcon = 'check-circle';
+                            let badgeBg = 'rgba(255,255,255,0.06)', badgeColor = 'rgba(255,255,255,0.4)', badgeBorder = 'rgba(255,255,255,0.1)', badgeIcon = 'circle';
+                            if (estado === 'activa') {
+                                if (diasRestantes <= 3)      { badgeBg='rgba(248,113,113,0.1)'; badgeColor='#F87171'; badgeBorder='rgba(248,113,113,0.25)'; badgeIcon='alert-circle'; }
+                                else if (diasRestantes <= 7) { badgeBg='rgba(217,119,6,0.1)';  badgeColor='#D97706'; badgeBorder='rgba(217,119,6,0.25)';  badgeIcon='alert-triangle'; }
+                                else                         { badgeBg='rgba(16,185,129,0.1)'; badgeColor='#10B981'; badgeBorder='rgba(16,185,129,0.25)'; badgeIcon='check-circle'; }
+                            } else if (estado === 'vencida') {
+                                badgeBg='rgba(248,113,113,0.1)'; badgeColor='#F87171'; badgeBorder='rgba(248,113,113,0.25)'; badgeIcon='x-circle';
                             }
-                        } else if (estado === 'vencida') {
-                            estadoClass = 'bg-red-100 text-red-800';
-                            estadoIcon = 'x-circle';
-                        }
 
-                        return `
-                            <div class="p-6 border-2 border-gray-200 rounded-2xl hover:border-red-600 transition-all shadow-lg hover:shadow-xl">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex-1">
-                                        <div class="flex items-center gap-3 mb-3">
-                                            <span class="font-black text-gray-900 text-lg uppercase">${planNombre}</span>
-                                            <span class="px-4 py-2 ${estadoClass} font-black rounded-full uppercase tracking-wide text-xs inline-flex items-center gap-2">
-                                                <i data-lucide="${estadoIcon}" class="w-4 h-4"></i>
-                                                ${estado}
-                                            </span>
-                                        </div>
-                                        <div class="text-sm text-gray-600 font-bold">
-                                            <span>Inicio: ${fechaInicio.toLocaleDateString('es-ES')}</span>
-                                            <span class="mx-2">•</span>
-                                            <span>Vence: ${fechaVenc.toLocaleDateString('es-ES')}</span>
-                                            ${estado === 'activa' ? `<span class="mx-2">•</span><span class="font-black text-red-600">${diasRestantes} días restantes</span>` : ''}
-                                        </div>
-                                        <div class="text-sm text-gray-700 mt-2">
-                                            Monto: <span class="font-black text-emerald-600 text-lg">$${montoPagado.toFixed(2)}</span>
+                            return `
+                                <div class="membresia-row">
+                                    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+                                        <div style="flex:1;">
+                                            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+                                                <span style="font-weight:800;color:#fff;font-size:1rem;text-transform:uppercase;">${planNombre}</span>
+                                                <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:100px;font-size:0.62rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;background:${badgeBg};color:${badgeColor};border:1px solid ${badgeBorder};">
+                                                    <i data-lucide="${badgeIcon}" style="width:10px;height:10px;"></i> ${estado}
+                                                </span>
+                                            </div>
+                                            <div style="font-size:0.78rem;color:rgba(255,255,255,0.4);font-weight:600;">
+                                                <span>Inicio: ${fechaInicio.toLocaleDateString('es-ES')}</span>
+                                                <span style="margin:0 8px;">·</span>
+                                                <span>Vence: ${fechaVenc.toLocaleDateString('es-ES')}</span>
+                                                ${estado === 'activa' ? `<span style="margin:0 8px;">·</span><span style="color:#3D8EFF;font-weight:800;">${diasRestantes} días restantes</span>` : ''}
+                                            </div>
+                                            <div style="font-size:0.82rem;color:rgba(255,255,255,0.5);margin-top:6px;font-weight:600;">
+                                                Monto: <span style="color:#10B981;font-weight:900;font-size:1rem;">$${montoPagado.toFixed(2)}</span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
+                                </div>`;
+                        }).join('') + `</div>`;
                 }
-
                 lucide.createIcons();
             } catch (error) {
                 console.error('Error cargando membresías:', error);
             }
         }
 
-        // Cargar check-ins
         async function loadCheckIns() {
             try {
                 const response = await fetch(`${API_URL}/CheckIn/cliente/${clienteId}?limit=20`);
                 const data = await response.json();
                 const checkIns = data.checkIns;
-
                 const container = document.getElementById('checkins-list');
 
                 if (checkIns.length === 0) {
                     container.innerHTML = `
-                        <div class="text-center py-12 text-gray-500">
-                            <i data-lucide="inbox" class="w-16 h-16 mx-auto mb-4 text-gray-400"></i>
-                            <p class="font-bold text-lg">No hay check-ins registrados</p>
-                        </div>
-                    `;
+                        <div style="text-align:center;padding:32px 0;">
+                            <i data-lucide="inbox" style="width:40px;height:40px;color:rgba(255,255,255,0.15);margin:0 auto 12px;display:block;"></i>
+                            <p style="color:rgba(255,255,255,0.3);font-weight:700;">No hay check-ins registrados</p>
+                        </div>`;
                 } else {
-                    container.innerHTML = checkIns.map(ci => {
-                        const fecha = new Date(ci.FechaHora || ci.fechaHora);
-                        const exitoso = ci.Exitoso !== undefined ? ci.Exitoso : ci.exitoso;
-                        const metodo = ci.Metodo || ci.metodo;
-                        const nota = ci.Nota || ci.nota;
-
-                        const iconClass = exitoso ? 'text-emerald-500' : 'text-red-500';
-                        const icon = exitoso ? 'check-circle' : 'x-circle';
-
-                        return `
-                            <div class="flex items-center justify-between p-4 border-2 border-gray-200 rounded-xl hover:bg-gray-50 hover:border-red-600 transition-all">
-                                <div class="flex items-center gap-4">
-                                    <i data-lucide="${icon}" class="w-6 h-6 ${iconClass}"></i>
-                                    <div>
-                                        <p class="font-black text-gray-900">${fecha.toLocaleDateString('es-ES')} ${fecha.toLocaleTimeString('es-ES')}</p>
-                                        <p class="text-sm text-gray-600 font-semibold">${nota || 'Check-in exitoso'}</p>
+                    container.innerHTML = `<div style="display:flex;flex-direction:column;gap:6px;">` +
+                        checkIns.map(ci => {
+                            const fecha   = new Date(ci.FechaHora || ci.fechaHora);
+                            const exitoso = ci.Exitoso !== undefined ? ci.Exitoso : ci.exitoso;
+                            const metodo  = ci.Metodo || ci.metodo;
+                            const nota    = ci.Nota || ci.nota;
+                            const color   = exitoso ? '#10B981' : '#F87171';
+                            const icon    = exitoso ? 'check-circle' : 'x-circle';
+                            return `
+                                <div class="checkin-row">
+                                    <div style="display:flex;align-items:center;gap:12px;">
+                                        <i data-lucide="${icon}" style="width:18px;height:18px;color:${color};flex-shrink:0;"></i>
+                                        <div>
+                                            <p style="font-weight:800;color:#fff;margin:0;font-size:0.85rem;">
+                                                ${fecha.toLocaleDateString('es-ES')} ${fecha.toLocaleTimeString('es-ES')}
+                                            </p>
+                                            <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin:2px 0 0 0;font-weight:600;">${nota || 'Check-in exitoso'}</p>
+                                        </div>
                                     </div>
-                                </div>
-                                <span class="px-4 py-2 bg-gray-100 text-gray-900 font-black rounded-xl uppercase tracking-wide text-xs">
-                                    ${metodo}
-                                </span>
-                            </div>
-                        `;
-                    }).join('');
+                                    <span style="display:inline-block;padding:4px 12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;font-size:0.65rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.4);">
+                                        ${metodo}
+                                    </span>
+                                </div>`;
+                        }).join('') + `</div>`;
                 }
-
                 lucide.createIcons();
             } catch (error) {
                 console.error('Error cargando check-ins:', error);
             }
         }
 
-        // Cargar datos al iniciar
         window.addEventListener('load', function() {
             loadMembresias();
             loadCheckIns();

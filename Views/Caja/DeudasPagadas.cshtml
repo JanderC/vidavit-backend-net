@@ -19,9 +19,9 @@
         /* Breadcrumb */
         .breadcrumb {
             display: flex; align-items: center; gap: 0.5rem;
-            font-size: 0.8rem; color: #9ca3af; margin-bottom: 1.5rem;
+            font-size: 0.8rem; color: rgba(255,255,255,0.35); margin-bottom: 1.5rem;
         }
-        .breadcrumb a { color: #6366f1; text-decoration: none; }
+        .breadcrumb a { color: #3D8EFF; text-decoration: none; }
         .breadcrumb a:hover { text-decoration: underline; }
 
         /* Resumen */
@@ -32,44 +32,44 @@
             margin-bottom: 1.5rem;
         }
         .resumen-card {
-            background: #fff;
-            border: 1px solid rgba(0,0,0,0.07);
+            background: #0D0D20;
+            border: 1px solid rgba(255,255,255,0.07);
             border-radius: 14px;
             padding: 1.1rem 1.25rem;
         }
         .resumen-label {
             font-size: 0.7rem; font-weight: 600;
             text-transform: uppercase; letter-spacing: 0.07em;
-            color: #9ca3af; margin: 0 0 0.3rem;
+            color: rgba(255,255,255,0.35); margin: 0 0 0.3rem;
         }
         .resumen-valor {
             font-size: 1.4rem; font-weight: 700;
-            font-family: var(--font-num); color: #111; margin: 0;
+            font-family: var(--font-num); color: #fff; margin: 0;
         }
-        .resumen-valor.verde { color: #15803d; }
+        .resumen-valor.verde { color: #10B981; }
 
         /* Barra búsqueda */
         .search-bar {
-            background: #fff;
-            border: 1px solid rgba(0,0,0,0.08);
+            background: #0D0D20;
+            border: 1px solid rgba(255,255,255,0.08);
             border-radius: 14px;
             padding: 1rem 1.25rem;
             display: flex; gap: 0.75rem; align-items: center;
             margin-bottom: 1.25rem; flex-wrap: wrap;
         }
         .search-input-wrap { flex: 1; min-width: 200px; position: relative; }
-        .search-input-wrap i { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #9ca3af; }
+        .search-input-wrap i { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.35); }
         .search-input {
             width: 100%; padding: 0.6rem 0.85rem 0.6rem 2.2rem;
-            border: 1px solid #e5e7eb; border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
             font-size: 0.875rem; box-sizing: border-box;
         }
-        .search-input:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+        .search-input:focus { outline: none; border-color: #1E6FE3; box-shadow: 0 0 0 3px rgba(30,111,227,0.15); }
 
         /* Tarjeta de deuda pagada */
         .deuda-card {
-            background: #fff;
-            border: 1px solid rgba(0,0,0,0.07);
+            background: #0D0D20;
+            border: 1px solid rgba(255,255,255,0.07);
             border-radius: 14px;
             margin-bottom: 1rem;
             overflow: hidden;
@@ -85,19 +85,19 @@
             border-bottom: 1px solid transparent;
         }
         .deuda-card.open .deuda-header { border-bottom-color: #f3f4f6; }
-        .deuda-header:hover { background: #fafafa; }
+        .deuda-header:hover { background: rgba(255,255,255,0.03); }
 
         .deuda-cliente-row { display: flex; align-items: center; gap: 0.6rem; }
         .deuda-avatar {
             width: 36px; height: 36px; border-radius: 50%;
-            background: #d1fae5; color: #065f46;
+            background: rgba(16,185,129,0.12); color: #10B981;
             font-size: 0.8rem; font-weight: 700;
             display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
-        .deuda-cliente-nombre { font-size: 0.95rem; font-weight: 700; color: #111; }
-        .deuda-cliente-cedula { font-size: 0.72rem; color: #9ca3af; }
+        .deuda-cliente-nombre { font-size: 0.95rem; font-weight: 700; color: #fff; }
+        .deuda-cliente-cedula { font-size: 0.72rem; color: rgba(255,255,255,0.35); }
         .deuda-concepto {
-            font-size: 0.75rem; color: #6b7280; margin-top: 0.15rem;
+            font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-top: 0.15rem;
             display: flex; align-items: center; gap: 0.3rem;
         }
 
@@ -105,7 +105,7 @@
             display: inline-flex; align-items: center; gap: 0.3rem;
             padding: 0.25rem 0.7rem; border-radius: 99px;
             font-size: 0.7rem; font-weight: 600;
-            background: #d1fae5; color: #065f46;
+            background: rgba(16,185,129,0.12); color: #10B981;
         }
         .chip-pagada::before {
             content: ''; width: 5px; height: 5px;
@@ -116,15 +116,15 @@
             display: flex; gap: 1.25rem; flex-wrap: wrap; align-items: center;
         }
         .monto-item { text-align: right; }
-        .monto-label { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; color: #9ca3af; }
-        .monto-valor { font-family: var(--font-num); font-size: 0.95rem; font-weight: 700; color: #111; }
-        .monto-valor.verde { color: #15803d; }
+        .monto-label { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; color: rgba(255,255,255,0.35); }
+        .monto-valor { font-family: var(--font-num); font-size: 0.95rem; font-weight: 700; color: #fff; }
+        .monto-valor.verde { color: #10B981; }
 
-        .deuda-fecha { font-size: 0.72rem; color: #9ca3af; margin-top: 0.2rem; }
+        .deuda-fecha { font-size: 0.72rem; color: rgba(255,255,255,0.35); margin-top: 0.2rem; }
 
         .collapse-icon {
             width: 18px; height: 18px; flex-shrink: 0;
-            color: #9ca3af; transition: transform 0.2s;
+            color: rgba(255,255,255,0.35); transition: transform 0.2s;
         }
         .deuda-card.open .collapse-icon { transform: rotate(180deg); }
 
@@ -136,20 +136,20 @@
         .btn-hist-cliente {
             display: inline-flex; align-items: center; gap: 0.4rem;
             padding: 0.5rem 1rem;
-            background: #111; color: #fff;
+            background: #1E6FE3; color: #fff;
             border: none; border-radius: 8px;
             font-size: 0.78rem; font-weight: 600;
             cursor: pointer; text-decoration: none;
             margin-bottom: 1rem;
             transition: background 0.15s;
         }
-        .btn-hist-cliente:hover { background: #374151; }
+        .btn-hist-cliente:hover { background: rgba(255,255,255,0.1); }
 
         /* Timeline */
         .section-label {
             font-size: 0.7rem; font-weight: 600;
             text-transform: uppercase; letter-spacing: 0.07em;
-            color: #9ca3af; margin: 0 0 0.75rem;
+            color: rgba(255,255,255,0.35); margin: 0 0 0.75rem;
         }
         .timeline { position: relative; padding-left: 1.5rem; }
         .timeline::before {
@@ -158,36 +158,36 @@
         }
         .tl-item {
             position: relative; margin-bottom: 0.65rem;
-            background: #f9fafb;
-            border: 1px solid rgba(0,0,0,0.05);
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.05);
             border-radius: 8px; padding: 0.8rem 1rem;
         }
         .tl-dot {
             position: absolute; left: -1.5rem; top: 0.95rem;
             width: 10px; height: 10px;
-            background: #6366f1; border: 2px solid #fff;
-            border-radius: 50%; box-shadow: 0 0 0 1px #e5e7eb;
+            background: #1E6FE3; border: 2px solid #0D0D20;
+            border-radius: 50%; box-shadow: 0 0 0 1px rgba(255,255,255,0.1);
             transform: translateX(-6px);
         }
-        .tl-item:last-child .tl-dot { background: #16a34a; }
+        .tl-item:last-child .tl-dot { background: #10B981; }
         .tl-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
-        .tl-monto { font-family: var(--font-num); font-size: 0.95rem; font-weight: 700; color: #16a34a; }
-        .tl-fecha { font-size: 0.7rem; color: #9ca3af; }
-        .tl-meta { font-size: 0.7rem; color: #6b7280; margin-top: 0.2rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .tl-monto { font-family: var(--font-num); font-size: 0.95rem; font-weight: 700; color: #10B981; }
+        .tl-fecha { font-size: 0.7rem; color: rgba(255,255,255,0.35); }
+        .tl-meta { font-size: 0.7rem; color: rgba(255,255,255,0.4); margin-top: 0.2rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
         .tl-badge {
             display: inline-flex; align-items: center; gap: 0.25rem;
-            padding: 0.12rem 0.45rem; background: #eff6ff; color: #1d4ed8;
+            padding: 0.12rem 0.45rem; background: rgba(30,111,227,0.1); color: #3D8EFF;
             border-radius: 99px; font-size: 0.65rem; font-weight: 600;
         }
         .tl-saldo {
             display: inline-flex; align-items: center; gap: 0.25rem;
-            padding: 0.12rem 0.45rem; background: #f3f4f6; color: #6b7280;
+            padding: 0.12rem 0.45rem; background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.4);
             border-radius: 6px; font-size: 0.65rem; font-family: var(--font-num);
         }
         .no-abonos {
             text-align: center; padding: 1.5rem;
-            border: 1px dashed #e5e7eb; border-radius: 8px;
-            color: #9ca3af; font-size: 0.82rem;
+            border: 1px dashed rgba(255,255,255,0.12); border-radius: 8px;
+            color: rgba(255,255,255,0.35); font-size: 0.82rem;
         }
 
         /* Paginación */
@@ -197,39 +197,39 @@
         }
         .pag-btn {
             padding: 0.45rem 0.9rem;
-            border: 1px solid #e5e7eb; border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
             font-size: 0.8rem; font-weight: 600; cursor: pointer;
-            background: transparent; color: #374151; transition: all 0.15s;
+            background: transparent; color: rgba(255,255,255,0.7); transition: all 0.15s;
         }
-        .pag-btn:hover { background: #f3f4f6; }
-        .pag-btn.active { background: #111; color: #fff; border-color: transparent; }
+        .pag-btn:hover { background: rgba(255,255,255,0.06); }
+        .pag-btn.active { background: #1E6FE3; color: #fff; border-color: transparent; }
         .pag-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
         /* Loading / vacío */
-        .loading-state { text-align: center; padding: 4rem 2rem; color: #9ca3af; }
+        .loading-state { text-align: center; padding: 4rem 2rem; color: rgba(255,255,255,0.35); }
         .sk-loader {
             display: inline-block; width: 22px; height: 22px;
-            border: 2px solid #e5e7eb; border-top-color: #6366f1;
+            border: 2px solid #e5e7eb; border-top-color: #3D8EFF;
             border-radius: 50%; animation: spin 0.7s linear infinite;
         }
         .empty-state {
             text-align: center; padding: 3rem 2rem;
-            background: #fff; border: 1px dashed #e5e7eb;
-            border-radius: 14px; color: #9ca3af;
+            background: #0D0D20; border: 1px dashed rgba(255,255,255,0.12);
+            border-radius: 14px; color: rgba(255,255,255,0.35);
         }
         @@keyframes spin { to { transform: rotate(360deg); } }
 
         /* Toast */
         #toast-dp {
             position: fixed; top: 1.5rem; right: 1.5rem;
-            background: #111; color: #fff;
+            background: #1E6FE3; color: #fff;
             padding: 0.85rem 1.25rem; border-radius: 10px;
             font-size: 0.875rem; z-index: 9999;
             opacity: 0; transform: translateY(-10px) scale(0.97);
             transition: all 0.25s; pointer-events: none;
         }
         #toast-dp.show { opacity: 1; transform: translateY(0) scale(1); }
-        #toast-dp.error { background: #b91c1c; }
+        #toast-dp.error { background: rgba(248,113,113,0.2); }
     </style>
 }
 
@@ -246,8 +246,8 @@
         <!-- Título + botón volver -->
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem">
             <div>
-                <h1 style="font-size:1.4rem;font-weight:800;color:#111;margin:0">Deudas Pagadas</h1>
-                <p style="font-size:0.82rem;color:#9ca3af;margin:0.2rem 0 0">Historial completo de todas las deudas saldadas por los clientes</p>
+                <h1 style="font-size:1.4rem;font-weight:800;color:#fff;margin:0">Deudas Pagadas</h1>
+                <p style="font-size:0.82rem;color:rgba(255,255,255,0.35);margin:0.2rem 0 0">Historial completo de todas las deudas saldadas por los clientes</p>
             </div>
             <a href="/Caja" class="btn-hist-cliente" style="background:#6b7280">
                 <i class="bi bi-arrow-left"></i> Volver a Caja
@@ -421,7 +421,7 @@
 
                         <p class="section-label">
                             Abonos realizados
-                            ${abonos.length ? `<span style="margin-left:0.4rem;background:#e0e7ff;color:#4f46e5;padding:.1rem .45rem;border-radius:99px;font-size:.65rem">${abonos.length}</span>` : ''}
+                            ${abonos.length ? `<span style="margin-left:0.4rem;background:rgba(30,111,227,0.15);color:#1E6FE3;padding:.1rem .45rem;border-radius:99px;font-size:.65rem">${abonos.length}</span>` : ''}
                         </p>
                         ${renderTimeline(abonos)}
                     </div>
@@ -466,7 +466,7 @@
             let html = `<button class="pag-btn" onclick="cargar(${actual - 1})" ${actual === 1 ? 'disabled' : ''}>‹ Anterior</button>`;
             for (let i = 1; i <= totalPags; i++) {
                 if (totalPags > 7 && Math.abs(i - actual) > 2 && i !== 1 && i !== totalPags) {
-                    if (i === actual - 3 || i === actual + 3) html += `<span style="align-self:center;color:#9ca3af">…</span>`;
+                    if (i === actual - 3 || i === actual + 3) html += `<span style="align-self:center;color:rgba(255,255,255,0.35)">…</span>`;
                     continue;
                 }
                 html += `<button class="pag-btn ${i === actual ? 'active' : ''}" onclick="cargar(${i})">${i}</button>`;

@@ -1,64 +1,64 @@
-﻿@model VidaFitBackend.Models.Producto
+@model VidaFitBackend.Models.Producto
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Eliminar Producto";
 }
 
-<div class="max-w-3xl mx-auto">
-    <div class="bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-red-300">
-        <div class="bg-gradient-to-r from-red-600 to-red-800 p-8">
-            <div class="flex items-center gap-4">
-                <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
-                    <i data-lucide="alert-triangle" class="w-8 h-8 text-white"></i>
-                </div>
-                <div>
-                    <h2 class="text-3xl font-black text-white uppercase tracking-wide">Eliminar Producto</h2>
-                    <p class="text-white opacity-90 font-bold mt-1">Esta acción no se puede deshacer</p>
-                </div>
+<div style="max-width:640px;margin:0 auto;">
+    <div style="background:#0D0D20;border:1px solid rgba(248,113,113,0.2);border-radius:16px;overflow:hidden;">
+
+        <!-- Header -->
+        <div style="background:linear-gradient(135deg,#7C1D1D,#991B1B);padding:24px 28px;display:flex;align-items:center;gap:16px;">
+            <div style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i data-lucide="alert-triangle" style="width:26px;height:26px;color:#fff;"></i>
+            </div>
+            <div>
+                <h2 style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:3px;color:#fff;margin:0;line-height:1;">Eliminar Producto</h2>
+                <p style="font-size:0.78rem;color:rgba(255,255,255,0.6);font-weight:600;margin:4px 0 0 0;">Esta acción no se puede deshacer</p>
             </div>
         </div>
 
-        <div class="p-8">
-            <div class="bg-red-50 border-2 border-red-300 rounded-xl p-6 mb-6">
-                <p class="text-lg text-red-900 font-bold mb-2">¿Estás seguro de que deseas eliminar este producto?</p>
-                <p class="text-red-700 font-semibold">Toda la información será eliminada permanentemente.</p>
+        <div style="padding:24px 28px;display:flex;flex-direction:column;gap:18px;">
+            <!-- Warning -->
+            <div style="padding:14px 18px;background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);border-radius:12px;">
+                <p style="font-size:0.9rem;font-weight:700;color:#F87171;margin:0 0 4px 0;">¿Estás seguro de que deseas eliminar este producto?</p>
+                <p style="font-size:0.8rem;color:rgba(248,113,113,0.7);font-weight:600;margin:0;">Toda la información será eliminada permanentemente.</p>
             </div>
 
-            <div class="grid grid-cols-2 gap-6 mb-8">
-                <div class="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
-                    <p class="text-sm font-black text-gray-600 uppercase tracking-wide mb-2">Nombre</p>
-                    <p class="text-xl font-bold text-gray-900">@Model.Nombre</p>
+            <!-- Fields -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px 16px;">
+                    <p style="font-size:0.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:0 0 5px 0;">Nombre</p>
+                    <p style="font-weight:800;color:#fff;font-size:0.95rem;margin:0;">@Model.Nombre</p>
                 </div>
-
-                <div class="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
-                    <p class="text-sm font-black text-gray-600 uppercase tracking-wide mb-2">Categoría</p>
-                    <p class="text-xl font-bold text-gray-900">@(string.IsNullOrEmpty(Model.Categoria) ? "Sin categoría" : Model.Categoria)</p>
+                <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px 16px;">
+                    <p style="font-size:0.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:0 0 5px 0;">Categoría</p>
+                    <p style="font-weight:800;color:#fff;font-size:0.95rem;margin:0;">@(string.IsNullOrEmpty(Model.Categoria) ? "Sin categoría" : Model.Categoria)</p>
                 </div>
-
-                <div class="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
-                    <p class="text-sm font-black text-gray-600 uppercase tracking-wide mb-2">Precio</p>
-                    <p class="text-xl font-bold text-emerald-600">$@Model.Precio.ToString("N2")</p>
+                <div style="background:rgba(16,185,129,0.04);border:1px solid rgba(16,185,129,0.15);border-radius:10px;padding:14px 16px;">
+                    <p style="font-size:0.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(16,185,129,0.5);margin:0 0 5px 0;">Precio</p>
+                    <p style="font-weight:900;color:#10B981;font-size:1.1rem;margin:0;">$@Model.Precio.ToString("N2")</p>
                 </div>
-
-                <div class="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
-                    <p class="text-sm font-black text-gray-600 uppercase tracking-wide mb-2">Stock</p>
-                    <p class="text-xl font-bold text-blue-600">@Model.Stock</p>
+                <div style="background:rgba(30,111,227,0.04);border:1px solid rgba(30,111,227,0.15);border-radius:10px;padding:14px 16px;">
+                    <p style="font-size:0.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(30,111,227,0.5);margin:0 0 5px 0;">Stock</p>
+                    <p style="font-weight:900;color:#3D8EFF;font-size:1.1rem;margin:0;">@Model.Stock</p>
                 </div>
             </div>
 
-            <form method="post" action="/productos/eliminar/@Model.Id" class="flex gap-4">
+            <!-- Buttons -->
+            <form method="post" action="/productos/eliminar/@Model.Id" style="display:flex;gap:12px;padding-top:8px;">
                 @Html.AntiForgeryToken()
-
                 <button type="submit"
-                        class="flex-1 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black py-4 px-6 rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide flex items-center justify-center gap-2"
-                        onclick="return confirm('¿Estás completamente seguro? Esta acción no se puede deshacer.')">
-                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                        onclick="return confirm('¿Estás completamente seguro? Esta acción no se puede deshacer.')"
+                        style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;background:linear-gradient(135deg,#B91C1C,#991B1B);color:#fff;font-weight:800;font-size:0.82rem;letter-spacing:1.5px;text-transform:uppercase;border:none;border-radius:12px;cursor:pointer;transition:opacity .2s;"
+                        onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'">
+                    <i data-lucide="trash-2" style="width:16px;height:16px;"></i>
                     Confirmar Eliminación
                 </button>
-
                 <a href="/productos"
-                   class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 font-black py-4 px-6 rounded-xl transition-all text-center uppercase tracking-wide flex items-center justify-center gap-2">
-                    <i data-lucide="x" class="w-5 h-5"></i>
+                   style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.5);font-weight:800;font-size:0.82rem;letter-spacing:1.5px;text-transform:uppercase;border:1px solid rgba(255,255,255,0.08);border-radius:12px;text-decoration:none;transition:all .15s;"
+                   onmouseover="this.style.background='rgba(255,255,255,0.08)';this.style.color='rgba(255,255,255,0.8)'" onmouseout="this.style.background='rgba(255,255,255,0.04)';this.style.color='rgba(255,255,255,0.5)'">
+                    <i data-lucide="x" style="width:16px;height:16px;"></i>
                     Cancelar
                 </a>
             </form>
@@ -67,7 +67,5 @@
 </div>
 
 @section Scripts {
-    <script>
-        lucide.createIcons();
-    </script>
+    <script>lucide.createIcons();</script>
 }

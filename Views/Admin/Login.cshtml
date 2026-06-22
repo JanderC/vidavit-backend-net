@@ -1,5 +1,5 @@
-﻿@{
-    ViewData["Title"] = "Login - Tauro GYM Admin";
+@{
+    ViewData["Title"] = "Login - Power Fitness Admin";
 }
 
 <!DOCTYPE html>
@@ -7,26 +7,16 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Iniciar Sesión - TAURO GYM</title>
+    <title>Iniciar Sesión - POWER FITNESS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'tauro-red': '#E31E24',
-                        'tauro-dark': '#000000',
-                        'tauro-gray': '#1a1a1a',
-                        'tauro-accent': '#C41E23'
-                    }
-                }
-            }
-        }
-    </script>
     <style>
-        body {
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
             font-family: 'Inter', sans-serif;
         }
 
@@ -35,116 +25,339 @@
             letter-spacing: 3px;
         }
 
-
-        .logo-container {
-            animation: pulse-glow 3s ease-in-out infinite;
+        /* ── Background ── */
+        .login-bg {
+            background: #05050F;
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .grid-pattern {
+        /* subtle grid overlay */
+        .login-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
             background-image:
-                linear-gradient(rgba(227, 30, 36, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(227, 30, 36, 0.05) 1px, transparent 1px);
-            background-size: 50px 50px;
+                linear-gradient(rgba(30,111,227,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(30,111,227,0.04) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
         }
+
+        /* static ambient orbs — no keyframes */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            opacity: 0.18;
+        }
+        .orb-1 { width: 420px; height: 420px; background: #1E6FE3; top: -100px; left: -80px; }
+        .orb-2 { width: 360px; height: 360px; background: #6B3FA0; bottom: -80px; right: -60px; }
+
+        /* ── Layout: side-by-side on wider screens ── */
+        .login-card {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid rgba(30,111,227,0.25);
+            box-shadow: 0 32px 80px rgba(0,0,0,0.7);
+        }
+
+        /* Left panel — brand side */
+        .brand-panel {
+            width: 42%;
+            flex-shrink: 0;
+            background: linear-gradient(160deg, #0F1535 0%, #0A0A20 60%, #12082A 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 32px;
+            border-right: 1px solid rgba(30,111,227,0.2);
+            gap: 28px;
+        }
+
+        .brand-panel .logo-wrap {
+            width: 160px;
+            height: 160px;
+            border-radius: 24px;
+            background: rgba(30,111,227,0.08);
+            border: 1px solid rgba(30,111,227,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .brand-panel .logo-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .brand-tagline {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.4);
+            text-align: center;
+        }
+
+        .brand-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.8rem;
+            letter-spacing: 6px;
+            line-height: 1;
+            text-align: center;
+            background: linear-gradient(135deg, #3D8EFF, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .brand-badge {
+            padding: 6px 18px;
+            background: rgba(30,111,227,0.12);
+            border: 1px solid rgba(30,111,227,0.3);
+            border-radius: 100px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #7EB8FF;
+        }
+
+        /* Right panel — form side */
+        .form-panel {
+            flex: 1;
+            background: #080816;
+            padding: 48px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 28px;
+        }
+
+        .form-panel .form-heading {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.4rem;
+            letter-spacing: 4px;
+            color: #fff;
+        }
+
+        .form-panel .form-sub {
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.35);
+            margin-top: 2px;
+        }
+
+        .field-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 10px;
+        }
+
+        .field-input {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(30,111,227,0.2);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .field-input::placeholder { color: rgba(255,255,255,0.2); }
+
+        .field-input:focus {
+            border-color: #1E6FE3;
+            box-shadow: 0 0 0 3px rgba(30,111,227,0.15);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #1E6FE3 0%, #6B3FA0 100%);
+            color: #fff;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.2rem;
+            letter-spacing: 3px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-submit:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+            box-shadow: 0 8px 24px rgba(30,111,227,0.4);
+        }
+
+        .error-box {
+            background: rgba(30,111,227,0.08);
+            border: 1px solid rgba(30,111,227,0.35);
+            border-radius: 12px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #93B8FF;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .creds-box {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 12px;
+            padding: 14px 18px;
+        }
+
+        .creds-title {
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.25);
+            margin-bottom: 8px;
+        }
+
+        .creds-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            font-family: monospace;
+            margin-bottom: 4px;
+        }
+
+        .creds-row span:first-child { color: rgba(255,255,255,0.35); }
+        .creds-row span:last-child  { color: #7EB8FF; font-weight: 700; }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.3);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover { color: #7EB8FF; }
     </style>
 </head>
 <body>
-    <div class="min-h-screen bg-black relative overflow-hidden flex items-center justify-center p-4">
-        <div class="absolute inset-0 grid-pattern"></div>
+    <div class="login-bg">
+        <!-- ambient orbs -->
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
 
-        <div class="absolute inset-0 opacity-20">
-            <div class="absolute top-0 left-1/4 w-96 h-96 bg-red-600 rounded-full blur-3xl animate-pulse"></div>
-            <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-red-800 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
-        </div>
-
-        <div class="w-full max-w-md relative z-10">
-            <div class="text-center mb-10">
-                <div class="mb-8 flex justify-center">
-                    <div class="logo-container inline-block px-10 py-5 bg-gradient-to-r from-red-600 to-red-800 rounded-2xl transform hover:scale-105 transition-transform duration-300">
-                        <h1 class="text-6xl font-black text-white tracking-widest">
-                            TAURO GYM
-                        </h1>
-                    </div>
+        <div class="login-card">
+            <!-- ── BRAND PANEL ── -->
+            <div class="brand-panel">
+                <div class="logo-wrap">
+                    <img src="/images/power-fitness-logo.png" alt="Power Fitness" />
                 </div>
-                <div class="inline-block px-6 py-2 bg-gray-900 border border-red-600 rounded-full">
-                    <p class="text-red-500 uppercase tracking-widest text-sm font-bold">Panel Administrativo</p>
+                <div>
+                    <div class="brand-name">POWER<br>FITNESS</div>
                 </div>
+                <div class="brand-tagline">Fuerza · Disciplina · Resultados</div>
+                <div class="brand-badge">Acceso Administrativo</div>
             </div>
 
-            <div class="bg-gradient-to-br from-gray-900 to-black backdrop-blur-lg rounded-3xl border-2 border-red-600 shadow-2xl p-8 relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-40 h-40 bg-red-600 rounded-full blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"></div>
-
-                <div class="text-center mb-8 relative z-10">
-                    <div class="w-24 h-24 bg-gradient-to-br from-red-600 to-red-800 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-2xl transform hover:rotate-3 transition-transform">
-                        <i data-lucide="shield-check" class="w-12 h-12 text-white"></i>
-                    </div>
-                    <h2 class="text-4xl font-black text-white uppercase tracking-wider">Iniciar Sesión</h2>
-                    <p class="text-gray-400 text-sm mt-2 font-semibold uppercase tracking-wide">Acceso al Sistema</p>
+            <!-- ── FORM PANEL ── -->
+            <div class="form-panel">
+                <div>
+                    <div class="form-heading">Iniciar Sesión</div>
+                    <div class="form-sub">Panel de administración</div>
                 </div>
 
                 @if (ViewBag.Error != null)
                 {
-                    <div class="bg-red-900/40 border-2 border-red-500 rounded-xl p-4 mb-6 flex items-center gap-3 backdrop-blur-sm">
-                        <i data-lucide="alert-circle" class="w-6 h-6 text-red-400"></i>
-                        <p class="text-red-300 text-sm font-semibold">@ViewBag.Error</p>
+                    <div class="error-box">
+                        <i data-lucide="alert-circle" style="width:18px;height:18px;flex-shrink:0;"></i>
+                        <span>@ViewBag.Error</span>
                     </div>
                 }
 
-                <form method="post" action="/admin/login" class="space-y-6 relative z-10">
+                <form method="post" action="/admin/login" style="display:flex;flex-direction:column;gap:20px;">
                     @Html.AntiForgeryToken()
 
                     <div>
-                        <label class="block text-gray-300 text-sm font-bold mb-3 uppercase tracking-wide">
-                            <i data-lucide="mail" class="w-4 h-4 inline mr-2"></i>
+                        <label class="field-label">
+                            <i data-lucide="mail" style="width:14px;height:14px;"></i>
                             Correo Electrónico
                         </label>
-                        <input type="email" name="email" required placeholder="admin@taurogym.com"
-                               class="w-full px-5 py-4 bg-black/60 border-2 border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-red-600 transition-all font-semibold" />
+                        <input type="email" name="email" required placeholder="admin@powerfitness.com"
+                               class="field-input" />
                     </div>
 
                     <div>
-                        <label class="block text-gray-300 text-sm font-bold mb-3 uppercase tracking-wide">
-                            <i data-lucide="lock" class="w-4 h-4 inline mr-2"></i>
+                        <label class="field-label">
+                            <i data-lucide="lock" style="width:14px;height:14px;"></i>
                             Contraseña
                         </label>
                         <input type="password" name="password" required placeholder="••••••••"
-                               class="w-full px-5 py-4 bg-black/60 border-2 border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-red-600 transition-all font-semibold" />
+                               class="field-input" />
                     </div>
 
-                    <button type="submit"
-                            class="w-full py-5 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black text-lg rounded-xl transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-red-600/50 flex items-center justify-center gap-3 uppercase tracking-wider">
-                        <i data-lucide="log-in" class="w-6 h-6"></i>
-                        <span>Ingresar al Sistema</span>
+                    <button type="submit" class="btn-submit">
+                        <i data-lucide="log-in" style="width:20px;height:20px;"></i>
+                        Ingresar al Sistema
                     </button>
                 </form>
 
-                <div class="mt-8 pt-6 border-t-2 border-gray-800 relative z-10">
-                    <p class="text-xs text-gray-500 text-center mb-3 uppercase tracking-wide font-bold">Credenciales por defecto:</p>
-                    <div class="bg-black/70 rounded-xl p-4 font-mono text-xs text-center border-2 border-gray-800">
-                        <div class="flex items-center justify-center gap-2 mb-2">
-                            <span class="text-gray-400">Email:</span>
-                            <span class="text-red-500 font-bold">admin@taurogym.com</span>
-                        </div>
-                        <div class="flex items-center justify-center gap-2">
-                            <span class="text-gray-400">Password:</span>
-                            <span class="text-red-500 font-bold">admin123</span>
-                        </div>
+                <div class="creds-box">
+                    <div class="creds-title">Credenciales por defecto</div>
+                    <div class="creds-row">
+                        <span>Email</span>
+                        <span>admin@powerfitness.com</span>
+                    </div>
+                    <div class="creds-row">
+                        <span>Password</span>
+                        <span>admin123</span>
                     </div>
                 </div>
-            </div>
 
-            <div class="text-center mt-8">
-                <a href="/kiosko" class="text-gray-400 hover:text-red-500 transition-colors inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wide group">
-                    <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i>
-                    Volver al Kiosko
-                </a>
-            </div>
-
-            <div class="mt-10 text-center">
-                <div class="inline-block px-6 py-2 bg-gray-900 border border-gray-800 rounded-full">
-                    <p class="text-gray-600 text-xs font-bold uppercase tracking-wider">
-                        TAURO GYM © 2024
-                    </p>
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <a href="/kiosko" class="back-link">
+                        <i data-lucide="arrow-left" style="width:14px;height:14px;"></i>
+                        Volver al Kiosko
+                    </a>
+                    <span style="font-size:0.7rem;color:rgba(255,255,255,0.15);font-weight:700;letter-spacing:2px;">
+                        POWER FITNESS © 2026
+                    </span>
                 </div>
             </div>
         </div>

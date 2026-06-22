@@ -1,765 +1,702 @@
 @{
     ViewData["Title"] = "Vender Productos";
-    ViewData["Subtitle"] = "Punto de venta con opción de pago parcial - TAURO GYM";
+    ViewData["Subtitle"] = "Punto de venta con opción de pago parcial - POWER FITNESS";
     Layout = "_AdminLayout";
 }
 
-<div class="max-w-6xl mx-auto">
-    <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
-        <div class="flex items-center gap-4 mb-8 pb-6 border-b-2 border-gray-200">
-            <div class="bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-xl p-4">
-                <i data-lucide="shopping-cart" class="w-8 h-8 text-white"></i>
-            </div>
-            <div>
-                <h2 class="text-3xl font-black text-gray-900 uppercase tracking-wide">Venta de Productos</h2>
-                <p class="text-sm text-gray-600 font-semibold mt-1">Con opción de pago parcial o fiado</p>
-            </div>
-        </div>
+<style>
+    .pf-input {
+        width: 100%;
+        padding: 12px 16px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(30,111,227,0.2);
+        border-radius: 12px;
+        color: #fff;
+        font-size: 0.9rem;
+        font-weight: 600;
+        font-family: 'Inter',sans-serif;
+        outline: none;
+        transition: border-color .2s,box-shadow .2s;
+    }
 
-        <!-- CLIENTE -->
-        <div class="mb-6 p-6 bg-blue-50 rounded-2xl border-2 border-blue-300">
-            <label class="block text-sm font-black text-gray-900 mb-3 uppercase tracking-wide">Cliente (Opcional)</label>
-            <p class="text-xs text-gray-600 mb-3 font-semibold">Deja vacío para venta rápida sin cliente</p>
-
-            <div class="mb-3">
-                <input type="text" id="buscarClienteInput" placeholder="Buscar por nombre, apellido o cédula..."
-                       class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 font-semibold">
-
-                <div id="resultadosBusqueda" class="hidden mt-2 bg-white border-2 border-gray-300 rounded-xl shadow-xl max-h-60 overflow-y-auto"></div>
-            </div>
-
-            <div id="clienteInfo" class="hidden">
-                <div class="flex items-center gap-3 p-5 bg-white rounded-xl border-2 border-blue-600">
-                    <div class="w-14 h-14 bg-gray-300 rounded-full flex items-center justify-center">
-                        <i data-lucide="user" class="w-7 h-7 text-gray-600"></i>
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-black text-gray-900 text-lg" id="clienteNombre"></p>
-                        <p class="text-sm text-gray-600 font-bold" id="clienteCedula"></p>
-                    </div>
-                    <button type="button" id="btnCambiarCliente"
-                            class="px-6 py-3 bg-gray-200 text-gray-900 rounded-xl hover:bg-gray-300 font-black uppercase tracking-wide">
-                        Quitar
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- PRODUCTOS -->
-        <div class="mb-6">
-            <h3 class="text-xl font-black text-gray-900 mb-4 uppercase tracking-wide">Productos Disponibles</h3>
-            <div class="mb-4">
-                <input type="text" id="buscarProducto" placeholder="Buscar producto..."
-                       class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
-            </div>
-            <div id="productosGrid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-96 overflow-y-auto">
-                <div class="col-span-full text-center py-8 text-gray-500">
-                    <i data-lucide="loader" class="w-8 h-8 mx-auto mb-2 animate-spin"></i>
-                    <p class="font-bold">Cargando productos...</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- CARRITO -->
-        <div class="mb-6 p-6 bg-gray-50 rounded-2xl border-2 border-gray-200">
-            <h3 class="text-xl font-black text-gray-900 mb-4 uppercase tracking-wide">Carrito de Compra</h3>
-            <div id="carritoItems" class="space-y-3 mb-4">
-                <p class="text-gray-500 text-center py-4 font-semibold">No hay productos en el carrito</p>
-            </div>
-
-            <div class="border-t-2 border-gray-300 pt-6">
-                <div class="flex justify-between items-center text-2xl font-black">
-                    <span class="uppercase tracking-wide">Total:</span>
-                    <span id="totalCarrito" class="text-emerald-600">$0.00</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- MÉTODO DE PAGO Y PAGO PARCIAL -->
-        <div class="mb-6 p-6 bg-amber-50 rounded-2xl border-2 border-amber-300">
-            <h3 class="text-xl font-black text-gray-900 mb-4 uppercase tracking-wide">Forma de Pago</h3>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <label class="flex items-center p-5 border-2 border-gray-300 rounded-xl cursor-pointer hover:border-emerald-600 transition-all bg-white tipo-pago-option">
-                    <input type="radio" name="tipoPago" value="pagado" checked class="mr-3 w-5 h-5 text-emerald-600">
-                    <div>
-                        <p class="font-black text-gray-900 uppercase tracking-wide">Pago Completo</p>
-                        <p class="text-sm text-gray-600 font-semibold">100% del total</p>
-                    </div>
-                </label>
-
-                <label class="flex items-center p-5 border-2 border-gray-300 rounded-xl cursor-pointer hover:border-orange-600 transition-all bg-white tipo-pago-option">
-                    <input type="radio" name="tipoPago" value="parcial" class="mr-3 w-5 h-5 text-orange-600">
-                    <div>
-                        <p class="font-black text-gray-900 uppercase tracking-wide">Pago Parcial</p>
-                        <p class="text-sm text-gray-600 font-semibold">Abono + Deuda</p>
-                    </div>
-                </label>
-
-                <label class="flex items-center p-5 border-2 border-gray-300 rounded-xl cursor-pointer hover:border-red-600 transition-all bg-white tipo-pago-option">
-                    <input type="radio" name="tipoPago" value="fiado" class="mr-3 w-5 h-5 text-red-600">
-                    <div>
-                        <p class="font-black text-gray-900 uppercase tracking-wide">Fiado Completo</p>
-                        <p class="text-sm text-gray-600 font-semibold">Todo a deuda</p>
-                    </div>
-                </label>
-            </div>
-            <div class="mb-4">
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Método de Pago</label>
-                <select id="metodoPago" class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-600 focus:border-amber-600 font-semibold">
-                    <option value="efectivo" selected>Efectivo</option>
-                    <option value="transferencia">Transferencia</option>
-                </select>
-            </div>
-
-            <!-- CAMPO DE PAGO PARCIAL (oculto inicialmente) -->
-            <div id="montoPagadoContainer" class="hidden mb-4 p-4 bg-white rounded-xl border-2 border-orange-400">
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
-                    Monto a Pagar Ahora
-                </label>
-                <div class="flex gap-4 items-end">
-                    <div class="flex-1">
-                        <input type="number" id="montoPagado" step="0.01" min="0" placeholder="0.00"
-                               class="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 font-semibold text-lg">
-                    </div>
-                    <div class="flex-1">
-                        <p class="text-sm text-gray-600 font-bold mb-1">Saldo a Deber:</p>
-                        <p id="saldoPendiente" class="text-2xl font-black text-red-600">$0.00</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mt-4">
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Notas</label>
-                <textarea id="notasVenta" rows="2" placeholder="Observaciones adicionales..."
-                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-600 focus:border-amber-600 font-semibold"></textarea>
-            </div>
-        </div>
-
-        <!-- BOTONES -->
-        <div class="flex gap-4">
-            <button type="button" id="btnRegistrarVenta"
-                    class="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900 text-white font-black py-4 px-6 rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
-                <i data-lucide="check-circle" class="w-5 h-5 inline mr-2"></i>
-                Registrar Venta
-            </button>
-            <button type="button" id="btnLimpiar"
-                    class="px-8 py-4 bg-gray-300 text-gray-900 font-black rounded-xl hover:bg-gray-400 transition-all uppercase tracking-wide">
-                <i data-lucide="x-circle" class="w-5 h-5 inline mr-2"></i>
-                Limpiar
-            </button>
-            <a href="/productos"
-               class="px-8 py-4 bg-gray-300 text-gray-900 font-black rounded-xl hover:bg-gray-400 transition-all text-center uppercase tracking-wide">
-                Cancelar
-            </a>
-        </div>
-    </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- MODAL: CONFIRMACIÓN DE VENTA                        -->
-<!-- ═══════════════════════════════════════════════════ -->
-<div id="modalConfirmarVenta" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg transform transition-all">
-        <!-- Header -->
-        <div class="bg-gradient-to-r from-emerald-600 to-emerald-800 text-white px-8 py-6 rounded-t-3xl">
-            <h3 class="text-2xl font-black uppercase tracking-wide flex items-center gap-3">
-                <i data-lucide="shopping-cart" class="w-7 h-7"></i>
-                Confirmar Venta
-            </h3>
-        </div>
-        <!-- Body -->
-        <div class="p-8">
-            <!-- Resumen de ítems -->
-            <div id="confirmItemsLista" class="space-y-2 mb-6 max-h-48 overflow-y-auto pr-1"></div>
-
-            <!-- Línea divisora -->
-            <div class="border-t-2 border-gray-200 pt-4 mb-6 space-y-2">
-                <div class="flex justify-between text-sm font-semibold text-gray-600">
-                    <span>Subtotal</span>
-                    <span id="confirmTotal">$0.00</span>
-                </div>
-                <div id="confirmPagoRow" class="flex justify-between text-sm font-semibold text-gray-600 hidden">
-                    <span>Paga ahora</span>
-                    <span id="confirmPagaAhora" class="text-emerald-600"></span>
-                </div>
-                <div id="confirmDeudaRow" class="flex justify-between text-sm font-semibold text-red-600 hidden">
-                    <span>Queda a deber</span>
-                    <span id="confirmDeuda"></span>
-                </div>
-            </div>
-
-            <!-- Tipo de pago badge -->
-            <div class="mb-6 flex items-center gap-3 p-4 rounded-xl border-2" id="confirmTipoBadge">
-                <i data-lucide="credit-card" class="w-5 h-5"></i>
-                <div>
-                    <p class="font-black text-sm uppercase tracking-wide" id="confirmTipoTexto">Pago Completo</p>
-                    <p class="text-xs font-semibold" id="confirmMetodoTexto">Efectivo</p>
-                </div>
-            </div>
-
-            <!-- Cliente si aplica -->
-            <div id="confirmClienteRow" class="hidden mb-4 p-3 bg-blue-50 rounded-xl border border-blue-200">
-                <p class="text-xs text-blue-600 font-black uppercase">Cliente</p>
-                <p class="font-bold text-gray-900" id="confirmClienteNombre"></p>
-            </div>
-        </div>
-        <!-- Footer botones -->
-        <div class="flex gap-3 px-8 pb-8">
-            <button onclick="cerrarModalConfirmar()"
-                    class="flex-1 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-900 font-black rounded-xl transition-all uppercase tracking-wide">
-                Cancelar
-            </button>
-            <button onclick="ejecutarVenta()"
-                    class="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900 text-white font-black rounded-xl transition-all shadow-lg uppercase tracking-wide">
-                <i data-lucide="check" class="w-4 h-4 inline mr-2"></i>
-                Confirmar
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- MODAL: LOADING / PROCESANDO VENTA                   -->
-<!-- ═══════════════════════════════════════════════════ -->
-<div id="modalLoadingVenta" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm text-center p-10">
-        <div class="relative w-20 h-20 mx-auto mb-6">
-            <svg class="animate-spin w-20 h-20 text-emerald-600" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-            </svg>
-            <i data-lucide="shopping-cart" class="w-8 h-8 text-emerald-700 absolute inset-0 m-auto"></i>
-        </div>
-        <p class="text-xl font-black text-gray-900 uppercase tracking-wide mb-2">Procesando Venta</p>
-        <p class="text-sm text-gray-500 font-semibold" id="loadingVentaMsg">Registrando en el sistema...</p>
-        <div class="mt-4 w-full bg-gray-200 rounded-full h-2">
-            <div id="loadingVentaBar" class="bg-emerald-600 h-2 rounded-full transition-all duration-500" style="width:0%"></div>
-        </div>
-    </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- MODAL: DETALLE / COMPROBANTE DE VENTA EXITOSA       -->
-<!-- ═══════════════════════════════════════════════════ -->
-<div id="modalDetalleVenta" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg">
-        <!-- Header éxito -->
-        <div class="bg-gradient-to-r from-emerald-500 to-emerald-700 text-white px-8 py-6 rounded-t-3xl text-center">
-            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-3">
-                <i data-lucide="check-circle" class="w-9 h-9 text-white"></i>
-            </div>
-            <h3 class="text-2xl font-black uppercase tracking-wide">¡Venta Registrada!</h3>
-            <p class="text-emerald-100 text-sm font-semibold mt-1" id="detalleVentaFecha"></p>
-        </div>
-        <!-- Body comprobante -->
-        <div class="p-8">
-            <div class="bg-gray-50 rounded-2xl p-5 mb-5 border-2 border-gray-200">
-                <p class="text-xs font-black text-gray-500 uppercase tracking-wide mb-3">Detalle de Productos</p>
-                <div id="detalleVentaItems" class="space-y-2 mb-4"></div>
-                <div class="border-t border-gray-300 pt-3 space-y-1">
-                    <div class="flex justify-between font-black text-lg">
-                        <span>Total</span>
-                        <span class="text-emerald-600" id="detalleVentaTotal"></span>
-                    </div>
-                    <div class="flex justify-between text-sm font-semibold text-gray-600" id="detalleVentaPagoRow">
-                        <span>Pagado ahora</span>
-                        <span id="detalleVentaPagado" class="text-emerald-600"></span>
-                    </div>
-                    <div class="flex justify-between text-sm font-semibold text-red-600" id="detalleVentaDeudaRow">
-                        <span>Queda a deber</span>
-                        <span id="detalleVentaDeuda"></span>
-                    </div>
-                </div>
-            </div>
-            <div class="grid grid-cols-2 gap-3 mb-5 text-sm">
-                <div class="bg-blue-50 rounded-xl p-3 border border-blue-200">
-                    <p class="text-xs font-black text-blue-600 uppercase">Método de Pago</p>
-                    <p class="font-bold text-gray-900 capitalize" id="detalleVentaMetodo"></p>
-                </div>
-                <div class="bg-purple-50 rounded-xl p-3 border border-purple-200">
-                    <p class="text-xs font-black text-purple-600 uppercase">Cliente</p>
-                    <p class="font-bold text-gray-900" id="detalleVentaCliente"></p>
-                </div>
-            </div>
-        </div>
-        <!-- Footer -->
-        <div class="flex gap-3 px-8 pb-8">
-            <button onclick="cerrarDetalleYNuevaVenta()"
-                    class="flex-1 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-900 font-black rounded-xl transition-all uppercase tracking-wide">
-                Nueva Venta
-            </button>
-            <a href="/productos"
-               class="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-800 text-white font-black rounded-xl transition-all shadow-lg text-center uppercase tracking-wide">
-                Ir a Productos
-            </a>
-        </div>
-    </div>
-</div>
-
-@section Scripts {
-    <script>
-        let productos = [];
-        let clientes = [];
-        let carrito = [];
-        let clienteSeleccionado = null;
-        let _ventaPayload = null;
-
-        // ─── CARGA DE DATOS ───────────────────────────────────────
-        async function cargarDatos() {
-            try {
-                const [clientesRes, productosRes] = await Promise.all([
-                    fetch('/api/Clientes'),
-                    fetch('/api/Productos')
-                ]);
-                if (!clientesRes.ok) throw new Error('Error al cargar clientes');
-                if (!productosRes.ok) throw new Error('Error al cargar productos');
-                clientes = await clientesRes.json();
-                productos = await productosRes.json();
-                renderProductos(productos);
-            } catch (error) {
-                console.error('Error cargando datos:', error);
-                mostrarError('Error al cargar datos del sistema. Recarga la página.');
-            }
+        .pf-input::placeholder {
+            color: rgba(255,255,255,0.2);
         }
 
-        // ─── BÚSQUEDA DE CLIENTES ────────────────────────────────
-        document.getElementById('buscarClienteInput').addEventListener('input', function(e) {
-            const termino = e.target.value.toLowerCase().trim();
-            const resultados = document.getElementById('resultadosBusqueda');
-            if (termino.length < 2) { resultados.classList.add('hidden'); return; }
+        .pf-input:focus {
+            border-color: #1E6FE3;
+            box-shadow: 0 0 0 3px rgba(30,111,227,0.15);
+        }
 
-            const coincidencias = clientes.filter(c => {
-                const nombre   = (c.Nombre   || c.nombre   || '').toLowerCase();
-                const apellido = (c.Apellido || c.apellido || '').toLowerCase();
-                const cedula   = (c.Cedula   || c.cedula   || '');
-                return nombre.includes(termino) || apellido.includes(termino) || cedula.includes(termino);
-            }).slice(0, 5);
+    .pf-select {
+        width: 100%;
+        padding: 12px 16px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(30,111,227,0.2);
+        border-radius: 12px;
+        color: #fff;
+        font-size: 0.9rem;
+        font-weight: 600;
+        font-family: 'Inter',sans-serif;
+        outline: none;
+    }
 
-            if (coincidencias.length > 0) {
-                resultados.innerHTML = coincidencias.map(c => {
-                    const nombre   = c.Nombre   || c.nombre;
-                    const apellido = c.Apellido || c.apellido;
-                    const cedula   = c.Cedula   || c.cedula;
-                    return `<div onclick='seleccionarCliente(${JSON.stringify(c).replace(/'/g, "&apos;")})'
-                         class="flex items-center gap-3 p-4 hover:bg-blue-50 cursor-pointer border-b last:border-b-0">
-                        <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                            <i data-lucide="user" class="w-5 h-5 text-gray-600"></i>
+        .pf-select:focus {
+            border-color: #1E6FE3;
+        }
+
+        .pf-select option {
+            background: #0D0D20;
+            color: #fff;
+        }
+
+    .pf-label {
+        display: block;
+        font-size: 0.68rem;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.4);
+        margin-bottom: 8px;
+    }
+
+    .section-card {
+        background: #0D0D20;
+        border: 1px solid rgba(30,111,227,0.12);
+        border-radius: 14px;
+        padding: 20px;
+    }
+
+    .pago-option {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px 16px;
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all .15s;
+    }
+
+        .pago-option:has(input:checked) {
+            border-color: rgba(30,111,227,0.4);
+            background: rgba(30,111,227,0.06);
+        }
+
+    .prod-card {
+        background: #0D0D20;
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 12px;
+        overflow: hidden;
+        transition: border-color .15s,box-shadow .15s;
+    }
+
+        .prod-card:hover {
+            border-color: rgba(30,111,227,0.3);
+            box-shadow: 0 4px 18px rgba(0,0,0,0.35);
+        }
+
+    .cart-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 14px;
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 10px;
+        gap: 12px;
+    }
+
+    .qty-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: rgba(255,255,255,0.7);
+        font-size: 1.1rem;
+        font-weight: 900;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all .15s;
+    }
+
+        .qty-btn:hover {
+            background: rgba(30,111,227,0.15);
+            border-color: rgba(30,111,227,0.35);
+            color: #fff;
+        }
+
+    /* Modals */
+    .pf-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.75);
+        backdrop-filter: blur(6px);
+        z-index: 50;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+    }
+
+        .pf-overlay.show {
+            display: flex;
+        }
+
+    .pf-modal {
+        background: #0D0D20;
+        border: 1px solid rgba(30,111,227,0.2);
+        border-radius: 20px;
+        width: 100%;
+        box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+        overflow: hidden;
+    }
+</style>
+
+<div style="max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:18px;">
+
+    <!-- Header -->
+    <div style="background:#0D0D20;border:1px solid rgba(30,111,227,0.15);border-radius:16px;padding:22px 26px;display:flex;align-items:center;gap:16px;">
+        <div style="width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg,#10B981,#047857);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i data-lucide="shopping-cart" style="width:22px;height:22px;color:#fff;"></i>
+        </div>
+        <div>
+            <h2 style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:3px;color:#fff;margin:0;line-height:1;">Venta de Productos</h2>
+            <p style="font-size:0.78rem;color:rgba(255,255,255,0.35);font-weight:600;margin:4px 0 0 0;">Con opción de pago parcial o fiado</p>
+        </div>
+    </div>
+
+    <!-- Cliente -->
+    <div class="section-card" style="border-color:rgba(30,111,227,0.18);">
+        <p class="pf-label" style="margin-bottom:4px;">Cliente (Opcional)</p>
+        <p style="font-size:0.72rem;color:rgba(255,255,255,0.25);font-weight:600;margin:0 0 12px 0;">Deja vacío para venta rápida sin cliente</p>
+        <div style="position:relative;">
+            <input type="text" id="buscarClienteInput" placeholder="Buscar por nombre, apellido o cédula..." class="pf-input">
+            <div id="resultadosBusqueda" style="display:none;position:absolute;z-index:20;top:calc(100%+4px);left:0;right:0;background:#0D0D20;border:1px solid rgba(30,111,227,0.25);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,0.5);max-height:220px;overflow-y:auto;"></div>
+        </div>
+        <div id="clienteInfo" style="display:none;margin-top:12px;">
+            <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.2);border-radius:12px;">
+                <div style="width:44px;height:44px;border-radius:50%;background:rgba(30,111,227,0.1);border:1px solid rgba(30,111,227,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i data-lucide="user" style="width:18px;height:18px;color:rgba(30,111,227,0.6);"></i>
+                </div>
+                <div style="flex:1;">
+                    <p style="font-weight:800;color:#fff;font-size:0.95rem;margin:0 0 2px 0;" id="clienteNombre"></p>
+                    <p style="font-size:0.75rem;color:rgba(255,255,255,0.35);font-weight:600;margin:0;" id="clienteCedula"></p>
+                </div>
+                <button type="button" id="btnCambiarCliente"
+                        style="padding:8px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:rgba(255,255,255,0.5);font-weight:800;font-size:0.72rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .15s;"
+                        onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+                    Quitar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Productos -->
+    <div class="section-card">
+        <p style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:2px;color:#fff;margin:0 0 14px 0;">Productos Disponibles</p>
+        <input type="text" id="buscarProducto" placeholder="Buscar producto..." class="pf-input" style="margin-bottom:14px;">
+        <div id="productosGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;max-height:380px;overflow-y:auto;">
+            <div style="grid-column:1/-1;text-align:center;padding:32px 0;">
+                <div class="animate-spin" style="width:32px;height:32px;border:3px solid rgba(30,111,227,0.2);border-left-color:#1E6FE3;border-radius:50%;margin:0 auto 12px;"></div>
+                <p style="color:rgba(255,255,255,0.3);font-weight:600;font-size:0.82rem;">Cargando productos...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carrito -->
+    <div class="section-card">
+        <p style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:2px;color:#fff;margin:0 0 14px 0;">Carrito de Compra</p>
+        <div id="carritoItems" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+            <p style="text-align:center;padding:20px;color:rgba(255,255,255,0.25);font-weight:600;font-size:0.85rem;">No hay productos en el carrito</p>
+        </div>
+        <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:14px;display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:2px;color:rgba(255,255,255,0.6);">Total:</span>
+            <span id="totalCarrito" style="font-size:1.6rem;font-weight:900;color:#10B981;">$0.00</span>
+        </div>
+    </div>
+
+    <!-- Pago -->
+    <div class="section-card" style="border-color:rgba(217,119,6,0.15);">
+        <p style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:2px;color:#fff;margin:0 0 16px 0;">Forma de Pago</p>
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+            <label class="pago-option tipo-pago-option">
+                <input type="radio" name="tipoPago" value="pagado" checked style="width:16px;height:16px;accent-color:#10B981;flex-shrink:0;margin-top:1px;">
+                <div>
+                    <p style="font-weight:800;color:#fff;font-size:0.82rem;text-transform:uppercase;letter-spacing:1px;margin:0 0 2px 0;">Pago Completo</p>
+                    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin:0;">100% del total</p>
+                </div>
+            </label>
+            <label class="pago-option tipo-pago-option">
+                <input type="radio" name="tipoPago" value="parcial" style="width:16px;height:16px;accent-color:#D97706;flex-shrink:0;margin-top:1px;">
+                <div>
+                    <p style="font-weight:800;color:#fff;font-size:0.82rem;text-transform:uppercase;letter-spacing:1px;margin:0 0 2px 0;">Pago Parcial</p>
+                    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin:0;">Abono + Deuda</p>
+                </div>
+            </label>
+            <label class="pago-option tipo-pago-option">
+                <input type="radio" name="tipoPago" value="fiado" style="width:16px;height:16px;accent-color:#F87171;flex-shrink:0;margin-top:1px;">
+                <div>
+                    <p style="font-weight:800;color:#fff;font-size:0.82rem;text-transform:uppercase;letter-spacing:1px;margin:0 0 2px 0;">Fiado Completo</p>
+                    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin:0;">Todo a deuda</p>
+                </div>
+            </label>
+        </div>
+
+        <div style="margin-bottom:14px;">
+            <label class="pf-label">Método de Pago</label>
+            <select id="metodoPago" class="pf-select">
+                <option value="efectivo" selected>Efectivo</option>
+                <option value="transferencia">Transferencia</option>
+            </select>
+        </div>
+
+        <div id="montoPagadoContainer" style="display:none;margin-bottom:14px;padding:16px;background:rgba(217,119,6,0.05);border:1px solid rgba(217,119,6,0.2);border-radius:12px;">
+            <label class="pf-label">Monto a Pagar Ahora</label>
+            <div style="display:flex;gap:14px;align-items:flex-end;">
+                <div style="flex:1;">
+                    <input type="number" id="montoPagado" step="0.01" min="0" placeholder="0.00" class="pf-input" style="font-size:1.1rem;">
+                </div>
+                <div style="flex:1;">
+                    <p style="font-size:0.65rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:0 0 5px 0;">Saldo a Deber</p>
+                    <p id="saldoPendiente" style="font-size:1.4rem;font-weight:900;color:#F87171;margin:0;">$0.00</p>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <label class="pf-label">Notas</label>
+            <textarea id="notasVenta" rows="2" placeholder="Observaciones adicionales..." class="pf-input"></textarea>
+        </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div style="display:flex;gap:12px;">
+        <button type="button" id="btnRegistrarVenta"
+                style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;background:linear-gradient(135deg,#10B981,#047857);color:#fff;font-weight:800;font-size:0.88rem;letter-spacing:1.5px;text-transform:uppercase;border:none;border-radius:12px;cursor:pointer;transition:opacity .2s,transform .2s;"
+                onmouseover="this.style.opacity='0.88';this.style.transform='scale(1.01)'" onmouseout="this.style.opacity='1';this.style.transform='scale(1)'">
+            <i data-lucide="check-circle" style="width:18px;height:18px;"></i>
+            Registrar Venta
+        </button>
+        <button type="button" id="btnLimpiar"
+                style="padding:14px 20px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;color:rgba(255,255,255,0.5);font-weight:800;font-size:0.82rem;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:8px;"
+                onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+            <i data-lucide="rotate-ccw" style="width:16px;height:16px;"></i>
+            Limpiar
+        </button>
+    </div>
+
+    <!-- Modal Confirmación -->
+    <div id="modalConfirmarVenta" class="pf-overlay">
+        <div class="pf-modal" style="max-width:520px;">
+            <div style="background:linear-gradient(135deg,#10B981,#047857);padding:20px 24px;display:flex;align-items:center;gap:10px;">
+                <i data-lucide="shopping-cart" style="width:20px;height:20px;color:#fff;"></i>
+                <span style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:3px;color:#fff;">Confirmar Venta</span>
+            </div>
+            <div style="padding:22px 24px;display:flex;flex-direction:column;gap:12px;">
+                <div id="confirmItemsLista" style="display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto;"></div>
+                <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:12px;display:flex;flex-direction:column;gap:6px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span style="font-size:0.82rem;color:rgba(255,255,255,0.5);">Subtotal</span>
+                        <span style="font-weight:900;color:#fff;" id="confirmTotal">$0.00</span>
+                    </div>
+                    <div id="confirmPagoRow" style="display:none;justify-content:space-between;">
+                        <span style="font-size:0.8rem;color:rgba(255,255,255,0.4);">Paga ahora</span>
+                        <span style="font-weight:800;color:#10B981;" id="confirmPagaAhora"></span>
+                    </div>
+                    <div id="confirmDeudaRow" style="display:none;justify-content:space-between;">
+                        <span style="font-size:0.8rem;color:rgba(255,255,255,0.4);">Queda a deber</span>
+                        <span style="font-weight:800;color:#F87171;" id="confirmDeuda"></span>
+                    </div>
+                </div>
+                <div id="confirmTipoBadge" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;border:1px solid;">
+                    <i data-lucide="credit-card" style="width:15px;height:15px;flex-shrink:0;"></i>
+                    <div>
+                        <p style="font-weight:800;font-size:0.78rem;text-transform:uppercase;letter-spacing:1px;margin:0;" id="confirmTipoTexto"></p>
+                        <p style="font-size:0.72rem;opacity:.7;margin:2px 0 0 0;" id="confirmMetodoTexto"></p>
+                    </div>
+                </div>
+                <div id="confirmClienteRow" style="display:none;padding:10px 14px;background:rgba(30,111,227,0.06);border:1px solid rgba(30,111,227,0.15);border-radius:10px;">
+                    <p style="font-size:0.6rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#3D8EFF;margin:0 0 3px 0;">Cliente</p>
+                    <p style="font-weight:800;color:#fff;margin:0;" id="confirmClienteNombre"></p>
+                </div>
+            </div>
+            <div style="display:flex;gap:10px;padding:0 24px 24px;">
+                <button onclick="cerrarModalConfirmar()"
+                        style="flex:1;padding:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:rgba(255,255,255,0.5);font-weight:800;font-size:0.78rem;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:background .15s;"
+                        onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+                    Cancelar
+                </button>
+                <button onclick="ejecutarVenta()"
+                        style="flex:1;padding:12px;background:linear-gradient(135deg,#10B981,#047857);color:#fff;border:none;border-radius:10px;font-weight:800;font-size:0.78rem;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:opacity .2s;"
+                        onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'">
+                    <i data-lucide="check" style="width:14px;height:14px;display:inline;margin-right:4px;"></i>
+                    Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Loading -->
+    <div id="modalLoadingVenta" class="pf-overlay">
+        <div style="background:#0D0D20;border:1px solid rgba(30,111,227,0.2);border-radius:20px;padding:40px;text-align:center;max-width:360px;width:100%;">
+            <div style="width:56px;height:56px;border:4px solid rgba(16,185,129,0.2);border-left-color:#10B981;border-radius:50%;margin:0 auto 18px;animation:spin 0.9s linear infinite;"></div>
+            <p style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:3px;color:#fff;margin:0 0 6px 0;">Procesando Venta</p>
+            <p style="font-size:0.8rem;color:rgba(255,255,255,0.4);font-weight:600;margin:0 0 16px 0;" id="loadingVentaMsg">Registrando en el sistema...</p>
+            <div style="height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;">
+                <div id="loadingVentaBar" style="height:100%;width:0%;background:linear-gradient(90deg,#10B981,#1E6FE3);border-radius:2px;transition:width .5s;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detalle/Comprobante -->
+    <div id="modalDetalleVenta" class="pf-overlay">
+        <div class="pf-modal" style="max-width:520px;">
+            <div style="background:linear-gradient(135deg,#0E5C2E,#10B981);padding:22px 28px;text-align:center;">
+                <div style="width:52px;height:52px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;">
+                    <i data-lucide="check-circle" style="width:26px;height:26px;color:#fff;"></i>
+                </div>
+                <h3 style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:3px;color:#fff;margin:0 0 4px 0;">¡Venta Registrada!</h3>
+                <p style="font-size:0.75rem;color:rgba(255,255,255,0.65);margin:0;" id="detalleVentaFecha"></p>
+            </div>
+            <div style="padding:22px 24px;display:flex;flex-direction:column;gap:12px;">
+                <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;">
+                    <p style="font-size:0.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:0 0 10px 0;">Detalle de Productos</p>
+                    <div id="detalleVentaItems" style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px;"></div>
+                    <div style="border-top:1px solid rgba(255,255,255,0.07);padding-top:10px;display:flex;flex-direction:column;gap:5px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span style="font-weight:800;color:rgba(255,255,255,0.7);">Total</span>
+                            <span style="font-weight:900;color:#10B981;font-size:1.1rem;" id="detalleVentaTotal"></span>
                         </div>
-                        <div>
-                            <p class="font-black text-gray-900">${nombre} ${apellido}</p>
-                            <p class="text-sm text-gray-600">Cédula: ${cedula}</p>
+                        <div id="detalleVentaPagoRow" style="display:none;justify-content:space-between;">
+                            <span style="font-size:0.82rem;color:rgba(255,255,255,0.4);">Pagado ahora</span>
+                            <span style="font-weight:800;color:#10B981;" id="detalleVentaPagado"></span>
+                        </div>
+                        <div id="detalleVentaDeudaRow" style="display:none;justify-content:space-between;">
+                            <span style="font-size:0.82rem;color:rgba(255,255,255,0.4);">Queda a deber</span>
+                            <span style="font-weight:800;color:#F87171;" id="detalleVentaDeuda"></span>
+                        </div>
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                    <div style="background:rgba(30,111,227,0.06);border:1px solid rgba(30,111,227,0.15);border-radius:10px;padding:12px 14px;">
+                        <p style="font-size:0.6rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#3D8EFF;margin:0 0 4px 0;">Método de Pago</p>
+                        <p style="font-weight:800;color:#fff;text-transform:capitalize;margin:0;" id="detalleVentaMetodo"></p>
+                    </div>
+                    <div style="background:rgba(107,63,160,0.06);border:1px solid rgba(107,63,160,0.15);border-radius:10px;padding:12px 14px;">
+                        <p style="font-size:0.6rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#a78bfa;margin:0 0 4px 0;">Cliente</p>
+                        <p style="font-weight:800;color:#fff;margin:0;" id="detalleVentaCliente"></p>
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex;gap:10px;padding:0 24px 24px;">
+                <button onclick="cerrarDetalleYNuevaVenta()"
+                        style="flex:1;padding:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:rgba(255,255,255,0.5);font-weight:800;font-size:0.78rem;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:background .15s;"
+                        onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+                    Nueva Venta
+                </button>
+                <a href="/productos"
+                   style="flex:1;padding:12px;background:linear-gradient(135deg,#10B981,#047857);color:#fff;border-radius:10px;font-weight:800;font-size:0.78rem;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;display:flex;align-items:center;justify-content:center;">
+                    Ir a Productos
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        <script>
+            let productos=[], clientes=[], carrito=[], clienteSeleccionado=null, _ventaPayload=null;
+
+            async function cargarDatos() {
+                try {
+                    const [cr, pr] = await Promise.all([fetch('/api/Clientes'), fetch('/api/Productos')]);
+                    if (!cr.ok || !pr.ok) throw new Error('Error al cargar datos');
+                    clientes  = await cr.json();
+                    productos = await pr.json();
+                    renderProductos(productos);
+                } catch(e) { mostrarError('Error al cargar datos. Recarga la página.'); }
+            }
+
+            // ── Cliente ──
+            document.getElementById('buscarClienteInput').addEventListener('input', function(e) {
+                const t = e.target.value.toLowerCase().trim();
+                const res = document.getElementById('resultadosBusqueda');
+                if (t.length < 2) { res.style.display='none'; return; }
+                const coincidencias = clientes.filter(c => {
+                    const n=(c.Nombre||c.nombre||'').toLowerCase(), ap=(c.Apellido||c.apellido||'').toLowerCase(), ced=(c.Cedula||c.cedula||'');
+                    return n.includes(t)||ap.includes(t)||ced.includes(t);
+                }).slice(0,5);
+                if (coincidencias.length) {
+                    res.innerHTML = coincidencias.map(c => {
+                        const nombre=c.Nombre||c.nombre, apellido=c.Apellido||c.apellido, cedula=c.Cedula||c.cedula;
+                        return `<div onclick='seleccionarCliente(${JSON.stringify(c).replace(/'/g,"&apos;")})'
+                             style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;transition:background .12s;"
+                             onmouseover="this.style.background='rgba(30,111,227,0.08)'" onmouseout="this.style.background='transparent'">
+                            <div style="width:36px;height:36px;border-radius:50%;background:rgba(30,111,227,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <i data-lucide="user" style="width:15px;height:15px;color:rgba(30,111,227,0.5);"></i>
+                            </div>
+                            <div>
+                                <p style="font-weight:800;color:#fff;margin:0;font-size:0.88rem;">${nombre} ${apellido}</p>
+                                <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin:0;">Cédula: ${cedula}</p>
+                            </div>
+                        </div>`;
+                    }).join('');
+                } else {
+                    res.innerHTML='<p style="padding:14px;text-align:center;color:rgba(255,255,255,0.25);font-weight:600;font-size:0.82rem;">No se encontraron clientes</p>';
+                }
+                res.style.display='block'; lucide.createIcons();
+            });
+
+            function seleccionarCliente(c) {
+                const id=c.Id||c.id, nombre=c.Nombre||c.nombre, apellido=c.Apellido||c.apellido, cedula=c.Cedula||c.cedula;
+                clienteSeleccionado={id,nombre,apellido,cedula,...c};
+                document.getElementById('buscarClienteInput').value='';
+                document.getElementById('resultadosBusqueda').style.display='none';
+                document.getElementById('clienteNombre').textContent=`${nombre} ${apellido}`;
+                document.getElementById('clienteCedula').textContent=`Cédula: ${cedula}`;
+                document.getElementById('clienteInfo').style.display='block';
+            }
+            document.getElementById('btnCambiarCliente').addEventListener('click', () => {
+                clienteSeleccionado=null; document.getElementById('clienteInfo').style.display='none';
+            });
+            document.addEventListener('click', e => { if (!e.target.closest('#buscarClienteInput')&&!e.target.closest('#resultadosBusqueda')) document.getElementById('resultadosBusqueda').style.display='none'; });
+
+            // ── Productos ──
+            document.getElementById('buscarProducto').addEventListener('input', function(e) {
+                const t=e.target.value.toLowerCase();
+                renderProductos(productos.filter(p=>{
+                    const n=(p.Nombre||p.nombre||'').toLowerCase(), d=(p.Descripcion||p.descripcion||'').toLowerCase();
+                    const activo=p.Activo!==undefined?p.Activo:p.activo;
+                    return (n.includes(t)||d.includes(t))&&activo;
+                }));
+            });
+
+            function renderProductos(lista) {
+                const grid=document.getElementById('productosGrid');
+                if (!lista.length) {
+                    grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:28px 0;"><i data-lucide="package-x" style="width:32px;height:32px;color:rgba(255,255,255,0.15);margin:0 auto 8px;display:block;"></i><p style="color:rgba(255,255,255,0.25);font-weight:600;font-size:0.82rem;">Sin productos disponibles</p></div>`;
+                    lucide.createIcons(); return;
+                }
+                grid.innerHTML = lista.map(p => {
+                    const precio=p.Precio!==undefined?p.Precio:(p.precio||0);
+                    const stock=p.Stock!==undefined?p.Stock:(p.stock||0);
+                    const nombre=p.Nombre||p.nombre||'Sin nombre';
+                    const img=p.ImagenBase64||p.imagenBase64||null;
+                    return `
+                    <div class="prod-card" style="${stock===0?'opacity:0.45;':''}">
+                        <div style="aspect-ratio:1;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                            ${img?`<img src="${img}" style="width:100%;height:100%;object-fit:cover;">`:`<i data-lucide="package" style="width:36px;height:36px;color:rgba(255,255,255,0.15);"></i>`}
+                        </div>
+                        <div style="padding:12px;">
+                            <h4 style="font-weight:800;font-size:0.82rem;color:#fff;margin:0 0 3px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${nombre}</h4>
+                            <p style="font-size:0.7rem;color:rgba(255,255,255,0.3);margin:0 0 6px 0;">Stock: ${stock}</p>
+                            <p style="font-size:1.1rem;font-weight:900;color:#10B981;margin:0 0 10px 0;">$${precio.toFixed(2)}</p>
+                            <button onclick='agregarAlCarrito(${JSON.stringify(p).replace(/'/g,"&apos;")})' ${stock===0?'disabled':''}
+                                    style="width:100%;padding:8px;background:${stock===0?'rgba(255,255,255,0.06)':'rgba(16,185,129,0.15)'};border:1px solid ${stock===0?'rgba(255,255,255,0.08)':'rgba(16,185,129,0.3)'};border-radius:8px;color:${stock===0?'rgba(255,255,255,0.2)':'#10B981'};font-weight:800;font-size:0.72rem;letter-spacing:1px;text-transform:uppercase;cursor:${stock===0?'not-allowed':'pointer'};transition:all .15s;"
+                                    ${stock>0?`onmouseover="this.style.background='rgba(16,185,129,0.25)'" onmouseout="this.style.background='rgba(16,185,129,0.15)'"`:''}>
+                                ${stock===0?'Sin Stock':'Agregar'}
+                            </button>
                         </div>
                     </div>`;
                 }).join('');
-                resultados.classList.remove('hidden');
                 lucide.createIcons();
-            } else {
-                resultados.innerHTML = '<p class="p-4 text-gray-500 text-center">No se encontraron clientes</p>';
-                resultados.classList.remove('hidden');
             }
-        });
 
-        function seleccionarCliente(cliente) {
-            const id       = cliente.Id       || cliente.id;
-            const nombre   = cliente.Nombre   || cliente.nombre;
-            const apellido = cliente.Apellido || cliente.apellido;
-            const cedula   = cliente.Cedula   || cliente.cedula;
-            clienteSeleccionado = { id, nombre, apellido, cedula, ...cliente };
-            document.getElementById('buscarClienteInput').value = '';
-            document.getElementById('resultadosBusqueda').classList.add('hidden');
-            document.getElementById('clienteNombre').textContent  = `${nombre} ${apellido}`;
-            document.getElementById('clienteCedula').textContent  = `Cédula: ${cedula}`;
-            document.getElementById('clienteInfo').classList.remove('hidden');
-        }
-
-        document.getElementById('btnCambiarCliente').addEventListener('click', function() {
-            clienteSeleccionado = null;
-            document.getElementById('clienteInfo').classList.add('hidden');
-        });
-
-        // ─── BÚSQUEDA + RENDER DE PRODUCTOS ──────────────────────
-        document.getElementById('buscarProducto').addEventListener('input', function(e) {
-            const termino  = e.target.value.toLowerCase();
-            const filtrados = productos.filter(p => {
-                const nombre      = (p.Nombre      || p.nombre      || '').toLowerCase();
-                const descripcion = (p.Descripcion || p.descripcion || '').toLowerCase();
-                const activo      = p.Activo !== undefined ? p.Activo : p.activo;
-                return (nombre.includes(termino) || descripcion.includes(termino)) && activo;
-            });
-            renderProductos(filtrados);
-        });
-
-        function renderProductos(lista) {
-            const grid = document.getElementById('productosGrid');
-            if (lista.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-8 text-gray-400">
-                    <i data-lucide="package-x" class="w-10 h-10 mx-auto mb-2"></i>
-                    <p class="font-bold">Sin productos disponibles</p></div>`;
-                lucide.createIcons(); return;
-            }
-            grid.innerHTML = lista.map(p => {
-                const precio       = p.Precio      !== undefined ? p.Precio      : (p.precio      || 0);
-                const stock        = p.Stock       !== undefined ? p.Stock       : (p.stock       || 0);
-                const nombre       = p.Nombre      || p.nombre      || 'Sin nombre';
-                const imagenBase64 = p.ImagenBase64 || p.imagenBase64 || null;
-                return `
-                <div class="bg-white border-2 border-gray-200 rounded-xl p-4 hover:shadow-lg transition-all ${stock === 0 ? 'opacity-50' : ''}">
-                    <div class="aspect-square bg-gray-200 rounded-lg mb-3 overflow-hidden flex items-center justify-center">
-                        ${imagenBase64 ? `<img src="${imagenBase64}" class="w-full h-full object-cover">` : `<i data-lucide="package" class="w-12 h-12 text-gray-400"></i>`}
-                    </div>
-                    <h4 class="font-black text-sm text-gray-900 mb-1">${nombre}</h4>
-                    <p class="text-xs text-gray-600 mb-2">Stock: ${stock}</p>
-                    <p class="text-lg font-black text-emerald-600 mb-3">$${precio.toFixed(2)}</p>
-                    <button onclick='agregarAlCarrito(${JSON.stringify(p).replace(/'/g, "&apos;")})'
-                            ${stock === 0 ? 'disabled' : ''}
-                            class="w-full px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-sm disabled:bg-gray-300 disabled:cursor-not-allowed">
-                        ${stock === 0 ? 'Sin Stock' : 'Agregar'}
-                    </button>
-                </div>`;
-            }).join('');
-            lucide.createIcons();
-        }
-
-        // ─── CARRITO ──────────────────────────────────────────────
-        function agregarAlCarrito(producto) {
-            const precio = producto.Precio !== undefined ? producto.Precio : (producto.precio || 0);
-            const stock  = producto.Stock  !== undefined ? producto.Stock  : (producto.stock  || 0);
-            const id     = producto.Id     || producto.id;
-            const nombre = producto.Nombre || producto.nombre;
-
-            const existente = carrito.find(item => item.producto.id === id);
-            if (existente) {
-                if (existente.cantidad < stock) {
-                    existente.cantidad++;
-                    existente.total = existente.cantidad * existente.precioUnitario;
-                } else {
-                    mostrarError('No hay más stock disponible');
-                }
-            } else {
-                carrito.push({ producto: { ...producto, id, precio, stock, nombre }, cantidad: 1, precioUnitario: precio, total: precio });
-            }
-            renderCarrito();
-        }
-
-        function renderCarrito() {
-            const container = document.getElementById('carritoItems');
-            if (carrito.length === 0) {
-                container.innerHTML = '<p class="text-gray-500 text-center py-4 font-semibold">No hay productos en el carrito</p>';
-                document.getElementById('totalCarrito').textContent = '$0.00';
-                calcularSaldoPendiente(); return;
-            }
-            let total = 0;
-            container.innerHTML = carrito.map(item => {
-                total += item.total;
-                return `
-                <div class="flex items-center justify-between p-4 bg-white rounded-xl border-2 border-gray-200">
-                    <div class="flex-1">
-                        <p class="font-black text-sm text-gray-900">${item.producto.nombre}</p>
-                        <p class="text-xs text-gray-600">$${item.precioUnitario.toFixed(2)} c/u</p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="cambiarCantidad('${item.producto.id}', ${item.cantidad - 1})" class="w-10 h-10 bg-gray-200 rounded-lg hover:bg-gray-300 font-black">-</button>
-                        <span class="w-12 text-center font-black text-lg">${item.cantidad}</span>
-                        <button onclick="cambiarCantidad('${item.producto.id}', ${item.cantidad + 1})" class="w-10 h-10 bg-gray-200 rounded-lg hover:bg-gray-300 font-black">+</button>
-                    </div>
-                    <p class="font-black text-emerald-600 text-lg w-24 text-right">$${item.total.toFixed(2)}</p>
-                    <button onclick="eliminarDelCarrito('${item.producto.id}')" class="ml-3 text-red-600 hover:text-red-800 p-2">
-                        <i data-lucide="trash-2" class="w-5 h-5"></i>
-                    </button>
-                </div>`;
-            }).join('');
-            document.getElementById('totalCarrito').textContent = `$${total.toFixed(2)}`;
-            calcularSaldoPendiente();
-            lucide.createIcons();
-        }
-
-        function cambiarCantidad(productoId, nuevaCantidad) {
-            const item = carrito.find(i => i.producto.id === productoId);
-            if (item && nuevaCantidad >= 1 && nuevaCantidad <= item.producto.stock) {
-                item.cantidad = nuevaCantidad;
-                item.total    = item.cantidad * item.precioUnitario;
+            // ── Carrito ──
+            function agregarAlCarrito(p) {
+                const precio=p.Precio!==undefined?p.Precio:(p.precio||0);
+                const stock=p.Stock!==undefined?p.Stock:(p.stock||0);
+                const id=p.Id||p.id, nombre=p.Nombre||p.nombre;
+                const ex=carrito.find(i=>i.producto.id===id);
+                if (ex) { if (ex.cantidad<stock){ex.cantidad++;ex.total=ex.cantidad*ex.precioUnitario;}else mostrarError('No hay más stock disponible'); }
+                else carrito.push({producto:{...p,id,precio,stock,nombre},cantidad:1,precioUnitario:precio,total:precio});
                 renderCarrito();
-            } else if (item && nuevaCantidad > item.producto.stock) {
-                mostrarError('No hay suficiente stock');
-            } else if (item && nuevaCantidad === 0) {
-                eliminarDelCarrito(productoId);
             }
-        }
 
-        function eliminarDelCarrito(productoId) {
-            carrito = carrito.filter(item => item.producto.id !== productoId);
-            renderCarrito();
-        }
+            function renderCarrito() {
+                const c=document.getElementById('carritoItems');
+                if (!carrito.length) { c.innerHTML='<p style="text-align:center;padding:20px;color:rgba(255,255,255,0.25);font-weight:600;font-size:0.85rem;">No hay productos en el carrito</p>'; document.getElementById('totalCarrito').textContent='$0.00'; calcularSaldoPendiente(); return; }
+                let total=0;
+                c.innerHTML=carrito.map(item=>{
+                    total+=item.total;
+                    return `<div class="cart-row">
+                        <div style="flex:1;min-width:0;">
+                            <p style="font-weight:800;font-size:0.85rem;color:#fff;margin:0 0 2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.producto.nombre}</p>
+                            <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin:0;">$${item.precioUnitario.toFixed(2)} c/u</p>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+                            <button onclick="cambiarCantidad('${item.producto.id}',${item.cantidad-1})" class="qty-btn">−</button>
+                            <span style="width:36px;text-align:center;font-weight:900;color:#fff;">${item.cantidad}</span>
+                            <button onclick="cambiarCantidad('${item.producto.id}',${item.cantidad+1})" class="qty-btn">+</button>
+                        </div>
+                        <p style="font-weight:900;color:#10B981;font-size:1rem;margin:0;min-width:70px;text-align:right;flex-shrink:0;">$${item.total.toFixed(2)}</p>
+                        <button onclick="eliminarDelCarrito('${item.producto.id}')" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.15);border-radius:7px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" onmouseover="this.style.background='rgba(248,113,113,0.18)'" onmouseout="this.style.background='rgba(248,113,113,0.08)'">
+                            <i data-lucide="trash-2" style="width:13px;height:13px;color:#F87171;"></i>
+                        </button>
+                    </div>`;
+                }).join('');
+                document.getElementById('totalCarrito').textContent=`$${total.toFixed(2)}`;
+                calcularSaldoPendiente(); lucide.createIcons();
+            }
 
-        // ─── TIPO DE PAGO ─────────────────────────────────────────
-        document.querySelectorAll('input[name="tipoPago"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                const container = document.getElementById('montoPagadoContainer');
-                if (this.value === 'parcial') {
-                    container.classList.remove('hidden');
-                    document.getElementById('montoPagado').value = '';
-                    calcularSaldoPendiente();
-                } else {
-                    container.classList.add('hidden');
-                }
-                document.querySelectorAll('.tipo-pago-option').forEach(opt => {
-                    opt.classList.remove('border-emerald-600','border-orange-600','border-red-600','bg-emerald-50','bg-orange-50','bg-red-50');
+            function cambiarCantidad(id, cant) {
+                const item=carrito.find(i=>i.producto.id===id);
+                if (!item) return;
+                if (cant===0){eliminarDelCarrito(id);return;}
+                if (cant>item.producto.stock){mostrarError('No hay suficiente stock');return;}
+                if (cant>=1){item.cantidad=cant;item.total=cant*item.precioUnitario;renderCarrito();}
+            }
+            function eliminarDelCarrito(id){carrito=carrito.filter(i=>i.producto.id!==id);renderCarrito();}
+
+            // ── Tipo pago ──
+            document.querySelectorAll('input[name="tipoPago"]').forEach(r => {
+                r.addEventListener('change', function() {
+                    const c=document.getElementById('montoPagadoContainer');
+                    c.style.display=this.value==='parcial'?'block':'none';
+                    if (this.value==='parcial'){document.getElementById('montoPagado').value='';calcularSaldoPendiente();}
                 });
-                this.closest('.tipo-pago-option').classList.add(
-                    this.value === 'pagado' ? 'border-emerald-600' : this.value === 'parcial' ? 'border-orange-600' : 'border-red-600',
-                    this.value === 'pagado' ? 'bg-emerald-50'      : this.value === 'parcial' ? 'bg-orange-50'      : 'bg-red-50'
-                );
             });
-        });
+            document.getElementById('montoPagado')?.addEventListener('input',calcularSaldoPendiente);
 
-        document.getElementById('montoPagado')?.addEventListener('input', calcularSaldoPendiente);
+            function calcularSaldoPendiente(){
+                const total=carrito.reduce((s,i)=>s+i.total,0);
+                const mp=parseFloat(document.getElementById('montoPagado')?.value||0);
+                const saldo=document.getElementById('saldoPendiente');
+                if (saldo) saldo.textContent=`$${Math.max(0,total-mp).toFixed(2)}`;
+            }
 
-        function calcularSaldoPendiente() {
-            const total       = carrito.reduce((sum, item) => sum + item.total, 0);
-            const montoPagado = parseFloat(document.getElementById('montoPagado')?.value || 0);
-            const saldo       = Math.max(0, total - montoPagado);
-            if (document.getElementById('saldoPendiente'))
-                document.getElementById('saldoPendiente').textContent = `$${saldo.toFixed(2)}`;
-        }
-
-        // ─── ABRIR MODAL DE CONFIRMACIÓN ─────────────────────────
-        document.getElementById('btnRegistrarVenta').addEventListener('click', function() {
-            if (carrito.length === 0) { mostrarError('Debe agregar productos al carrito'); return; }
-
-            const tipoPago  = document.querySelector('input[name="tipoPago"]:checked').value;
-            const metodo    = document.getElementById('metodoPago')?.value || 'efectivo';
-            const notas     = document.getElementById('notasVenta').value;
-            const total     = carrito.reduce((sum, item) => sum + item.total, 0);
-
-            let montoPagado = total;
-            if (tipoPago === 'fiado')   montoPagado = 0;
-            if (tipoPago === 'parcial') {
-                montoPagado = parseFloat(document.getElementById('montoPagado').value || 0);
-                if (montoPagado <= 0 || montoPagado >= total) {
-                    mostrarError('El monto a pagar debe ser mayor a 0 y menor al total'); return;
+            // ── Registrar ──
+            document.getElementById('btnRegistrarVenta').addEventListener('click', function() {
+                if (!carrito.length){mostrarError('Debe agregar productos al carrito');return;}
+                const tipoPago=document.querySelector('input[name="tipoPago"]:checked').value;
+                const metodo=document.getElementById('metodoPago')?.value||'efectivo';
+                const notas=document.getElementById('notasVenta').value;
+                const total=carrito.reduce((s,i)=>s+i.total,0);
+                let montoPagado=total;
+                if (tipoPago==='fiado') montoPagado=0;
+                if (tipoPago==='parcial'){
+                    montoPagado=parseFloat(document.getElementById('montoPagado').value||0);
+                    if (montoPagado<=0||montoPagado>=total){mostrarError('El monto a pagar debe ser mayor a 0 y menor al total');return;}
                 }
-            }
+                _ventaPayload={tipoPago,metodo,notas,total,montoPagado};
 
-            // Guardar payload para ejecutar después
-            _ventaPayload = { tipoPago, metodo, notas, total, montoPagado };
+                document.getElementById('confirmItemsLista').innerHTML=carrito.map(i=>`
+                    <div style="display:flex;justify-content:space-between;font-size:0.82rem;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+                        <span style="color:rgba(255,255,255,0.6);font-weight:600;">${i.producto.nombre} × ${i.cantidad}</span>
+                        <span style="font-weight:900;color:#fff;">$${i.total.toFixed(2)}</span>
+                    </div>`).join('');
+                document.getElementById('confirmTotal').textContent=`$${total.toFixed(2)}`;
 
-            // Poblar modal de confirmación
-            const lista = document.getElementById('confirmItemsLista');
-            lista.innerHTML = carrito.map(item => `
-                <div class="flex justify-between text-sm py-1 border-b border-gray-100">
-                    <span class="font-semibold text-gray-700">${item.producto.nombre} × ${item.cantidad}</span>
-                    <span class="font-black text-gray-900">$${item.total.toFixed(2)}</span>
-                </div>`).join('');
+                const pr=document.getElementById('confirmPagoRow'), dr=document.getElementById('confirmDeudaRow');
+                if (tipoPago==='parcial'){pr.style.display='flex';dr.style.display='flex';document.getElementById('confirmPagaAhora').textContent=`$${montoPagado.toFixed(2)}`;document.getElementById('confirmDeuda').textContent=`$${(total-montoPagado).toFixed(2)}`;}
+                else if (tipoPago==='fiado'){pr.style.display='none';dr.style.display='flex';document.getElementById('confirmDeuda').textContent=`$${total.toFixed(2)}`;}
+                else{pr.style.display='none';dr.style.display='none';}
 
-            document.getElementById('confirmTotal').textContent = `$${total.toFixed(2)}`;
+                const badge=document.getElementById('confirmTipoBadge');
+                const bgs={pagado:'rgba(16,185,129,0.08)',parcial:'rgba(217,119,6,0.08)',fiado:'rgba(248,113,113,0.08)'};
+                const bds={pagado:'rgba(16,185,129,0.3)',parcial:'rgba(217,119,6,0.3)',fiado:'rgba(248,113,113,0.3)'};
+                const cos={pagado:'#10B981',parcial:'#D97706',fiado:'#F87171'};
+                const txts={pagado:'Pago Completo',parcial:'Pago Parcial',fiado:'Fiado Completo'};
+                badge.style.cssText=`display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;border:1px solid ${bds[tipoPago]};background:${bgs[tipoPago]};color:${cos[tipoPago]};`;
+                document.getElementById('confirmTipoTexto').textContent=txts[tipoPago];
+                document.getElementById('confirmMetodoTexto').textContent=metodo.charAt(0).toUpperCase()+metodo.slice(1);
 
-            const pagoRow  = document.getElementById('confirmPagoRow');
-            const deudaRow = document.getElementById('confirmDeudaRow');
-            if (tipoPago === 'parcial') {
-                pagoRow.classList.remove('hidden');
-                deudaRow.classList.remove('hidden');
-                document.getElementById('confirmPagaAhora').textContent = `$${montoPagado.toFixed(2)}`;
-                document.getElementById('confirmDeuda').textContent     = `$${(total - montoPagado).toFixed(2)}`;
-            } else if (tipoPago === 'fiado') {
-                pagoRow.classList.add('hidden');
-                deudaRow.classList.remove('hidden');
-                document.getElementById('confirmDeuda').textContent = `$${total.toFixed(2)}`;
-            } else {
-                pagoRow.classList.add('hidden');
-                deudaRow.classList.add('hidden');
-            }
+                const cr=document.getElementById('confirmClienteRow');
+                if (clienteSeleccionado){cr.style.display='block';document.getElementById('confirmClienteNombre').textContent=`${clienteSeleccionado.nombre} ${clienteSeleccionado.apellido}`;}
+                else cr.style.display='none';
 
-            // Badge tipo pago
-            const badge = document.getElementById('confirmTipoBadge');
-            const colores = { pagado: 'border-emerald-400 bg-emerald-50 text-emerald-700', parcial: 'border-orange-400 bg-orange-50 text-orange-700', fiado: 'border-red-400 bg-red-50 text-red-700' };
-            badge.className = `mb-6 flex items-center gap-3 p-4 rounded-xl border-2 ${colores[tipoPago]}`;
-            const textos   = { pagado: 'Pago Completo', parcial: 'Pago Parcial', fiado: 'Fiado Completo' };
-            document.getElementById('confirmTipoTexto').textContent  = textos[tipoPago];
-            document.getElementById('confirmMetodoTexto').textContent = metodo.charAt(0).toUpperCase() + metodo.slice(1);
+                document.getElementById('modalConfirmarVenta').classList.add('show'); lucide.createIcons();
+            });
 
-            const clienteRow = document.getElementById('confirmClienteRow');
-            if (clienteSeleccionado) {
-                clienteRow.classList.remove('hidden');
-                document.getElementById('confirmClienteNombre').textContent = `${clienteSeleccionado.nombre} ${clienteSeleccionado.apellido}`;
-            } else {
-                clienteRow.classList.add('hidden');
-            }
+            function cerrarModalConfirmar(){document.getElementById('modalConfirmarVenta').classList.remove('show');}
 
-            document.getElementById('modalConfirmarVenta').classList.remove('hidden');
-            lucide.createIcons();
-        });
-
-        function cerrarModalConfirmar() {
-            document.getElementById('modalConfirmarVenta').classList.add('hidden');
-        }
-
-        // ─── EJECUTAR VENTA (con loading y reintentos) ───────────
-        async function ejecutarVenta() {
-            cerrarModalConfirmar();
-
-            const { tipoPago, metodo, notas, total, montoPagado } = _ventaPayload;
-
-            // Mostrar loading
-            const loading = document.getElementById('modalLoadingVenta');
-            loading.classList.remove('hidden');
-            const bar = document.getElementById('loadingVentaBar');
-            const msg = document.getElementById('loadingVentaMsg');
-
-            const totalItems = carrito.length;
-            let completados  = 0;
-            let ventaExitosa = true;
-            let primerError  = null;
-
-            // Snapshot del carrito antes de modificarlo
-            const carritoSnapshot = [...carrito];
-
-            for (const item of carritoSnapshot) {
-                const porcentaje = Math.round((completados / totalItems) * 100);
-                bar.style.width  = `${porcentaje}%`;
-                msg.textContent  = `Registrando "${item.producto.nombre}"... (${completados + 1}/${totalItems})`;
-
-                const montoPorItem = tipoPago === 'pagado'
-                    ? item.total
-                    : (montoPagado * (item.total / total));
-
-                const venta = {
-                    clienteId:      clienteSeleccionado ? clienteSeleccionado.id : null,
-                    productoId:     item.producto.id,
-                    cantidad:       item.cantidad,
-                    precioUnitario: item.precioUnitario,
-                    total:          item.total,
-                    montoPagado:    montoPorItem,
-                    estadoPago:     tipoPago,
-                    notas:          notas || null,
-                    usuarioId:      null,
-                    metodoPago:     metodo
-                };
-
-                // Reintento hasta 2 veces
-                let intentos = 0;
-                let ok = false;
-                while (intentos < 2 && !ok) {
-                    try {
-                        const response = await fetch('/api/VentasProductos', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(venta)
-                        });
-                        if (!response.ok) {
-                            const errBody = await response.json().catch(() => ({}));
-                            throw new Error(errBody.message || `Error HTTP ${response.status}`);
-                        }
-                        const result = await response.json();
-                        if (!result.success) throw new Error(result.message || 'Error al registrar venta');
-                        ok = true;
-                    } catch (err) {
-                        intentos++;
-                        if (intentos < 2) {
-                            msg.textContent = `Reintentando "${item.producto.nombre}"...`;
-                            await new Promise(r => setTimeout(r, 800));
-                        } else {
-                            ventaExitosa = false;
-                            primerError  = err.message;
+            async function ejecutarVenta(){
+                cerrarModalConfirmar();
+                const {tipoPago,metodo,notas,total,montoPagado}=_ventaPayload;
+                const loading=document.getElementById('modalLoadingVenta');
+                loading.classList.add('show');
+                const bar=document.getElementById('loadingVentaBar'), msg=document.getElementById('loadingVentaMsg');
+                const snap=[...carrito]; let completados=0, ventaExitosa=true, primerError=null;
+                for (const item of snap) {
+                    const pct=Math.round((completados/snap.length)*100);
+                    bar.style.width=`${pct}%`;
+                    msg.textContent=`Registrando "${item.producto.nombre}"... (${completados+1}/${snap.length})`;
+                    const mpItem=tipoPago==='pagado'?item.total:(montoPagado*(item.total/total));
+                    const venta={clienteId:clienteSeleccionado?clienteSeleccionado.id:null,productoId:item.producto.id,cantidad:item.cantidad,precioUnitario:item.precioUnitario,total:item.total,montoPagado:mpItem,estadoPago:tipoPago,notas:notas||null,usuarioId:null,metodoPago:metodo};
+                    let intentos=0, ok=false;
+                    while (intentos<2&&!ok){
+                        try {
+                            const r=await fetch('/api/VentasProductos',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(venta)});
+                            if (!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.message||`Error HTTP ${r.status}`);}
+                            const result=await r.json();
+                            if (!result.success) throw new Error(result.message||'Error al registrar venta');
+                            ok=true;
+                        } catch(err){
+                            intentos++;
+                            if (intentos<2){msg.textContent=`Reintentando "${item.producto.nombre}"...`;await new Promise(r=>setTimeout(r,800));}
+                            else{ventaExitosa=false;primerError=err.message;}
                         }
                     }
+                    completados++;
                 }
-                completados++;
+                bar.style.width='100%';
+                await new Promise(r=>setTimeout(r,400));
+                loading.classList.remove('show');
+                if (!ventaExitosa){mostrarError('Error al registrar la venta: '+primerError);return;}
+                mostrarDetalleVenta(snap,total,montoPagado,tipoPago,metodo);
+                await cargarDatos();
             }
 
-            bar.style.width = '100%';
-            await new Promise(r => setTimeout(r, 400));
-            loading.classList.add('hidden');
-
-            if (!ventaExitosa) {
-                mostrarError('Error al registrar la venta: ' + primerError);
-                return;
+            function mostrarDetalleVenta(snap,total,montoPagado,tipoPago,metodo){
+                const ahora=new Date();
+                document.getElementById('detalleVentaFecha').textContent=ahora.toLocaleDateString('es',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+' — '+ahora.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'});
+                document.getElementById('detalleVentaItems').innerHTML=snap.map(i=>`<div style="display:flex;justify-content:space-between;font-size:0.82rem;"><span style="color:rgba(255,255,255,0.5);">${i.producto.nombre} × ${i.cantidad}</span><span style="font-weight:900;color:#fff;">$${i.total.toFixed(2)}</span></div>`).join('');
+                document.getElementById('detalleVentaTotal').textContent=`$${total.toFixed(2)}`;
+                const pr=document.getElementById('detalleVentaPagoRow'), dr=document.getElementById('detalleVentaDeudaRow');
+                if (tipoPago==='parcial'){pr.style.display='flex';dr.style.display='flex';document.getElementById('detalleVentaPagado').textContent=`$${montoPagado.toFixed(2)}`;document.getElementById('detalleVentaDeuda').textContent=`$${(total-montoPagado).toFixed(2)}`;}
+                else if (tipoPago==='fiado'){pr.style.display='none';dr.style.display='flex';document.getElementById('detalleVentaDeuda').textContent=`$${total.toFixed(2)}`;}
+                else{pr.style.display='none';dr.style.display='none';}
+                document.getElementById('detalleVentaMetodo').textContent=metodo;
+                document.getElementById('detalleVentaCliente').textContent=clienteSeleccionado?`${clienteSeleccionado.nombre} ${clienteSeleccionado.apellido}`:'Venta rápida';
+                document.getElementById('modalDetalleVenta').classList.add('show'); lucide.createIcons();
             }
 
-            // Mostrar modal de detalle/comprobante
-            mostrarDetalleVenta(carritoSnapshot, total, montoPagado, tipoPago, metodo);
-            await cargarDatos();
-        }
+            function cerrarDetalleYNuevaVenta(){document.getElementById('modalDetalleVenta').classList.remove('show');limpiar();}
 
-        // ─── MODAL DETALLE / COMPROBANTE ─────────────────────────
-        function mostrarDetalleVenta(carritoSnap, total, montoPagado, tipoPago, metodo) {
-            const ahora = new Date();
-            document.getElementById('detalleVentaFecha').textContent =
-                ahora.toLocaleDateString('es', { weekday:'long', year:'numeric', month:'long', day:'numeric' }) +
-                ' — ' + ahora.toLocaleTimeString('es', { hour:'2-digit', minute:'2-digit' });
-
-            document.getElementById('detalleVentaItems').innerHTML = carritoSnap.map(item => `
-                <div class="flex justify-between text-sm">
-                    <span class="text-gray-600 font-semibold">${item.producto.nombre} × ${item.cantidad}</span>
-                    <span class="font-black text-gray-900">$${item.total.toFixed(2)}</span>
-                </div>`).join('');
-
-            document.getElementById('detalleVentaTotal').textContent = `$${total.toFixed(2)}`;
-
-            const pagoRow  = document.getElementById('detalleVentaPagoRow');
-            const deudaRow = document.getElementById('detalleVentaDeudaRow');
-            if (tipoPago === 'parcial') {
-                pagoRow.classList.remove('hidden'); deudaRow.classList.remove('hidden');
-                document.getElementById('detalleVentaPagado').textContent = `$${montoPagado.toFixed(2)}`;
-                document.getElementById('detalleVentaDeuda').textContent  = `$${(total - montoPagado).toFixed(2)}`;
-            } else if (tipoPago === 'fiado') {
-                pagoRow.classList.add('hidden'); deudaRow.classList.remove('hidden');
-                document.getElementById('detalleVentaDeuda').textContent = `$${total.toFixed(2)}`;
-            } else {
-                pagoRow.classList.add('hidden'); deudaRow.classList.add('hidden');
+            document.getElementById('btnLimpiar')?.addEventListener('click',limpiar);
+            function limpiar(){
+                carrito=[];clienteSeleccionado=null;_ventaPayload=null;
+                document.getElementById('clienteInfo').style.display='none';
+                document.getElementById('buscarClienteInput').value='';
+                document.getElementById('notasVenta').value='';
+                document.getElementById('buscarProducto').value='';
+                document.getElementById('montoPagado').value='';
+                document.getElementById('montoPagadoContainer').style.display='none';
+                document.querySelector('input[name="tipoPago"][value="pagado"]').checked=true;
+                renderCarrito(); renderProductos(productos);
             }
 
-            document.getElementById('detalleVentaMetodo').textContent  = metodo;
-            document.getElementById('detalleVentaCliente').textContent = clienteSeleccionado
-                ? `${clienteSeleccionado.nombre} ${clienteSeleccionado.apellido}` : 'Venta rápida';
+            function mostrarError(msg){
+                const t=document.createElement('div');
+                t.style.cssText='position:fixed;bottom:24px;right:24px;z-index:10000;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#F87171;padding:14px 20px;border-radius:12px;font-weight:700;font-size:0.85rem;box-shadow:0 12px 32px rgba(0,0,0,0.5);display:flex;align-items:center;gap:8px;';
+                t.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px;flex-shrink:0;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span>${msg}</span>`;
+                document.body.appendChild(t);
+                setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),300);},4000);
+            }
 
-            document.getElementById('modalDetalleVenta').classList.remove('hidden');
-            lucide.createIcons();
-        }
+            window.agregarAlCarrito=agregarAlCarrito;
+            window.cambiarCantidad=cambiarCantidad;
+            window.eliminarDelCarrito=eliminarDelCarrito;
+            window.seleccionarCliente=seleccionarCliente;
+            window.ejecutarVenta=ejecutarVenta;
+            window.cerrarModalConfirmar=cerrarModalConfirmar;
+            window.cerrarDetalleYNuevaVenta=cerrarDetalleYNuevaVenta;
 
-        function cerrarDetalleYNuevaVenta() {
-            document.getElementById('modalDetalleVenta').classList.add('hidden');
-            limpiar();
-        }
-
-        // ─── LIMPIAR ──────────────────────────────────────────────
-        document.getElementById('btnLimpiar').addEventListener('click', limpiar);
-
-        function limpiar() {
-            carrito = [];
-            clienteSeleccionado = null;
-            _ventaPayload = null;
-            document.getElementById('clienteInfo').classList.add('hidden');
-            document.getElementById('buscarClienteInput').value = '';
-            document.getElementById('notasVenta').value = '';
-            document.getElementById('buscarProducto').value = '';
-            document.getElementById('montoPagado').value = '';
-            document.getElementById('montoPagadoContainer').classList.add('hidden');
-            document.querySelector('input[name="tipoPago"][value="pagado"]').checked = true;
-            renderCarrito();
-            renderProductos(productos);
-        }
-
-        function mostrarError(mensaje) {
-            // Toast no-bloqueante en lugar de alert
-            const toast = document.createElement('div');
-            toast.className = 'fixed bottom-6 right-6 z-[100] bg-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl font-bold text-sm flex items-center gap-3 transform translate-y-0 opacity-100 transition-all';
-            toast.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span>${mensaje}</span>`;
-            document.body.appendChild(toast);
-            setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(20px)'; setTimeout(() => toast.remove(), 400); }, 4000);
-        }
-
-        // ─── EXPONER FUNCIONES ────────────────────────────────────
-        window.agregarAlCarrito    = agregarAlCarrito;
-        window.cambiarCantidad     = cambiarCantidad;
-        window.eliminarDelCarrito  = eliminarDelCarrito;
-        window.seleccionarCliente  = seleccionarCliente;
-        window.ejecutarVenta       = ejecutarVenta;
-        window.cerrarModalConfirmar = cerrarModalConfirmar;
-        window.cerrarDetalleYNuevaVenta = cerrarDetalleYNuevaVenta;
-
-        // ─── INICIALIZAR ──────────────────────────────────────────
-        cargarDatos();
-        lucide.createIcons();
-    </script>
-}
+            cargarDatos(); lucide.createIcons();
+        </script>
+    }

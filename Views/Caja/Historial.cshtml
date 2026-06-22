@@ -7,12 +7,12 @@
     <style>
         :root {
             --h-radius: 10px;
-            --h-pendiente: #b45309;
-            --h-pendiente-bg: #fffbeb;
-            --h-pagada: #15803d;
-            --h-pagada-bg: #f0fdf4;
-            --h-cancelada: #6b7280;
-            --h-cancelada-bg: #f3f4f6;
+            --h-pendiente: #D97706;
+            --h-pendiente-bg: rgba(217,119,6,0.08);
+            --h-pagada: #10B981;
+            --h-pagada-bg: rgba(16,185,129,0.08);
+            --h-cancelada: rgba(255,255,255,0.4);
+            --h-cancelada-bg: rgba(255,255,255,0.06);
             --font-num: 'JetBrains Mono', 'Fira Mono', monospace;
         }
 
@@ -28,12 +28,12 @@
             align-items: center;
             gap: 0.5rem;
             font-size: 0.8rem;
-            color: #9ca3af;
+            color: rgba(255,255,255,0.35);
             margin-bottom: 1.5rem;
         }
 
             .breadcrumb a {
-                color: #6366f1;
+                color: #3D8EFF;
                 text-decoration: none;
             }
 
@@ -43,8 +43,8 @@
 
         /* ── Header cliente ─────────────────────────────────────────── */
         .cliente-header {
-            background: #fff;
-            border: 1px solid rgba(0,0,0,0.08);
+            background: #0D0D20;
+            border: 1px solid rgba(255,255,255,0.08);
             border-radius: 14px;
             padding: 1.5rem;
             margin-bottom: 1.5rem;
@@ -65,8 +65,8 @@
             width: 52px;
             height: 52px;
             border-radius: 50%;
-            background: #e0e7ff;
-            color: #4f46e5;
+            background: rgba(30,111,227,0.15);
+            color: #1E6FE3;
             font-size: 1.1rem;
             font-weight: 700;
             display: flex;
@@ -78,12 +78,12 @@
         .cliente-nombre {
             font-size: 1.15rem;
             font-weight: 700;
-            color: #111;
+            color: #fff;
         }
 
         .cliente-cedula {
             font-size: 0.8rem;
-            color: #9ca3af;
+            color: rgba(255,255,255,0.35);
             margin-top: 0.15rem;
         }
 
@@ -93,7 +93,7 @@
             grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
             gap: 0.75rem;
             padding-top: 1.25rem;
-            border-top: 1px solid #f3f4f6;
+            border-top: 1px solid rgba(255,255,255,0.06);
             margin-top: 1.25rem;
         }
 
@@ -106,7 +106,7 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.07em;
-            color: #9ca3af;
+            color: rgba(255,255,255,0.35);
             margin: 0;
         }
 
@@ -114,7 +114,7 @@
             font-size: 1.2rem;
             font-weight: 700;
             font-family: var(--font-num);
-            color: #111;
+            color: #fff;
             margin: 0.2rem 0 0;
         }
 
@@ -165,7 +165,7 @@
         .deudas-tabs {
             display: flex;
             gap: 0.5rem;
-            border-bottom: 2px solid #f3f4f6;
+            border-bottom: 2px solid rgba(255,255,255,0.08);
             margin-bottom: 1.25rem;
         }
 
@@ -175,7 +175,7 @@
             font-weight: 600;
             border: none;
             background: transparent;
-            color: #9ca3af;
+            color: rgba(255,255,255,0.35);
             cursor: pointer;
             border-bottom: 2px solid transparent;
             margin-bottom: -2px;
@@ -183,18 +183,18 @@
         }
 
             .tab-deuda-btn:hover {
-                color: #374151;
+                color: rgba(255,255,255,0.7);
             }
 
             .tab-deuda-btn.active {
-                color: #6366f1;
-                border-bottom-color: #6366f1;
+                color: #3D8EFF;
+                border-bottom-color: #1E6FE3;
             }
 
         /* ── Tarjeta de deuda ───────────────────────────────────────── */
         .deuda-card {
-            background: #fff;
-            border: 1px solid rgba(0,0,0,0.08);
+            background: #0D0D20;
+            border: 1px solid rgba(255,255,255,0.08);
             border-radius: 14px;
             margin-bottom: 1.25rem;
             overflow: hidden;
@@ -212,25 +212,25 @@
             justify-content: space-between;
             gap: 1rem;
             flex-wrap: wrap;
-            border-bottom: 1px solid #f3f4f6;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
             cursor: pointer;
             user-select: none;
         }
 
             .deuda-card-header:hover {
-                background: #fafafa;
+                background: rgba(255,255,255,0.03);
             }
 
         .deuda-concepto {
             font-size: 0.95rem;
             font-weight: 700;
-            color: #111;
+            color: #fff;
             margin-bottom: 0.3rem;
         }
 
         .deuda-fecha {
             font-size: 0.75rem;
-            color: #9ca3af;
+            color: rgba(255,255,255,0.35);
         }
 
         .deuda-montos {
@@ -249,22 +249,22 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.06em;
-            color: #9ca3af;
+            color: rgba(255,255,255,0.35);
         }
 
         .deuda-monto-valor {
             font-family: var(--font-num);
             font-size: 1rem;
             font-weight: 700;
-            color: #111;
+            color: #fff;
         }
 
             .deuda-monto-valor.saldo-pendiente {
-                color: #b45309;
+                color: #D97706;
             }
 
             .deuda-monto-valor.saldo-pagado {
-                color: #15803d;
+                color: #10B981;
             }
 
         /* Barra de progreso en tarjeta */
@@ -273,7 +273,7 @@
         }
 
         .deuda-progress-bg {
-            background: #f3f4f6;
+            background: rgba(255,255,255,0.06);
             border-radius: 99px;
             height: 5px;
             overflow: hidden;
@@ -282,17 +282,17 @@
         .deuda-progress-fill {
             height: 100%;
             border-radius: 99px;
-            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            background: linear-gradient(90deg, #1E6FE3, #3D8EFF);
             transition: width 0.5s ease;
         }
 
             .deuda-progress-fill.completo {
-                background: linear-gradient(90deg, #16a34a, #22c55e);
+                background: linear-gradient(90deg, #10B981, #047857);
             }
 
         .deuda-progress-pct {
             font-size: 0.68rem;
-            color: #9ca3af;
+            color: rgba(255,255,255,0.35);
             margin-top: 0.3rem;
             text-align: right;
         }
@@ -302,7 +302,7 @@
             width: 20px;
             height: 20px;
             flex-shrink: 0;
-            color: #9ca3af;
+            color: rgba(255,255,255,0.35);
             transition: transform 0.2s;
         }
 
@@ -334,27 +334,27 @@
             gap: 0.35rem;
             padding: 0.5rem 0.9rem;
             border-radius: 8px;
-            border: 1px solid #e5e7eb;
+            border: 1px solid rgba(255,255,255,0.1);
             font-size: 0.78rem;
             font-weight: 600;
             cursor: pointer;
             background: transparent;
-            color: #374151;
+            color: rgba(255,255,255,0.7);
             transition: all 0.15s;
         }
 
             .btn-accion:hover {
-                background: #f3f4f6;
+                background: rgba(255,255,255,0.06);
             }
 
             .btn-accion.primary {
-                background: #111;
+                background: #1E6FE3;
                 color: #fff;
                 border-color: transparent;
             }
 
                 .btn-accion.primary:hover {
-                    background: #374151;
+                    background: rgba(255,255,255,0.1);
                 }
 
         /* ── Timeline de abonos ─────────────────────────────────────── */
@@ -363,7 +363,7 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.07em;
-            color: #9ca3af;
+            color: rgba(255,255,255,0.35);
             margin: 0 0 0.75rem;
         }
 
@@ -385,8 +385,8 @@
         .timeline-item {
             position: relative;
             margin-bottom: 0.75rem;
-            background: #fafafa;
-            border: 1px solid rgba(0,0,0,0.06);
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
             border-radius: 8px;
             padding: 0.85rem 1.1rem;
         }
@@ -397,15 +397,15 @@
             top: 1rem;
             width: 11px;
             height: 11px;
-            background: #6366f1;
-            border: 2px solid #fff;
+            background: #1E6FE3;
+            border: 2px solid #0D0D20;
             border-radius: 50%;
-            box-shadow: 0 0 0 1px #e5e7eb;
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.1);
             transform: translateX(-6px);
         }
 
         .timeline-item:last-child .timeline-dot {
-            background: #16a34a;
+            background: #10B981;
         }
 
         .tl-header {
@@ -420,17 +420,17 @@
             font-family: var(--font-num);
             font-size: 0.98rem;
             font-weight: 700;
-            color: #16a34a;
+            color: #10B981;
         }
 
         .tl-fecha {
             font-size: 0.72rem;
-            color: #9ca3af;
+            color: rgba(255,255,255,0.35);
         }
 
         .tl-meta {
             font-size: 0.72rem;
-            color: #6b7280;
+            color: rgba(255,255,255,0.4);
             margin-top: 0.25rem;
         }
 
@@ -439,8 +439,8 @@
             align-items: center;
             gap: 0.3rem;
             padding: 0.15rem 0.5rem;
-            background: #eff6ff;
-            color: #1d4ed8;
+            background: rgba(30,111,227,0.1);
+            color: #3D8EFF;
             border-radius: 99px;
             font-size: 0.68rem;
             font-weight: 600;
@@ -451,20 +451,20 @@
             align-items: center;
             gap: 0.25rem;
             padding: 0.15rem 0.5rem;
-            background: #f3f4f6;
+            background: rgba(255,255,255,0.06);
             border-radius: 6px;
             font-size: 0.68rem;
-            color: #6b7280;
+            color: rgba(255,255,255,0.4);
             font-family: var(--font-num);
         }
 
         .no-abonos {
             text-align: center;
             padding: 2rem;
-            background: #fff;
-            border: 1px dashed #e5e7eb;
+            background: #0D0D20;
+            border: 1px dashed rgba(255,255,255,0.12);
             border-radius: 8px;
-            color: #9ca3af;
+            color: rgba(255,255,255,0.35);
             font-size: 0.85rem;
         }
 
@@ -473,7 +473,7 @@
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.35);
+            background: rgba(0,0,0,0.65);
             z-index: 1000;
             align-items: center;
             justify-content: center;
@@ -485,13 +485,13 @@
             }
 
         .modal-box {
-            background: #fff;
+            background: #0D0D20;
             border-radius: 16px;
             padding: 2rem;
             width: 100%;
             max-width: 440px;
             margin: 1rem;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
             animation: modalIn 0.2s cubic-bezier(.4,0,.2,1);
         }
 
@@ -511,7 +511,7 @@
             font-size: 1rem;
             font-weight: 700;
             margin: 0 0 1.25rem;
-            color: #111;
+            color: #fff;
         }
 
         .form-group {
@@ -522,14 +522,14 @@
             display: block;
             font-size: 0.8rem;
             font-weight: 600;
-            color: #374151;
+            color: rgba(255,255,255,0.7);
             margin-bottom: 0.35rem;
         }
 
         .form-input {
             width: 100%;
             padding: 0.6rem 0.85rem;
-            border: 1px solid #e5e7eb;
+            border: 1px solid rgba(255,255,255,0.1);
             border-radius: 8px;
             font-size: 0.875rem;
             box-sizing: border-box;
@@ -538,8 +538,8 @@
 
             .form-input:focus {
                 outline: none;
-                border-color: #6366f1;
-                box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+                border-color: #1E6FE3;
+                box-shadow: 0 0 0 3px rgba(30,111,227,0.15);
             }
 
         .modal-actions {
@@ -551,19 +551,19 @@
 
         .btn-cancelar {
             padding: 0.6rem 1.1rem;
-            border: 1px solid #e5e7eb;
+            border: 1px solid rgba(255,255,255,0.1);
             border-radius: 8px;
             background: transparent;
             cursor: pointer;
             font-size: 0.875rem;
-            color: #374151;
+            color: rgba(255,255,255,0.7);
         }
 
         .btn-confirmar {
             padding: 0.6rem 1.3rem;
             border: none;
             border-radius: 8px;
-            background: #111;
+            background: #1E6FE3;
             color: #fff;
             font-size: 0.875rem;
             font-weight: 600;
@@ -593,14 +593,14 @@
             position: fixed;
             top: 1.5rem;
             right: 1.5rem;
-            background: #111;
+            background: #1E6FE3;
             color: #fff;
             padding: 0.85rem 1.25rem;
             border-radius: 10px;
             font-size: 0.875rem;
             font-weight: 500;
             z-index: 9999;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
             transform: translateY(-10px) scale(0.97);
             opacity: 0;
             transition: all 0.25s cubic-bezier(.4,0,.2,1);
@@ -617,7 +617,7 @@
             }
 
             #toast-hist.error {
-                background: #b91c1c;
+                background: rgba(248,113,113,0.2);
             }
 
             #toast-hist.warning {
@@ -628,7 +628,7 @@
         .loading-state {
             text-align: center;
             padding: 4rem 2rem;
-            color: #9ca3af;
+            color: rgba(255,255,255,0.35);
         }
 
         .sk-loader {
@@ -636,7 +636,7 @@
             width: 24px;
             height: 24px;
             border: 2px solid #e5e7eb;
-            border-top-color: #6366f1;
+            border-top-color: #3D8EFF;
             border-radius: 50%;
             animation: spin 0.7s linear infinite;
         }
@@ -651,10 +651,10 @@
         .empty-state {
             text-align: center;
             padding: 3rem 2rem;
-            background: #fff;
-            border: 1px dashed #e5e7eb;
+            background: #0D0D20;
+            border: 1px dashed rgba(255,255,255,0.12);
             border-radius: 14px;
-            color: #9ca3af;
+            color: rgba(255,255,255,0.35);
         }
     </style>
 }
@@ -742,7 +742,7 @@
 <div class="modal-overlay" id="modal-abono">
     <div class="modal-box">
         <p class="modal-title"><i class="bi bi-cash-coin me-2"></i>Registrar abono</p>
-        <p style="font-size:0.8rem;color:#6b7280;margin:-0.5rem 0 1rem" id="modal-deuda-info">—</p>
+        <p style="font-size:0.8rem;color:rgba(255,255,255,0.4);margin:-0.5rem 0 1rem" id="modal-deuda-info">—</p>
 
         <div class="form-group">
             <label class="form-label">Monto *</label>
@@ -763,7 +763,7 @@
             </select>
         </div>
         <div class="form-group">
-            <label class="form-label">Notas <span style="color:#9ca3af">(opcional)</span></label>
+            <label class="form-label">Notas <span style="color:rgba(255,255,255,0.35)">(opcional)</span></label>
             <input type="text" id="ab-notas" class="form-input" placeholder="Observación del abono…" />
         </div>
         <div class="modal-actions">
@@ -960,7 +960,7 @@
 
                         <p class="section-label">
                             Historial de abonos
-                            ${deuda.totalAbonos > 0 ? `<span style="margin-left:0.5rem;background:#e0e7ff;color:#4f46e5;padding:.1rem .5rem;border-radius:99px;font-size:.65rem">${deuda.totalAbonos}</span>` : ''}
+                            ${deuda.totalAbonos > 0 ? `<span style="margin-left:0.5rem;background:rgba(30,111,227,0.15);color:#1E6FE3;padding:.1rem .5rem;border-radius:99px;font-size:.65rem">${deuda.totalAbonos}</span>` : ''}
                         </p>
                         ${renderizarTimeline(deuda.abonos)}
                     </div>

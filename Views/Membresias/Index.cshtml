@@ -1,220 +1,314 @@
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Membresías";
-    ViewData["Subtitle"] = "Gestión de membresías - TAURO GYM";
+    ViewData["Subtitle"] = "Gestión de membresías - POWER FITNESS";
 }
 
-<div class="mb-6">
-    <div class="flex items-center justify-between mb-4">
-        <div class="flex gap-3">
-            <button onclick="filterByEstado('todas')"
-                    class="filter-btn px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-xl transition-all font-bold uppercase tracking-wide" data-estado="todas">
-                Todas
-            </button>
-            <button onclick="filterByEstado('activa')"
-                    class="filter-btn px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-xl transition-all font-bold uppercase tracking-wide" data-estado="activa">
-                Activas
-            </button>
-            <button onclick="filterByEstado('vencida')"
-                    class="filter-btn px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-xl transition-all font-bold uppercase tracking-wide" data-estado="vencida">
-                Vencidas
-            </button>
-            <button onclick="filterByEstado('suspendida')"
-                    class="filter-btn px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-xl transition-all font-bold uppercase tracking-wide" data-estado="suspendida">
-                Suspendidas
-            </button>
-        </div>
+<style>
+    .pf-input {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(30,111,227,0.2);
+        border-radius: 12px;
+        color: #fff;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .pf-input::placeholder { color: rgba(255,255,255,0.25); }
+    .pf-input:focus { border-color: #1E6FE3; box-shadow: 0 0 0 3px rgba(30,111,227,0.15); }
 
+    .filter-btn {
+        padding: 9px 18px;
+        border-radius: 10px;
+        font-weight: 800;
+        font-size: 0.75rem;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        cursor: pointer;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.04);
+        color: rgba(255,255,255,0.5);
+        transition: all 0.15s;
+    }
+    .filter-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .filter-btn.active {
+        background: linear-gradient(135deg,#1E6FE3,#6B3FA0);
+        border-color: transparent;
+        color: #fff;
+    }
+
+    .plan-filter-btn {
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-weight: 800;
+        font-size: 0.65rem;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        cursor: pointer;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.04);
+        color: rgba(255,255,255,0.4);
+        transition: all 0.15s;
+    }
+    .plan-filter-btn.active {
+        background: linear-gradient(135deg,#1E6FE3,#6B3FA0);
+        border-color: transparent;
+        color: #fff;
+    }
+
+    .stat-card {
+        background: #0D0D20;
+        border: 1px solid rgba(30,111,227,0.12);
+        border-radius: 14px;
+        padding: 20px 22px;
+    }
+
+    .mem-card {
+        background: #0D0D20;
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 14px;
+        padding: 20px 22px;
+        transition: border-color 0.15s, box-shadow 0.15s;
+        border-left-width: 3px;
+    }
+    .mem-card:hover { border-color: rgba(30,111,227,0.3); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+
+    .pf-badge {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 4px 10px; border-radius: 100px;
+        font-size: 0.62rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+    }
+
+    .action-btn {
+        width: 34px; height: 34px; border-radius: 8px; border: none; cursor: pointer;
+        display: inline-flex; align-items: center; justify-content: center;
+        transition: background 0.15s; text-decoration: none;
+    }
+
+    .page-btn {
+        padding: 7px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+        background: transparent; color: rgba(255,255,255,0.5); font-weight: 800;
+        font-size: 0.78rem; cursor: pointer; transition: all 0.15s;
+    }
+    .page-btn:hover { border-color: #1E6FE3; color: #3D8EFF; }
+    .page-btn.active { background: #1E6FE3; border-color: #1E6FE3; color: #fff; }
+
+    /* Modal */
+    .pf-modal-overlay {
+        display: none; position: fixed; inset: 0;
+        background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);
+        z-index: 50; align-items: center; justify-content: center; padding: 16px;
+    }
+    .pf-modal-overlay.show { display: flex; }
+    .pf-modal {
+        background: #0D0D20; border: 1px solid rgba(30,111,227,0.2);
+        border-radius: 20px; width: 100%; max-width: 640px;
+        max-height: 90vh; overflow-y: auto;
+        box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+    }
+    .pf-modal-header {
+        background: linear-gradient(135deg,#1E6FE3,#6B3FA0);
+        padding: 20px 24px; border-radius: 20px 20px 0 0;
+        position: sticky; top: 0; z-index: 10;
+        display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .pf-select {
+        width: 100%; padding: 12px 16px;
+        background: rgba(255,255,255,0.04); border: 1px solid rgba(30,111,227,0.2);
+        border-radius: 10px; color: #fff; font-weight: 600; font-size: 0.9rem;
+        font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s;
+    }
+    .pf-select:focus { border-color: #1E6FE3; }
+    .pf-select option { background: #0D0D20; color: #fff; }
+
+    .radio-option {
+        display: flex; align-items: flex-start; gap: 12px;
+        padding: 14px 16px; border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.02); cursor: pointer;
+        transition: border-color 0.15s, background 0.15s;
+    }
+    .radio-option:hover { border-color: rgba(30,111,227,0.3); background: rgba(30,111,227,0.04); }
+</style>
+
+<!-- Toolbar -->
+<div style="margin-bottom:20px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:10px;">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button onclick="filterByEstado('todas')"  class="filter-btn active" data-estado="todas">Todas</button>
+            <button onclick="filterByEstado('activa')" class="filter-btn" data-estado="activa">Activas</button>
+            <button onclick="filterByEstado('vencida')" class="filter-btn" data-estado="vencida">Vencidas</button>
+            <button onclick="filterByEstado('suspendida')" class="filter-btn" data-estado="suspendida">Suspendidas</button>
+        </div>
         <a href="/membresias/crear"
-           class="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide transform hover:scale-105">
-            <i data-lucide="plus" class="w-5 h-5"></i>
+           style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:linear-gradient(135deg,#1E6FE3,#6B3FA0);color:#fff;font-weight:800;font-size:0.78rem;letter-spacing:1.5px;text-transform:uppercase;border-radius:12px;text-decoration:none;transition:opacity 0.2s,transform 0.2s;"
+           onmouseover="this.style.opacity='0.88';this.style.transform='scale(1.02)'"
+           onmouseout="this.style.opacity='1';this.style.transform='scale(1)'">
+            <i data-lucide="plus" style="width:16px;height:16px;"></i>
             Nueva Membresía
         </a>
     </div>
 
-    <!-- Barra de búsqueda -->
-    <div class="bg-white rounded-2xl shadow-lg p-5 mb-4 border-2 border-gray-200">
-        <div class="flex items-center gap-3">
-            <i data-lucide="search" class="w-5 h-5 text-gray-500"></i>
-            <input type="text" id="searchInput" placeholder="Buscar por nombre de cliente..."
-                   class="flex-1 px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-red-600 focus:outline-none font-bold"
-                   onkeyup="filtrarMembresias()">
-        </div>
+    <!-- Search -->
+    <div style="background:#0D0D20;border:1px solid rgba(30,111,227,0.15);border-radius:12px;padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:12px;">
+        <i data-lucide="search" style="width:16px;height:16px;color:rgba(255,255,255,0.3);flex-shrink:0;"></i>
+        <input type="text" id="searchInput" placeholder="Buscar por nombre de cliente..."
+               class="pf-input" style="flex:1;padding:0;border:none;background:transparent;box-shadow:none;"
+               onkeyup="filtrarMembresias()">
     </div>
 
-    <div class="bg-white rounded-2xl shadow-lg p-5 mb-4 border-2 border-gray-200">
-        <div class="flex items-center gap-3 flex-wrap">
-            <span class="text-sm font-black text-gray-900 uppercase tracking-wide">Filtrar por plan:</span>
-            <button onclick="filterByPlan(null)"
-                    class="plan-filter-btn px-4 py-2 bg-gradient-to-r from-red-600 to-red-800 text-white rounded-xl font-black uppercase text-xs tracking-wide"
-                    data-plan="todos">
-                Todos los planes
+    <!-- Plan filters -->
+    <div style="background:#0D0D20;border:1px solid rgba(30,111,227,0.12);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <span style="font-size:0.65rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);">Plan:</span>
+        <button onclick="filterByPlan(null)" class="plan-filter-btn active" data-plan="todos">Todos</button>
+        <div id="planesFilters" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+    </div>
+</div>
+
+<!-- Stats -->
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+    <div class="stat-card" style="border-left:3px solid #10B981;">
+        <p style="font-size:0.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:0 0 8px 0;">Activas</p>
+        <p style="font-size:2rem;font-weight:900;color:#fff;margin:0;" id="count-activas">0</p>
+    </div>
+    <div class="stat-card" style="border-left:3px solid #D97706;">
+        <p style="font-size:0.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:0 0 8px 0;">Por Vencer (7d)</p>
+        <p style="font-size:2rem;font-weight:900;color:#fff;margin:0;" id="count-por-vencer">0</p>
+    </div>
+    <div class="stat-card" style="border-left:3px solid #F87171;">
+        <p style="font-size:0.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:0 0 8px 0;">Vencidas</p>
+        <p style="font-size:2rem;font-weight:900;color:#fff;margin:0;" id="count-vencidas">0</p>
+    </div>
+    <div class="stat-card" style="border-left:3px solid #3D8EFF;">
+        <p style="font-size:0.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:0 0 8px 0;">Total</p>
+        <p style="font-size:2rem;font-weight:900;color:#fff;margin:0;" id="count-total">0</p>
+    </div>
+</div>
+
+<!-- List -->
+<div style="background:#0D0D20;border:1px solid rgba(30,111,227,0.15);border-radius:16px;overflow:hidden;">
+    <div id="membresias-container" style="padding:20px;">
+        <div style="text-align:center;padding:48px 0;">
+            <div class="animate-spin" style="width:36px;height:36px;border:3px solid rgba(30,111,227,0.2);border-left-color:#1E6FE3;border-radius:50%;margin:0 auto 14px;"></div>
+            <p style="color:rgba(255,255,255,0.3);font-weight:600;font-size:0.82rem;letter-spacing:1px;text-transform:uppercase;">Cargando membresías...</p>
+        </div>
+    </div>
+    <div id="pagination" style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-top:1px solid rgba(255,255,255,0.05);flex-wrap:wrap;gap:10px;">
+        <div style="font-size:0.78rem;color:rgba(255,255,255,0.3);font-weight:600;">
+            Mostrando <span id="showing-start">0</span>–<span id="showing-end">0</span> de <span id="showing-total">0</span>
+        </div>
+        <div style="display:flex;gap:6px;" id="pagination-buttons"></div>
+    </div>
+</div>
+
+<!-- Modal Renovar -->
+<div id="modalRenovar" class="pf-modal-overlay">
+    <div class="pf-modal">
+        <div class="pf-modal-header">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <i data-lucide="refresh-cw" style="width:20px;height:20px;color:#fff;"></i>
+                <span style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:3px;color:#fff;">Renovar Membresía</span>
+            </div>
+            <button onclick="cerrarModalRenovar()" style="background:rgba(255,255,255,0.1);border:none;border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;">
+                <i data-lucide="x" style="width:16px;height:16px;"></i>
             </button>
-            <div id="planesFilters" class="flex gap-2 flex-wrap"></div>
-        </div>
-    </div>
-</div>
-
-<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-emerald-600">
-        <p class="text-sm text-gray-600 font-bold uppercase tracking-wide mb-2">Activas</p>
-        <p class="text-4xl font-black text-gray-900" id="count-activas">0</p>
-    </div>
-    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-amber-500">
-        <p class="text-sm text-gray-600 font-bold uppercase tracking-wide mb-2">Por Vencer (7 días)</p>
-        <p class="text-4xl font-black text-gray-900" id="count-por-vencer">0</p>
-    </div>
-    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-600">
-        <p class="text-sm text-gray-600 font-bold uppercase tracking-wide mb-2">Vencidas</p>
-        <p class="text-4xl font-black text-gray-900" id="count-vencidas">0</p>
-    </div>
-    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-600">
-        <p class="text-sm text-gray-600 font-bold uppercase tracking-wide mb-2">Total</p>
-        <p class="text-4xl font-black text-gray-900" id="count-total">0</p>
-    </div>
-</div>
-
-<div class="bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-gray-200">
-    <div id="membresias-container" class="p-6">
-        <div class="flex items-center justify-center h-64">
-            <div class="text-center">
-                <div class="animate-spin w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full mx-auto mb-4"></div>
-                <p class="text-gray-600 font-bold">Cargando membresías...</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Paginación -->
-    <div id="pagination" class="flex items-center justify-between px-6 py-4 border-t-2 border-gray-200">
-        <div class="text-sm text-gray-600 font-bold">
-            Mostrando <span id="showing-start">0</span> - <span id="showing-end">0</span> de <span id="showing-total">0</span>
-        </div>
-        <div class="flex gap-2" id="pagination-buttons">
-        </div>
-    </div>
-</div>
-
-<!-- Modal de Renovación -->
-<div id="modalRenovar" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
-        <div class="bg-gradient-to-r from-red-600 to-red-800 text-white p-6 rounded-t-2xl sticky top-0 z-10">
-            <div class="flex items-center justify-between">
-                <h3 class="text-2xl font-black uppercase tracking-wide">Renovar Membresía</h3>
-                <button onclick="cerrarModalRenovar()" class="text-white hover:text-gray-200">
-                    <i data-lucide="x" class="w-6 h-6"></i>
-                </button>
-            </div>
         </div>
 
-        <div class="p-6">
-            <div class="mb-4">
-                <p class="text-sm text-gray-600 font-bold uppercase mb-1">Cliente</p>
-                <p class="text-lg font-black text-gray-900" id="modal-cliente">-</p>
+        <div style="padding:22px 24px;display:flex;flex-direction:column;gap:18px;">
+            <!-- Cliente -->
+            <div>
+                <p style="font-size:0.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:0 0 5px 0;">Cliente</p>
+                <p style="font-weight:800;color:#fff;font-size:1rem;margin:0;" id="modal-cliente">—</p>
             </div>
 
-            <!-- NUEVA SECCIÓN: OPCIONES DE FECHA DE RENOVACIÓN -->
-            <div class="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200">
-                <p class="text-sm font-black text-blue-900 uppercase mb-3 flex items-center gap-2">
-                    <i data-lucide="calendar" class="w-5 h-5"></i>
-                    ¿Desde cuándo renovar la membresía?
+            <!-- Opciones de fecha -->
+            <div style="background:rgba(30,111,227,0.05);border:1px solid rgba(30,111,227,0.15);border-radius:12px;padding:16px;">
+                <p style="font-size:0.65rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#3D8EFF;margin:0 0 12px 0;display:flex;align-items:center;gap:6px;">
+                    <i data-lucide="calendar" style="width:13px;height:13px;"></i>
+                    ¿Desde cuándo renovar?
                 </p>
-
-                <div class="space-y-3">
-                    <!-- Opción 1: Desde fecha de vencimiento -->
-                    <label class="flex items-start gap-3 p-4 bg-white rounded-xl border-2 border-gray-200 cursor-pointer hover:border-blue-500 transition-all group">
-                        <input type="radio" name="fecha-renovacion" value="vencimiento" checked
-                               onchange="actualizarVistaPrevia()"
-                               class="mt-1 w-5 h-5 text-blue-600 focus:ring-blue-500">
-                        <div class="flex-1">
-                            <p class="font-black text-gray-900 group-hover:text-blue-600 transition-colors">
-                                Desde fecha de vencimiento (Mantener continuidad)
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                    <label class="radio-option">
+                        <input type="radio" name="fecha-renovacion" value="vencimiento" checked onchange="actualizarVistaPrevia()"
+                               style="width:16px;height:16px;accent-color:#1E6FE3;flex-shrink:0;margin-top:2px;">
+                        <div>
+                            <p style="font-weight:800;color:#fff;font-size:0.85rem;margin:0 0 3px 0;">Desde fecha de vencimiento</p>
+                            <p style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin:0 0 6px 0;">Mantiene continuidad de la membresía</p>
+                            <p style="font-size:0.72rem;font-weight:700;color:#3D8EFF;margin:0;">
+                                📅 Vence actualmente: <span id="fecha-vencimiento-actual" style="font-weight:900;">—</span>
                             </p>
-                            <p class="text-sm text-gray-600 mt-1">
-                                La nueva membresía se calculará desde la fecha de vencimiento actual
-                            </p>
-                            <div class="mt-2 p-3 bg-blue-50 rounded-lg">
-                                <p class="text-xs font-bold text-blue-800">
-                                    📅 Fecha de vencimiento actual: <span id="fecha-vencimiento-actual" class="font-black">-</span>
-                                </p>
-                            </div>
                         </div>
                     </label>
-
-                    <!-- Opción 2: Desde hoy -->
-                    <label class="flex items-start gap-3 p-4 bg-white rounded-xl border-2 border-gray-200 cursor-pointer hover:border-green-500 transition-all group">
-                        <input type="radio" name="fecha-renovacion" value="hoy"
-                               onchange="actualizarVistaPrevia()"
-                               class="mt-1 w-5 h-5 text-green-600 focus:ring-green-500">
-                        <div class="flex-1">
-                            <p class="font-black text-gray-900 group-hover:text-green-600 transition-colors">
-                                Desde hoy (Nueva fecha de inicio)
+                    <label class="radio-option">
+                        <input type="radio" name="fecha-renovacion" value="hoy" onchange="actualizarVistaPrevia()"
+                               style="width:16px;height:16px;accent-color:#10B981;flex-shrink:0;margin-top:2px;">
+                        <div>
+                            <p style="font-weight:800;color:#fff;font-size:0.85rem;margin:0 0 3px 0;">Desde hoy</p>
+                            <p style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin:0 0 6px 0;">Reinicia el conteo desde la fecha actual</p>
+                            <p style="font-size:0.72rem;font-weight:700;color:#10B981;margin:0;">
+                                📅 Hoy: <span id="fecha-hoy" style="font-weight:900;">—</span>
                             </p>
-                            <p class="text-sm text-gray-600 mt-1">
-                                La membresía comenzará hoy y se reiniciará el conteo
-                            </p>
-                            <div class="mt-2 p-3 bg-green-50 rounded-lg">
-                                <p class="text-xs font-bold text-green-800">
-                                    📅 Fecha de hoy: <span id="fecha-hoy" class="font-black">-</span>
-                                </p>
-                            </div>
                         </div>
                     </label>
                 </div>
-
-                <!-- Vista previa de nueva fecha de vencimiento -->
-                <div class="mt-4 p-4 bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl border-2 border-purple-300">
-                    <div class="flex items-center gap-2 mb-2">
-                        <i data-lucide="check-circle" class="w-5 h-5 text-purple-600"></i>
-                        <p class="text-sm font-black text-purple-900 uppercase">Vista Previa</p>
-                    </div>
-                    <p class="text-lg font-black text-purple-700">
-                        Nueva fecha de vencimiento: <span id="preview-fecha-vencimiento" class="text-purple-900">-</span>
+                <!-- Preview -->
+                <div style="margin-top:14px;background:rgba(107,63,160,0.08);border:1px solid rgba(107,63,160,0.2);border-radius:10px;padding:12px 14px;">
+                    <p style="font-size:0.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#a78bfa;margin:0 0 4px 0;">Vista Previa</p>
+                    <p style="font-weight:800;color:#fff;font-size:0.9rem;margin:0;">
+                        Nueva fecha de vencimiento: <span id="preview-fecha-vencimiento" style="color:#a78bfa;">—</span>
                     </p>
-                    <p class="text-sm text-purple-600 mt-1" id="preview-duracion">
-                        -
-                    </p>
+                    <p style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin:3px 0 0 0;" id="preview-duracion">—</p>
                 </div>
             </div>
 
-            <div class="mb-4">
-                <label class="text-sm text-gray-600 font-bold uppercase block mb-2">Plan</label>
-                <select id="select-plan" onchange="cambiarPlan()" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-red-600 focus:outline-none font-bold">
-                </select>
+            <!-- Plan -->
+            <div>
+                <label style="font-size:0.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);display:block;margin-bottom:8px;">Plan</label>
+                <select id="select-plan" onchange="cambiarPlan()" class="pf-select"></select>
             </div>
 
-            <div class="mb-4">
-                <p class="text-sm text-gray-600 font-bold uppercase mb-1">Precio del Plan</p>
-                <p class="text-2xl font-black text-red-600" id="modal-precio">$0.00</p>
+            <!-- Precio -->
+            <div>
+                <p style="font-size:0.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:0 0 5px 0;">Precio del Plan</p>
+                <p style="font-size:1.6rem;font-weight:900;color:#3D8EFF;margin:0;" id="modal-precio">$0.00</p>
             </div>
 
-            <div id="deuda-info" class="hidden mb-4 p-4 bg-amber-50 border-2 border-amber-500 rounded-xl">
-                <p class="text-sm text-amber-800 font-bold uppercase mb-1">Deuda Pendiente</p>
-                <p class="text-2xl font-black text-amber-600" id="modal-deuda">$0.00</p>
-                <p class="text-xs text-amber-700 mt-1">El pago se aplicará primero a la deuda existente</p>
+            <!-- Deuda -->
+            <div id="deuda-info" style="display:none;background:rgba(217,119,6,0.06);border:1px solid rgba(217,119,6,0.2);border-radius:10px;padding:14px;">
+                <p style="font-size:0.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#D97706;margin:0 0 4px 0;">Deuda Pendiente</p>
+                <p style="font-size:1.4rem;font-weight:900;color:#F5C842;margin:0 0 4px 0;" id="modal-deuda">$0.00</p>
+                <p style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin:0;">El pago se aplicará primero a la deuda existente</p>
             </div>
 
-            <div class="mb-4">
-                <label class="text-sm text-gray-600 font-bold uppercase block mb-2">Monto a Pagar</label>
+            <!-- Monto -->
+            <div>
+                <label style="font-size:0.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);display:block;margin-bottom:8px;">Monto a Pagar</label>
                 <input type="number" id="input-monto" step="0.01" min="0.01"
-                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-red-600 focus:outline-none font-bold text-lg">
+                       class="pf-input" style="width:100%;padding:12px 16px;font-size:1.1rem;">
             </div>
 
-            <div class="mb-6">
-                <label class="text-sm text-gray-600 font-bold uppercase block mb-2">Método de Pago</label>
-                <select id="input-metodo" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-red-600 focus:outline-none font-bold">
+            <!-- Método -->
+            <div>
+                <label style="font-size:0.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);display:block;margin-bottom:8px;">Método de Pago</label>
+                <select id="input-metodo" class="pf-select">
                     <option value="efectivo">Efectivo</option>
                     <option value="tarjeta">Tarjeta</option>
                     <option value="transferencia">Transferencia</option>
                 </select>
             </div>
 
-            <div class="flex gap-3">
+            <!-- Botones -->
+            <div style="display:flex;gap:10px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);">
                 <button onclick="cerrarModalRenovar()"
-                        class="flex-1 px-6 py-3 bg-gray-200 text-gray-900 rounded-xl hover:bg-gray-300 font-black uppercase tracking-wide transition-all">
+                        style="flex:1;padding:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:rgba(255,255,255,0.5);font-weight:800;font-size:0.78rem;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all 0.15s;"
+                        onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
                     Cancelar
                 </button>
                 <button onclick="confirmarRenovacion()"
-                        class="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-800 text-white rounded-xl hover:from-emerald-700 hover:to-emerald-900 font-black uppercase tracking-wide transition-all">
+                        style="flex:1;padding:12px;background:linear-gradient(135deg,#0E5C2E,#10B981);color:#fff;border:none;border-radius:10px;font-weight:800;font-size:0.78rem;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:opacity 0.2s;"
+                        onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'">
                     Confirmar Renovación
                 </button>
             </div>
@@ -232,16 +326,13 @@
         let filtroPlan = null;
         let membresiaSeleccionada = null;
         let deudaPendiente = null;
-
-        // Paginación
         let paginaActual = 1;
-        let itemsPorPagina = 10;
+        const itemsPorPagina = 10;
 
-                function parsearFechaUTC(fechaStr) {
+        function parsearFechaUTC(fechaStr) {
             if (!fechaStr) return null;
             const fecha = fechaStr.split('T')[0];
             const [year, month, day] = fecha.split('-').map(Number);
-            // Crear fecha local (sin conversión UTC)
             return new Date(year, month - 1, day);
         }
 
@@ -249,23 +340,20 @@
             try {
                 const response = await fetch(`${API_URL}/Membresias`);
                 if (!response.ok) throw new Error('Error en la respuesta');
-
                 membresiasData = await response.json();
-                console.log('Membresías cargadas:', membresiasData.length);
-
                 calcularEstadisticas();
                 filtrarMembresias();
             } catch (error) {
                 console.error('Error:', error);
                 document.getElementById('membresias-container').innerHTML = `
-                    <div class="text-center py-12 text-red-600">
-                        <i data-lucide="alert-circle" class="w-12 h-12 mx-auto mb-2"></i>
-                        <p class="font-black text-xl uppercase tracking-wide">Error al cargar las membresías</p>
-                        <button onclick="loadMembresias()" class="mt-4 px-6 py-3 bg-gradient-to-r from-red-600 to-red-800 text-white rounded-xl hover:from-red-700 hover:to-red-900 font-black uppercase tracking-wide">
+                    <div style="text-align:center;padding:48px 0;">
+                        <i data-lucide="alert-circle" style="width:40px;height:40px;color:#F87171;margin:0 auto 12px;display:block;"></i>
+                        <p style="color:#F87171;font-weight:700;margin:0 0 12px 0;">Error al cargar las membresías</p>
+                        <button onclick="loadMembresias()"
+                                style="padding:10px 20px;background:linear-gradient(135deg,#1E6FE3,#6B3FA0);color:#fff;border:none;border-radius:10px;font-weight:800;font-size:0.78rem;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">
                             Reintentar
                         </button>
-                    </div>
-                `;
+                    </div>`;
                 lucide.createIcons();
             }
         }
@@ -274,594 +362,337 @@
             try {
                 const response = await fetch(`${API_URL}/Planes`);
                 planesData = await response.json();
-
                 const container = document.getElementById('planesFilters');
                 container.innerHTML = planesData.map(p => `
                     <button onclick="filterByPlan('${p.id || p.Id}')"
-                            class="plan-filter-btn px-4 py-2 bg-gray-200 text-gray-900 rounded-xl hover:bg-gray-300 font-bold uppercase text-xs tracking-wide"
-                            data-plan="${p.id || p.Id}">
-                        ${p.Nombre || p.Nombre}
-                    </button>
-                `).join('');
+                            class="plan-filter-btn" data-plan="${p.id || p.Id}">
+                        ${p.Nombre || p.nombre}
+                    </button>`).join('');
             } catch (error) {
                 console.error('Error cargando planes:', error);
             }
         }
 
         function calcularEstadisticas() {
-            const hoy = new Date();
-            hoy.setHours(0, 0, 0, 0);
-
-            let activasReales = 0;
-            let vencidasReales = 0;
-            let porVencer = 0;
-
+            const hoy = new Date(); hoy.setHours(0,0,0,0);
+            let activas = 0, vencidas = 0, porVencer = 0;
             membresiasData.forEach(m => {
                 const estado = (m.estado || m.Estado).toLowerCase();
-                const fechaVenc = parsearFechaUTC(m.fechaVencimiento || m.FechaVencimiento); // 🔧 CORREGIDO
-                fechaVenc.setHours(0, 0, 0, 0);
-
+                const fechaVenc = parsearFechaUTC(m.fechaVencimiento || m.FechaVencimiento);
+                fechaVenc.setHours(0,0,0,0);
                 if (estado === 'activa' && fechaVenc >= hoy) {
-                    activasReales++;
-                    const diffTime = fechaVenc - hoy;
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    if (diffDays <= 7) porVencer++;
-                } else if (estado === 'vencida' || (estado === 'activa' && fechaVenc < hoy)) {
-                    vencidasReales++;
-                }
+                    activas++;
+                    if (Math.ceil((fechaVenc - hoy) / 86400000) <= 7) porVencer++;
+                } else if (estado === 'vencida' || (estado === 'activa' && fechaVenc < hoy)) { vencidas++; }
             });
-
-            document.getElementById('count-activas').textContent = activasReales;
+            document.getElementById('count-activas').textContent   = activas;
             document.getElementById('count-por-vencer').textContent = porVencer;
-            document.getElementById('count-vencidas').textContent = vencidasReales;
-            document.getElementById('count-total').textContent = membresiasData.length;
+            document.getElementById('count-vencidas').textContent  = vencidas;
+            document.getElementById('count-total').textContent     = membresiasData.length;
         }
 
         function filtrarMembresias() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const hoy = new Date();
-            hoy.setHours(0, 0, 0, 0);
-
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const hoy = new Date(); hoy.setHours(0,0,0,0);
             membresiasFiltradas = membresiasData.filter(m => {
                 const estado = (m.estado || m.Estado).toLowerCase();
-                const fechaVenc = parsearFechaUTC(m.fechaVencimiento || m.FechaVencimiento); // 🔧 CORREGIDO
-                fechaVenc.setHours(0, 0, 0, 0);
-
-                // Filtro por estado
+                const fechaVenc = parsearFechaUTC(m.fechaVencimiento || m.FechaVencimiento);
+                fechaVenc.setHours(0,0,0,0);
                 let pasaEstado = filtroEstado === 'todas';
                 if (!pasaEstado) {
-                    if (filtroEstado === 'activa') {
-                        pasaEstado = estado === 'activa' && fechaVenc >= hoy;
-                    } else if (filtroEstado === 'vencida') {
-                        pasaEstado = estado === 'vencida' || (estado === 'activa' && fechaVenc < hoy);
-                    } else {
-                        pasaEstado = estado === filtroEstado;
-                    }
+                    if (filtroEstado === 'activa')  pasaEstado = estado === 'activa' && fechaVenc >= hoy;
+                    else if (filtroEstado === 'vencida') pasaEstado = estado === 'vencida' || (estado === 'activa' && fechaVenc < hoy);
+                    else pasaEstado = estado === filtroEstado;
                 }
-
-                // Filtro por plan
                 const pasaPlan = !filtroPlan || (m.planId || m.PlanId) === filtroPlan;
-
-                // Filtro por búsqueda
                 const cliente = m.cliente || m.Cliente;
-                const nombreCompleto = cliente ?
-                    `${cliente.nombre || cliente.Nombre} ${cliente.apellido || cliente.Apellido}`.toLowerCase() : '';
-                const pasaBusqueda = !searchTerm || nombreCompleto.includes(searchTerm);
-
-                return pasaEstado && pasaPlan && pasaBusqueda;
+                const nombre = cliente ? `${cliente.nombre||cliente.Nombre} ${cliente.apellido||cliente.Apellido}`.toLowerCase() : '';
+                return pasaEstado && pasaPlan && (!q || nombre.includes(q));
             });
-
             paginaActual = 1;
             renderMembresias();
         }
 
         function renderMembresias() {
             const inicio = (paginaActual - 1) * itemsPorPagina;
-            const fin = inicio + itemsPorPagina;
-            const membresiasPaginadas = membresiasFiltradas.slice(inicio, fin);
-
-            if (membresiasPaginadas.length === 0) {
+            const paginadas = membresiasFiltradas.slice(inicio, inicio + itemsPorPagina);
+            if (paginadas.length === 0) {
                 document.getElementById('membresias-container').innerHTML = `
-                    <div class="text-center py-12 text-gray-500">
-                        <i data-lucide="inbox" class="w-16 h-16 mx-auto mb-4"></i>
-                        <p class="font-black text-xl uppercase tracking-wide">No se encontraron membresías</p>
-                    </div>
-                `;
+                    <div style="text-align:center;padding:48px 0;">
+                        <i data-lucide="inbox" style="width:40px;height:40px;color:rgba(255,255,255,0.15);margin:0 auto 12px;display:block;"></i>
+                        <p style="color:rgba(255,255,255,0.3);font-weight:700;">No se encontraron membresías</p>
+                    </div>`;
                 lucide.createIcons();
+                renderPaginacion();
                 return;
             }
-
-            const html = membresiasPaginadas.map(m => renderMembresiaCard(m)).join('');
-            document.getElementById('membresias-container').innerHTML = `<div class="space-y-4">${html}</div>`;
-
+            document.getElementById('membresias-container').innerHTML =
+                `<div style="display:flex;flex-direction:column;gap:10px;">${paginadas.map(m => renderCard(m)).join('')}</div>`;
             renderPaginacion();
             lucide.createIcons();
         }
 
-        function renderMembresiaCard(m) {
-            const hoy = new Date();
-            hoy.setHours(0, 0, 0, 0);
-
-            // 🔧 USAR FUNCIÓN HELPER PARA PARSEAR FECHAS UTC CORRECTAMENTE
+        function renderCard(m) {
+            const hoy = new Date(); hoy.setHours(0,0,0,0);
             const fechaInicio = parsearFechaUTC(m.fechaInicio || m.FechaInicio);
-            const fechaVenc = parsearFechaUTC(m.fechaVencimiento || m.FechaVencimiento);
-            fechaVenc.setHours(0, 0, 0, 0);
-
-            const fechaInicioStr = fechaInicio.toLocaleDateString('es-ES');
-            const fechaVencStr = fechaVenc.toLocaleDateString('es-ES');
-
-            const diffTime = fechaVenc - hoy;
-            const diasRestantes = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
+            const fechaVenc   = parsearFechaUTC(m.fechaVencimiento || m.FechaVencimiento);
+            fechaVenc.setHours(0,0,0,0);
+            const diasRestantes = Math.ceil((fechaVenc - hoy) / 86400000);
             const estado = (m.estado || m.Estado).toLowerCase();
-            let estadoBadge = '';
-            let diasTexto = '';
-            let mostrarRenovar = false;
+            const cliente = m.cliente || m.Cliente;
+            const plan    = m.plan || m.Plan;
+            const clienteNombre = cliente ? `${cliente.nombre||cliente.Nombre} ${cliente.apellido||cliente.Apellido}` : 'Sin cliente';
+            const planNombre    = plan ? (plan.nombre||plan.Nombre) : 'Sin plan';
+            const planPrecio    = plan ? (plan.precio||plan.Precio||0) : 0;
+            const planColor     = plan ? (plan.color||plan.Color||'#1E6FE3') : '#1E6FE3';
+            const planTipo      = plan ? (plan.tipo||plan.Tipo||'') : '';
 
+            let badgeBg, badgeColor, badgeBorder, badgeText, diasHtml, mostrarRenovar = false;
             if (estado === 'activa' && fechaVenc >= hoy) {
                 if (diasRestantes === 0) {
-                    estadoBadge = '<span class="px-4 py-2 bg-red-100 text-red-800 font-black rounded-full uppercase text-xs tracking-wide animate-pulse">Vence HOY</span>';
-                    diasTexto = '<span class="text-red-600 font-black animate-pulse">¡Vence HOY!</span>';
-                    mostrarRenovar = true;
+                    badgeBg='rgba(248,113,113,0.12)'; badgeColor='#F87171'; badgeBorder='rgba(248,113,113,0.3)'; badgeText='Vence HOY';
+                    diasHtml=`<span style="color:#F87171;font-weight:900;">¡Vence HOY!</span>`; mostrarRenovar=true;
                 } else if (diasRestantes <= 3) {
-                    estadoBadge = '<span class="px-4 py-2 bg-red-100 text-red-800 font-black rounded-full uppercase text-xs tracking-wide">Vence pronto</span>';
-                    diasTexto = `<span class="text-red-600 font-black">${diasRestantes} ${diasRestantes === 1 ? 'día' : 'días'}</span>`;
-                    mostrarRenovar = true;
+                    badgeBg='rgba(248,113,113,0.1)'; badgeColor='#F87171'; badgeBorder='rgba(248,113,113,0.25)'; badgeText='Vence pronto';
+                    diasHtml=`<span style="color:#F87171;font-weight:900;">${diasRestantes}d</span>`; mostrarRenovar=true;
                 } else if (diasRestantes <= 7) {
-                    estadoBadge = '<span class="px-4 py-2 bg-amber-100 text-amber-800 font-black rounded-full uppercase text-xs tracking-wide">Por vencer</span>';
-                    diasTexto = `<span class="text-amber-600 font-black">${diasRestantes} días</span>`;
-                    mostrarRenovar = true;
+                    badgeBg='rgba(217,119,6,0.1)'; badgeColor='#D97706'; badgeBorder='rgba(217,119,6,0.25)'; badgeText='Por vencer';
+                    diasHtml=`<span style="color:#D97706;font-weight:900;">${diasRestantes}d</span>`; mostrarRenovar=true;
                 } else {
-                    estadoBadge = '<span class="px-4 py-2 bg-emerald-100 text-emerald-800 font-black rounded-full uppercase text-xs tracking-wide">Activa</span>';
-                    diasTexto = `<span class="text-emerald-600 font-black">${diasRestantes} días</span>`;
+                    badgeBg='rgba(16,185,129,0.1)'; badgeColor='#10B981'; badgeBorder='rgba(16,185,129,0.25)'; badgeText='Activa';
+                    diasHtml=`<span style="color:#10B981;font-weight:900;">${diasRestantes}d</span>`;
                 }
             } else if (estado === 'vencida' || (estado === 'activa' && fechaVenc < hoy)) {
-                estadoBadge = '<span class="px-4 py-2 bg-red-100 text-red-800 font-black rounded-full uppercase text-xs tracking-wide">Vencida</span>';
-                diasTexto = '<span class="text-red-600 font-black">Vencida</span>';
-                mostrarRenovar = true;
-            } else if (estado === 'suspendida') {
-                estadoBadge = '<span class="px-4 py-2 bg-gray-100 text-gray-800 font-black rounded-full uppercase text-xs tracking-wide">Suspendida</span>';
-                diasTexto = '<span class="text-gray-600 font-bold">-</span>';
+                badgeBg='rgba(248,113,113,0.1)'; badgeColor='#F87171'; badgeBorder='rgba(248,113,113,0.25)'; badgeText='Vencida';
+                diasHtml=`<span style="color:#F87171;font-weight:900;">Vencida</span>`; mostrarRenovar=true;
+            } else {
+                badgeBg='rgba(255,255,255,0.05)'; badgeColor='rgba(255,255,255,0.4)'; badgeBorder='rgba(255,255,255,0.1)'; badgeText='Suspendida';
+                diasHtml=`<span style="color:rgba(255,255,255,0.3);">—</span>`;
             }
 
-            const cliente = m.cliente || m.Cliente;
-            const plan = m.plan || m.Plan;
-
-            const clienteNombre = cliente ?
-                `${cliente.nombre || cliente.Nombre} ${cliente.apellido || cliente.Apellido}` :
-                'Cliente no disponible';
-            const planNombre = plan ? (plan.nombre || plan.Nombre) : 'Plan no disponible';
-            const planTipo = plan ? (plan.tipo || plan.Tipo) : '';
-            const planColor = plan ? (plan.color || plan.Color || '#E31E24') : '#E31E24';
-            const planPrecio = plan ? (plan.precio || plan.Precio) : 0;
-
             return `
-                <div class="p-6 border-l-4 rounded-2xl hover:shadow-xl transition-all bg-gray-50 border-2 border-gray-200" style="border-left-color: ${planColor}">
-                    <div class="flex items-center justify-between">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-3 mb-4">
-                                <h3 class="font-black text-gray-900 text-xl uppercase tracking-wide">${clienteNombre}</h3>
-                                ${estadoBadge}
-                                <span class="px-3 py-1 bg-gray-200 text-gray-900 font-black rounded-full uppercase text-xs">${planTipo}</span>
+                <div class="mem-card" style="border-left-color:${planColor};">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+                        <div style="flex:1;min-width:0;">
+                            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+                                <h3 style="font-weight:900;color:#fff;font-size:1rem;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${clienteNombre}</h3>
+                                <span class="pf-badge" style="background:${badgeBg};color:${badgeColor};border:1px solid ${badgeBorder};">${badgeText}</span>
+                                ${planTipo ? `<span class="pf-badge" style="background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.35);border:1px solid rgba(255,255,255,0.08);">${planTipo}</span>` : ''}
                             </div>
-                            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
-                                     <div>
-            <p class="text-gray-600 mb-1 font-bold uppercase tracking-wide" style="font-size: 20px;">Plan</p>
-            <p class="font-black text-gray-900" style="font-size: 20px;">${planNombre}</p>
-        </div>
-        <div>
-            <p class="text-gray-600 mb-1 font-bold uppercase tracking-wide" style="font-size: 20px;">Inicio</p>
-            <p class="font-black text-gray-900" style="font-size: 20px;">${fechaInicioStr}</p>
-        </div>
-        <div>
-            <p class="text-gray-600 mb-1 font-bold uppercase tracking-wide" style="font-size: 20px;">Vencimiento</p>
-            <p class="font-black text-gray-900" style="font-size: 20px;">${fechaVencStr}</p>
-        </div>
-        <div>
-            <p class="text-gray-600 mb-1 font-bold uppercase tracking-wide" style="font-size: 20px;">Días restantes</p>
-            <p class="font-semibold" style="font-size: 20px;">${diasTexto}</p>
-        </div>
-        <div>
-            <p class="text-gray-600 mb-1 font-bold uppercase tracking-wide" style="font-size: 20px;">Monto</p>
-            <p class="font-black text-emerald-600" style="font-size: 20px;">$${m.montoPagado || m.MontoPagado}</p>
-        </div>
+                            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;">
+                                ${[
+                                    ['Plan', planNombre],
+                                    ['Inicio', fechaInicio.toLocaleDateString('es-ES')],
+                                    ['Vencimiento', fechaVenc.toLocaleDateString('es-ES')],
+                                    ['Días Rest.', diasHtml],
+                                    ['Monto', `<span style="color:#10B981;font-weight:900;">$${m.montoPagado||m.MontoPagado||0}</span>`]
+                                ].map(([label, val]) => `
+                                    <div>
+                                        <p style="font-size:0.6rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:0 0 4px 0;">${label}</p>
+                                        <p style="font-weight:800;color:#fff;font-size:0.88rem;margin:0;">${val}</p>
+                                    </div>`).join('')}
                             </div>
                         </div>
-                        <div class="flex items-center gap-2 ml-4">
+                        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
                             ${mostrarRenovar ? `
-                            <button onclick="abrirModalRenovar('${m.id || m.Id}', '${clienteNombre}', '${planNombre}', ${planPrecio})"
-                                    class="px-4 py-2 bg-gradient-to-r from-emerald-600 to-emerald-800 text-white rounded-xl hover:from-emerald-700 hover:to-emerald-900 transition-all font-black uppercase text-xs tracking-wide">
-                                <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-1"></i>
-                                Renovar
-                            </button>
-                            ` : ''}
-                            <a href="/membresias/editar/${m.id || m.Id}"
-                                    class="p-3 text-amber-600 hover:bg-amber-50 rounded-xl transition-colors"
-                                    title="Editar membresía">
-                                <i data-lucide="edit" class="w-6 h-6"></i>
+                                <button onclick="abrirModalRenovar('${m.id||m.Id}','${clienteNombre.replace(/'/g,"\\'")}','${planNombre.replace(/'/g,"\\'")}',${planPrecio})"
+                                        style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:#10B981;font-weight:800;font-size:0.7rem;letter-spacing:1.5px;text-transform:uppercase;border-radius:8px;cursor:pointer;transition:all 0.15s;"
+                                        onmouseover="this.style.background='rgba(16,185,129,0.2)'" onmouseout="this.style.background='rgba(16,185,129,0.1)'">
+                                    <i data-lucide="refresh-cw" style="width:13px;height:13px;"></i> Renovar
+                                </button>` : ''}
+                            <a href="/membresias/editar/${m.id||m.Id}" class="action-btn" title="Editar"
+                               style="background:rgba(217,119,6,0.08);" onmouseover="this.style.background='rgba(217,119,6,0.18)'" onmouseout="this.style.background='rgba(217,119,6,0.08)'">
+                                <i data-lucide="edit" style="width:15px;height:15px;color:#D97706;"></i>
                             </a>
-                            <button onclick="eliminarMembresia('${m.id || m.Id}', '${clienteNombre}')"
-                                    class="p-3 text-red-600 hover:bg-red-50 rounded-xl transition-colors"
-                                    title="Eliminar membresía">
-                                <i data-lucide="trash-2" class="w-6 h-6"></i>
+                            <button onclick="eliminarMembresia('${m.id||m.Id}','${clienteNombre.replace(/'/g,"\\'")}' )" class="action-btn" title="Eliminar"
+                                    style="background:rgba(248,113,113,0.08);border:none;cursor:pointer;" onmouseover="this.style.background='rgba(248,113,113,0.18)'" onmouseout="this.style.background='rgba(248,113,113,0.08)'">
+                                <i data-lucide="trash-2" style="width:15px;height:15px;color:#F87171;"></i>
                             </button>
                         </div>
                     </div>
-                </div>
-            `;
+                </div>`;
         }
 
         function renderPaginacion() {
-            const totalPaginas = Math.ceil(membresiasFiltradas.length / itemsPorPagina);
+            const total = membresiasFiltradas.length;
+            const totalPaginas = Math.ceil(total / itemsPorPagina);
             const inicio = (paginaActual - 1) * itemsPorPagina + 1;
-            const fin = Math.min(inicio + itemsPorPagina - 1, membresiasFiltradas.length);
+            const fin = Math.min(inicio + itemsPorPagina - 1, total);
+            document.getElementById('showing-start').textContent = total ? inicio : 0;
+            document.getElementById('showing-end').textContent   = fin;
+            document.getElementById('showing-total').textContent = total;
 
-            document.getElementById('showing-start').textContent = inicio;
-            document.getElementById('showing-end').textContent = fin;
-            document.getElementById('showing-total').textContent = membresiasFiltradas.length;
-
-            let buttonsHtml = '';
-
-            if (paginaActual > 1) {
-                buttonsHtml += `<button onclick="cambiarPagina(${paginaActual - 1})"
-                    class="px-4 py-2 bg-gray-200 text-gray-900 rounded-xl hover:bg-gray-300 font-bold">
-                    Anterior
-                </button>`;
-            }
-
+            let btns = '';
+            if (paginaActual > 1) btns += `<button onclick="cambiarPagina(${paginaActual-1})" class="page-btn">‹</button>`;
             for (let i = 1; i <= totalPaginas; i++) {
-                if (i === 1 || i === totalPaginas || (i >= paginaActual - 2 && i <= paginaActual + 2)) {
-                    buttonsHtml += `<button onclick="cambiarPagina(${i})"
-                        class="px-4 py-2 ${i === paginaActual ? 'bg-gradient-to-r from-red-600 to-red-800 text-white' : 'bg-gray-200 text-gray-900'} rounded-xl hover:bg-gray-300 font-bold">
-                        ${i}
-                    </button>`;
-                } else if (i === paginaActual - 3 || i === paginaActual + 3) {
-                    buttonsHtml += `<span class="px-2">...</span>`;
-                }
+                if (i===1||i===totalPaginas||Math.abs(i-paginaActual)<=1)
+                    btns += `<button onclick="cambiarPagina(${i})" class="page-btn${i===paginaActual?' active':''}">${i}</button>`;
+                else if (Math.abs(i-paginaActual)===2) btns += `<span style="color:rgba(255,255,255,0.3);padding:0 4px;">…</span>`;
             }
-
-            if (paginaActual < totalPaginas) {
-                buttonsHtml += `<button onclick="cambiarPagina(${paginaActual + 1})"
-                    class="px-4 py-2 bg-gray-200 text-gray-900 rounded-xl hover:bg-gray-300 font-bold">
-                    Siguiente
-                </button>`;
-            }
-
-            document.getElementById('pagination-buttons').innerHTML = buttonsHtml;
+            if (paginaActual < totalPaginas) btns += `<button onclick="cambiarPagina(${paginaActual+1})" class="page-btn">›</button>`;
+            document.getElementById('pagination-buttons').innerHTML = btns;
         }
 
-        function cambiarPagina(pagina) {
-            paginaActual = pagina;
-            renderMembresias();
+        function cambiarPagina(p) {
+            paginaActual = p; renderMembresias();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function filterByEstado(estado) {
             filtroEstado = estado;
-
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                if (btn.dataset.estado === estado) {
-                    btn.classList.remove('bg-gray-200', 'text-gray-900');
-                    btn.classList.add('bg-gradient-to-r', 'from-red-600', 'to-red-800', 'text-white', 'shadow-lg');
-                } else {
-                    btn.classList.add('bg-gray-200', 'text-gray-900');
-                    btn.classList.remove('bg-gradient-to-r', 'from-red-600', 'to-red-800', 'text-white', 'shadow-lg');
-                }
+            document.querySelectorAll('.filter-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.estado === estado);
             });
-
             filtrarMembresias();
         }
 
         function filterByPlan(planId) {
             filtroPlan = planId;
-
-            document.querySelectorAll('.plan-filter-btn').forEach(btn => {
-                if (btn.dataset.plan === (planId || 'todos')) {
-                    btn.classList.remove('bg-gray-200', 'text-gray-900');
-                    btn.classList.add('bg-gradient-to-r', 'from-red-600', 'to-red-800', 'text-white');
-                } else {
-                    btn.classList.add('bg-gray-200', 'text-gray-900');
-                    btn.classList.remove('bg-gradient-to-r', 'from-red-600', 'to-red-800', 'text-white');
-                }
+            document.querySelectorAll('.plan-filter-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.plan === (planId||'todos'));
             });
-
             filtrarMembresias();
         }
 
-        // ========================================
-        // FUNCIONES PARA RENOVACIÓN CON OPCIÓN DE FECHA
-        // ========================================
-
-        /**
-         * Formatea una fecha en formato legible: "Lunes, 10 de Febrero de 2026"
-         */
+        // ── Renovar ──
         function formatearFecha(fecha) {
-            const opciones = {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            };
-            return fecha.toLocaleDateString('es-ES', opciones);
+            return fecha.toLocaleDateString('es-ES',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
         }
 
-        /**
-         * Calcula la nueva fecha de vencimiento según el plan y fecha de inicio
-         */
-        function calcularFechaVencimiento(fechaInicio, plan) {
+        function calcFechaVenc(fechaInicio, plan) {
             const inicio = new Date(fechaInicio);
-            let vencimiento = new Date(inicio);
-
-            const tipoCalculo = (plan.tipoCalculoVencimiento || plan.TipoCalculoVencimiento || 'dias').toLowerCase();
-            const cantidad = plan.cantidadUnidades || plan.CantidadUnidades || plan.duracionDias || plan.DuracionDias || 30;
-
-            switch (tipoCalculo) {
-                case 'meses':
-                    vencimiento.setMonth(vencimiento.getMonth() + cantidad);
-                    break;
-                case 'semanas':
-                    vencimiento.setDate(vencimiento.getDate() + (cantidad * 7));
-                    break;
-                case 'anios':
-                    vencimiento.setFullYear(vencimiento.getFullYear() + cantidad);
-                    break;
-                case 'dias':
-                default:
-                    vencimiento.setDate(vencimiento.getDate() + cantidad);
-                    break;
-            }
-
-            return vencimiento;
+            const tipo = (plan.tipoCalculoVencimiento||plan.TipoCalculoVencimiento||'dias').toLowerCase();
+            const cant = plan.cantidadUnidades||plan.CantidadUnidades||plan.duracionDias||plan.DuracionDias||30;
+            const v = new Date(inicio);
+            if (tipo==='meses')   v.setMonth(v.getMonth()+cant);
+            else if (tipo==='semanas') v.setDate(v.getDate()+cant*7);
+            else if (tipo==='anios')  v.setFullYear(v.getFullYear()+cant);
+            else v.setDate(v.getDate()+cant);
+            return v;
         }
 
-        /**
-         * Actualiza la vista previa de fechas cuando cambia la opción de renovación
-         */
         function actualizarVistaPrevia() {
             if (!membresiaSeleccionada) return;
-
-            const opcionSeleccionada = document.querySelector('input[name="fecha-renovacion"]:checked').value;
-            const selectPlan = document.getElementById('select-plan');
-            const planId = selectPlan.value;
-            const plan = planesData.find(p => (p.id || p.Id) === planId);
-
+            const opcion = document.querySelector('input[name="fecha-renovacion"]:checked').value;
+            const plan = planesData.find(p => (p.id||p.Id) === document.getElementById('select-plan').value);
             if (!plan) return;
-
-            let fechaInicio;
-            if (opcionSeleccionada === 'vencimiento') {
-                // CORRECCIÓN: Renovar desde la MISMA fecha de vencimiento, no el día siguiente
-                fechaInicio = new Date(membresiaSeleccionada.fechaVencimiento);
-            } else {
-                // Renovar desde hoy
-                fechaInicio = new Date();
-            }
-
-            const fechaVencimiento = calcularFechaVencimiento(fechaInicio, plan);
-
-            // Actualizar vista previa
-            document.getElementById('preview-fecha-vencimiento').textContent = formatearFecha(fechaVencimiento);
-
-            // Mostrar duración
-            const tipoCalculo = (plan.tipoCalculoVencimiento || plan.TipoCalculoVencimiento || 'dias').toLowerCase();
-            const cantidad = plan.cantidadUnidades || plan.CantidadUnidades || plan.duracionDias || plan.DuracionDias || 30;
-
-            let duracionTexto = '';
-            switch (tipoCalculo) {
-                case 'meses':
-                    duracionTexto = `Duración: ${cantidad} ${cantidad === 1 ? 'mes' : 'meses'}`;
-                    break;
-                case 'semanas':
-                    duracionTexto = `Duración: ${cantidad} ${cantidad === 1 ? 'semana' : 'semanas'}`;
-                    break;
-                case 'anios':
-                    duracionTexto = `Duración: ${cantidad} ${cantidad === 1 ? 'año' : 'años'}`;
-                    break;
-                case 'dias':
-                default:
-                    duracionTexto = `Duración: ${cantidad} días`;
-                    break;
-            }
-
-            document.getElementById('preview-duracion').textContent = duracionTexto;
+            const fechaInicio = opcion === 'vencimiento' ? membresiaSeleccionada.fechaVencimiento : new Date();
+            const v = calcFechaVenc(fechaInicio, plan);
+            document.getElementById('preview-fecha-vencimiento').textContent = formatearFecha(v);
+            const tipo = (plan.tipoCalculoVencimiento||plan.TipoCalculoVencimiento||'dias').toLowerCase();
+            const cant = plan.cantidadUnidades||plan.CantidadUnidades||plan.duracionDias||plan.DuracionDias||30;
+            const durTxt = tipo==='meses' ? `${cant} ${cant===1?'mes':'meses'}` :
+                           tipo==='semanas' ? `${cant} ${cant===1?'semana':'semanas'}` :
+                           tipo==='anios'   ? `${cant} ${cant===1?'año':'años'}` : `${cant} días`;
+            document.getElementById('preview-duracion').textContent = `Duración: ${durTxt}`;
         }
 
         async function abrirModalRenovar(id, clienteNombre, planNombre, precioPlan) {
-            membresiaSeleccionada = { id, clienteNombre, planNombre, precioPlan };
+            const membresia = membresiasData.find(m => (m.id||m.Id) === id);
+            if (!membresia) { alert('Error al cargar membresía'); return; }
+            membresiaSeleccionada = {
+                id, clienteNombre, planNombre, precioPlan,
+                fechaVencimiento: parsearFechaUTC(membresia.fechaVencimiento||membresia.FechaVencimiento),
+                fechaInicio: parsearFechaUTC(membresia.fechaInicio||membresia.FechaInicio)
+            };
 
-            // Obtener datos completos de la membresía
-            const membresia = membresiasData.find(m => (m.id || m.Id) === id);
-            if (!membresia) {
-                alert('❌ No se pudo cargar la información de la membresía');
-                return;
-            }
-
-            // Guardar fechas de la membresía
-            membresiaSeleccionada.fechaVencimiento = new Date(membresia.fechaVencimiento || membresia.FechaVencimiento);
-            membresiaSeleccionada.fechaInicio = new Date(membresia.fechaInicio || membresia.FechaInicio);
-
-            // Cargar planes en el selector
             const selectPlan = document.getElementById('select-plan');
             selectPlan.innerHTML = planesData.map(p => {
-                const planId = p.id || p.Id;
-                const nombre = p.nombre || p.Nombre;
-                const precio = p.precio || p.Precio;
-                const selected = nombre === planNombre ? 'selected' : '';
-                return `<option value="${planId}" data-precio="${precio}" ${selected}>${nombre} - $${precio}</option>`;
+                const pid = p.id||p.Id, nombre = p.nombre||p.Nombre, precio = p.precio||p.Precio;
+                return `<option value="${pid}" data-precio="${precio}" ${nombre===planNombre?'selected':''}>${nombre} - $${precio}</option>`;
             }).join('');
 
-            // Mostrar fecha de hoy
-            const hoy = new Date();
-            document.getElementById('fecha-hoy').textContent = formatearFecha(hoy);
+            document.getElementById('modal-cliente').textContent = clienteNombre;
+            document.getElementById('fecha-hoy').textContent = formatearFecha(new Date());
+            document.getElementById('fecha-vencimiento-actual').textContent = formatearFecha(membresiaSeleccionada.fechaVencimiento);
 
-            // Mostrar fecha de vencimiento actual
-            const fechaVenc = membresiaSeleccionada.fechaVencimiento;
-            document.getElementById('fecha-vencimiento-actual').textContent = formatearFecha(fechaVenc);
-
-            // Verificar si hay deuda pendiente (con manejo de errores mejorado)
-            deudaPendiente = null; // Inicializar
+            deudaPendiente = null;
             try {
-                const clienteId = membresia.clienteId || membresia.ClienteId;
-                const response = await fetch(`${API_URL}/DeudasClientes/cliente/${clienteId}`);
-
-                // Solo procesar si la respuesta es exitosa
-                if (response.ok) {
-                    const deudas = await response.json();
-                    deudaPendiente = deudas.find(d => (d.estado || d.Estado) === 'pendiente');
-
+                const clienteId = membresia.clienteId||membresia.ClienteId;
+                const r = await fetch(`${API_URL}/DeudasClientes/cliente/${clienteId}`);
+                if (r.ok) {
+                    const deudas = await r.json();
+                    deudaPendiente = deudas.find(d => (d.estado||d.Estado)==='pendiente');
                     if (deudaPendiente) {
-                        const saldoDeuda = deudaPendiente.saldo || deudaPendiente.Saldo;
-                        document.getElementById('deuda-info').classList.remove('hidden');
-                        document.getElementById('modal-deuda').textContent = `$${saldoDeuda.toFixed(2)}`;
-
-                        // Sugerir monto que cubra deuda + plan
-                        const planActual = planesData.find(p => (p.id || p.Id) === selectPlan.value);
-                        const precioActual = planActual ? (planActual.precio || planActual.Precio) : precioPlan;
-                        const montoSugerido = saldoDeuda + precioActual;
-                        document.getElementById('input-monto').value = montoSugerido.toFixed(2);
+                        const saldo = deudaPendiente.saldo||deudaPendiente.Saldo;
+                        document.getElementById('deuda-info').style.display = 'block';
+                        document.getElementById('modal-deuda').textContent = `$${saldo.toFixed(2)}`;
+                        const planAct = planesData.find(p=>(p.id||p.Id)===selectPlan.value);
+                        const precioAct = planAct?(planAct.precio||planAct.Precio):precioPlan;
+                        document.getElementById('input-monto').value = (saldo+precioAct).toFixed(2);
                     } else {
-                        document.getElementById('deuda-info').classList.add('hidden');
+                        document.getElementById('deuda-info').style.display = 'none';
                         document.getElementById('input-monto').value = precioPlan.toFixed(2);
                     }
-                } else {
-                    // Si el endpoint no existe o falla, simplemente ocultar deuda
-                    console.log('Endpoint de deudas no disponible o sin deudas');
-                    document.getElementById('deuda-info').classList.add('hidden');
-                    document.getElementById('input-monto').value = precioPlan.toFixed(2);
-                }
-            } catch (error) {
-                // Error de red o endpoint no disponible - continuar sin mostrar deuda
-                console.log('No se pudo verificar deudas (normal si no existe el endpoint):', error.message);
-                document.getElementById('deuda-info').classList.add('hidden');
+                } else { throw new Error(); }
+            } catch {
+                document.getElementById('deuda-info').style.display = 'none';
                 document.getElementById('input-monto').value = precioPlan.toFixed(2);
             }
 
-            document.getElementById('modal-cliente').textContent = clienteNombre;
-            const planSeleccionado = selectPlan.options[selectPlan.selectedIndex];
-            document.getElementById('modal-precio').textContent = `$${parseFloat(planSeleccionado.dataset.precio).toFixed(2)}`;
-
-            // Actualizar vista previa inicial
+            const planOpt = selectPlan.options[selectPlan.selectedIndex];
+            document.getElementById('modal-precio').textContent = `$${parseFloat(planOpt.dataset.precio).toFixed(2)}`;
             actualizarVistaPrevia();
-
-            document.getElementById('modalRenovar').classList.remove('hidden');
+            document.getElementById('modalRenovar').classList.add('show');
             lucide.createIcons();
         }
 
         function cambiarPlan() {
-            const selectPlan = document.getElementById('select-plan');
-            const planSeleccionado = selectPlan.options[selectPlan.selectedIndex];
-            const nuevoPrecio = parseFloat(planSeleccionado.dataset.precio);
-
-            document.getElementById('modal-precio').textContent = `$${nuevoPrecio.toFixed(2)}`;
-
-            // Actualizar monto sugerido considerando deuda
+            const opt = document.getElementById('select-plan').options[document.getElementById('select-plan').selectedIndex];
+            const precio = parseFloat(opt.dataset.precio);
+            document.getElementById('modal-precio').textContent = `$${precio.toFixed(2)}`;
             if (deudaPendiente) {
-                const saldoDeuda = deudaPendiente.saldo || deudaPendiente.Saldo;
-                const montoSugerido = saldoDeuda + nuevoPrecio;
-                document.getElementById('input-monto').value = montoSugerido.toFixed(2);
+                document.getElementById('input-monto').value = (deudaPendiente.saldo||deudaPendiente.Saldo+precio).toFixed(2);
             } else {
-                document.getElementById('input-monto').value = nuevoPrecio.toFixed(2);
+                document.getElementById('input-monto').value = precio.toFixed(2);
             }
-
-            // Actualizar vista previa con el nuevo plan
             actualizarVistaPrevia();
         }
 
         function cerrarModalRenovar() {
-            document.getElementById('modalRenovar').classList.add('hidden');
-            membresiaSeleccionada = null;
-            deudaPendiente = null;
+            document.getElementById('modalRenovar').classList.remove('show');
+            membresiaSeleccionada = null; deudaPendiente = null;
         }
 
         async function confirmarRenovacion() {
             const monto = parseFloat(document.getElementById('input-monto').value);
             const metodo = document.getElementById('input-metodo').value;
             const planId = document.getElementById('select-plan').value;
-            const opcionFecha = document.querySelector('input[name="fecha-renovacion"]:checked').value;
-
-            if (isNaN(monto) || monto <= 0) {
-                alert('❌ Monto inválido');
-                return;
-            }
-
+            const opcion = document.querySelector('input[name="fecha-renovacion"]:checked').value;
+            if (isNaN(monto)||monto<=0) { alert('Monto inválido'); return; }
             try {
-                const body = {
-                    montoPagado: monto,
-                    metodoPago: metodo,
-                    notas: '',
-                    usuarioId: null,
-                    renovarDesdeHoy: opcionFecha === 'hoy' // Nueva opción
-                };
-
-                // Solo enviar planId si cambió de plan
-                const membresia = membresiasData.find(m => (m.id || m.Id) === membresiaSeleccionada.id);
-                const planActual = membresia.planId || membresia.PlanId;
-                if (planId !== planActual) {
-                    body.planId = planId;
-                }
-
-                const response = await fetch(`${API_URL}/Membresias/renovar/${membresiaSeleccionada.id}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body)
+                const membresia = membresiasData.find(m=>(m.id||m.Id)===membresiaSeleccionada.id);
+                const body = { montoPagado:monto, metodoPago:metodo, notas:'', usuarioId:null, renovarDesdeHoy:opcion==='hoy' };
+                const planActual = membresia.planId||membresia.PlanId;
+                if (planId!==planActual) body.planId = planId;
+                const response = await fetch(`${API_URL}/Membresias/renovar/${membresiaSeleccionada.id}`,{
+                    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)
                 });
-
                 const result = await response.json();
-
-                if (result.success) {
-                    alert(`✅ ${result.message}`);
-                    cerrarModalRenovar();
-                    loadMembresias();
-                } else {
-                    alert(`❌ Error: ${result.message}`);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al renovar la membresía');
-            }
-        }
-
-        function verDetalles(id) {
-            const membresia = membresiasData.find(m => (m.id || m.Id) == id);
-            if (membresia) {
-                alert(`Detalles:\nID: ${id}\nEstado: ${membresia.estado || membresia.Estado}`);
-            }
+                if (result.success) { alert(`✅ ${result.message}`); cerrarModalRenovar(); loadMembresias(); }
+                else { alert(`❌ Error: ${result.message}`); }
+            } catch(error) { alert('❌ Error al renovar la membresía'); }
         }
 
         async function eliminarMembresia(id, clienteNombre) {
-            if (!confirm(`¿Estás seguro de que deseas eliminar esta membresía de ${clienteNombre}?\n\nEsta acción no se puede deshacer.`)) {
-                return;
-            }
-
+            if (!confirm(`¿Eliminar membresía de ${clienteNombre}? Esta acción no se puede deshacer.`)) return;
             try {
-                const response = await fetch(`/api/Membresias/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-
-                if (response.ok || response.status === 204) {
-                    alert('✅ Membresía eliminada exitosamente');
-                    loadMembresias();
-                } else {
-                    const error = await response.text();
-                    alert('❌ Error: ' + error);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error al eliminar la membresía');
-            }
+                const r = await fetch(`/api/Membresias/${id}`,{method:'DELETE'});
+                if (r.ok||r.status===204) { alert('✅ Membresía eliminada'); loadMembresias(); }
+                else { alert('❌ Error: '+(await r.text())); }
+            } catch(e) { alert('❌ Error al eliminar'); }
         }
 
-         document.querySelectorAll('input[type="number"]').forEach(function(input) {
-            input.addEventListener('wheel', function(e) {
-                e.preventDefault();
-            }, { passive: false });
+        document.addEventListener('click', e => {
+            if (!e.target.closest('#modalRenovar') && !e.target.closest('[onclick*="abrirModalRenovar"]')) {
+                // no cerrar al hacer click dentro del modal
+            }
         });
 
+        document.querySelectorAll('input[type="number"]').forEach(i =>
+            i.addEventListener('wheel', e => e.preventDefault(), { passive: false })
+        );
 
-        window.addEventListener('load', function() {
-            loadPlanes();
-            loadMembresias();
-            filterByEstado('todas');
-        });
+        window.addEventListener('load', () => { loadPlanes(); loadMembresias(); });
     </script>
 }

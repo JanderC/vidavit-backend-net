@@ -1,85 +1,251 @@
-﻿@model VidaFitBackend.Models.Producto
+@model VidaFitBackend.Models.Plan
 @{
+    ViewData["Title"] = "Editar Plan";
+    ViewData["Subtitle"] = "Modificar plan de membresía - POWER FITNESS";
     Layout = "_AdminLayout";
-    ViewData["Title"] = "Editar Producto";
-    ViewData["Subtitle"] = "Actualizar información del producto";
 }
 
-<div class="max-w-2xl mx-auto">
-    <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
-        <div class="flex items-center gap-4 mb-8 pb-6 border-b-2 border-gray-200">
-            <div class="bg-gradient-to-br from-red-600 to-red-800 rounded-xl p-4">
-                <i data-lucide="edit" class="w-8 h-8 text-white"></i>
+<style>
+    .pf-input {
+        width: 100%; padding: 13px 16px;
+        background: rgba(255,255,255,0.04); border: 1px solid rgba(30,111,227,0.2);
+        border-radius: 12px; color: #fff; font-size: 0.9rem; font-weight: 600;
+        font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+        resize: none;
+    }
+    .pf-input::placeholder { color: rgba(255,255,255,0.2); }
+    .pf-input:focus { border-color: #1E6FE3; box-shadow: 0 0 0 3px rgba(30,111,227,0.15); }
+
+    .pf-label {
+        display: block; font-size: 0.68rem; font-weight: 800;
+        letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 8px;
+    }
+
+    .pf-select {
+        width: 100%; padding: 13px 16px;
+        background: rgba(255,255,255,0.04); border: 1px solid rgba(30,111,227,0.2);
+        border-radius: 12px; color: #fff; font-size: 0.9rem; font-weight: 600;
+        font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s;
+    }
+    .pf-select:focus { border-color: #1E6FE3; }
+    .pf-select option { background: #0D0D20; color: #fff; }
+
+    .tipo-calc-btn {
+        padding: 12px 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.4);
+        font-weight: 800; font-size: 0.72rem; letter-spacing: 1px; text-transform: uppercase;
+        cursor: pointer; text-align: center; transition: all 0.15s;
+        display: flex; flex-direction: column; align-items: center; gap: 5px;
+    }
+    .tipo-calc-btn:hover { border-color: rgba(30,111,227,0.4); color: rgba(255,255,255,0.7); }
+    .tipo-calc-btn.active { border-color: #1E6FE3; background: rgba(30,111,227,0.12); color: #3D8EFF; }
+
+    .step-btn {
+        width: 44px; height: 44px; border-radius: 10px;
+        background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+        color: rgba(255,255,255,0.6); font-size: 1.4rem; font-weight: 900;
+        display: flex; align-items: center; justify-content: center; cursor: pointer;
+        transition: all 0.15s; flex-shrink: 0;
+    }
+    .step-btn:hover { border-color: rgba(30,111,227,0.4); color: #3D8EFF; }
+
+    .color-preset {
+        width: 30px; height: 30px; border-radius: 8px;
+        border: 2px solid transparent; cursor: pointer; transition: transform 0.15s, border-color 0.15s;
+    }
+    .color-preset:hover { transform: scale(1.15); border-color: rgba(255,255,255,0.4); }
+
+    .preview-card { border-radius: 14px; overflow: hidden; max-width: 260px; border: 1px solid rgba(255,255,255,0.08); }
+
+    .pf-overlay {
+        display: none; position: fixed; inset: 0;
+        background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);
+        z-index: 9999; align-items: center; justify-content: center; padding: 16px;
+    }
+    .pf-overlay.show { display: flex; }
+</style>
+
+<!-- Modal Loading -->
+<div id="modalLoading" class="pf-overlay">
+    <div style="background:#0D0D20;border:1px solid rgba(30,111,227,0.2);border-radius:20px;padding:40px;text-align:center;max-width:340px;width:100%;">
+        <div class="animate-spin" style="width:56px;height:56px;border:4px solid rgba(30,111,227,0.2);border-top-color:#1E6FE3;border-radius:50%;margin:0 auto 18px;"></div>
+        <p style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:3px;color:#fff;margin:0 0 6px 0;">Guardando Cambios</p>
+        <p style="font-size:0.8rem;color:rgba(255,255,255,0.4);font-weight:600;margin:0;">Actualizando en el sistema...</p>
+    </div>
+</div>
+
+<!-- Form -->
+<div style="max-width:760px;margin:0 auto;">
+    <div style="background:#0D0D20;border:1px solid rgba(30,111,227,0.15);border-radius:16px;padding:32px;">
+
+        <!-- Header -->
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid rgba(30,111,227,0.12);">
+            <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#1E6FE3,#1550B0);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i data-lucide="edit-3" style="width:24px;height:24px;color:#fff;"></i>
             </div>
             <div>
-                <h2 class="text-3xl font-black text-gray-900 uppercase tracking-wide">Editar Producto</h2>
-                <p class="text-sm text-gray-600 font-semibold mt-1">Actualizar información</p>
+                <h2 style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:3px;color:#fff;margin:0;line-height:1;">Editar Plan</h2>
+                <p style="font-size:0.82rem;color:rgba(255,255,255,0.4);margin:4px 0 0 0;font-weight:700;">@Model.Nombre</p>
             </div>
         </div>
 
-        <form id="form-producto" class="space-y-6">
-            <input type="hidden" id="producto-id" value="@Model.Id">
+        <!-- Info banner -->
+        <div style="margin-bottom:22px;padding:12px 16px;background:rgba(217,119,6,0.05);border:1px solid rgba(217,119,6,0.18);border-left:3px solid #D97706;border-radius:10px;display:flex;align-items:flex-start;gap:10px;">
+            <i data-lucide="alert-triangle" style="width:16px;height:16px;color:#D97706;flex-shrink:0;margin-top:1px;"></i>
+            <p style="font-size:0.8rem;color:rgba(255,255,255,0.5);font-weight:600;margin:0;">
+                Los cambios de precio y duración <strong style="color:rgba(255,255,255,0.75);">no afectan membresías ya creadas</strong>, solo las nuevas que se creen con este plan.
+            </p>
+        </div>
 
+        <form id="editarPlanForm" style="display:flex;flex-direction:column;gap:22px;">
+
+            <!-- Nombre -->
             <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Nombre *</label>
-                <input type="text" id="nombre" value="@Model.Nombre" required
-                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                <label class="pf-label">Nombre del Plan *</label>
+                <input type="text" id="nombre" value="@Model.Nombre" class="pf-input">
             </div>
 
+            <!-- Descripción -->
             <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Descripción</label>
-                <textarea id="descripcion" rows="2"
-                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">@Model.Descripcion</textarea>
+                <label class="pf-label">Descripción <span style="font-weight:500;text-transform:none;letter-spacing:0;color:rgba(255,255,255,0.2);font-size:0.65rem;">(Opcional)</span></label>
+                <textarea id="descripcion" rows="2" class="pf-input">@Model.Descripcion</textarea>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
+            <!-- Tipo y Precio -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
                 <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Precio *</label>
-                    <input type="number" id="precio" step="0.01" value="@Model.Precio" required
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                    <label class="pf-label">Tipo de Plan *</label>
+                    <select id="tipo" class="pf-select">
+                        <option value="mensual"      selected="@(Model.Tipo=="mensual")">Mensual</option>
+                        <option value="semanal"      selected="@(Model.Tipo=="semanal")">Semanal</option>
+                        <option value="trimestral"   selected="@(Model.Tipo=="trimestral")">Trimestral</option>
+                        <option value="semestral"    selected="@(Model.Tipo=="semestral")">Semestral</option>
+                        <option value="anual"        selected="@(Model.Tipo=="anual")">Anual</option>
+                        <option value="diario"       selected="@(Model.Tipo=="diario")">Diario</option>
+                        <option value="personalizado" selected="@(Model.Tipo=="personalizado")">Personalizado</option>
+                        <option value="otro"         selected="@(Model.Tipo=="otro")">Otro</option>
+                    </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Stock *</label>
-                    <input type="number" id="stock" value="@Model.Stock" required
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                    <label class="pf-label">Precio *</label>
+                    <div style="position:relative;">
+                        <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.4);font-weight:900;font-size:1rem;pointer-events:none;">$</span>
+                        <input type="number" id="precio" step="0.01" min="0.01" value="@Model.Precio"
+                               class="pf-input" style="padding-left:28px;font-size:1.1rem;">
+                    </div>
                 </div>
             </div>
 
-            <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Categoría</label>
-                <select id="categoria"
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold bg-white">
-                    <option value="">Seleccionar...</option>
-                    <option value="Suplementos" selected="@(Model.Categoria == "Suplementos")">Suplementos</option>
-                    <option value="Bebidas" selected="@(Model.Categoria == "Bebidas")">Bebidas</option>
-                    <option value="Snacks" selected="@(Model.Categoria == "Snacks")">Snacks</option>
-                    <option value="Accesorios" selected="@(Model.Categoria == "Accesorios")">Accesorios</option>
-                    <option value="Ropa" selected="@(Model.Categoria == "Ropa")">Ropa</option>
-                </select>
+            <!-- Duración -->
+            <div style="padding:18px 20px;background:rgba(30,111,227,0.04);border:1px solid rgba(30,111,227,0.15);border-radius:14px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+                    <i data-lucide="calendar" style="width:15px;height:15px;color:#3D8EFF;"></i>
+                    <span style="font-size:0.68rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#3D8EFF;">Duración del Plan</span>
+                </div>
+
+                <div style="margin-bottom:16px;">
+                    <label class="pf-label">¿Cómo se calcula el vencimiento? *</label>
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+                        <button type="button" onclick="seleccionarTipoCalculo('meses')"   id="btn-meses"   class="tipo-calc-btn">
+                            <i data-lucide="calendar-days"  style="width:16px;height:16px;"></i> Meses
+                        </button>
+                        <button type="button" onclick="seleccionarTipoCalculo('dias')"    id="btn-dias"    class="tipo-calc-btn">
+                            <i data-lucide="calendar"       style="width:16px;height:16px;"></i> Días
+                        </button>
+                        <button type="button" onclick="seleccionarTipoCalculo('semanas')" id="btn-semanas" class="tipo-calc-btn">
+                            <i data-lucide="calendar-range" style="width:16px;height:16px;"></i> Semanas
+                        </button>
+                        <button type="button" onclick="seleccionarTipoCalculo('anios')"   id="btn-anios"   class="tipo-calc-btn">
+                            <i data-lucide="calendar-check" style="width:16px;height:16px;"></i> Años
+                        </button>
+                    </div>
+                    <input type="hidden" id="tipoCalculoVencimiento" value="@Model.TipoCalculoVencimiento">
+                </div>
+
+                <div>
+                    <label class="pf-label" id="labelCantidad">Cantidad *</label>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <button type="button" onclick="ajustarCantidad(-1)" class="step-btn">−</button>
+                        <input type="number" id="cantidadUnidades" value="@Model.CantidadUnidades" min="1" max="60"
+                               class="pf-input" style="text-align:center;font-size:1.5rem;font-weight:900;"
+                               oninput="actualizarPreviewDuracion()">
+                        <button type="button" onclick="ajustarCantidad(1)" class="step-btn">+</button>
+                    </div>
+                </div>
+
+                <div id="previewDuracion" style="margin-top:12px;padding:10px 14px;background:rgba(30,111,227,0.08);border:1px solid rgba(30,111,227,0.2);border-radius:10px;">
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <i data-lucide="info" style="width:13px;height:13px;color:#3D8EFF;flex-shrink:0;"></i>
+                        <span style="font-size:0.8rem;font-weight:600;color:#7EB8FF;" id="previewDuracionTexto"></span>
+                    </div>
+                </div>
             </div>
 
+            <!-- Color -->
             <div>
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">Imagen</label>
-                @if (!string.IsNullOrEmpty(Model.ImagenBase64))
-                {
-                    <img id="preview" src="data:image/jpeg;base64,@Model.ImagenBase64" class="mb-3 w-32 h-32 object-cover rounded-xl border-2 border-gray-300">
-                }
-                else
-                {
-                    <img id="preview" src="" class="mb-3 w-32 h-32 object-cover rounded-xl hidden border-2 border-gray-300">
-                }
-                <input type="file" id="imagen" accept="image/*"
-                       class="w-full px-4 py-2 border-2 border-gray-300 rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-gradient-to-r file:from-red-600 file:to-red-800 file:text-white file:font-bold hover:file:from-red-700 hover:file:to-red-900">
+                <label class="pf-label">Color del Plan</label>
+                <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+                    <input type="color" id="color" value="@Model.Color"
+                           style="width:52px;height:52px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);cursor:pointer;padding:3px;background:rgba(255,255,255,0.04);">
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                        <button type="button" onclick="setColor('#10b981')" style="background:#10b981;" class="color-preset"></button>
+                        <button type="button" onclick="setColor('#1E6FE3')" style="background:#1E6FE3;" class="color-preset"></button>
+                        <button type="button" onclick="setColor('#6B3FA0')" style="background:#6B3FA0;" class="color-preset"></button>
+                        <button type="button" onclick="setColor('#f59e0b')" style="background:#f59e0b;" class="color-preset"></button>
+                        <button type="button" onclick="setColor('#ef4444')" style="background:#ef4444;" class="color-preset"></button>
+                        <button type="button" onclick="setColor('#ec4899')" style="background:#ec4899;" class="color-preset"></button>
+                        <button type="button" onclick="setColor('#06b6d4')" style="background:#06b6d4;" class="color-preset"></button>
+                        <button type="button" onclick="setColor('#64748b')" style="background:#64748b;" class="color-preset"></button>
+                    </div>
+                </div>
             </div>
 
-            <div class="flex justify-end gap-3 pt-6 border-t-2 border-gray-200">
-                <a href="/productos"
-                   class="px-8 py-3 border-2 border-gray-300 text-gray-800 rounded-xl hover:bg-gray-100 font-black uppercase tracking-wide transition-all">
+            <!-- Preview -->
+            <div>
+                <label class="pf-label">Preview</label>
+                <div class="preview-card">
+                    <div style="padding:18px;color:#fff;position:relative;overflow:hidden;background-color:@Model.Color;" id="previewHeader">
+                        <div style="position:absolute;top:-15px;right:-15px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.1);"></div>
+                        <div style="position:relative;z-index:1;">
+                            <span style="padding:3px 10px;background:rgba(255,255,255,0.18);border-radius:100px;font-size:0.6rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;" id="previewTipo">@Model.Tipo</span>
+                            <h4 style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;margin:8px 0 4px 0;" id="previewNombre">@Model.Nombre</h4>
+                            <p style="font-size:1.8rem;font-weight:900;margin:0;" id="previewPrecio">$@Model.Precio.ToString("N0")</p>
+                        </div>
+                    </div>
+                    <div style="padding:12px 18px;background:#12122A;">
+                        <p style="font-size:0.82rem;font-weight:700;color:rgba(255,255,255,0.5);margin:0;" id="previewDurCard">—</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activo -->
+            <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;">
+                <input type="checkbox" id="activo" @(Model.Activo ? "checked" : "")
+                       style="width:18px;height:18px;accent-color:#1E6FE3;border-radius:4px;flex-shrink:0;">
+                <div>
+                    <label for="activo" style="font-size:0.75rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.6);cursor:pointer;">Plan Activo</label>
+                    <p style="font-size:0.72rem;color:rgba(255,255,255,0.25);font-weight:600;margin:2px 0 0 0;">Los planes inactivos no aparecen al crear membresías</p>
+                </div>
+            </div>
+
+            <!-- Error -->
+            <div id="errorMsg" style="display:none;padding:12px 16px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:10px;font-size:0.82rem;font-weight:700;color:#F87171;"></div>
+
+            <!-- Botones -->
+            <div style="display:flex;gap:12px;padding-top:20px;border-top:1px solid rgba(30,111,227,0.12);">
+                <a href="/membresias/planes"
+                   style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.5);font-weight:800;font-size:0.85rem;letter-spacing:1.5px;text-transform:uppercase;border:1px solid rgba(255,255,255,0.08);border-radius:12px;text-decoration:none;transition:all 0.15s;"
+                   onmouseover="this.style.background='rgba(255,255,255,0.08)';this.style.color='rgba(255,255,255,0.8)'"
+                   onmouseout="this.style.background='rgba(255,255,255,0.04)';this.style.color='rgba(255,255,255,0.5)'">
+                    <i data-lucide="x-circle" style="width:18px;height:18px;"></i>
                     Cancelar
                 </a>
                 <button type="submit"
-                        class="px-8 py-3 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl shadow-xl hover:shadow-2xl transition-all uppercase tracking-wide transform hover:scale-105">
-                    Actualizar
+                        style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;background:linear-gradient(135deg,#1E6FE3,#6B3FA0);color:#fff;font-weight:800;font-size:0.85rem;letter-spacing:1.5px;text-transform:uppercase;border:none;border-radius:12px;cursor:pointer;transition:opacity 0.2s,transform 0.2s;"
+                        onmouseover="this.style.opacity='0.88';this.style.transform='scale(1.02)'"
+                        onmouseout="this.style.opacity='1';this.style.transform='scale(1)'">
+                    <i data-lucide="save" style="width:18px;height:18px;"></i>
+                    Guardar Cambios
                 </button>
             </div>
         </form>
@@ -88,63 +254,113 @@
 
 @section Scripts {
     <script>
-        const API_URL = '/api';
-        let imagenBase64 = '@Model.ImagenBase64';
+        const planId    = '@Model.Id';
+        let tipoCalculo = '@((Model.TipoCalculoVencimiento ?? "meses").ToLower())';
 
-        document.getElementById('imagen').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    imagenBase64 = event.target.result.split(',')[1];
-                    const preview = document.getElementById('preview');
-                    preview.src = event.target.result;
-                    preview.classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
-            }
+        function seleccionarTipoCalculo(tipo) {
+            tipoCalculo = tipo;
+            document.getElementById('tipoCalculoVencimiento').value = tipo;
+            document.querySelectorAll('.tipo-calc-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('btn-' + tipo).classList.add('active');
+            const labels={meses:'Cantidad de Meses',dias:'Cantidad de Días',semanas:'Cantidad de Semanas',anios:'Cantidad de Años'};
+            document.getElementById('labelCantidad').textContent=(labels[tipo]||'Cantidad')+' *';
+            actualizarPreviewDuracion();
+        }
+
+        function ajustarCantidad(delta) {
+            const input=document.getElementById('cantidadUnidades');
+            input.value=Math.max(1,(parseInt(input.value)||1)+delta);
+            actualizarPreviewDuracion();
+        }
+
+        function actualizarPreviewDuracion() {
+            const cant=parseInt(document.getElementById('cantidadUnidades').value)||1;
+            const tipo=tipoCalculo;
+            let texto='';
+            if (tipo==='meses')   texto=`El plan durará ${cant} ${cant===1?'mes calendario':'meses calendario'}`;
+            if (tipo==='dias')    texto=`El plan durará exactamente ${cant} ${cant===1?'día':'días'}`;
+            if (tipo==='semanas') texto=`El plan durará ${cant} ${cant===1?'semana':'semanas'} (${cant*7} días)`;
+            if (tipo==='anios')   texto=`El plan durará ${cant} ${cant===1?'año':'años'} completo${cant>1?'s':''}`;
+            document.getElementById('previewDuracionTexto').textContent=texto;
+            const labelDur={meses:`${cant} ${cant===1?'mes':'meses'}`,dias:`${cant} ${cant===1?'día':'días'}`,semanas:`${cant} ${cant===1?'semana':'semanas'}`,anios:`${cant} ${cant===1?'año':'años'}`};
+            document.getElementById('previewDurCard').textContent=labelDur[tipo]||'';
+            lucide.createIcons();
+        }
+
+        function setColor(hex) {
+            document.getElementById('color').value=hex;
+            document.getElementById('previewHeader').style.backgroundColor=hex;
+        }
+        document.getElementById('color').addEventListener('input', function() {
+            document.getElementById('previewHeader').style.backgroundColor=this.value;
+        });
+        document.getElementById('nombre').addEventListener('input', function() {
+            document.getElementById('previewNombre').textContent=this.value||'Nombre del plan';
+        });
+        document.getElementById('precio').addEventListener('input', function() {
+            document.getElementById('previewPrecio').textContent='$'+(parseFloat(this.value)||0).toLocaleString('es');
+        });
+        document.getElementById('tipo').addEventListener('change', function() {
+            document.getElementById('previewTipo').textContent=this.options[this.selectedIndex].text;
         });
 
-        document.getElementById('form-producto').addEventListener('submit', async function(e) {
+        function mostrarToast(msg, tipo) {
+            const bg=tipo==='error'?'rgba(248,113,113,0.12)':'rgba(30,111,227,0.12)';
+            const bd=tipo==='error'?'rgba(248,113,113,0.3)':'rgba(30,111,227,0.3)';
+            const co=tipo==='error'?'#F87171':'#3D8EFF';
+            const t=document.createElement('div');
+            t.style.cssText=`position:fixed;bottom:24px;right:24px;z-index:10000;background:${bg};border:1px solid ${bd};color:${co};padding:14px 20px;border-radius:12px;font-weight:700;font-size:0.85rem;box-shadow:0 12px 32px rgba(0,0,0,0.5);`;
+            t.textContent=msg; document.body.appendChild(t);
+            setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),300);},4000);
+        }
+
+        document.getElementById('editarPlanForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            const nombre=document.getElementById('nombre').value.trim();
+            const tipo=document.getElementById('tipo').value;
+            const precio=parseFloat(document.getElementById('precio').value);
+            const tipoCalcV=document.getElementById('tipoCalculoVencimiento').value;
+            const cantidad=parseInt(document.getElementById('cantidadUnidades').value)||1;
+            const color=document.getElementById('color').value;
+            const activo=document.getElementById('activo').checked;
+            const descripcion=document.getElementById('descripcion').value.trim();
+            const errorEl=document.getElementById('errorMsg');
+            errorEl.style.display='none';
 
-            const productoId = document.getElementById('producto-id').value;
+            if (!nombre)            {errorEl.textContent='El nombre es requerido';errorEl.style.display='block';return;}
+            if (!precio||precio<=0) {errorEl.textContent='El precio debe ser mayor a $0';errorEl.style.display='block';return;}
+            if (cantidad<1)         {errorEl.textContent='La cantidad debe ser al menos 1';errorEl.style.display='block';return;}
 
-            const producto = {
-                id: productoId,
-                nombre: document.getElementById('nombre').value,
-                descripcion: document.getElementById('descripcion').value,
-                precio: parseFloat(document.getElementById('precio').value),
-                stock: parseInt(document.getElementById('stock').value),
-                categoria: document.getElementById('categoria').value,
-                imagenBase64: imagenBase64,
-                activo: true
-            };
+            const duracionDias=tipoCalcV==='dias'?cantidad:tipoCalcV==='semanas'?cantidad*7:tipoCalcV==='anios'?cantidad*365:cantidad*30;
+            const payload={id:planId,nombre,descripcion:descripcion||null,tipo,duracionDias,tipoCalculoVencimiento:tipoCalcV,cantidadUnidades:cantidad,precio,color,activo};
 
-            try {
-                const response = await fetch(`${API_URL}/Productos/${productoId}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(producto)
-                });
-
-                if (response.ok) {
-                    alert('✓ Producto actualizado exitosamente');
-                    window.location.href = '/productos';
-                } else {
-                    const error = await response.text();
-                    alert('Error al actualizar: ' + error);
+            document.getElementById('modalLoading').classList.add('show');
+            let intentos=0;
+            while (intentos<2) {
+                try {
+                    const res=await fetch(`/api/Planes/${planId}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+                    if (!res.ok){const err=await res.text();throw new Error(err||`Error HTTP ${res.status}`);}
+                    document.getElementById('modalLoading').classList.remove('show');
+                    mostrarToast('Plan actualizado correctamente','success');
+                    setTimeout(()=>window.location.href='/membresias/planes',1200); return;
+                } catch(err) {
+                    intentos++;
+                    if (intentos<2){await new Promise(r=>setTimeout(r,800));}
+                    else{document.getElementById('modalLoading').classList.remove('show');errorEl.textContent='Error: '+err.message;errorEl.style.display='block';}
                 }
-            } catch (error) {
-                alert('Error de conexión: ' + error.message);
             }
         });
-                document.querySelectorAll('input[type="number"]').forEach(function(input) {
-            input.addEventListener('wheel', function(e) {
-                e.preventDefault();
-            }, { passive: false });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            seleccionarTipoCalculo(tipoCalculo);
+            actualizarPreviewDuracion();
+            lucide.createIcons();
+            document.querySelectorAll('input[type="number"]').forEach(i=>i.addEventListener('wheel',e=>e.preventDefault(),{passive:false}));
         });
 
-        lucide.createIcons();
+        window.seleccionarTipoCalculo=seleccionarTipoCalculo;
+        window.ajustarCantidad=ajustarCantidad;
+        window.setColor=setColor;
     </script>
+
 }

@@ -1,174 +1,215 @@
-﻿@model VidaFitBackend.Models.Cliente
+@model VidaFitBackend.Models.Cliente
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Editar Cliente";
     ViewData["Subtitle"] = $"Actualizar información de {Model.Nombre} {Model.Apellido}";
 }
 
-<div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
-    <form id="form-cliente" class="space-y-8">
+<style>
+    .pf-input {
+        width: 100%;
+        padding: 13px 16px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(30,111,227,0.2);
+        border-radius: 12px;
+        color: #fff;
+        font-size: 0.9rem;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .pf-input::placeholder { color: rgba(255,255,255,0.2); }
+    .pf-input:focus {
+        border-color: #1E6FE3;
+        box-shadow: 0 0 0 3px rgba(30,111,227,0.15);
+    }
+
+    .pf-label {
+        display: block;
+        font-size: 0.68rem;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.4);
+        margin-bottom: 8px;
+    }
+
+    .section-divider {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding-bottom: 16px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid rgba(30,111,227,0.12);
+    }
+
+    .section-divider-icon {
+        width: 38px; height: 38px;
+        border-radius: 10px;
+        background: rgba(30,111,227,0.1);
+        border: 1px solid rgba(30,111,227,0.2);
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+</style>
+
+<div style="background:#0D0D20;border:1px solid rgba(30,111,227,0.15);border-radius:16px;padding:32px;">
+    <form id="form-cliente">
         <input type="hidden" id="cliente-id" value="@Model.Id">
 
-        <div>
-            <h3 class="text-2xl font-black text-gray-900 mb-6 flex items-center gap-2 uppercase tracking-wide border-b-2 border-gray-200 pb-4">
-                <i data-lucide="user" class="w-6 h-6 text-red-600"></i>
-                Información Personal
-            </h3>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
-                        Nombre <span class="text-red-600">*</span>
-                    </label>
-                    <input type="text" id="nombre" value="@Model.Nombre" required
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+        <!-- SECCIÓN: Información Personal -->
+        <div style="margin-bottom:32px;">
+            <div class="section-divider">
+                <div class="section-divider-icon">
+                    <i data-lucide="user" style="width:16px;height:16px;color:#3D8EFF;"></i>
                 </div>
+                <span style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:3px;color:#fff;">Información Personal</span>
+            </div>
 
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
                 <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
-                        Apellido <span class="text-red-600">*</span>
-                    </label>
-                    <input type="text" id="apellido" value="@Model.Apellido" required
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                    <label class="pf-label">Nombre <span style="color:#F87171;">*</span></label>
+                    <input type="text" id="nombre" value="@Model.Nombre" required class="pf-input">
                 </div>
-
                 <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
-                        Cédula <span class="text-red-600">*</span>
-                    </label>
-                    <input type="text" id="cedula" value="@Model.Cedula" required
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                    <label class="pf-label">Apellido <span style="color:#F87171;">*</span></label>
+                    <input type="text" id="apellido" value="@Model.Apellido" required class="pf-input">
                 </div>
-
                 <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
-                        Teléfono <span class="text-red-600">*</span>
-                    </label>
-                    <input type="tel" id="telefono" value="@Model.Telefono" 
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                    <label class="pf-label">Cédula <span style="color:#F87171;">*</span></label>
+                    <input type="text" id="cedula" value="@Model.Cedula" required class="pf-input">
                 </div>
-
                 <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
-                        Email
-                    </label>
-                    <input type="email" id="email" value="@Model.Email"
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                    <label class="pf-label">Teléfono</label>
+                    <input type="tel" id="telefono" value="@Model.Telefono" class="pf-input">
                 </div>
-
                 <div>
-                    <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
-                        Fecha de Nacimiento
-                    </label>
-                    <input type="date" id="fechaNacimiento" value="@(Model.FechaNacimiento?.ToString("yyyy-MM-dd"))"
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">
+                    <label class="pf-label">Email</label>
+                    <input type="email" id="email" value="@Model.Email" class="pf-input">
+                </div>
+                <div>
+                    <label class="pf-label">Fecha de Nacimiento</label>
+                    <input type="date" id="fechaNacimiento" value="@(Model.FechaNacimiento?.ToString("yyyy-MM-dd"))" class="pf-input">
                 </div>
             </div>
 
-            <div class="mt-6">
-                <label class="block text-sm font-black text-gray-700 mb-2 uppercase tracking-wide">
-                    Dirección
-                </label>
-                <textarea id="direccion" rows="2"
-                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-semibold">@Model.Direccion</textarea>
+            <div style="margin-top:18px;">
+                <label class="pf-label">Dirección</label>
+                <textarea id="direccion" rows="2" class="pf-input">@Model.Direccion</textarea>
             </div>
         </div>
 
-        <div>
-            <h3 class="text-2xl font-black text-gray-900 mb-6 flex items-center gap-2 uppercase tracking-wide border-b-2 border-gray-200 pb-4">
-                <i data-lucide="camera" class="w-6 h-6 text-red-600"></i>
-                Fotografía
-            </h3>
+        <!-- SECCIÓN: Fotografía -->
+        <div style="margin-bottom:32px;">
+            <div class="section-divider">
+                <div class="section-divider-icon">
+                    <i data-lucide="camera" style="width:16px;height:16px;color:#3D8EFF;"></i>
+                </div>
+                <span style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:3px;color:#fff;">Fotografía</span>
+            </div>
 
-            <div class="flex items-center gap-4">
+            <div style="display:flex;align-items:center;gap:18px;">
                 <div id="preview-container">
                     @if (!string.IsNullOrEmpty(Model.FotoBase64))
                     {
                         <img id="foto-preview" src="data:image/jpeg;base64,@Model.FotoBase64"
-                             class="w-32 h-32 rounded-xl object-cover border-2 border-gray-300" alt="Preview">
+                             style="width:100px;height:100px;border-radius:12px;object-fit:cover;border:2px solid rgba(30,111,227,0.3);" alt="Preview">
                     }
                     else
                     {
-                        <div class="w-32 h-32 rounded-xl bg-gray-200 border-2 border-gray-300 flex items-center justify-center">
-                            <i data-lucide="user" class="w-16 h-16 text-gray-400"></i>
+                        <div style="width:100px;height:100px;border-radius:12px;background:rgba(30,111,227,0.06);border:1px solid rgba(30,111,227,0.15);display:flex;align-items:center;justify-content:center;">
+                            <i data-lucide="user" style="width:44px;height:44px;color:rgba(30,111,227,0.3);"></i>
                         </div>
                     }
                 </div>
-
-                <div class="flex-1">
-                    <input type="file" id="foto" accept="image/*" class="hidden">
+                <div>
+                    <input type="file" id="foto" accept="image/*" style="display:none;">
                     <button type="button" onclick="document.getElementById('foto').click()"
-                            class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-xl border-2 border-gray-300 transition-all inline-flex items-center gap-2 font-black uppercase tracking-wide">
-                        <i data-lucide="upload" class="w-5 h-5"></i>
+                            style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:rgba(255,255,255,0.6);font-weight:800;font-size:0.78rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.15s;"
+                            onmouseover="this.style.background='rgba(255,255,255,0.08)';this.style.color='#fff'"
+                            onmouseout="this.style.background='rgba(255,255,255,0.04)';this.style.color='rgba(255,255,255,0.6)'">
+                        <i data-lucide="upload" style="width:15px;height:15px;"></i>
                         Cambiar Foto
                     </button>
                 </div>
             </div>
         </div>
 
-        <div>
-            <h3 class="text-2xl font-black text-gray-900 mb-6 flex items-center gap-2 uppercase tracking-wide border-b-2 border-gray-200 pb-4">
-                <i data-lucide="fingerprint" class="w-6 h-6 text-red-600"></i>
-                Huella Digital
-            </h3>
+        <!-- SECCIÓN: Huella Digital -->
+        <div style="margin-bottom:32px;">
+            <div class="section-divider">
+                <div class="section-divider-icon">
+                    <i data-lucide="fingerprint" style="width:16px;height:16px;color:#3D8EFF;"></i>
+                </div>
+                <span style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:3px;color:#fff;">Huella Digital</span>
+            </div>
 
             @if (!string.IsNullOrEmpty(Model.HuellaTemplate))
             {
-                <div class="flex items-center justify-between p-5 bg-emerald-50 border-2 border-emerald-500 rounded-xl">
-                    <div class="flex items-center gap-3">
-                        <div class="w-14 h-14 bg-emerald-500 rounded-full flex items-center justify-center">
-                            <i data-lucide="check" class="w-7 h-7 text-white"></i>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 20px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:12px;flex-wrap:wrap;gap:12px;">
+                    <div style="display:flex;align-items:center;gap:14px;">
+                        <div style="width:48px;height:48px;border-radius:50%;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);display:flex;align-items:center;justify-content:center;">
+                            <i data-lucide="check" style="width:22px;height:22px;color:#10B981;"></i>
                         </div>
                         <div>
-                            <p class="font-black text-emerald-900 text-lg uppercase tracking-wide">Huella Registrada</p>
-                            <p class="text-sm text-emerald-700 font-semibold">El cliente tiene su huella digital registrada</p>
+                            <p style="font-weight:800;color:#10B981;font-size:0.9rem;text-transform:uppercase;letter-spacing:1px;margin:0 0 3px 0;">Huella Registrada</p>
+                            <p style="font-size:0.78rem;color:rgba(255,255,255,0.4);font-weight:600;margin:0;">El cliente tiene su huella digital registrada</p>
                         </div>
                     </div>
                     <a href="/clientes/capturefingerprint/@Model.Id"
-                       class="px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900 text-white rounded-xl transition-all inline-flex items-center gap-2 font-black uppercase tracking-wide shadow-lg">
-                        <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                       style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:#10B981;font-weight:800;font-size:0.78rem;letter-spacing:1px;text-transform:uppercase;border-radius:10px;text-decoration:none;transition:all 0.15s;"
+                       onmouseover="this.style.background='rgba(16,185,129,0.18)'" onmouseout="this.style.background='rgba(16,185,129,0.1)'">
+                        <i data-lucide="refresh-cw" style="width:15px;height:15px;"></i>
                         Recapturar
                     </a>
                 </div>
             }
             else
             {
-                <div class="flex items-center justify-between p-5 bg-amber-50 border-2 border-amber-500 rounded-xl">
-                    <div class="flex items-center gap-3">
-                        <div class="w-14 h-14 bg-amber-500 rounded-full flex items-center justify-center">
-                            <i data-lucide="alert-triangle" class="w-7 h-7 text-white"></i>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 20px;background:rgba(217,119,6,0.06);border:1px solid rgba(217,119,6,0.2);border-radius:12px;flex-wrap:wrap;gap:12px;">
+                    <div style="display:flex;align-items:center;gap:14px;">
+                        <div style="width:48px;height:48px;border-radius:50%;background:rgba(217,119,6,0.12);border:1px solid rgba(217,119,6,0.25);display:flex;align-items:center;justify-content:center;">
+                            <i data-lucide="alert-triangle" style="width:22px;height:22px;color:#D97706;"></i>
                         </div>
                         <div>
-                            <p class="font-black text-amber-900 text-lg uppercase tracking-wide">Sin Huella</p>
-                            <p class="text-sm text-amber-700 font-semibold">Este cliente no tiene huella registrada</p>
+                            <p style="font-weight:800;color:#D97706;font-size:0.9rem;text-transform:uppercase;letter-spacing:1px;margin:0 0 3px 0;">Sin Huella</p>
+                            <p style="font-size:0.78rem;color:rgba(255,255,255,0.4);font-weight:600;margin:0;">Este cliente no tiene huella registrada</p>
                         </div>
                     </div>
                     <a href="/clientes/capturefingerprint/@Model.Id"
-                       class="px-6 py-3 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all inline-flex items-center gap-2 uppercase tracking-wide shadow-lg">
-                        <i data-lucide="fingerprint" class="w-5 h-5"></i>
+                       style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:linear-gradient(135deg,#1E6FE3,#6B3FA0);color:#fff;font-weight:800;font-size:0.78rem;letter-spacing:1px;text-transform:uppercase;border-radius:10px;text-decoration:none;transition:opacity 0.2s;"
+                       onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'">
+                        <i data-lucide="fingerprint" style="width:15px;height:15px;"></i>
                         Registrar Huella
                     </a>
                 </div>
             }
         </div>
 
-        <div>
-            <label class="flex items-center gap-2 cursor-pointer">
+        <!-- Activo toggle -->
+        <div style="margin-bottom:28px;">
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
                 <input type="checkbox" id="activo" @(Model.Activo ? "checked" : "")
-                       class="w-5 h-5 text-red-600 border-gray-300 rounded focus:ring-red-600">
-                <span class="text-sm font-black text-gray-700 uppercase tracking-wide">Cliente Activo</span>
+                       style="width:18px;height:18px;accent-color:#1E6FE3;border-radius:4px;">
+                <span style="font-size:0.75rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.5);">Cliente Activo</span>
             </label>
         </div>
 
-        <div class="flex justify-end gap-3 pt-6 border-t-2 border-gray-200">
+        <!-- Botones -->
+        <div style="display:flex;justify-content:flex-end;gap:12px;padding-top:24px;border-top:1px solid rgba(30,111,227,0.12);">
             <a href="/clientes/details/@Model.Id"
-               class="px-8 py-3 border-2 border-gray-300 text-gray-800 rounded-xl hover:bg-gray-100 transition-all inline-flex items-center gap-2 font-black uppercase tracking-wide">
-                <i data-lucide="x" class="w-5 h-5"></i>
+               style="display:inline-flex;align-items:center;gap:8px;padding:12px 22px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);font-weight:800;font-size:0.78rem;letter-spacing:1.5px;text-transform:uppercase;border-radius:10px;text-decoration:none;transition:all 0.15s;"
+               onmouseover="this.style.background='rgba(255,255,255,0.08)';this.style.color='rgba(255,255,255,0.8)'"
+               onmouseout="this.style.background='rgba(255,255,255,0.04)';this.style.color='rgba(255,255,255,0.5)'">
+                <i data-lucide="x" style="width:15px;height:15px;"></i>
                 Cancelar
             </a>
             <button type="submit" id="btn-guardar"
-                    class="px-8 py-3 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black rounded-xl transition-all shadow-xl hover:shadow-2xl inline-flex items-center gap-2 uppercase tracking-wide">
-                <i data-lucide="save" class="w-5 h-5"></i>
+                    style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:linear-gradient(135deg,#1E6FE3,#6B3FA0);color:#fff;font-weight:800;font-size:0.78rem;letter-spacing:1.5px;text-transform:uppercase;border:none;border-radius:10px;cursor:pointer;transition:opacity 0.2s,transform 0.2s;"
+                    onmouseover="this.style.opacity='0.88';this.style.transform='scale(1.02)'"
+                    onmouseout="this.style.opacity='1';this.style.transform='scale(1)'">
+                <i data-lucide="save" style="width:15px;height:15px;"></i>
                 Guardar Cambios
             </button>
         </div>
@@ -186,8 +227,13 @@
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     fotoBase64 = event.target.result.split(',')[1];
-                    const preview = document.getElementById('foto-preview');
-                    preview.src = event.target.result;
+                    const previewEl = document.getElementById('foto-preview');
+                    if (previewEl) {
+                        previewEl.src = event.target.result;
+                    } else {
+                        const container = document.getElementById('preview-container');
+                        container.innerHTML = `<img id="foto-preview" src="${event.target.result}" style="width:100px;height:100px;border-radius:12px;object-fit:cover;border:2px solid rgba(30,111,227,0.3);">`;
+                    }
                 };
                 reader.readAsDataURL(file);
             }
@@ -195,26 +241,24 @@
 
         document.getElementById('form-cliente').addEventListener('submit', async function(e) {
             e.preventDefault();
-
             const btnGuardar = document.getElementById('btn-guardar');
             btnGuardar.disabled = true;
-            btnGuardar.innerHTML = '<i data-lucide="loader" class="w-5 h-5 animate-spin"></i> Guardando...';
+            btnGuardar.innerHTML = `<div style="width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;"></div> Guardando...`;
 
             const clienteId = document.getElementById('cliente-id').value;
-
             const cliente = {
-                id: clienteId,
-                nombre: document.getElementById('nombre').value,
-                apellido: document.getElementById('apellido').value,
-                cedula: document.getElementById('cedula').value,
-                telefono: document.getElementById('telefono').value,
-                email: document.getElementById('email').value || null,
+                id:              clienteId,
+                nombre:          document.getElementById('nombre').value,
+                apellido:        document.getElementById('apellido').value,
+                cedula:          document.getElementById('cedula').value,
+                telefono:        document.getElementById('telefono').value,
+                email:           document.getElementById('email').value || null,
                 fechaNacimiento: document.getElementById('fechaNacimiento').value || null,
-                direccion: document.getElementById('direccion').value || null,
-                fotoBase64: fotoBase64,
-                activo: document.getElementById('activo').checked,
-                huellaTemplate: '@Model.HuellaTemplate',
-                huellaDigital: null
+                direccion:       document.getElementById('direccion').value || null,
+                fotoBase64:      fotoBase64,
+                activo:          document.getElementById('activo').checked,
+                huellaTemplate:  '@Model.HuellaTemplate',
+                huellaDigital:   null
             };
 
             try {
@@ -223,7 +267,6 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(cliente)
                 });
-
                 if (response.ok) {
                     alert('✓ Cliente actualizado exitosamente');
                     window.location.href = `/clientes/details/${clienteId}`;
@@ -234,11 +277,14 @@
                 alert('Error de conexión: ' + error.message);
             } finally {
                 btnGuardar.disabled = false;
-                btnGuardar.innerHTML = '<i data-lucide="save" class="w-5 h-5"></i> GUARDAR CAMBIOS';
+                btnGuardar.innerHTML = '<i data-lucide="save" style="width:15px;height:15px;"></i> Guardar Cambios';
                 lucide.createIcons();
             }
         });
 
         lucide.createIcons();
     </script>
+    <style>
+        @@keyframes spin { to { transform: rotate(360deg); } }
+    </style>
 }
