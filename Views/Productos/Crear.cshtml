@@ -1,438 +1,153 @@
-@{
-    ViewData["Title"] = "Crear Plan";
-    ViewData["Subtitle"] = "Nuevo plan de membresía - POWER FITNESS";
+﻿@{
+    ViewData["Title"] = "Crear Producto";
+    ViewData["Subtitle"] = "Nuevo producto";
     Layout = "_AdminLayout";
 }
 
-<style>
-    .pf-input {
-        width: 100%; padding: 13px 16px;
-        background: rgba(255,255,255,0.04); border: 1px solid rgba(30,111,227,0.2);
-        border-radius: 12px; color: #fff; font-size: 0.9rem; font-weight: 600;
-        font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
-        resize: none;
-    }
-    .pf-input::placeholder { color: rgba(255,255,255,0.2); }
-    .pf-input:focus { border-color: #1E6FE3; box-shadow: 0 0 0 3px rgba(30,111,227,0.15); }
-
-    .pf-label {
-        display: block; font-size: 0.68rem; font-weight: 800;
-        letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 8px;
-    }
-
-    .pf-select {
-        width: 100%; padding: 13px 16px;
-        background: rgba(255,255,255,0.04); border: 1px solid rgba(30,111,227,0.2);
-        border-radius: 12px; color: #fff; font-size: 0.9rem; font-weight: 600;
-        font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s;
-    }
-    .pf-select:focus { border-color: #1E6FE3; }
-    .pf-select option { background: #0D0D20; color: #fff; }
-
-    /* Type calc buttons */
-    .tipo-calc-btn {
-        padding: 12px 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);
-        background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.4);
-        font-weight: 800; font-size: 0.72rem; letter-spacing: 1px; text-transform: uppercase;
-        cursor: pointer; text-align: center; transition: all 0.15s;
-        display: flex; flex-direction: column; align-items: center; gap: 5px;
-    }
-    .tipo-calc-btn:hover { border-color: rgba(30,111,227,0.4); color: rgba(255,255,255,0.7); }
-    .tipo-calc-btn.active {
-        border-color: #1E6FE3; background: rgba(30,111,227,0.12); color: #3D8EFF;
-    }
-
-    /* Step buttons */
-    .step-btn {
-        width: 44px; height: 44px; border-radius: 10px;
-        background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-        color: rgba(255,255,255,0.6); font-size: 1.4rem; font-weight: 900;
-        display: flex; align-items: center; justify-content: center; cursor: pointer;
-        transition: all 0.15s; flex-shrink: 0;
-    }
-    .step-btn:hover { border-color: rgba(30,111,227,0.4); color: #3D8EFF; }
-
-    /* Color preset */
-    .color-preset {
-        width: 30px; height: 30px; border-radius: 8px;
-        border: 2px solid transparent; cursor: pointer; transition: transform 0.15s, border-color 0.15s;
-    }
-    .color-preset:hover { transform: scale(1.15); border-color: rgba(255,255,255,0.4); }
-
-    /* Preview card */
-    .preview-card {
-        border-radius: 14px; overflow: hidden; max-width: 260px;
-        border: 1px solid rgba(255,255,255,0.08);
-    }
-
-    /* Modal overlay */
-    .pf-overlay {
-        display: none; position: fixed; inset: 0;
-        background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);
-        z-index: 9999; align-items: center; justify-content: center; padding: 16px;
-    }
-    .pf-overlay.show { display: flex; }
-    .pf-modal {
-        background: #0D0D20; border: 1px solid rgba(30,111,227,0.2);
-        border-radius: 20px; width: 100%; max-width: 440px;
-        box-shadow: 0 32px 80px rgba(0,0,0,0.6); overflow: hidden;
-    }
-</style>
-
-<!-- Modal Loading -->
-<div id="modalLoading" class="pf-overlay">
-    <div style="background:#0D0D20;border:1px solid rgba(30,111,227,0.2);border-radius:20px;padding:40px;text-align:center;max-width:340px;width:100%;">
-        <div class="animate-spin" style="width:56px;height:56px;border:4px solid rgba(30,111,227,0.2);border-top-color:#1E6FE3;border-radius:50%;margin:0 auto 18px;"></div>
-        <p style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:3px;color:#fff;margin:0 0 6px 0;">Creando Plan</p>
-        <p style="font-size:0.8rem;color:rgba(255,255,255,0.4);font-weight:600;margin:0;">Guardando en el sistema...</p>
-    </div>
-</div>
-
-<!-- Modal Éxito -->
-<div id="modalExito" class="pf-overlay">
-    <div class="pf-modal">
-        <div style="background:linear-gradient(135deg,#0E5C2E,#10B981);padding:24px 28px;text-align:center;">
-            <div style="width:56px;height:56px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
-                <i data-lucide="check-circle" style="width:28px;height:28px;color:#fff;"></i>
-            </div>
-            <h3 style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:3px;color:#fff;margin:0;">¡Plan Creado!</h3>
-        </div>
-        <div style="padding:22px 24px;">
-            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;">
-                    <span style="font-size:0.65rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);">Nombre</span>
-                    <span style="font-weight:800;color:#fff;" id="exitoNombre"></span>
-                </div>
-                <div style="display:flex;justify-content:space-between;align-items:center;">
-                    <span style="font-size:0.65rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);">Duración</span>
-                    <span style="font-weight:800;color:#fff;" id="exitoDuracion"></span>
-                </div>
-                <div style="display:flex;justify-content:space-between;align-items:center;">
-                    <span style="font-size:0.65rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);">Precio</span>
-                    <span style="font-weight:900;color:#10B981;font-size:1.1rem;" id="exitoPrecio"></span>
-                </div>
-            </div>
-        </div>
-        <div style="display:flex;gap:10px;padding:0 24px 24px;">
-            <button onclick="nuevoplan()"
-                    style="flex:1;padding:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:rgba(255,255,255,0.5);font-weight:800;font-size:0.78rem;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:background 0.15s;"
-                    onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
-                Crear Otro
-            </button>
-            <a href="/membresias/planes"
-               style="flex:1;padding:12px;background:linear-gradient(135deg,#1E6FE3,#6B3FA0);color:#fff;border-radius:10px;font-weight:800;font-size:0.78rem;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;text-align:center;display:flex;align-items:center;justify-content:center;">
-                Ver Planes
-            </a>
-        </div>
-    </div>
-</div>
-
-<!-- Form -->
-<div style="max-width:760px;margin:0 auto;">
-    <div style="background:#0D0D20;border:1px solid rgba(30,111,227,0.15);border-radius:16px;padding:32px;">
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-gray-200">
 
         <!-- Header -->
-        <div style="display:flex;align-items:center;gap:16px;margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid rgba(30,111,227,0.12);">
-            <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#10B981,#047857);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <i data-lucide="plus-circle" style="width:24px;height:24px;color:#fff;"></i>
-            </div>
-            <div>
-                <h2 style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:3px;color:#fff;margin:0;line-height:1;">Nuevo Plan</h2>
-                <p style="font-size:0.78rem;color:rgba(255,255,255,0.35);margin:4px 0 0 0;font-weight:600;">Configura el plan que verán las recepcionistas al crear membresías</p>
+        <div class="bg-gradient-to-r from-blue-600 to-blue-800 p-8">
+            <div class="flex items-center gap-4">
+                <div>
+                    <h2 class="text-3xl font-black text-white mb-2 uppercase tracking-wide">Nuevo Producto</h2>
+                    <p class="text-white opacity-90 font-bold">Agregar producto al inventario</p>
+                </div>
             </div>
         </div>
 
-        <form id="crearPlanForm" style="display:flex;flex-direction:column;gap:22px;">
+        <div class="p-8">
+            <form id="productoForm" class="space-y-6">
 
-            <!-- Nombre -->
-            <div>
-                <label class="pf-label">Nombre del Plan *</label>
-                <input type="text" id="nombre" placeholder="Ej: Plan Mensual, Plan Semestral..." class="pf-input">
-            </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-            <!-- Descripción -->
-            <div>
-                <label class="pf-label">Descripción <span style="font-weight:500;text-transform:none;letter-spacing:0;color:rgba(255,255,255,0.2);font-size:0.65rem;">(Opcional)</span></label>
-                <textarea id="descripcion" rows="2" placeholder="Beneficios, acceso, restricciones..." class="pf-input"></textarea>
-            </div>
-
-            <!-- Tipo y Precio -->
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-                <div>
-                    <label class="pf-label">Tipo de Plan *</label>
-                    <select id="tipo" class="pf-select">
-                        <option value="mensual">Mensual</option>
-                        <option value="semanal">Semanal</option>
-                        <option value="trimestral">Trimestral</option>
-                        <option value="semestral">Semestral</option>
-                        <option value="anual">Anual</option>
-                        <option value="diario">Diario</option>
-                        <option value="personalizado">Personalizado</option>
-                        <option value="otro">Otro</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="pf-label">Precio *</label>
-                    <div style="position:relative;">
-                        <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.4);font-weight:900;font-size:1rem;pointer-events:none;">$</span>
-                        <input type="number" id="precio" step="0.01" min="0.01" placeholder="0.00"
-                               class="pf-input" style="padding-left:28px;font-size:1.1rem;">
+                    <!-- Nombre -->
+                    <div class="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
+                        <label class="block text-sm font-black text-gray-600 uppercase tracking-wide mb-2">Nombre *</label>
+                        <input type="text" name="nombre" required
+                               class="w-full bg-white border-2 border-gray-200 rounded-lg px-4 py-3 font-semibold text-gray-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition placeholder-gray-400"
+                               placeholder="Nombre del producto">
                     </div>
-                </div>
-            </div>
 
-            <!-- Duración -->
-            <div style="padding:18px 20px;background:rgba(30,111,227,0.04);border:1px solid rgba(30,111,227,0.15);border-radius:14px;">
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
-                    <i data-lucide="calendar" style="width:15px;height:15px;color:#3D8EFF;"></i>
-                    <span style="font-size:0.68rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#3D8EFF;">Duración del Plan</span>
-                </div>
-
-                <!-- Tipo cálculo -->
-                <div style="margin-bottom:16px;">
-                    <label class="pf-label">¿Cómo se calcula el vencimiento? *</label>
-                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;" id="tipoCalcBtns">
-                        <button type="button" onclick="seleccionarTipoCalculo('meses')" id="btn-meses" class="tipo-calc-btn active">
-                            <i data-lucide="calendar-days" style="width:16px;height:16px;"></i>
-                            Meses
-                        </button>
-                        <button type="button" onclick="seleccionarTipoCalculo('dias')" id="btn-dias" class="tipo-calc-btn">
-                            <i data-lucide="calendar" style="width:16px;height:16px;"></i>
-                            Días
-                        </button>
-                        <button type="button" onclick="seleccionarTipoCalculo('semanas')" id="btn-semanas" class="tipo-calc-btn">
-                            <i data-lucide="calendar-range" style="width:16px;height:16px;"></i>
-                            Semanas
-                        </button>
-                        <button type="button" onclick="seleccionarTipoCalculo('anios')" id="btn-anios" class="tipo-calc-btn">
-                            <i data-lucide="calendar-check" style="width:16px;height:16px;"></i>
-                            Años
-                        </button>
+                    <!-- Categoría -->
+                    <div class="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
+                        <label class="block text-sm font-black text-gray-600 uppercase tracking-wide mb-2">Categoría</label>
+                        <select name="categoria"
+                                class="w-full bg-white border-2 border-gray-200 rounded-lg px-4 py-3 font-semibold text-gray-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition">
+                            <option value="suplementos">Suplementos</option>
+                            <option value="bebidas">Bebidas</option>
+                            <option value="snacks">Snacks</option>
+                            <option value="accesorios">Accesorios</option>
+                            <option value="otros">Otros</option>
+                        </select>
                     </div>
-                    <input type="hidden" id="tipoCalculoVencimiento" value="meses">
-                </div>
 
-                <!-- Cantidad -->
-                <div>
-                    <label class="pf-label" id="labelCantidad">Cantidad de Meses *</label>
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <button type="button" onclick="ajustarCantidad(-1)" class="step-btn">−</button>
-                        <input type="number" id="cantidadUnidades" value="1" min="1" max="60"
-                               class="pf-input" style="text-align:center;font-size:1.5rem;font-weight:900;"
-                               oninput="actualizarPreviewDuracion()">
-                        <button type="button" onclick="ajustarCantidad(1)" class="step-btn">+</button>
-                    </div>
-                </div>
-
-                <!-- Preview duración -->
-                <div id="previewDuracion" style="display:none;margin-top:12px;padding:10px 14px;background:rgba(30,111,227,0.08);border:1px solid rgba(30,111,227,0.2);border-radius:10px;">
-                    <div style="display:flex;align-items:center;gap:6px;">
-                        <i data-lucide="info" style="width:13px;height:13px;color:#3D8EFF;flex-shrink:0;"></i>
-                        <span style="font-size:0.8rem;font-weight:600;color:#7EB8FF;" id="previewDuracionTexto"></span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Color -->
-            <div>
-                <label class="pf-label">Color del Plan</label>
-                <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-                    <input type="color" id="color" value="#10b981"
-                           style="width:52px;height:52px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);cursor:pointer;padding:3px;background:rgba(255,255,255,0.04);">
-                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                        <button type="button" onclick="setColor('#10b981')" style="background:#10b981;" class="color-preset" title="Verde"></button>
-                        <button type="button" onclick="setColor('#1E6FE3')" style="background:#1E6FE3;" class="color-preset" title="Azul PF"></button>
-                        <button type="button" onclick="setColor('#6B3FA0')" style="background:#6B3FA0;" class="color-preset" title="Púrpura PF"></button>
-                        <button type="button" onclick="setColor('#f59e0b')" style="background:#f59e0b;" class="color-preset" title="Ámbar"></button>
-                        <button type="button" onclick="setColor('#ef4444')" style="background:#ef4444;" class="color-preset" title="Rojo"></button>
-                        <button type="button" onclick="setColor('#ec4899')" style="background:#ec4899;" class="color-preset" title="Rosa"></button>
-                        <button type="button" onclick="setColor('#06b6d4')" style="background:#06b6d4;" class="color-preset" title="Cyan"></button>
-                        <button type="button" onclick="setColor('#64748b')" style="background:#64748b;" class="color-preset" title="Slate"></button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Preview card -->
-            <div>
-                <label class="pf-label">Preview de la Tarjeta</label>
-                <div class="preview-card" id="previewCard">
-                    <div style="padding:18px;color:#fff;position:relative;overflow:hidden;background-color:#10b981;" id="previewHeader">
-                        <div style="position:absolute;top:-15px;right:-15px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.1);"></div>
-                        <div style="position:relative;z-index:1;">
-                            <span style="padding:3px 10px;background:rgba(255,255,255,0.18);border-radius:100px;font-size:0.6rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;" id="previewTipo">Mensual</span>
-                            <h4 style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;margin:8px 0 4px 0;" id="previewNombre">Nombre del plan</h4>
-                            <p style="font-size:1.8rem;font-weight:900;margin:0;" id="previewPrecio">$0</p>
+                    <!-- Precio -->
+                    <div class="bg-emerald-50 p-6 rounded-xl border-2 border-emerald-300">
+                        <label class="block text-sm font-black text-emerald-800 uppercase tracking-wide mb-2">Precio *</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-3.5 text-emerald-700 font-black">$</span>
+                            <input type="number" step="0.01" name="precio" required
+                                   class="w-full bg-white border-2 border-emerald-200 rounded-lg pl-8 pr-4 py-3 font-semibold text-gray-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition placeholder-gray-400"
+                                   placeholder="0.00">
                         </div>
                     </div>
-                    <div style="padding:12px 18px;background:#12122A;">
-                        <p style="font-size:0.82rem;font-weight:700;color:rgba(255,255,255,0.5);margin:0;" id="previewDurCard">1 mes</p>
+
+                    <!-- Stock -->
+                    <div class="bg-blue-50 p-6 rounded-xl border-2 border-blue-300">
+                        <label class="block text-sm font-black text-blue-800 uppercase tracking-wide mb-2">Stock *</label>
+                        <input type="number" name="stock" required
+                               class="w-full bg-white border-2 border-blue-200 rounded-lg px-4 py-3 font-semibold text-gray-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition placeholder-gray-400"
+                               placeholder="0">
                     </div>
+
                 </div>
-            </div>
 
-            <!-- Activo -->
-            <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;">
-                <input type="checkbox" id="activo" checked
-                       style="width:18px;height:18px;accent-color:#1E6FE3;border-radius:4px;flex-shrink:0;">
-                <div>
-                    <label for="activo" style="font-size:0.75rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.6);cursor:pointer;">Plan Activo</label>
-                    <p style="font-size:0.72rem;color:rgba(255,255,255,0.25);font-weight:600;margin:2px 0 0 0;">Los planes inactivos no aparecen al crear membresías</p>
+                <!-- Descripción -->
+                <div class="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
+                    <label class="block text-sm font-black text-gray-600 uppercase tracking-wide mb-2">Descripción</label>
+                    <textarea name="descripcion" rows="3"
+                              class="w-full bg-white border-2 border-gray-200 rounded-lg px-4 py-3 font-semibold text-gray-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition placeholder-gray-400 resize-none"
+                              placeholder="Descripción del producto..."></textarea>
                 </div>
-            </div>
 
-            <!-- Error -->
-            <div id="errorMsg" style="display:none;padding:12px 16px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:10px;font-size:0.82rem;font-weight:700;color:#F87171;"></div>
+                <!-- Imagen -->
+                <div class="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
+                    <label class="block text-sm font-black text-gray-600 uppercase tracking-wide mb-2">Imagen del Producto</label>
+                    <input type="file" id="imagenInput" accept="image/*"
+                           class="w-full text-gray-700 font-semibold file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:font-black file:uppercase file:text-sm file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition">
+                    <input type="hidden" name="imagenBase64" id="imagenBase64">
+                </div>
 
-            <!-- Botones -->
-            <div style="display:flex;gap:12px;padding-top:20px;border-top:1px solid rgba(30,111,227,0.12);">
-                <a href="/membresias/planes"
-                   style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.5);font-weight:800;font-size:0.85rem;letter-spacing:1.5px;text-transform:uppercase;border:1px solid rgba(255,255,255,0.08);border-radius:12px;text-decoration:none;transition:all 0.15s;"
-                   onmouseover="this.style.background='rgba(255,255,255,0.08)';this.style.color='rgba(255,255,255,0.8)'"
-                   onmouseout="this.style.background='rgba(255,255,255,0.04)';this.style.color='rgba(255,255,255,0.5)'">
-                    <i data-lucide="x-circle" style="width:18px;height:18px;"></i>
-                    Cancelar
-                </a>
-                <button type="submit"
-                        style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;background:linear-gradient(135deg,#10B981,#047857);color:#fff;font-weight:800;font-size:0.85rem;letter-spacing:1.5px;text-transform:uppercase;border:none;border-radius:12px;cursor:pointer;transition:opacity 0.2s,transform 0.2s;"
-                        onmouseover="this.style.opacity='0.88';this.style.transform='scale(1.02)'"
-                        onmouseout="this.style.opacity='1';this.style.transform='scale(1)'">
-                    <i data-lucide="check-circle" style="width:18px;height:18px;"></i>
-                    Crear Plan
-                </button>
-            </div>
-        </form>
+                <!-- Botones -->
+                <div class="flex gap-4 pt-6 border-t-2 border-gray-200">
+                    <button type="submit"
+                            class="flex-1 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-black py-4 px-6 rounded-xl transition-all shadow-xl hover:shadow-2xl uppercase tracking-wide flex items-center justify-center gap-2">
+                        <i data-lucide="check" class="w-5 h-5"></i>
+                        Crear Producto
+                    </button>
+                    <a href="/productos"
+                       class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 font-black py-4 px-6 rounded-xl transition-all text-center uppercase tracking-wide flex items-center justify-center gap-2">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                        Cancelar
+                    </a>
+                </div>
+
+            </form>
+        </div>
+
     </div>
 </div>
 
 @section Scripts {
     <script>
-        let tipoCalculo = 'meses';
-
-        function seleccionarTipoCalculo(tipo) {
-            tipoCalculo = tipo;
-            document.getElementById('tipoCalculoVencimiento').value = tipo;
-            document.querySelectorAll('.tipo-calc-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('btn-' + tipo).classList.add('active');
-            const labels = { meses:'Cantidad de Meses', dias:'Cantidad de Días', semanas:'Cantidad de Semanas', anios:'Cantidad de Años' };
-            document.getElementById('labelCantidad').textContent = (labels[tipo]||'Cantidad') + ' *';
-            actualizarPreviewDuracion();
-        }
-
-        function ajustarCantidad(delta) {
-            const input = document.getElementById('cantidadUnidades');
-            input.value = Math.max(1, (parseInt(input.value)||1) + delta);
-            actualizarPreviewDuracion();
-        }
-
-        function actualizarPreviewDuracion() {
-            const cant = parseInt(document.getElementById('cantidadUnidades').value)||1;
-            const tipo = tipoCalculo;
-            let texto = '';
-            if (tipo==='meses')   texto=`El plan durará ${cant} ${cant===1?'mes calendario':'meses calendario'}`;
-            if (tipo==='dias')    texto=`El plan durará exactamente ${cant} ${cant===1?'día':'días'}`;
-            if (tipo==='semanas') texto=`El plan durará ${cant} ${cant===1?'semana':'semanas'} (${cant*7} días)`;
-            if (tipo==='anios')   texto=`El plan durará ${cant} ${cant===1?'año':'años'} completo${cant>1?'s':''}`;
-            document.getElementById('previewDuracionTexto').textContent = texto;
-            document.getElementById('previewDuracion').style.display = 'block';
-            const labelDur={meses:`${cant} ${cant===1?'mes':'meses'}`,dias:`${cant} ${cant===1?'día':'días'}`,semanas:`${cant} ${cant===1?'semana':'semanas'}`,anios:`${cant} ${cant===1?'año':'años'}`};
-            document.getElementById('previewDurCard').textContent = labelDur[tipo]||'';
-            lucide.createIcons();
-        }
-
-        function setColor(hex) {
-            document.getElementById('color').value = hex;
-            document.getElementById('previewHeader').style.backgroundColor = hex;
-        }
-        document.getElementById('color').addEventListener('input', function() {
-            document.getElementById('previewHeader').style.backgroundColor = this.value;
-        });
-
-        document.getElementById('nombre').addEventListener('input', function() {
-            document.getElementById('previewNombre').textContent = this.value||'Nombre del plan';
-        });
-        document.getElementById('precio').addEventListener('input', function() {
-            document.getElementById('previewPrecio').textContent = '$'+(parseFloat(this.value)||0).toLocaleString('es');
-        });
-        document.getElementById('tipo').addEventListener('change', function() {
-            document.getElementById('previewTipo').textContent = this.options[this.selectedIndex].text;
-        });
-
-        function mostrarToast(msg, tipo) {
-            const bg = tipo==='error' ? 'rgba(248,113,113,0.12)' : 'rgba(16,185,129,0.12)';
-            const bd = tipo==='error' ? 'rgba(248,113,113,0.3)'  : 'rgba(16,185,129,0.3)';
-            const co = tipo==='error' ? '#F87171' : '#10B981';
-            const t = document.createElement('div');
-            t.style.cssText=`position:fixed;bottom:24px;right:24px;z-index:10000;background:${bg};border:1px solid ${bd};color:${co};padding:14px 20px;border-radius:12px;font-weight:700;font-size:0.85rem;box-shadow:0 12px 32px rgba(0,0,0,0.5);`;
-            t.textContent=msg; document.body.appendChild(t);
-            setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),300);},4000);
-        }
-
-        document.getElementById('crearPlanForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const nombre=document.getElementById('nombre').value.trim();
-            const tipo=document.getElementById('tipo').value;
-            const precio=parseFloat(document.getElementById('precio').value);
-            const tipoCalcV=document.getElementById('tipoCalculoVencimiento').value;
-            const cantidad=parseInt(document.getElementById('cantidadUnidades').value)||1;
-            const color=document.getElementById('color').value;
-            const activo=document.getElementById('activo').checked;
-            const descripcion=document.getElementById('descripcion').value.trim();
-            const errorEl=document.getElementById('errorMsg');
-            errorEl.style.display='none';
-
-            if (!nombre)              { errorEl.textContent='El nombre es requerido'; errorEl.style.display='block'; return; }
-            if (!precio||precio<=0)   { errorEl.textContent='El precio debe ser mayor a $0'; errorEl.style.display='block'; return; }
-            if (cantidad<1)           { errorEl.textContent='La cantidad debe ser al menos 1'; errorEl.style.display='block'; return; }
-
-            const duracionDias = tipoCalcV==='dias'?cantidad:tipoCalcV==='semanas'?cantidad*7:tipoCalcV==='anios'?cantidad*365:cantidad*30;
-            const payload = { nombre, descripcion:descripcion||null, tipo, duracionDias, tipoCalculoVencimiento:tipoCalcV, cantidadUnidades:cantidad, precio, color, activo };
-
-            document.getElementById('modalLoading').classList.add('show');
-            let intentos=0;
-            while (intentos<2) {
-                try {
-                    const res=await fetch('/api/Planes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-                    if (!res.ok){const err=await res.text();throw new Error(err||`Error HTTP ${res.status}`);}
-                    await res.json();
-                    document.getElementById('modalLoading').classList.remove('show');
-                    const labelDur={meses:`${cantidad} ${cantidad===1?'mes':'meses'}`,dias:`${cantidad} ${cantidad===1?'día':'días'}`,semanas:`${cantidad} ${cantidad===1?'semana':'semanas'}`,anios:`${cantidad} ${cantidad===1?'año':'años'}`};
-                    document.getElementById('exitoNombre').textContent=nombre;
-                    document.getElementById('exitoDuracion').textContent=labelDur[tipoCalcV]||cantidad+' unidades';
-                    document.getElementById('exitoPrecio').textContent='$'+precio.toFixed(2);
-                    document.getElementById('modalExito').classList.add('show');
-                    lucide.createIcons(); return;
-                } catch(err) {
-                    intentos++;
-                    if (intentos<2){await new Promise(r=>setTimeout(r,800));}
-                    else { document.getElementById('modalLoading').classList.remove('show'); errorEl.textContent='Error: '+err.message; errorEl.style.display='block'; }
-                }
+        document.getElementById('imagenInput').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('imagenBase64').value = e.target.result;
+                };
+                reader.readAsDataURL(file);
             }
         });
 
-        function nuevoplan() {
-            document.getElementById('modalExito').classList.remove('show');
-            document.getElementById('crearPlanForm').reset();
-            document.getElementById('color').value='#10b981';
-            document.getElementById('previewHeader').style.backgroundColor='#10b981';
-            document.getElementById('previewNombre').textContent='Nombre del plan';
-            document.getElementById('previewPrecio').textContent='$0';
-            document.getElementById('previewTipo').textContent='Mensual';
-            seleccionarTipoCalculo('meses');
-            document.getElementById('cantidadUnidades').value=1;
-            actualizarPreviewDuracion();
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            seleccionarTipoCalculo('meses');
-            actualizarPreviewDuracion();
-            lucide.createIcons();
-            document.querySelectorAll('input[type="number"]').forEach(i => i.addEventListener('wheel', e=>e.preventDefault(),{passive:false}));
+        document.getElementById('productoForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = {
+                nombre: formData.get('nombre'),
+                descripcion: formData.get('descripcion') || null,
+                precio: parseFloat(formData.get('precio')),
+                stock: parseInt(formData.get('stock')),
+                categoria: formData.get('categoria'),
+                imagenBase64: formData.get('imagenBase64') || null
+            };
+            try {
+                const response = await fetch('/api/Productos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (response.ok) {
+                    alert('✓ Producto creado exitosamente');
+                    window.location.href = '/productos';
+                } else {
+                    alert('Error al crear producto');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al crear producto');
+            }
         });
 
-        window.seleccionarTipoCalculo=seleccionarTipoCalculo;
-        window.ajustarCantidad=ajustarCantidad;
-        window.setColor=setColor;
-        window.nuevoplan=nuevoplan;
-    </script>
+        document.querySelectorAll('input[type="number"]').forEach(function (input) {
+            input.addEventListener('wheel', function (e) {
+                e.preventDefault();
+            }, { passive: false });
+        });
 
+        lucide.createIcons();
+    </script>
 }
