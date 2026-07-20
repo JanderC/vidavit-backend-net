@@ -123,16 +123,8 @@ var zonaHoraria = TimeZoneInfo.Local;
 var horaActual = DateTime.Now;
 
 // Mostrar banner
-Console.WriteLine("═══════════════════════════════════════════════════════");
-Console.WriteLine("   ████████╗ █████╗ ██╗   ██╗██████╗  ██████╗          ");
-Console.WriteLine("   ╚══██╔══╝██╔══██╗██║   ██║██╔══██╗██╔═══██╗         ");
-Console.WriteLine("      ██║   ███████║██║   ██║██████╔╝██║   ██║         ");
-Console.WriteLine("      ██║   ██╔══██║██║   ██║██╔══██╗██║   ██║         ");
-Console.WriteLine("      ██║   ██║  ██║╚██████╔╝██║  ██║╚██████╔╝         ");
-Console.WriteLine("      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝ ╚═════╝          ");
-Console.WriteLine("                    GYM SYSTEM                          ");
-Console.WriteLine("═══════════════════════════════════════════════════════");
-Console.WriteLine("   Sistema de Gestión de Gimnasio TAURO GYM");
+
+Console.WriteLine("   Sistema de Gestión de Gimnasio POWER FITNESS GYM");
 Console.WriteLine("   Versión 1.0 - Sistema Integrado");
 Console.WriteLine("═══════════════════════════════════════════════════════");
 Console.WriteLine($"   ✓ Servidor iniciado en: http://localhost:5000");

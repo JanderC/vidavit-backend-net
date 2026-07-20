@@ -1,0 +1,4 @@
+C:\d\POWERSISTEMA\appsettings.Development.json
+C:\d\POWERSISTEMA\appsettings.json
+C:\d\POWERSISTEMA\VidaFit.pdb
+C:\d\POWERSISTEMA\VidaFit.exe
